@@ -102,11 +102,13 @@ def edit_user():
         user.alias = form.alias.data
         user.name = form.name.data
         user.email = form.email.data
-        user.local_path = form.local_path.data
-        user.u_groups = form.u_groups.data
+        
+        if user.admin:
+            user.local_path = form.local_path.data
+            user.u_groups = form.u_groups.data
        
-        user.active = form.active.data
-        user.admin_active = form.admin_active.data
+            user.active = form.active.data
+            user.admin_active = form.admin_active.data
 
         db.session.commit()
 

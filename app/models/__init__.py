@@ -31,7 +31,6 @@ def get_note_fk(fullkey):
 def get_ref(ref):
     rst = re.compile(r'h104\D+|\D+').findall(ref)
     nums = re.compile(r'\d+').findall(ref)
-
     if not nums or not rst:
         return None
     
@@ -51,7 +50,8 @@ def get_ref(ref):
                 else: # Note to cg
                     fk = f"Aes-r {nums[0]}/{nums[1]}"
             else: # is note in
-                user = db.session.scalar(select(User).where(User.alias==rst[0].split('-')[0]))
+                alias = rst[0].strip() if rst[0].strip().lower() == 'tokyo-sg' else rst[0].split('-')[0].strip()
+                user = db.session.scalar(select(User).where(User.alias==alias))
                 if user:
                     fk = f"{user.alias} {nums[0]}/{nums[1]}"
     

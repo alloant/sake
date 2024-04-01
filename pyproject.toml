@@ -1,26 +1,26 @@
 [tool.poetry]
-name = "synomail"
+name = "sake-1"
 version = "0.9.9"
 description = ""
 authors = ["Antonio Alonso"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-flask = "^2.3.3"
-flask-migrate = "^4.0.5"
+python = "^3.12"
+flask = "^3.0.2"
+flask-migrate = "^4.0.7"
 flask-sqlalchemy = "^3.1.1"
-waitress = "^2.1.2"
-bootstrap-flask = "^2.3.0"
-cryptography = "^41.0.4"
-flask-wtf = "^1.1.1"
+waitress = "^3.0.0"
+bootstrap-flask = "^2.3.3"
+cryptography = "^42.0.5"
+flask-wtf = "^1.2.1"
 synochat = "^1.0.4"
 docx-hitalent = "^0.8.51"
-wtforms-sqlalchemy = "^0.3"
-synology-drive-api = {git = "https://github.com/alloant/synology-drive-api.git", rev = "v0.1.0"}
+wtforms-sqlalchemy = "^0.4.1"
 eml-parser = "^1.17.5"
 flask-login = "^0.6.3"
 pymysql = "^1.1.0"
+synology-drive-api = {git = "https://github.com/alloant/synology-drive-api.git", rev = "v0.1.0"}
 
 
 [build-system]

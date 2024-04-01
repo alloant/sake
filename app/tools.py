@@ -38,11 +38,13 @@ def change_file_dates():
 def find_files():
     print("FInd files")
     year = 2024
+    regs = ['cg','asr','ctr','r']
+    
+    regs = ['ctr']
     flow = 'out'
+    
     notes = db.session.scalars(select(Note).where(Note.num>0,Note.files==None,Note.year==year,Note.flow==flow))
     
-    regs = ['cg','asr','ctr','r']
-    regs = ['r']
     only_update = False
 
     for reg in regs:

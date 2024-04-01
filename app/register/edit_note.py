@@ -54,11 +54,11 @@ def edit_note_view(request):
     
     if request.method == 'POST' and form.validate():
         error = False
-                
-        if ctr and note.state > 0 and note.flow == 'in':
+        if ctr and note.state > 0 and note.flow == 'out':
             if form.comments_ctr.data != "":
                 cm = db.session.scalar(select(Comment).where(and_(Comment.sender_id==ctr,Comment.note_id==note.id)))
                 if not cm:
+                    print(ctr,note.id,form.comments_ctr.data)
                     cm = Comment(sender_id=ctr,note_id=note.id,comment=form.comments_ctr.data)
                     db.session.add(cm)
                 else:
