@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
 COPY . /app
-CMD ["waitress-serve", "--threads=6", "--port=8000", "--call", "app:create_app"]
+CMD ["waitress-serve", "--url-scheme=https", "--threads=6", "--port=8000", "--call", "app:create_app"]
 
 FROM builder as dev-envs
 

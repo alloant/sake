@@ -82,6 +82,8 @@ def register_filter(rg,h_note = None):
         fn.append(Note.reg!='min')
         fn.append(Note.flow=='out')
         fn.append(Note.state==1)
+    elif rg[0] in ['vc','vcr','dg','cc','desr']:
+        fn.append(Note.reg==rg[0])
 
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
@@ -131,7 +133,10 @@ def register_actions(output,args): # Actions like new note, update read/state, u
         tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
         
         for nt in tosendnotes:
-            rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
+            if nt.reg in ['vc','vcr','dg','cc','desr']:
+                rst = nt.move(f"/team-folders/Mail {nt.reg}/Notes/{nt.year}/{nt.reg} out")
+            else:
+                rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
             
             if not rst:
                 continue
@@ -178,24 +183,27 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     # Security check for error and users without authority
     rdct = False
         
-    if 'cr' in current_user.groups:
-        if reg:
-            if rg[0] == 'des' and not 'despacho' in current_user.groups:
-                rdct = True
-        
-            if rg[0] == 'box' and not 'scr' in current_user.groups:
+    if reg:
+        for esp in ['vc','vcr','dg','cc','desr']:
+            if rg[0] == esp and not esp in current_user.groups:
                 rdct = True
 
+        if rg[0] == 'des' and not 'despacho' in current_user.groups:
+            rdct = True
+        
+        if rg[0] == 'box' and not 'scr' in current_user.groups:
+            rdct = True
+
+        if rg[0] in ['cr','min','box','des'] and not 'cr' in current_user.groups:
+            rdct = True
+        
+        if rg[0] == 'cl' and not f"cl_{rg[2]}" in current_user.groups:
+            rdct = True
+
+    if 'cr' in current_user.groups:
         if rdct or not reg: 
             return redirect(url_for('register.register', reg='pen_in_', page=1))
     else:
-        if reg:
-            if rg[0] in ['cr','min','box','des']:
-                rdct = True
-        
-            if not f"cl_{rg[2]}" in current_user.groups:
-                rdct = True
-
         if rdct or not reg:
             for gp in current_user.groups:
                 if gp[:3] == 'cl_':

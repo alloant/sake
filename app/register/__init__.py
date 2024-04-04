@@ -6,6 +6,7 @@ from flask_login import login_required, current_user
 
 from .register import register_view
 from .edit_note import edit_note_view, delete_note_view
+from .download import download_view
 from .inbox import inbox_view
 from .tools import get_cr_users
 
@@ -29,6 +30,12 @@ def edit_note():
 def delete_note():
     get_cr_users()
     return delete_note_view(request)
+
+@bp.route('/download', methods=['GET','POST'])
+@login_required
+def download_note():
+    get_cr_users()
+    return download_view(request)
 
 @bp.route('/inbox_scr',methods=['POST','GET'])
 @login_required

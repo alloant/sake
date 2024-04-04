@@ -97,13 +97,12 @@ def edit_user():
 
     #form.active.data =  1 if user.active else 0
     #form.admin_active.data = 1 if user.admin_active else 0
-    
     if request.method == 'POST' and form.validate():
         user.alias = form.alias.data
         user.name = form.name.data
         user.email = form.email.data
         
-        if user.admin:
+        if 'admin' in user.groups:
             user.local_path = form.local_path.data
             user.u_groups = form.u_groups.data
        

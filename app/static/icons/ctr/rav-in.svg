@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="80mm"
+   height="80mm"
+   viewBox="0 0 80 80"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   sodipodi:docname="prm-in.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="2.2097881"
+     inkscape:cx="188.93214"
+     inkscape:cy="187.57455"
+     inkscape:window-width="1890"
+     inkscape:window-height="1076"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showgrid="false" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       opacity="0.4"
+       d="M 54.689761,5 H 25.345138 C 12.598787,5 5,12.595 5,25.335 V 54.630001 C 5,67.405001 12.598787,75 25.345138,75 H 54.654743 C 67.401095,75 74.999879,67.405001 74.999879,54.665 V 25.335 C 75.034899,12.595 67.436112,5 54.689761,5 Z"
+       fill="#292d32"
+       id="path1"
+       style="opacity:1;fill:#800000;stroke-width:3.50087" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32.9395px;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#333333;fill-opacity:1;stroke-width:0.32976"
+       x="14.525121"
+       y="52.312321"
+       id="text6"
+       transform="scale(1.0558961,0.94706288)"><tspan
+         sodipodi:role="line"
+         id="tspan6"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:32.9395px;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;stroke-width:0.32976"
+         x="14.525121"
+         y="52.312321">Rav</tspan></text>
+    <circle
+       style="opacity:1;fill:#333333;fill-opacity:1;stroke-width:0.264583"
+       id="path2"
+       cx="68"
+       cy="68"
+       r="10" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.2392px;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#333333;fill-opacity:1;stroke-width:0.132539"
+       x="75.431129"
+       y="61.15015"
+       id="text6-2"
+       transform="scale(0.83391679,1.1991604)"><tspan
+         sodipodi:role="line"
+         id="tspan6-7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.2392px;font-family:'Gentium Book Basic';-inkscape-font-specification:'Gentium Book Basic, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;stroke-width:0.132539"
+         x="75.431129"
+         y="61.15015">IN</tspan></text>
+  </g>
+</svg>

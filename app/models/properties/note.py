@@ -50,6 +50,8 @@ class NoteProp(object):
                 return f"cr-{self.receiver[0].alias} {self.num}"
         elif 'min' == self.reg:
             return f"Minuta-{self.sender.alias} {self.num}"
+        elif self.reg in ['vc','vcr','dg','cc','desr']:
+            return f"{self.reg}-Aes {self.num}"
 
     @property
     def refs(self):
@@ -132,7 +134,7 @@ class NoteProp(object):
                 return None
         else: 
             folder = self.fullkey.split("/")[0]
-    
+        print(folder)    
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
         if self.reg == 'min':

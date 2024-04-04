@@ -54,6 +54,8 @@ def nextNumReg(rg):
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='min',Note.year==datetime.today().year,Note.sender.has(User.id==current_user.id)))) )
     elif rg[0] == 'cl':
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.year==datetime.today().year,literal_column(f"sender_user.alias = '{rg[2]}'"),Note.flow=='in'))) )
+    elif rg[0] in ['vc','vcr','dg','cc','desr']:
+        num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg==rg[0],Note.year==datetime.today().year,Note.flow=='out'))) )
     else:
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg==rg[2],Note.year==datetime.today().year,Note.flow=='out'))) )
     
@@ -85,6 +87,8 @@ def newNote(user,reg,ref = None):
         ctr = db.session.scalar(select(User).where(User.alias==rg[2]))
         nt = Note(num=num,sender_id=ctr.id,reg='ctr')
     elif rg[0] == 'min':
+        nt = Note(num=num,sender_id=user.id,reg=rg[0])
+    elif rg[0] in ['vc','vcr','dg','cc','desr']:
         nt = Note(num=num,sender_id=user.id,reg=rg[0])
     else: # Note created by a cr dr
         nt = Note(num=num,sender_id=user.id,reg=rg[2])

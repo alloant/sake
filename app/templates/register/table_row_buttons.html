@@ -15,6 +15,11 @@
   {% endif %}
 {% endif%}
 
+{% if 'scr' in user.groups and note.flow == 'out' and note.reg in ['cg','r','vc','vcr','dg','cc','desr'] %}
+  <span class="text-muted">|</span>
+  <a href="/download?note={{note.id}}" data-bs-toggle="tooltip" title="Download eml of note"><i class="bi bi-envelope-arrow-down-fill" style="color: green"></i></a>
+{% endif %}
+
 {% if reg.split('_')[0] == 'min' %}
   <span class="text-muted">|</span>
   <a href="/register?reg=cr_out_cg&ref={{note.id}}" data-bs-toggle="tooltip" title="Generate note to cr"><i class="bi bi-file-earmark-arrow-up" style="color: blue;"></i></a>

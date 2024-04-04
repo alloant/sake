@@ -29,7 +29,24 @@
       </ul>
     </div>
     {% endif %}
-    
+
+
+    {% for esp in ['vc','vcr','dg','cc','desr'] %}
+      {% if esp in current_user.groups %}
+        <div class="border-top">
+          <a href="/register?reg={{esp}}_in_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} in">
+            <img src="static/icons/ctr/{{esp}}-in.svg" width="35vmin" height="35vmin">
+          </a>
+        </div>
+        
+        <div>
+          <a href="/register?reg={{esp}}_out_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} out">
+            <img src="static/icons/ctr/{{esp}}-out.svg" width="35vmin" height="35vmin">
+          </a>
+        </div>
+      {% endif %}
+    {% endfor %}
+ 
     {% if 'despacho' in current_user.groups %}
     <div class="border-top">
       <a href="/register?reg=des_in_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Despacho">
@@ -56,13 +73,13 @@
       {% if gp[:3] == 'cl_' %}
       <div class="border-top">
         <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mail from cr to {{gp[3:]}}">
-          <img src="static/icons/00-inbox_ctr.svg" width="35vmin" height="35vmin">
+          <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="35vmin" height="35vmin">
         </a>
       </div>
 
       <div class="">
         <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Mail from {{gp[3:]}} to cr">
-          <img src="static/icons/00-outbox_ctr.svg" width="35vmin" height="35vmin">
+          <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="35vmin" height="35vmin">
         </a>
       </div>
       {% endif %}

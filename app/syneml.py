@@ -3,9 +3,11 @@ import io
 import base64
 from datetime import date
 
-from flask import flash, current_app
+from flask import flash, current_app, send_file
 
 from sqlalchemy import select, and_
+
+import tempfile
 
 from email import generator
 from email.mime.application import MIMEApplication
@@ -47,10 +49,18 @@ def write_eml(rec,note,path_download):
             rst = False
 
     if rst:
-        with open(f"{path_download}/{note.key}.eml",'w') as file:
-            emlGenerator = generator.Generator(file)
-            emlGenerator.flatten(msg)
-            return True
+        #fp = tempfile.TemporaryFile()
+        import io
+        fp = io.BytesIO()
+        emlGenerator = generator.BytesGenerator(fp)
+        emlGenerator.flatten(msg)
+        return send_file(fp,download_name=f"{note.key}.eml",as_attachment=True)
+        return True
+
+        #with open(f"{path_download}/{note.key}.eml",'w') as file:
+        #    emlGenerator = generator.Generator(file)
+        #    emlGenerator.flatten(msg)
+        #    return True
     return False
 
 
