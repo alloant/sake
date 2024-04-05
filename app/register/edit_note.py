@@ -8,14 +8,17 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, get_ref, Comment
+from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm
 
 
 def delete_note_view(request):
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+    files = db.session.scalars(select(File).where(File.note_id==note.id))
     note.delete_folder()
+    for file in files:
+        db.session.delete(file)
     db.session.delete(note)
     db.session.commit()
     
@@ -61,7 +64,7 @@ def edit_note_view(request):
         #form.receiver.choices = [(user.alias,user.fullName) for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]
         form.receiver.choices = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]
     
-    
+     
     if request.method == 'POST' and form.validate():
         error = False
         if ctr and note.state > 0 and note.flow == 'out':

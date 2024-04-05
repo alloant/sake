@@ -42,7 +42,10 @@
             {% endif %}
             {{ form.proc(class="form-control") }}
           </div>
+          {% else %}
+            {{ form.proc(class="invisible") }}
           {% endif %}
+
 
           <div class="p-2">
             {{ form.sender.label(class="form-label") }}
