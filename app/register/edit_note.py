@@ -15,6 +15,7 @@ from app.forms.note import NoteForm
 def delete_note_view(request):
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+    note.delete_folder()
     db.session.delete(note)
     db.session.commit()
     
@@ -41,12 +42,21 @@ def edit_note_view(request):
     
     form = NoteForm(request.form,obj=note)
     form.sender.choices = [note.sender]
+
+    if note.reg == 'vc':
+        form.proc.choices = ['sv','sf']
+    else:
+        form.proc.choices = ['Ord','Not Ord','Consultivo','Deliberativo']
+
     
     form.content(disable=True)
     
     if note.flow == 'in' or note.reg == 'min':
         form.receiver.choices = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcr\b'),User.active==1)).order_by(User.alias)).all()]
         #form.receiver.choices = [(user.alias,user.fullName) for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcr\b'),User.active==1)).order_by(User.alias)).all()]
+    elif note.reg == 'vc':
+        form.receiver.choices = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcg\b'),User.active==1)).order_by(User.alias)).all()]
+        form.receiver.choices += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bvc-r\b'),User.active==1)).order_by(User.alias)).all()]
     else:
         #form.receiver.choices = [(user.alias,user.fullName) for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]
         form.receiver.choices = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]

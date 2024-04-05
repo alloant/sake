@@ -28,7 +28,8 @@ class NoteForm(FlaskForm):
     content_jp = StringField('Content JP', validators=[])
     comments = StringField('Comments', validators=[])
     comments_ctr = StringField('Comments ctr', validators=[])
-    proc = StringField('Procedure', validators=[])
+    proc = SelectField('Procedure', validators=[])
+    #proc = StringField('Procedure', validators=[])
     ref = StringField('References', validators=[])
 
     permanent = BooleanField('Only permanent')

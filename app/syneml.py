@@ -28,7 +28,28 @@ def write_eml(rec,note,path_download):
     msg = MIMEMultipart()
     msg["To"] = rec
     msg["From"] = 'Aes-cr@cardumen.org'
-    msg["Subject"] = f"{note.key}/{note.year-2000}; {note.content}; {note.refs}"
+    
+    sub1 = f"{note.key}/{note.year-2000}" if note.num > 0 else f"{note.refs[0]}"
+    sub2_1 = note.content
+    sub2_2 = []
+
+    if note.num == 0:
+        sub2_2.append('ref')
+
+    if note.reg in ['vc','vcr','dg','cc','desr']:
+        sub2_2.append(f"{note.reg}-Aes")
+        if note.proc == 'sf':
+            sub2_2[-1] += "f"
+
+    sub2 = f"{sub2_1} ({'.'.join(sub2_2)})" if sub2_2 else sub2_1
+
+    sub3 = note.refs
+
+    
+    msg["Subject"] = f"{sub1};{sub2};{sub3}"
+    #msg["Subject"] = f"{note.key}/{note.year-2000}; {note.content}; {note.refs}"
+    
+
     msg.add_header('X-Unsent','1')
     body = ""
     msg.attach(MIMEText(body,"plain"))
@@ -54,7 +75,10 @@ def write_eml(rec,note,path_download):
         fp = io.BytesIO()
         emlGenerator = generator.BytesGenerator(fp)
         emlGenerator.flatten(msg)
+        fp.seek(0) 
+        return send_file(fp,download_name=f"{note.key}.eml",as_attachment=False)
         return send_file(fp,download_name=f"{note.key}.eml",as_attachment=True)
+        
         return True
 
         #with open(f"{path_download}/{note.key}.eml",'w') as file:

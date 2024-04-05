@@ -30,9 +30,11 @@ def inbox_view(request):
     if rm_file:
         do_check = True
         file = db.session.scalar(select(File).where(File.id==rm_file))
+        db.session.delete(file)
+        db.session.commit()
         rst = delete_path(file.path)
-        if rst:
-            db.session.execute(delete(File).where(File.id==rm_file))
+        #if rst:
+        #    db.session.execute(delete(File).where(File.id==rm_file))
     elif "upload" in output:
         uploaded_files = request.files.getlist('files')
         for file in uploaded_files:

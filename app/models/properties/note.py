@@ -51,7 +51,10 @@ class NoteProp(object):
         elif 'min' == self.reg:
             return f"Minuta-{self.sender.alias} {self.num}"
         elif self.reg in ['vc','vcr','dg','cc','desr']:
-            return f"{self.reg}-Aes {self.num}"
+            if self.proc == 'sf':
+                return f"{self.reg}-Aesf {self.num}"
+            else:
+                return f"{self.reg}-Aes {self.num}"
 
     @property
     def refs(self):
@@ -211,7 +214,7 @@ class NoteProp(object):
                     self.state = 1
                 elif self.state == 1: # taking it back before the scr archive it
                     self.state =0
-        elif rg[0] in ['cr','pen']: # Here the states could be 4-6
+        elif rg[0] in ['cr','pen','vc','vcr','dg','cc','desr']: # Here the states could be 4-6
             if self.flow == 'in': # Notes from cg,asr,r,ctr. They could be 5 or 6
                 self.state = 6 if self.state == 5 else 5
             else: # Is out. Only to pass from 0 to 1

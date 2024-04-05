@@ -85,7 +85,11 @@ class NoteHtml(object):
             return self.state_des_html(reg,user)
         elif rg[0] == 'box':
             return self.state_box_html(reg,user)
+        else:
+            return self.state_cr_html(reg,user)
 
+    def state_other_html(self,reg,user):
+        rg = reg.split("_")
 
     def state_cl_html(self,reg,user,ctr):
         rg = reg.split("_")

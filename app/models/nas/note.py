@@ -6,7 +6,7 @@ from sqlalchemy import and_, select, func, case
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
-from .nas import create_folder, get_info, files_path, move_path, copy_path
+from .nas import create_folder, get_info, files_path, move_path, copy_path, delete_path
 #from app.models.file import File
 
 class NoteNas(object): 
@@ -63,6 +63,9 @@ class NoteNas(object):
             return f'<https://nas.prome.sg:5001/d/f/{self.permanent_link}|{text}>'
         else:
             return self.files[0].getLinkMessage(text)
+
+    def delete_folder(self):
+        delete_path(f"{self.path}/{self.note_folder}")
 
     def create_folder(self,folder = None):
         if folder:

@@ -33,7 +33,7 @@ def wrap_error(func, *args):
         else:
             message = f"{err} in {func.__name__} with parameters {args}"
        
-        flash(message)
+        #flash(message)
         logging.warning(message)
 
 

@@ -84,6 +84,7 @@ def register_filter(rg,h_note = None):
         fn.append(Note.state==1)
     elif rg[0] in ['vc','vcr','dg','cc','desr']:
         fn.append(Note.reg==rg[0])
+        fn.append(Note.flow==rg[1])
 
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
@@ -135,17 +136,17 @@ def register_actions(output,args): # Actions like new note, update read/state, u
         for nt in tosendnotes:
             if nt.reg in ['vc','vcr','dg','cc','desr']:
                 rst = nt.move(f"/team-folders/Mail {nt.reg}/Notes/{nt.year}/{nt.reg} out")
-            else:
+            elif nt.reg in ['asr','ctr']:
                 rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
             
             if not rst:
                 continue
 
-            if nt.reg in ['cg','r']: # We have to generate the eml
-                rec = ",".join([rec.email for rec in nt.receiver])
-                path = f"{current_user.local_path}/Outbox"
-                write_eml(rec,nt,path)
-                nt.state = 6
+            #if nt.reg in ['cg','r']: # We have to generate the eml
+                #rec = ",".join([rec.email for rec in nt.receiver])
+                #path = f"{current_user.local_path}/Outbox"
+                #write_eml(rec,nt,path)
+                #nt.state = 6
 
             if nt.reg == 'asr': # Note for asr. We just copy it to the right folder
                 nt.copy("{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Outbox")
@@ -237,6 +238,7 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     
     if rg[0] == "cr" and rg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
+
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.num.desc())
 

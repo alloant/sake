@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1 class="text-center display-4 mb-5 border rounded bg-secondary text-white">{{ note.fullkey }}</h1>
+{% if note.num > 0 %}
+  <h1 class="text-center display-4 mb-5 border rounded bg-secondary text-white">{{ note.fullkey }}</h1>
+{% elif note.ref %}
+  <h1 class="text-center display-4 mb-5 border rounded bg-secondary text-white">ref {{ note.ref[0].fullkey }}</h1>
+{% endif %}
+
 <form method="POST">
     {{ form.csrf_token }}
     <fieldset class="form-group">
@@ -27,10 +32,18 @@
             {{ form.year.label(class="form-label") }}
             {{ form.year(class="form-control") }}
           </div>
+          
+          {% if note.flow == 'out' %}
           <div class="p-2">
-            {{ form.proc.label(class="form-label") }}
+            {% if note.reg == 'vc' %}
+              <span class="form-label">Section</span>
+            {% else %}
+              {{ form.proc.label(class="form-label") }}
+            {% endif %}
             {{ form.proc(class="form-control") }}
           </div>
+          {% endif %}
+
           <div class="p-2">
             {{ form.sender.label(class="form-label") }}
             {{ form.sender(class="form-control") }}
@@ -67,7 +80,7 @@
       </div>
       
       <div class="p-2">
-          {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r'] and (user.admin or note.sender_id == user.id)) %}
+          {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r','vc'] and (user.admin or note.sender_id == user.id)) %}
           <h3 class="mb-4">Receiver</h3>
           
           <div class="d-flex d-flex-wrap">

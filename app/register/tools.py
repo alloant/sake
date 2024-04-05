@@ -131,4 +131,6 @@ def view_title(reg,note=None):
             return f"Notes from {rg[2]} to cr" if rg[1] == 'out' else f"Notes from cr to {rg[2]}"
     elif rg[0] == 'min':
         return 'Minutas'
+    else:
+        return f"{rg[0]} {rg[1]}"
 
