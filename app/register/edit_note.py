@@ -15,10 +15,21 @@ from app.forms.note import NoteForm
 def delete_note_view(request):
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    files = db.session.scalars(select(File).where(File.note_id==note.id))
-    note.delete_folder()
-    for file in files:
+   
+    for file in note.files:
         db.session.delete(file)
+
+    for ref in note.ref:
+        db.session.delete(ref)
+
+    for rec in note.receiver:
+        db.session.delete(rec)
+   
+    for comment in note.comments_ctr:
+        db.session.delete(comment)
+
+    note.delete_folder()
+
     db.session.delete(note)
     db.session.commit()
     

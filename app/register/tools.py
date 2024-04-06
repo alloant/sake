@@ -114,23 +114,23 @@ def view_title(reg,note=None):
     rg = reg.split('_')
 
     if rg[0] == 'des':
-        return 'Despacho'
+        return ['static/icons/00-despacho.svg','Despacho']
     elif rg[0] == 'pen':
-        return 'My notes'
+        return ['static/icons/00-pendings.svg','My notes']
     elif rg[0] == 'box' and rg[1] == 'out':
-        return 'Notes from cr to be sent to cg, asr, r and ctr'
+        return [f'static/icons/00-outbox.svg','Notes from cr to be sent to cg, asr, r and ctr']
     elif rg[0] == 'cr':
         if rg[1] == 'all':
-            return "Notes history"
+            return ['static/icons/sake.svg',"Notes history"]
         else:
-            return f"Notes from {rg[2]}" if rg[1] == 'in' else f"Notes to {rg[2]}"
+            return [f'static/icons/ctr/{rg[2]}-{rg[1]}.svg',f"Notes from {rg[2]}" if rg[1] == 'in' else f"Notes to {rg[2]}"]
     elif rg[0] == 'cl':
         if rg[1] == 'all':
-            return "Notes history"
+            return ['static/icons/sake.svg',"Notes history"]
         else:
-            return f"Notes from {rg[2]} to cr" if rg[1] == 'out' else f"Notes from cr to {rg[2]}"
+            return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"Notes from {rg[2]} to cr" if rg[1] == 'out' else f"Notes from cr to {rg[2]}"]
     elif rg[0] == 'min':
-        return 'Minutas'
+        return ['','Minutas']
     else:
-        return f"{rg[0]} {rg[1]}"
+        return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
 

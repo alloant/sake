@@ -134,9 +134,10 @@ def register_actions(output,args): # Actions like new note, update read/state, u
         tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
         
         for nt in tosendnotes:
-            if nt.reg in ['vc','vcr','dg','cc','desr']:
-                rst = nt.move(f"/team-folders/Mail {nt.reg}/Notes/{nt.year}/{nt.reg} out")
-            elif nt.reg in ['asr','ctr']:
+            #if nt.reg in ['vc','vcr','dg','cc','desr']:
+            #    rst = nt.move(f"/team-folders/Mail {nt.reg}/Notes/{nt.year}/{nt.reg} out")
+            #elif nt.reg in ['asr','ctr']:
+            if nt.reg in ['asr','ctr']:
                 rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
             
             if not rst:

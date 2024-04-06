@@ -56,7 +56,7 @@ class NoteHtml(object):
                     return '<tr class="fw-bold">'
                 elif self.state == 6:
                     return '<tr class="fst-italic">'
-        elif rg[0] in ['cr','cl']:
+        elif rg[0] in ['cr','cl','pen']:
             if self.rel_flow(reg) == 'in':
                 if not self.is_read(user):
                     return '<tr class="fw-bold">'
