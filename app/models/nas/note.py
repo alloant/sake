@@ -130,8 +130,6 @@ class NoteNas(object):
             file.move(dest,path_originals)
 
     def updateFiles(self):
-        print("Updating files in folder")
-
         if not self.permanent_link: # There is no permanent_link, I should get it first
             rst = self.getPermanentLink()
         else:
@@ -151,8 +149,8 @@ class NoteNas(object):
                     file.move_to_note(self.path_note)
             ntfiles.append(file.path.split("/")[-1])
         
+        extfiles = []
         if files:
-            extfiles = []
             for file in files:
                 if not file['name'] in ntfiles:
                     kargs = {'path':file['name'],'permanent_link':file['permanent_link']} 
@@ -160,9 +158,8 @@ class NoteNas(object):
                 
                 extfiles.append(file['name'])
                 
-            rmfiles = [f.id for f in self.files if not f.path.split("/")[-1] in extfiles]
-            
-            self.deleteFiles(rmfiles)
+        rmfiles = [f.id for f in self.files if not f.path.split("/")[-1] in extfiles]
+        self.deleteFiles(rmfiles)
             
     
         db.session.commit()

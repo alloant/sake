@@ -40,7 +40,7 @@ def find_files():
     year = 2024
     regs = ['cg','asr','ctr','r']
     
-    regs = ['ctr']
+    regs = ['r']
     flow = 'out'
     
     notes = db.session.scalars(select(Note).where(Note.num>0,Note.files==None,Note.year==year,Note.flow==flow))
@@ -69,3 +69,4 @@ def find_files():
                 note.updateFiles()
 
     change_file_dates()
+
