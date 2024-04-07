@@ -8,13 +8,13 @@ def documentation_view(args):
 
     match topic:
         case 'cr':
-            return render_template('docs/docs_cr.html')
-        case 'cl':
-            return render_template('docs/docs_cl.html')
-        case 'des':
-            return render_template('docs/docs_des.html')
-        case 'scr':
-            return render_template('docs/docs_scr.html')
+            return render_template('docs/cr.html')
+        case 'cl_in':
+            return render_template('docs/cl_inbox.html')
+        case 'cl_out':
+            return render_template('docs/cl_outbox.html')
+        case 'config':
+            return render_template('docs/registration.html')
         case _:
             return render_template('docs/main.html')
 

@@ -9,7 +9,6 @@ from app.docs.documentation import documentation_view
 bp = Blueprint('docs', __name__)
 
 @bp.route('/documentation')
-@login_required
 def documentation():
     return documentation_view(request.args)
 

@@ -7,27 +7,22 @@
   Documentation
 </h1>
 
-{% if 'cl_' in current_user.u_groups %}
+<p class="title text-center display-6">
+  <a class="" href="?topic=config">1. Registration and configuration</a>
+</p>
+
+{% if 'cl_' in current_user.u_groups or 'cr' in current_user.u_groups %}
+    <p class="title text-center display-6">
+    <a class="" href="?topic=cl_in">2. Mail from cr</a>
+  </p>
   <p class="title text-center display-6">
-    <a class="" href="?topic=cl">For cl</a>
+    <a class="" href="?topic=cl_out">3. Mail to cr</a>
   </p>
 {% endif %}
 
 {% if 'cr' in current_user.groups %}
   <p class="title text-center display-6">
     <a class="" href="?topic=cr">For cr</a>
-  </p>
-{% endif %}
-
-{% if 'despacho' in current_user.groups %}
-  <p class="title text-center display-6">
-    <a class="" href="?topic=des">For despacho</a>
-  </p>
-{% endif %}
-
-{% if 'scr' in current_user.groups %}
-  <p class="title text-center display-6">
-    <a class="" href="?topic=scr">For scr</a>
   </p>
 {% endif %}
 

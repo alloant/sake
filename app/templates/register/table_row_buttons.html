@@ -5,7 +5,9 @@
   <span class="text-muted">|</span>
   
   {% if reg.split('_')[0] == 'cl' %}
-  <a href="/edit_note?note={{note.id}}&ctr={{reg.split('_')[2]}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
+  {% if note.flow == 'out' %}
+    <a href="/edit_note?note={{note.id}}&ctr={{reg.split('_')[2]}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
+  {% endif %}
   {% else %}
   <a href="/edit_note?note={{note.id}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
   {% endif %}
