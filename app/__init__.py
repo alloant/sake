@@ -4,6 +4,8 @@ from flask import Flask, session
 from flask_login import LoginManager 
 from flask_bootstrap import Bootstrap5
 
+#from flask_admin import Admin
+
 from config import Config
 
 from flask_sqlalchemy import SQLAlchemy
@@ -27,6 +29,12 @@ def create_app(config_class=Config):
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
+    
+    # set optional bootswatch theme
+    #app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+    #admin = Admin(app, name='sake', template_mode='bootstrap3')
+    # Add administrative views here    
     
     from .models import User
 

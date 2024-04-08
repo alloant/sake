@@ -5,7 +5,7 @@
   <span class="text-muted">|</span>
   
   {% if reg.split('_')[0] == 'cl' %}
-  {% if note.flow == 'out' %}
+  {% if note.flow == 'out' or note.state < 1 %}
     <a href="/edit_note?note={{note.id}}&ctr={{reg.split('_')[2]}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
   {% endif %}
   {% else %}

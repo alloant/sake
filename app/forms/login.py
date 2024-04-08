@@ -10,7 +10,7 @@ class LoginForm(Form):
 
 class RegistrationForm(Form):
     name = StringField('Name', [validators.Length(min=4, max=40)])
-    alias = StringField('User', [validators.Length(min=3, max=25)])
+    alias = StringField('User', [validators.Length(min=2, max=25)])
     email = StringField('Email Address')
     password = PasswordField('Password', [
         validators.DataRequired(),

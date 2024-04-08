@@ -2,7 +2,11 @@
   
   <!-- Protocol number with link -->
   <th scope="row">
-    {{ note.fullkey_link_html(reg)|safe }}
+    {% if 'cr_' in reg or 'pen_' in reg %}
+      {{ note.fullkey_link_html(reg)|safe }}
+    {% else %}
+      {{ note.fullkey }}
+    {% endif %}
   </th>
 
   <!-- Action buttons -->
