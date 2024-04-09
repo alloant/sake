@@ -16,18 +16,36 @@
   {% include 'upload_file.html' %}
 </div>
 
-<div class="d-flex flew-row p-4">
-  <div class="p-2">
-    <input href="#upfile" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="importeml" value="Import eml from cg and r">
-  </div>
-
-  <form class="p-2" method="POST">
-    <input type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="getmail" value="Get mail from ctr and asr">
-  </form>
+<div class="row p-4">
+  <fieldset class="col-8 border">
+      <legend class="float-none w-auto p-2">Mail from cg, asr and r</legend>
+      <ul class="list-group list-group-flush">
+        <li class="p-2 list-group-item">
+          <input href="#upfile" type="submit" class="btn btn-primary" data-bs-toggle="modal" name="importeml" value="Import eml">
+          <span> 1. Import EML files from Cardumen</span>
+        </li>
+        
+        <li class="p-2 list-group-item">
+          <input type="submit" form="inboxscr" class="btn btn-primary" data-bs-toggle="modal" name="getmail_asr" value="Import asr">
+          <span> 2. Get mails from asr in Mail asr/Mail from asr</span>
+        </li>
+        
+        <li class="p-2 list-group-item">
+          <input type="submit" form="inboxscr" class="btn btn-primary" data-bs-toggle="modal" name="notesfromfiles" value="Generate notes">
+          <span> 3. After checking numbers generate notes from files imported in 1 and 2</span>
+        </li>
+      </ul>
+  </fieldset>
   
-  <div class="p-2">
-    <input type="submit" form="inboxscr" class="btn btn-primary me-2" data-bs-toggle="modal" name="notesfromfiles" value="Put files in notes and send them to despacho">
-  </div>
+    <fieldset class="border col-4">
+      <legend class="float-none w-auto p-2">Mail from ctr</legend>
+      <ul class="list-group list-group-flush">
+        <li class="p-2 list-group-item">
+          <input type="submit" form="inboxscr" class="btn btn-primary m-4" data-bs-toggle="modal" name="getmail" value="Get mail ({{ctr_notes}})">
+          <span>Pass notes from ctr to Despacho</span>
+        </li>
+      </ul>
+    </fieldset>
 
 </div>
 

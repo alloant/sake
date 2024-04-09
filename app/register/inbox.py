@@ -41,15 +41,8 @@ def inbox_view(request):
         uploaded_files = request.files.getlist('files')
         for file in uploaded_files:
             read_eml(file.read())
-    elif "getmail" in output:
+    elif "getmail_asr" in output:
         do_check = True
-        # Searching for eml to import
-        # path = f"{current_user.local_path}/Inbox"
-        # files = os.listdir(path)
-        # for file in files:
-            # if file.split('.')[-1] == 'eml':
-                # read_eml(f"{path}/{file}")
-        
         # Searching for notes in from asr
         #asr_files = files_path(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Inbox")
         asr_files = files_path(f"/team-folders/Mail asr/Mail from asr")
@@ -77,6 +70,9 @@ def inbox_view(request):
                     else:
                         flash(f"File {filename} is already in the database. The copy file in Mail/IN")
 
+    elif "getmail" in output:
+        do_check = True
+        
         # Searching for notes sent by the ctr. reg = ctr, flow = in and state = 1
         sender = aliased(User,name="sender_user")
         notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='ctr',Note.flow=='in',Note.state==1)))
@@ -161,7 +157,7 @@ def inbox_view(request):
     next_url = url_for('register.inbox_scr', page=files.next_num) if files.has_next else None
 
     # Some indicators to help
-    if do_check:
+    if do_check and False:
         #ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
         #asr_files = len(files_path("{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Inbox"))
         IN_db = db.session.scalar(select(func.count(File.id)).where(File.note_id == None))
@@ -176,7 +172,7 @@ def inbox_view(request):
             flash(f"The number of files in the database is not the same as in Mail/IN ({IN_db}/{IN_files})")
 
     #flash(f'There are {IN_files} in Mail/IN, {ctr_notes} waiting from ctrs and {asr_files} in Inbox asr')
-
-    return render_template('inbox/main.html',title="Files received from cg and r", files=files, page=page, prev_url=prev_url, next_url=next_url)
+    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))    
+    return render_template('inbox/main.html',title="Files received from cg and r", files=files, page=page, ctr_notes=ctr_notes, prev_url=prev_url, next_url=next_url)
 
 
