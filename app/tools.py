@@ -6,13 +6,20 @@ from flask_login import current_user
 
 from sqlalchemy import select 
 from app import db
-from app.models import File, Note
+from app.models import File, Note, User
 from app.models.nas.nas import files_path, copy_path, create_folder
+
+from cryptography.fernet import Fernet
 
 def check_folders_synology():
     create_folder(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/",current_user.alias)
     create_folder(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{current_user.alias}","Notes")
 
+
+def get_pass_nas():
+    cipher = Fernet(current_app.config['SECRET_KEY'])
+    PASSWD = cipher.decrypt(db.session.scalar(select(User).where(User.alias=='jap')).password_nas)
+    print(PASSWD)
 
 def import_dates():
     import csv

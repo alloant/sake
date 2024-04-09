@@ -185,15 +185,19 @@ class NoteHtml(object):
                 action = "read"
 
             if self.state == 5: # Note is not done
-                color = "orange"
+                color = "gray"
                 if fill and not action:
                     text = "Mark as done"
                     action = "state"
+                    icon = f"bi-x-circle"
+                    color = "red"
             else:
                 color = "gray"
                 if fill and not action:
                     text = "Mark as not done"
                     action = "state"
+                    icon = "bi-check-circle"
+                    color = "green"
         else: # Note send to cg,asr,r,ctr. Could be working, waiting, sent
             action = "state"
             if self.state == 0: # dr is still working on the note

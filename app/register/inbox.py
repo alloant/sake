@@ -13,7 +13,7 @@ from sqlalchemy.orm import aliased
 
 from app import db
 from app.models import Note, File, User
-from app.models.nas.nas import files_path, move_path, delete_path
+from app.models.nas.nas import files_path, move_path, delete_path, convert_office
 from app.syneml import read_eml
 
 def inbox_view(request):
@@ -23,7 +23,8 @@ def inbox_view(request):
     do_check = False
     rm_file = args.get('remove_file')
 
-    #from app.tools import find_files, import_dates, change_file_dates
+    #from app.tools import find_files, import_dates, change_file_dates,get_pass_nas
+    #get_pass_nas()
     #change_file_dates()
     #import_dates()
     #find_files()
@@ -50,7 +51,8 @@ def inbox_view(request):
                 # read_eml(f"{path}/{file}")
         
         # Searching for notes in from asr
-        asr_files = files_path(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Inbox")
+        #asr_files = files_path(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Inbox")
+        asr_files = files_path(f"/team-folders/Mail asr/Mail from asr")
         if asr_files:
             for file in asr_files:
                 rst = move_path(file['display_path'],f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN")
@@ -94,13 +96,11 @@ def inbox_view(request):
             if gfk == "":
                 continue
 
-            
+            content = "" 
             if ";" in file.subject:
                 parts = file.subject.split(";")
                 if "/" in parts[0]:
                     content = parts[1]
-                else:
-                    content = ""
 
             sender = aliased(User,name="sender_user")
             nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
@@ -121,7 +121,7 @@ def inbox_view(request):
                 if not sender:
                     continue
 
-                if file.sender == 'cg@cardumen.org':
+                if file.sender == 'cg@cardumen.lan':
                     nreg = 'cg'
                 elif file.sender == 'asr':
                     nreg = 'asr'

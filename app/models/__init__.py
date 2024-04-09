@@ -181,7 +181,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         elif 'ctr' in self.sender.groups: # Note created by a ctr
             self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
         elif self.reg in ['vc','vcr','dg','cc','desr']:
-            self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} in"
+            if 'cr' in self.sender.groups:
+                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} out"
+            else:
+                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} in"
         else: # Note create by dr/of cr
             self.path = f"/team-folders/Mail {alias}/Outbox"
 
