@@ -29,7 +29,7 @@ def create_app(config_class=Config):
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
-    
+
     # set optional bootswatch theme
     #app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 

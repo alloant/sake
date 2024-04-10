@@ -11,13 +11,13 @@
     {{ form.csrf_token }}
     <fieldset class="form-group">
    
-    <div class="d-flex d-flex-wrap justify-content-center m-2" style="background-color: #eeeeee;">
+    <div class="d-flex d-flex-wrap justify-content-center m-2" style="background-color: light;">
       
       <div class="flex-grow-1 p-2">
         <h3 class="mb-4">Data</h3>
         
         <div class="d-flex d-flex-wrap">
-          {% if user.admin and 'despacho' in user.groups %}
+          {% if user.admin or 'despacho' in user.groups %}
             <div class="p-2">
               <p></p>
               <span data-bs-toggle="tooltip" title="Only permanente"><i class="bi bi-asterisk" style="color: red"></i></span>

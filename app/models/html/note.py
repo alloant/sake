@@ -6,7 +6,10 @@ class NoteHtml(object):
         html = []
         for ref in self.ref:
             if rg[0] == 'cl' and ref.reg == 'ctr' or rg[0] in ['cr','pen','des']:
-                html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
+                if rg[0] == 'des':
+                    html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
+                else:
+                    html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
 
         return ','.join(html)
 
@@ -20,7 +23,7 @@ class NoteHtml(object):
             a.text = f"{self.keyto(True,True)}/{self.year-2000}"
 
         if self.permanent:
-            i = ET.Element('i',attrib={'class':'bi bi-house-lock-fill','style':'color: red;'})
+            i = ET.Element('i',attrib={'class':'bi bi-asterisk','style':'color: red;'})
             a.append(i)
         
 

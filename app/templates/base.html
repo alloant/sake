@@ -1,5 +1,9 @@
 <!doctype html>
+{% if session['theme'] == 'dark-mode' %}
+<html lang="en" data-bs-theme="dark">
+{% else %}
 <html lang="en">
+{% endif %}
     <head>
         {% block head %}
         <!-- Required meta tags -->
@@ -26,7 +30,7 @@
       
       <div class="container-fluid">
         <div class="row">
-          <div class="col-sm-auto bg-light sticky-top border p-1">
+          <div class="col-sm-auto sticky-top border p-1" style="background-color: light;">
             {% include "sidebar.html" %}
           </div>
           <!-- Your page content -->

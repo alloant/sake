@@ -145,7 +145,7 @@ class NoteNas(object):
         ntfiles = []
         for file in self.files:
             if "/" in file.path:
-                if note.path != "/".join(file.path.split("/")[:-1]):
+                if self.path != "/".join(file.path.split("/")[:-1]):
                     file.move_to_note(self.path_note)
             ntfiles.append(file.path.split("/")[-1])
         

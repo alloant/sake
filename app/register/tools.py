@@ -112,13 +112,13 @@ def newNote(user,reg,ref = None):
 
 def view_title(reg,note=None):
     rg = reg.split('_')
-
+    dark = '-dark' if session['theme'] == 'dark-mode' else ''
     if rg[0] == 'des':
-        return ['static/icons/00-despacho.svg','Despacho']
+        return [f'static/icons/00-despacho{dark}.svg','Despacho']
     elif rg[0] == 'pen':
-        return ['static/icons/00-pendings.svg','My notes']
+        return [f'static/icons/00-pendings{dark}.svg','My notes']
     elif rg[0] == 'box' and rg[1] == 'out':
-        return [f'static/icons/00-outbox.svg','Notes from cr to be sent to cg, asr, r and ctr']
+        return [f'static/icons/00-outbox{dark}.svg','Notes from cr to be sent to cg, asr, r and ctr']
     elif rg[0] == 'cr':
         if rg[1] == 'all':
             return ['static/icons/sake.svg',"Notes history"]

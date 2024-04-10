@@ -2,7 +2,7 @@
   
   <!-- Protocol number with link -->
   <th scope="row">
-    {% if 'cr_' in reg or 'pen_' in reg %}
+    {% if 'cr_' in reg or 'pen_' in reg or 'des_' in reg %}
       {{ note.fullkey_link_html(reg)|safe }}
     {% else %}
       {{ note.fullkey }}
@@ -47,6 +47,7 @@
 
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
+    
     {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
       <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="Create folder for note"></i></button>
     {% endif%}

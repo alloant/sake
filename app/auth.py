@@ -1,6 +1,6 @@
 # auth.py
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session
 from flask_login import login_user, logout_user, login_required
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -27,6 +27,11 @@ def login():
 
         login_user(user)
         #check_folders_synology()
+         
+        if session.get('theme') is None:
+            session.permanent = True
+            session['theme'] = 'light-mode'
+            print('light')
 
         if 'cr' in user.groups:
             return redirect(url_for('register.register',reg='pen_in_'))
@@ -80,6 +85,13 @@ def signup():
         return redirect(url_for('auth.login'))
 
     return render_template('auth/auth.html', login=False, form=form)
+
+@bp.route('/theme')
+@login_required
+def theme():
+    print(session['theme'])
+    session['theme'] = 'light-mode' if session['theme'] == 'dark-mode' else 'dark-mode'
+    return redirect(request.referrer)
 
 @bp.route('/logout')
 @login_required
