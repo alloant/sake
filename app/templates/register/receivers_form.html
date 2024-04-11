@@ -1,0 +1,19 @@
+<div class="modal-dialog modal-dialog-centered">
+  <form  class="modal-content">
+
+    <div class="modal-header">
+      <h5 class="modal-title">Modal title {{request.path}}</h5>
+    </div>
+
+    <div class="modal-body">
+      <label>Name: <input type="text" name="name"></label>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      <button hx-post="/edit_receivers?note={{note.id}}" type="button" class="btn" data-bs-dismiss="modal">Save</button>
+    </div>
+
+  </form>
+</div>
+

@@ -12,6 +12,16 @@ from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm
 
 
+def edit_receivers_view(request):
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    print('here') 
+    if request.method == 'POST':
+        print('post')
+        return ""
+    
+    return render_template("register/receivers_form.html",note=note)
+
 def delete_note_view(request):
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))

@@ -89,7 +89,6 @@ def signup():
 @bp.route('/theme')
 @login_required
 def theme():
-    print(session['theme'])
     session['theme'] = 'light-mode' if session['theme'] == 'dark-mode' else 'dark-mode'
     return redirect(request.referrer)
 
@@ -132,3 +131,13 @@ def edit_user():
     
     return render_template('auth/user.html', form=form, user=user)
 
+from werkzeug.exceptions import HTTPException
+
+@bp.errorhandler(Exception)
+def handle_exception(e):
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
+
+    # now you're handling non-HTTP exceptions only
+    return render_template("error.html", e=e), 500

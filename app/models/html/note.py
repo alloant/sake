@@ -105,7 +105,6 @@ class NoteHtml(object):
     def status_html(self,reg):
         rg = reg.split("_")
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
-        
         if rg[0] == 'des':
             if self.is_read(f"des_{current_user.alias}"):
                 icon = "bi-hourglass-bottom"

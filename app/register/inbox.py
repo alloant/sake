@@ -29,6 +29,7 @@ def inbox_view(request):
     #import_dates()
     #find_files()
     #print(output)
+ 
     if rm_file:
         do_check = True
         file = db.session.scalar(select(File).where(File.id==rm_file))
@@ -69,6 +70,9 @@ def inbox_view(request):
                         db.session.add(fl)
                     else:
                         flash(f"File {filename} is already in the database. The copy file in Mail/IN")
+                    
+
+            db.session.commit()
 
     elif "getmail" in output:
         do_check = True

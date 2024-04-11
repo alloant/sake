@@ -54,3 +54,5 @@ def create_app(config_class=Config):
     app.register_blueprint(documentation_blueprint)
     
     return app
+
+
