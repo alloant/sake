@@ -50,11 +50,10 @@ class NoteProp(object):
                 return f"cr-{self.receiver[0].alias} {self.num}"
         elif 'min' == self.reg:
             return f"Minuta-{self.sender.alias} {self.num}"
-        elif self.reg in ['vc','vcr','dg','cc','desr']:
-            if self.proc == 'sf':
-                return f"{self.reg}-Aesf {self.num}"
-            else:
-                return f"{self.reg}-Aes {self.num}"
+        elif self.reg in ['vcr','dg','cc','desr']:
+            return f"{self.reg}-Aes {self.num}"
+        elif self.reg == 'vc':
+            return f"{self.reg}-Aesf {self.num}"
 
     @property
     def refs(self):
@@ -107,7 +106,27 @@ class NoteProp(object):
             (cls.sender_id.in_(session['cr']),'out'),
             else_='in'
         )
-    
+   
+    @hybrid_method
+    def ctr_has_done(self,ctr): #Use in state_cl and updateState for cl. We assume note is in for the ctr
+        if ctr['alias'] in self.received_by.split(','):
+            rst = True
+        else:
+            rst = False
+        
+        if ctr['date'] > self.n_date.strftime("%Y-%m-%d"):
+        #if ctr['date'] > self.n_date:
+            rst = not rst
+        
+        return rst 
+
+    @ctr_has_done.expression
+    def ctr_has_done(cls,ctr):
+        return case (
+            (ctr['date'] < cls.n_date,not_(cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')) ),
+        else_=cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')
+        )
+ 
     @hybrid_method
     def is_done(self,user): #Use in state_cl and updateState for cl. We assume note is in for the ctr
         if user.alias in self.received_by.split(','):

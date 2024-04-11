@@ -31,11 +31,10 @@
     {% if note.comments and note.is_involve(user,reg) %}
     <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text" style="color: OrangeRed;"></i></span>
     {% endif %}
-    {% if "jp" in user.groups and note.content_jp %}
-      {{ note.content_jp }}
-    {% else %}
-      {{ note.content }}
-    {% endif %}
+   
+    {{ note.content_html(reg)|safe }}
+
+    
     {% if ctr and note.comments_ctr %}
       {% for cm in note.comments_ctr %}
         {% if cm.sender_id == ctr.id %}
@@ -43,6 +42,7 @@
         {% endif %}
       {% endfor %}
     {% endif %}
+
   </td>
 
   <!-- Link to folder, button to updateFiles and files in folder -->
@@ -70,5 +70,4 @@
   <td>
     {{ note.refs_html(reg)|safe }}
   </td>
-
 </tr>

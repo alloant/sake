@@ -246,6 +246,7 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     ctr = None
     if rg[0] == 'cl':
         ctr = db.session.scalar(select(User).where(User.alias==rg[2]))
+        session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
 
     notes = db.paginate(sql, per_page=22)
     

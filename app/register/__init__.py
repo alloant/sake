@@ -5,6 +5,7 @@ from flask import Blueprint, request
 from flask_login import login_required, current_user
 
 from .register import register_view
+from .state_note import state_note_view, read_note_view
 from .edit_note import edit_note_view, delete_note_view
 from .download import download_view
 from .inbox import inbox_view
@@ -24,6 +25,16 @@ def register():
 def edit_note():
     get_cr_users()
     return edit_note_view(request)
+
+@bp.route('/state_note', methods=['GET','POST'])
+@login_required
+def state_note():
+    return state_note_view(request)
+
+@bp.route('/read_note', methods=['GET','POST'])
+@login_required
+def read_note():
+    return read_note_view(request)
 
 @bp.route('/delete_note', methods=['GET','POST'])
 @login_required

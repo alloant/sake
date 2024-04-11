@@ -1,3 +1,6 @@
+from flask import session
+from flask_login import current_user
+
 from xml.etree import ElementTree as ET
 
 class NoteHtml(object): 
@@ -44,37 +47,123 @@ class NoteHtml(object):
         
         return ET.tostring(dep,encoding='unicode',method='html')
 
+    def content_html(self,reg):
+        text = self.content_jp if 'jp' in current_user.groups else self.content
+        rg = reg.split("_")
+
+        if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out' or self.is_read(current_user):
+            ct = ET.Element('span',attrib={'class':f''})
+            ct.attrib['data-toggle'] = 'tooltip'
+            ct.attrib['title'] = ""
+            ct.text = text
+        else:
+            ct = ET.Element('div')
+            ct.attrib['hx-get'] = f"/read_note?note={self.id}"
+
+            cti = ET.Element('span',attrib={'class':f'fw-bold','role':'button'})
+            cti.attrib['data-toggle'] = 'tooltip'
+            cti.attrib['title'] = "Mark as read"
+            cti.text = text
+
+            ct.append(cti)
+
+        return ET.tostring(ct,encoding='unicode',method='html')
+        
+
 
     def row_decoration(self,reg,user):
         rg = reg.split('_')
+        return f'<tr class="">'
 
         if rg[0] == 'min':
             if self.sender == user: # The one who wrote the minuta
                 if self.state in [0,5]:
-                    return '<tr class="fw-bold">'
+                    return f'<tr class="fw-bold" id="table-row-{self.id}">'
                 elif self.state == 6:
-                    return '<tr class="fst-italic">'
+                    return f'<tr class="fst-italic" id="table-row-{self.id}">'
             else:
                 if not self.is_read(user):
-                    return '<tr class="fw-bold">'
+                    return f'<tr class="fw-bold" id="table-row-{self.id}">'
                 elif self.state == 6:
-                    return '<tr class="fst-italic">'
+                    return f'<tr class="fst-italic">'
         elif rg[0] in ['cr','cl','pen']:
             if self.rel_flow(reg) == 'in':
                 if not self.is_read(user):
-                    return '<tr class="fw-bold">'
+                    return f'<tr class="fw-bold">'
                 elif self.state == 6:
-                    return '<tr class="fst-italic">'
+                    return f'<tr class="fst-italic">'
             else:
                 if self.state in [0,5]:
-                    return '<tr class="fw-bold">'
+                    return f'<tr class="fw-bold">'
                 elif self.state == 6:
-                    return '<tr class="text-muted">'
+                    return f'<tr class="text-muted">'
 
 
 
         return "<tr>"
+    
+    def status_html(self,reg):
+        rg = reg.split("_")
+        sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
+        
+        if rg[0] == 'des':
+            if self.is_read(f"des_{current_user.alias}"):
+                icon = "bi-hourglass-bottom"
+                color = "gray"
+                text = "Unsign note"
+            else:
+                color = "orange"
+                if self.state == 3: #Nobody has check it before
+                    text = "Sign note"
+                    icon = "bi-circle-fill"
+                else:
+                    text = "Sign note (the other d has already signed)"
+                    icon = "bi-check-circle"
+        elif self.flow == 'out' and rg[0] == 'cl' or self.flow == 'in' and rg[0] != 'cl': # It is IN
+            if rg[0] == 'cl':
+                done = self.ctr_has_done(session['ctr'])
+                mine = True
+            else:
+                done = True if self.state > 5 else False
+                mine = True if current_user in self.receiver else False
 
+            if mine:
+                mn = '-fill'
+            else:
+                mn = ''
+                sp = ET.Element('span')
+                
+
+            if done:
+                icon = f"bi-check-circle{mn}"
+                color = "green"
+                text = "Mark note as pending"
+            else:
+                icon = f"bi-x-circle{mn}"
+                color = "red"
+                text = "Mark note as done"
+        else: # Out for the ctr
+            match self.state:
+                case 0:
+                    icon = "bi-send"
+                    color = "gray"
+                    text = "Send note to cr"
+                case 1:
+                    icon = "bi-check"
+                    color = "gray"
+                    text = "Waiting for cr to get the note (click to take note back from cr inbox)"
+                case _:
+                    sp = ET.Element('span')
+                    icon = "bi-check"
+                    color = "blue"
+                    text = "Note has been received in cr"
+        
+        #text = ""
+
+        i = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};','data-toggle':'tooltip','title':text})
+        sp.append(i)
+        return ET.tostring(sp,encoding='unicode',method='html')
+    
     def state_html(self,reg,user,ctr):
         rg = reg.split("_")
 
