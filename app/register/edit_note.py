@@ -9,18 +9,34 @@ from sqlalchemy.orm import aliased
 
 from app import db
 from app.models import Note, User, get_ref, Comment, File
-from app.forms.note import NoteForm
+from app.forms.note import NoteForm, ReceiverForm
 
-
-def edit_receivers_view(request):
+def receivers_form_view(request):
+    print('123')
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    print('here') 
-    if request.method == 'POST':
-        print('post')
-        return ""
     
-    return render_template("register/receivers_form.html",note=note)
+    form = ReceiverForm(request.form,obj=note)
+    form.receiver = note.potential_receivers
+
+
+
+    return ""
+
+def edit_receivers_view(request):
+    output = request.form.to_dict()
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    form = ReceiverForm(request.form,obj=note)
+
+    filter = output['search'] if 'search' in output else ''
+
+    form.receiver.choices = note.potential_receivers(filter)
+    
+    if request.method == 'POST':
+        return render_template("register/receivers_list.html",note=note, form=form)
+    
+    return render_template("register/receivers_form.html",note=note, form=form)
 
 def delete_note_view(request):
     note_id = request.args.get('note')

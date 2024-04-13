@@ -156,7 +156,9 @@ class NoteProp(object):
                 return None
         else: 
             folder = self.fullkey.split("/")[0]
+        
         print(folder)    
+        
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
         if self.reg == 'min':
@@ -177,7 +179,7 @@ class NoteProp(object):
             return f"{self.path}/{self.year}/{self.note_folder}"
             return f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} {self.flow}/{self.note_folder}"
     
-
+    
     def is_read(self,user):
         if isinstance(user,str): # This is a ctr or des
             alias = user if user[:4] == 'des_' else user.split('_')[2]

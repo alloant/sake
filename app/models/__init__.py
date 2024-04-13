@@ -8,7 +8,7 @@ from flask import current_app
 from flask_login import UserMixin
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
-from sqlalchemy import select, delete, func, case, union, and_
+from sqlalchemy import select, delete, func, case, union, and_, or_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
@@ -174,6 +174,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
         print(self.reg,self.flow)
+        
         if self.sender.alias in ['cg','asr'] or 'r' in self.sender.groups:
             self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} in"
         elif self.reg == 'min':
@@ -217,6 +218,27 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             check = user
         
         return check in self.receiver
+    
+    def potential_receivers(self,filter):
+        fn = []
+        fn.append(User.active==1)
+        if filter:
+            fn.append(or_(User.alias.contains(filter),User.description.contains(filter)))
+
+        if self.flow == 'in' and self.reg in ['cg','asr','ctr','r'] or self.reg == 'min':
+            fn.append(User.u_groups.regexp_match(r'\bcr\b'))
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+        elif self.flow == 'out' and self.reg in ['ctr','r']:
+            fn.append(User.u_groups.regexp_match(fr'\b{self.reg}\b'))
+            recs = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+        elif self.flow == 'out' and self.reg in ['vc','vcr']:
+            fn.append(User.u_groups.regexp_match(r'\bcg\b'))
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+            fn.pop()
+            fn.append(User.u_groups.regexp_match(r'\bvc-r\b'))
+            recs += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+    
+        return recs
 
     @hybrid_property
     def alias_sender(self):

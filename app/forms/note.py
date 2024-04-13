@@ -14,6 +14,10 @@ class MultiCheckboxField(SelectMultipleField):
     widget = ListWidget(prefix_label=False)
     option_widget = CheckboxInput()
 
+class ReceiverForm(FlaskForm):
+    receiver = MultiCheckboxField('Receiver',coerce=str)
+    submit = SubmitField("Submit")
+
 class NoteForm(FlaskForm):
     #num = IntegerField('Num',validators=[DataRequired()])
     num = IntegerField('Num')

@@ -57,12 +57,15 @@ class FileProp(object):
 
     def guess_fullkey(self,key = None):
         sender = self.get_user('email')
+
         if sender:
             prot = sender.alias
         else:
             return ""
 
         if key:
+            reg = re.findall(r'\S+',key)
+            prot = reg if reg[0] in ['vc','vcr'] else prot
             return f"{prot} {key}"
 
         if ";" in self.subject:

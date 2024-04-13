@@ -1,7 +1,7 @@
 
 {{ note.status_html(reg)|safe }}
 
-{% if user.admin or reg.split('_')[0] in ['min','des','box'] or note.state <= 1 and note.rel_flow(reg) == 'out' and (user == note.sender or 'cl_out' in reg) or 'cl_in' in reg %}
+{% if user.admin or reg.split('_')[0] in ['min','des','box'] or note.state <= 1 and note.rel_flow(reg) == 'out' and (user == note.sender or 'cl_out' in reg) or 'cl_in' in reg or reg.split('_')[0] in ['vc','vcr','dg','cc','desr'] %}
   <span class="text-muted">|</span>
   
   {% if reg.split('_')[0] == 'cl' %}
@@ -9,27 +9,6 @@
       <a href="/edit_note?note={{note.id}}&ctr={{reg.split('_')[2]}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
     {% endif %}
   {% else %}
-    
-    <a 
-        hx-get="/edit_receivers?note={{note.id}}" 
-        hx-target="#modals-here" 
-        hx-trigger="click" 
-        data-bs-toggle="modal"
-        data-bs-target="#modals-here"
-        class="">
-      <i class="bi bi-pencil-fill" role="button" data-toggle="tooltip" title="Edit receivers"></i>
-    </a>
-
-    <div id="modals-here"
-        class="modal modal-blur fade"
-        style="display: none"
-        aria-hidden="false"
-        tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content"></div>
-        </div>
-    </div>
-
     <a href="/edit_note?note={{note.id}}" data-bs-toggle="tooltip" title="Edit note"><i class="bi bi-pencil"></i></a>
   {% endif %}
   

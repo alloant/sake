@@ -3,12 +3,15 @@ from flask_login import current_user
 
 from xml.etree import ElementTree as ET
 
+from app import db
+from sqlalchemy import select
+
 class NoteHtml(object): 
     def refs_html(self,reg):
         rg = reg.split("_")
         html = []
         for ref in self.ref:
-            if rg[0] == 'cl' and ref.reg == 'ctr' or rg[0] in ['cr','pen','des']:
+            if rg[0] == 'cl' and ref.reg == 'ctr' or rg[0] in ['cr','pen','des','box','min','vc','vcr','dg','cc','desr']:
                 if rg[0] == 'des':
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
                 else:
@@ -47,6 +50,8 @@ class NoteHtml(object):
         
         return ET.tostring(dep,encoding='unicode',method='html')
 
+       
+    
     def content_html(self,reg):
         text = self.content_jp if 'jp' in current_user.groups else self.content
         rg = reg.split("_")

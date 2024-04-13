@@ -17,6 +17,11 @@ from app.syneml import write_eml
 from .tools import view_title, newNote, filter_from_protocol
 
 def find_history(note):
+    if note:
+        session['note'] = note
+    else:
+        note = session['note']
+
     sql = text(
             f"with recursive R as ( \
             select note_id as n, ref_id as r from note_ref where note_id = {note} or ref_id = {note} \
@@ -134,23 +139,14 @@ def register_actions(output,args): # Actions like new note, update read/state, u
         tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
         
         for nt in tosendnotes:
-            #if nt.reg in ['vc','vcr','dg','cc','desr']:
-            #    rst = nt.move(f"/team-folders/Mail {nt.reg}/Notes/{nt.year}/{nt.reg} out")
-            #elif nt.reg in ['asr','ctr']:
-            if nt.reg in ['asr','ctr']:
-                rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
-            
-            if not rst:
-                continue
-
-            #if nt.reg in ['cg','r']: # We have to generate the eml
-                #rec = ",".join([rec.email for rec in nt.receiver])
-                #path = f"{current_user.local_path}/Outbox"
-                #write_eml(rec,nt,path)
-                #nt.state = 6
+            if nt.reg in ['vc','vcr','dg','cc','desr']:
+                pass
+            else:
+                if not nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out"):
+                    continue
 
             if nt.reg == 'asr': # Note for asr. We just copy it to the right folder
-                nt.copy("{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/Mail asr/Outbox")
+                nt.copy(f"/team-folders/Mail asr/Mail to asr")
                 nt.state = 6
             
             if nt.reg == 'ctr': # note for a ctr. We just change the state

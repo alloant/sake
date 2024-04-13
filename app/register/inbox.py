@@ -120,15 +120,20 @@ def inbox_view(request):
 
                 if not sender:
                     continue
-
-                if file.sender == 'cg@cardumen.lan':
+            
+                preg = re.findall(r'\S+',gfk)
+                state = 3
+                if preg[0] in ['vc','vcr','dg','cc','desr']:
+                    nreg = preg[0]
+                    state = 5
+                elif file.sender == 'cg@cardumen.lan':
                     nreg = 'cg'
                 elif file.sender == 'asr':
                     nreg = 'asr'
                 else:
                     nreg = 'r'
                 
-                nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=nreg,state=3,content=content)
+                nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content)
                 
                 file.move_to_note(nt.path_note)
                 nt.addFile(file)

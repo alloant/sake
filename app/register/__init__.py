@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 
 from .register import register_view
 from .state_note import state_note_view, read_note_view
-from .edit_note import edit_note_view, delete_note_view, edit_receivers_view
+from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, receivers_form_view
 from .download import download_view
 from .inbox import inbox_view
 from .tools import get_cr_users
@@ -24,6 +24,11 @@ def register():
 @login_required
 def edit_receivers():
     return edit_receivers_view(request)
+
+@bp.route('/receivers_form', methods=['GET','POST'])
+@login_required
+def receivers_form():
+    return receivers_form_view(request)
 
 @bp.route('/edit_note', methods=['GET','POST'])
 @login_required
@@ -62,11 +67,11 @@ def inbox_scr():
 
 from werkzeug.exceptions import HTTPException
 
-@bp.errorhandler(Exception)
-def handle_exception(e):
+#@bp.errorhandler(Exception)
+#def handle_exception(e):
     # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+#    if isinstance(e, HTTPException):
+#        return e
 
     # now you're handling non-HTTP exceptions only
-    return render_template("error.html", e=e), 500
+#    return render_template("error.html", e=e), 500
