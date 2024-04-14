@@ -118,7 +118,7 @@ def view_title(reg,note=None):
     elif rg[0] == 'pen':
         return [f'static/icons/00-pendings{dark}.svg','My notes']
     elif rg[0] == 'box' and rg[1] == 'out':
-        return [f'static/icons/00-outbox{dark}.svg','Notes from cr to be sent to cg, asr, r and ctr']
+        return [f'static/icons/00-outbox{dark}.svg','Outbox cr']
     elif rg[0] == 'cr':
         if rg[1] == 'all':
             return ['static/icons/sake.svg',"Notes history"]

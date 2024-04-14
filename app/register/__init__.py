@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 
 from .register import register_view
 from .state_note import state_note_view, read_note_view
-from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, receivers_form_view
+from .edit_note import edit_note_view, delete_note_view, edit_receivers_view
 from .download import download_view
 from .inbox import inbox_view
 from .tools import get_cr_users

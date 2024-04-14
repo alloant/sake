@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import render_template, redirect, session, flash
+from flask import render_template, render_template_string, redirect, session, flash
 from flask_login import current_user
 
 from sqlalchemy import select, and_
@@ -11,22 +11,12 @@ from app import db
 from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm, ReceiverForm
 
-def receivers_form_view(request):
-    print('123')
-    note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
-    
-    form = ReceiverForm(request.form,obj=note)
-    form.receiver = note.potential_receivers
-
-
-
-    return ""
 
 def edit_receivers_view(request):
     output = request.form.to_dict()
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+    
     form = ReceiverForm(request.form,obj=note)
 
     filter = output['search'] if 'search' in output else ''
@@ -34,8 +24,12 @@ def edit_receivers_view(request):
     form.receiver.choices = note.potential_receivers(filter)
     
     if request.method == 'POST':
+        session['rst_checkbox'] = list(set(session['rst_checkbox'] + form.receiver.data))
+        form.receiver.data = session['rst_checkbox']
+        
         return render_template("register/receivers_list.html",note=note, form=form)
     
+    session['rst_checkbox'] = form.receiver.data
     return render_template("register/receivers_form.html",note=note, form=form)
 
 def delete_note_view(request):
@@ -44,16 +38,17 @@ def delete_note_view(request):
    
     for file in note.files:
         db.session.delete(file)
-
+    
     for ref in note.ref:
-        db.session.delete(ref)
-
-    for rec in note.receiver:
-        db.session.delete(rec)
-   
+        note.ref.remove(ref)
+    
     for comment in note.comments_ctr:
         db.session.delete(comment)
 
+    for rec in note.receiver:
+        note.receiver.remove(rec)
+
+    
     note.delete_folder()
 
     db.session.delete(note)
@@ -125,8 +120,11 @@ def edit_note_view(request):
                 if not user.alias in form.receiver.data:
                     note.receiver.remove(user)
 
-            
-            for user in form.receiver.data:
+            if 'rst_checkbox' in session:
+                rst_checkbox = list(set(session['rst_checkbox'] + form.receiver.data))
+            else:
+                rst_checkbox = form.receiver.data
+            for user in rst_checkbox:
                 rec = db.session.scalars(select(User).where(User.alias==user)).first()
                 if not rec in note.receiver:
                     note.receiver.append(rec)
@@ -169,6 +167,7 @@ def edit_note_view(request):
             if cm.sender_id == ctr:
                 form.comments_ctr.data = cm.comment
  
+    session['rst_checkbox'] = form.receiver.data
     if ctr and (note.state > 0 and note.flow == 'in' or note.flow == 'out'):
         return render_template('register/note_form_ctr.html', form=form, note=note, user=current_user, ctr=ctr)
     else:

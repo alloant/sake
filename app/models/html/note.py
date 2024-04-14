@@ -62,7 +62,7 @@ class NoteHtml(object):
             ct.attrib['title'] = ""
             ct.text = text
         else:
-            ct = ET.Element('div')
+            ct = ET.Element('span')
             ct.attrib['hx-get'] = f"/read_note?note={self.id}"
 
             cti = ET.Element('span',attrib={'class':f'fw-bold','role':'button'})
@@ -146,21 +146,27 @@ class NoteHtml(object):
                 icon = f"bi-x-circle{mn}"
                 color = "red"
                 text = "Mark note as done"
-        else: # Out for the ctr
+        else: # Out
             match self.state:
                 case 0:
                     icon = "bi-send"
                     color = "gray"
                     text = "Send note to cr"
                 case 1:
-                    icon = "bi-check"
+                    icon = "bi-send-check-fill"
                     color = "gray"
-                    text = "Waiting for cr to get the note (click to take note back from cr inbox)"
+                    if rg[0] == 'cl':
+                        text = "Waiting for cr to get the note (click to take note back from cr inbox)"
+                    else:
+                        text = "Waiting for scr to send note"
                 case _:
                     sp = ET.Element('span')
-                    icon = "bi-check"
-                    color = "blue"
-                    text = "Note has been received in cr"
+                    icon = "bi-send-check-fill"
+                    color = "green"
+                    if rg[0] == 'cl':
+                        text = "Note has been received in cr"
+                    else:
+                        text = "The note has been sent"
         
         #text = ""
 

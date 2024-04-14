@@ -79,15 +79,17 @@
     {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
       <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="Update files in folder"></i></button>
     {% endif%}
+  
+    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or 'cl_' in reg %}
+      {% if note.permanent_link %}
+        <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="Folder" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
+      {% endif %}
 
-    {% if note.permanent_link %}
-      <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="Folder" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
+      <span>:</span> 
+      {% for file in note.files %}
+        {{ file.icon_html|safe }}
+      {% endfor %}
     {% endif %}
-
-    <span>:</span> 
-    {% for file in note.files %}
-      {{ file.icon_html|safe }}
-    {% endfor %}
   </td>
 
   <!-- Refs of the note with tooltip with content -->

@@ -25,7 +25,10 @@ def download_view(request):
             rst = nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out")
         db.session.commit()
 
-    rec = ",".join([rec.email for rec in nt.receiver])
+    if nt.reg in ['cg','dg','cc','desr']:
+        rec = "cg@cardumen.lan"
+    else:
+        rec = ",".join([rec.email for rec in nt.receiver])
     path = f"{current_user.local_path}/Outbox"
 
     

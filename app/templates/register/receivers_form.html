@@ -18,21 +18,12 @@
           name="search" placeholder="Begin Typing To Search Users..." 
           hx-post="/edit_receivers?note={{note.id}}" 
           hx-trigger="input changed delay:500ms, search" 
-          hx-target="#search-results" 
+          hx-target="#search-results"
           hx-indicator=".htmx-indicator">
 
-      <table class="table">
-        <thead>
-        <tr>
-          <th></th>
-          <th>Alias</th>
-          <th>Description</th>
-        </tr>
-        </thead>
-        <tbody id="search-results">
-          {% include 'register/receivers_list.html' %}
-        </tbody>
-      </table>
+      <ul class="list-group" id="search-results">
+        {% include 'register/receivers_list.html' %}
+      </ul>
 
     <!-- End form -->
     </div>

@@ -1,18 +1,16 @@
-          <ul class="list-group" id="recList">
-            {% for rec in form.receiver %}
-              {% if rec.checked %} 
-                <li class="list-group-item p-1">
-                  {{ rec(class="form-check-input chbox") }}
-                  {{ rec.label(class="form-check-label chbox_label") }}
-                </li>
-              {% endif %}
-            {% endfor %}
-            {% for rec in form.receiver %}
-              {% if not rec.checked %} 
-                <li class="list-group-item p-1">
-                  {{ rec(class="form-check-input chbox") }}
-                  {{ rec.label(class="form-check-label chbox_label") }}
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
+      {% for rec in form.receiver %}
+        {% if rec.checked %} 
+          <li class="list-group-item p-1">
+            {{ rec(class="form-check-input chbox") }}
+            {{ rec.label(class="form-check-label chbox_label") }}
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% for rec in form.receiver %}
+        {% if not rec.checked %} 
+          <li class="list-group-item p-1">
+            {{ rec(class="form-check-input chbox") }}
+            {{ rec.label(class="form-check-label chbox_label") }}
+          </li>
+        {% endif %}
+      {% endfor %}

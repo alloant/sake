@@ -212,7 +212,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     def is_involve(self,user,reg):
         rg = reg.split("_")
-        if rg[0] == 'cl' and len(rg) == 3:
+        if rg[0] == 'des':
+            return True
+        elif rg[0] == 'cl' and len(rg) == 3:
             check = db.session.scalar(select(User).where(User.alias==rg[2]))
         else:
             check = user
@@ -223,7 +225,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         fn = []
         fn.append(User.active==1)
         if filter:
-            fn.append(or_(User.alias.contains(filter),User.description.contains(filter)))
+            fts = re.findall(r'\w+',filter)
+            ftn = []
+            for ft in fts:
+                ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),func.lower(User.name).contains(func.lower(ft)),func.lower(User.description).contains(func.lower(ft))))
+            fn.append(and_(*ftn))
 
         if self.flow == 'in' and self.reg in ['cg','asr','ctr','r'] or self.reg == 'min':
             fn.append(User.u_groups.regexp_match(r'\bcr\b'))

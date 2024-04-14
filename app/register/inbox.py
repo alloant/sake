@@ -181,7 +181,7 @@ def inbox_view(request):
             flash(f"The number of files in the database is not the same as in Mail/IN ({IN_db}/{IN_files})")
 
     #flash(f'There are {IN_files} in Mail/IN, {ctr_notes} waiting from ctrs and {asr_files} in Inbox asr')
-    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))    
-    return render_template('inbox/main.html',title="Files received from cg and r", files=files, page=page, ctr_notes=ctr_notes, prev_url=prev_url, next_url=next_url)
+    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
+    return render_template('inbox/main.html',title="Inbox cr", files=files, page=page, ctr_notes=ctr_notes, prev_url=prev_url, next_url=next_url)
 
 
