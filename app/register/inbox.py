@@ -84,6 +84,7 @@ def inbox_view(request):
             rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/ctr in/")
             if rst:
                 note.state = 3
+                note.n_date = date.today().strftime("Y%-%m-%d")
 
         db.session.commit()
 

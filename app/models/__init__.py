@@ -228,7 +228,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             fts = re.findall(r'\w+',filter)
             ftn = []
             for ft in fts:
-                ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),func.lower(User.name).contains(func.lower(ft)),func.lower(User.description).contains(func.lower(ft))))
+                #ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),func.lower(User.name).contains(func.lower(ft)),func.lower(User.description).contains(func.lower(ft))))
+                ftn.append(or_(User.alias.regexp_match(fr'\b{ft}\b'),User.description.regexp_match(fr'\b{ft}\b')))
             fn.append(and_(*ftn))
 
         if self.flow == 'in' and self.reg in ['cg','asr','ctr','r'] or self.reg == 'min':

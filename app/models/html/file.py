@@ -41,3 +41,19 @@ class FileHtml(object):
         a.append(i)
 
         return ET.tostring(a,encoding='unicode',method='html')
+
+    @property
+    def subject_html(self):
+        if self.note.reg == 'ctr' and self.note.flow == 'out':
+            if self.subject == '':
+                sp = ET.Element('span',attrib={})
+                sp.text = '(all)'
+            elif ",,,," in self.subject: # Several ctrs...
+                sp = ET.Element('span',attrib={'data-bs-toggle':self.subject,'title':'(...)'})
+            else:
+                sp = ET.Element('span',attrib={})
+                sp.text = self.subject
+
+            return ET.tostring(sp,encoding='unicode',method='html')
+
+        return ""

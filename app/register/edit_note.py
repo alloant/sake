@@ -12,25 +12,95 @@ from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm, ReceiverForm
 
 
+def rec_files_view(request):
+    print("asdasdasd")
+    return "asdasd"
+
+def edit_receivers_files_view(request):
+    output = request.form.to_dict()
+    file_id = request.args.get('file')
+    save = request.args.get('save')
+    file = db.session.scalar(select(File).where(File.id==file_id))
+    note = db.session.scalar(select(Note).where(Note.id==file.note_id))
+    
+    form = ReceiverForm(request.form)
+
+    filter = output['search'] if 'search' in output else ''
+    form.receiver.choices = note.potential_receivers(filter)
+    
+    if request.method == 'POST':
+        if 'frst_checkbox' in session:
+            for ch in session['fopt_checkbox']:
+                if ch[0] in session['frst_checkbox']:
+                    session['frst_checkbox'].remove(ch[0])
+
+            session['frst_checkbox'] += form.receiver.data
+            form.receiver.data = session['frst_checkbox']
+            session['fopt_checkbox'] = form.receiver.choices
+        else:
+            session['frst_checkbox'] = form.receiver.data
+        
+        if save:
+            file.subject = ",".join([c for c in session['frst_checkbox'] if c])
+            db.session.commit()
+            return file.subject_html
+
+        return render_template("register/receivers_list.html", form=form)
+    else:
+        for rec in file.subject.split(","):
+            form.receiver.data.append(rec)
+        
+    
+    session['fopt_checkbox'] = form.receiver.choices
+    session['frst_checkbox'] = form.receiver.data
+    return render_template("register/receivers_form.html", hxpost=f"/edit_receivers_files?file={file.id}", hxtarget="recFiles", form=form)
+
+
 def edit_receivers_view(request):
     output = request.form.to_dict()
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     
+    save = request.args.get('save')
     form = ReceiverForm(request.form,obj=note)
 
     filter = output['search'] if 'search' in output else ''
-
     form.receiver.choices = note.potential_receivers(filter)
     
     if request.method == 'POST':
-        session['rst_checkbox'] = list(set(session['rst_checkbox'] + form.receiver.data))
-        form.receiver.data = session['rst_checkbox']
-        
+        if 'rst_checkbox' in session:
+            for ch in session['opt_checkbox']:
+                if ch[0] in session['rst_checkbox']:
+                    session['rst_checkbox'].remove(ch[0])
+
+            session['rst_checkbox'] += form.receiver.data
+            form.receiver.data = session['rst_checkbox']
+            session['opt_checkbox'] = form.receiver.choices
+        else:
+            session['rst_checkbox'] = form.receiver.data
+
+        if save:
+            for n,user in enumerate(reversed(note.receiver)):
+                if not user.alias in form.receiver.data:
+                    note.receiver.remove(user)
+            
+            for user in session['rst_checkbox']:
+                rec = db.session.scalars(select(User).where(User.alias==user)).first()
+                if not rec in note.receiver:
+                    note.receiver.append(rec)
+
+            db.session.commit()
+            return note.dep_html
+
         return render_template("register/receivers_list.html",note=note, form=form)
+    else:
+        for rec in note.receiver:
+            form.receiver.data.append(rec.alias)
+        
     
+    session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
-    return render_template("register/receivers_form.html",note=note, form=form)
+    return render_template("register/receivers_form.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
 
 def delete_note_view(request):
     note_id = request.args.get('note')
@@ -57,6 +127,7 @@ def delete_note_view(request):
     return redirect(session['lasturl'])
 
 def edit_note_view(request):
+    output = request.form.to_dict()
     page = request.args.get('page',1,type=int)
     
     note_id = request.args.get('note')
@@ -83,24 +154,16 @@ def edit_note_view(request):
     
     form.content(disable=True)
     
-    if note.flow == 'in' or note.reg == 'min':
-        form.receiver.choices = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcr\b'),User.active==1)).order_by(User.alias)).all()]
-        #form.receiver.choices = [(user.alias,user.fullName) for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcr\b'),User.active==1)).order_by(User.alias)).all()]
-    elif note.reg in ['vc','vcr']:
-        form.receiver.choices = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bcg\b'),User.active==1)).order_by(User.alias)).all()]
-        form.receiver.choices += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(r'\bvc-r\b'),User.active==1)).order_by(User.alias)).all()]
-    else:
-        #form.receiver.choices = [(user.alias,user.fullName) for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]
-        form.receiver.choices = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(User.u_groups.regexp_match(fr'\b{note.reg}\b'),User.active==1)).order_by(User.alias)).all()]
-    
-     
+    filter = output['search'] if 'search' in output else ''
+
+    form.receiver.choices = note.potential_receivers(filter)
+         
     if request.method == 'POST' and form.validate():
         error = False
         if ctr and note.state > 0 and note.flow == 'out':
             if form.comments_ctr.data != "":
                 cm = db.session.scalar(select(Comment).where(and_(Comment.sender_id==ctr,Comment.note_id==note.id)))
                 if not cm:
-                    print(ctr,note.id,form.comments_ctr.data)
                     cm = Comment(sender_id=ctr,note_id=note.id,comment=form.comments_ctr.data)
                     db.session.add(cm)
                 else:
@@ -115,20 +178,25 @@ def edit_note_view(request):
             note.permanent = form.permanent.data
             #note.sender = form.sender.data
     
-       
+            if 'rst_checkbox' in session:
+                for ch in session['opt_checkbox']:
+                    if ch[0] in session['rst_checkbox']:
+                        session['rst_checkbox'].remove(ch[0])
+
+                session['rst_checkbox'] += form.receiver.data
+                form.receiver.data = session['rst_checkbox']
+                session['opt_checkbox'] = form.receiver.choices
+            else:
+                session['rst_checkbox'] = form.receiver.data
+            
             for n,user in enumerate(reversed(note.receiver)):
                 if not user.alias in form.receiver.data:
                     note.receiver.remove(user)
-
-            if 'rst_checkbox' in session:
-                rst_checkbox = list(set(session['rst_checkbox'] + form.receiver.data))
-            else:
-                rst_checkbox = form.receiver.data
-            for user in rst_checkbox:
+            
+            for user in session['rst_checkbox']:
                 rec = db.session.scalars(select(User).where(User.alias==user)).first()
                 if not rec in note.receiver:
                     note.receiver.append(rec)
-            
 
             current_refs = []
             if form.ref.data != "" and not isinstance(form.ref.data,list):
@@ -167,6 +235,7 @@ def edit_note_view(request):
             if cm.sender_id == ctr:
                 form.comments_ctr.data = cm.comment
  
+    session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
     if ctr and (note.state > 0 and note.flow == 'in' or note.flow == 'out'):
         return render_template('register/note_form_ctr.html', form=form, note=note, user=current_user, ctr=ctr)

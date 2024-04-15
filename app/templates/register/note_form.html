@@ -13,7 +13,7 @@
    
     <div class="d-flex d-flex-wrap justify-content-center m-2" style="background-color: light;">
       
-      <div class="flex-grow-1 p-2">
+      <div class="flex-grow-1 p-4 border rounded">
         <h3 class="mb-4">Data</h3>
         
         <div class="d-flex d-flex-wrap">
@@ -78,7 +78,15 @@
         </div>
       </div>
       
-      <div class="p-2">
+      <div class="p-4 border rounded">
+        <h3 class=mb-4> Files</h3>
+        {% for file in note.files %}
+          {% include 'register/file_card.html' %}
+        {% endfor %}
+      </div>
+        
+      <!-- Recipients -->
+      <div class="p-4">
           {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r','vc','vcr'] and (user.admin or note.sender_id == user.id or 'scr' in user.groups)) %}
           <h3 class=mb-4> Recipients</h3>
     
@@ -108,16 +116,16 @@
               } 
             }
           </script>
-
-
         {% endif %}
       </div>
+      <!-- Recipients end -->
     
     </div>
 
     </fieldset>
 
 </form>
+
 
 {% endblock %}
 

@@ -31,7 +31,7 @@
           data-bs-target="#modals-here"
           class=""
           role="button">
-      {{ note.dep_html|safe }}
+          <span id="recRow-{{note.id}}">{{ note.dep_html|safe }}</span>
       </a>
 
       <div id="modals-here"
@@ -81,13 +81,15 @@
     {% endif%}
   
     {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or 'cl_' in reg %}
-      {% if note.permanent_link %}
+      {% if note.permanent_link and not 'cl_in_' in reg %}
         <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="Folder" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
       {% endif %}
 
       <span>:</span> 
       {% for file in note.files %}
-        {{ file.icon_html|safe }}
+        {% if not 'cl_' in reg or file.subject == '' or reg.split('_')[2] in file.subject.split(',') %}
+          {{ file.icon_html|safe }}
+        {% endif %}
       {% endfor %}
     {% endif %}
   </td>
