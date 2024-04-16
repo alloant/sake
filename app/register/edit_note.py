@@ -53,7 +53,7 @@ def edit_receivers_files_view(request):
     
     session['fopt_checkbox'] = form.receiver.choices
     session['frst_checkbox'] = form.receiver.data
-    return render_template("register/receivers_form.html", hxpost=f"/edit_receivers_files?file={file.id}", hxtarget="recFiles", form=form)
+    return render_template("register/receivers_form.html", hxpost=f"/edit_receivers_files?file={file.id}", hxtarget=f"recFiles-{file.id}", form=form)
 
 
 def edit_receivers_view(request):

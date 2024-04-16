@@ -1,6 +1,7 @@
 # init.py
 
 from flask import Flask, session
+from flask_babel import Babel
 from flask_login import LoginManager 
 from flask_bootstrap import Bootstrap5
 
@@ -21,6 +22,7 @@ db = SQLAlchemy(model_class=Base)
 def create_app(config_class=Config):
     app = Flask(__name__)
     bootstrap = Bootstrap5(app)
+    babel = Babel(app)
     app.config.from_object(config_class)
     
     db.init_app(app)

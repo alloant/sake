@@ -24,7 +24,7 @@ class RegistrationForm(Form):
 class UserForm(Form):
     id = IntegerField('id')
     name = StringField('Name', [validators.Length(min=4, max=40)])
-    alias = StringField('User', [validators.Length(min=3, max=25)])
+    alias = StringField('User', [validators.Length(min=2, max=25)])
     email = StringField('Email Address')
     local_path = StringField('Local folder to download/upload emls')
     u_groups = StringField('Groups')

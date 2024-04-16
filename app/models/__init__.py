@@ -229,9 +229,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             ftn = []
             for ft in fts:
                 #ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),func.lower(User.name).contains(func.lower(ft)),func.lower(User.description).contains(func.lower(ft))))
-                ftn.append(or_(User.alias.regexp_match(fr'\b{ft}\b'),User.description.regexp_match(fr'\b{ft}\b')))
+                #ftn.append(or_(User.alias.regexp_match(fr'\b{ft}\b'),User.description.regexp_match(fr'\b{ft}\b')))
+                ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),User.description.regexp_match(fr'\b{ft}\b')))
             fn.append(and_(*ftn))
-
+        
+        recs = []
         if self.flow == 'in' and self.reg in ['cg','asr','ctr','r'] or self.reg == 'min':
             fn.append(User.u_groups.regexp_match(r'\bcr\b'))
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]

@@ -12,12 +12,13 @@ from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm
 
 def read_note_view(request):
+    reg = request.args.get('reg')
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    
+   
     note.updateRead(current_user)
 
-    return note.content
+    return note.content_html(reg)
 
 def state_note_view(request):
     note_id = request.args.get('note')

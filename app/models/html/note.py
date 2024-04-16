@@ -56,18 +56,25 @@ class NoteHtml(object):
         text = self.content_jp if 'jp' in current_user.groups else self.content
         rg = reg.split("_")
 
-        if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out' or self.is_read(current_user):
+        #if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out' or self.is_read(current_user):
+        if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out':
             ct = ET.Element('span',attrib={'class':f''})
             ct.attrib['data-toggle'] = 'tooltip'
             ct.attrib['title'] = ""
             ct.text = text
         else:
             ct = ET.Element('span')
-            ct.attrib['hx-get'] = f"/read_note?note={self.id}"
+            ct = ET.Element('span',attrib={'hx-post':f'/read_note?note={self.id}&reg={reg}','role':'button'})
+            #ct.attrib['hx-get'] = f"/read_note?note={self.id}&reg={reg}"
+            
+            if self.is_read(current_user):
+                cti = ET.Element('span',attrib={})
+                cti.attrib['title'] = "Mark as unread"
+            else:
+                cti = ET.Element('span',attrib={'class':f'fw-bold'})
+                cti.attrib['title'] = "Mark as read"
 
-            cti = ET.Element('span',attrib={'class':f'fw-bold','role':'button'})
             cti.attrib['data-toggle'] = 'tooltip'
-            cti.attrib['title'] = "Mark as read"
             cti.text = text
 
             ct.append(cti)
