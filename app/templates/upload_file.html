@@ -3,7 +3,7 @@
 
     <!-- Modal Header -->
     <div class="modal-header">
-      <h4 class="modal-title">Choose files</h4>
+      <h4 class="modal-title">{{gettext('Choose files')}}</h4>
       <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
     </div>
 
@@ -11,13 +11,13 @@
     <div class="modal-body text-center">
       <form method="POST" enctype=multipart/form-data>
         <input type="file" name="files" multiple="multiple">
-        <input type="submit" name="upload" value="Upload">
+        <input type="submit" name="upload" value="{{gettext('Upload')}}">
       </form>
     </div>
 
     <!-- Modal foot -->
     <div class="modal-footer">
-      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-danger" data-bs-dismiss="modal">{{gettext('Close')}}</button>
     </div>
   </div>
 </div>

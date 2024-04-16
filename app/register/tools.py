@@ -6,6 +6,7 @@ from sqlalchemy import select, func, literal_column, and_
 from sqlalchemy.orm import aliased
 
 from flask import session
+from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
@@ -114,23 +115,23 @@ def view_title(reg,note=None):
     rg = reg.split('_')
     dark = '-dark' if session['theme'] == 'dark-mode' else ''
     if rg[0] == 'des':
-        return [f'static/icons/00-despacho{dark}.svg','Despacho']
+        return [f'static/icons/00-despacho{dark}.svg',gettext(u'Despacho')]
     elif rg[0] == 'pen':
-        return [f'static/icons/00-pendings{dark}.svg','My notes']
+        return [f'static/icons/00-pendings{dark}.svg',gettext(u'My notes')]
     elif rg[0] == 'box' and rg[1] == 'out':
-        return [f'static/icons/00-outbox{dark}.svg','Outbox cr']
+        return [f'static/icons/00-outbox{dark}.svg',gettext(u'Outbox cr')]
     elif rg[0] == 'cr':
         if rg[1] == 'all':
-            return ['static/icons/sake.svg',"Notes history"]
+            return ['static/icons/sake.svg',gettext(u"Notes history")]
         else:
-            return [f'static/icons/ctr/{rg[2]}-{rg[1]}.svg',f"Notes from {rg[2]}" if rg[1] == 'in' else f"Notes to {rg[2]}"]
+            return [f'static/icons/ctr/{rg[2]}-{rg[1]}.svg',f"{gettext('Notes from')} {rg[2]}" if rg[1] == 'in' else f"{gettext('Notes to')} {rg[2]}"]
     elif rg[0] == 'cl':
         if rg[1] == 'all':
-            return ['static/icons/sake.svg',"Notes history"]
+            return ['static/icons/sake.svg',gettext("Notes history")]
         else:
-            return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"Notes from {rg[2]} to cr" if rg[1] == 'out' else f"Notes from cr to {rg[2]}"]
+            return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"{gettext('Notes from')} {rg[2]} {gettext('to cr')}" if rg[1] == 'out' else f"{gettext('Notes from cr to')} {rg[2]}"]
     elif rg[0] == 'min':
-        return ['','Minutas']
+        return ['',gettext('Minutas')]
     else:
         return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
 

@@ -4,25 +4,25 @@
 
 {% block content %}
 <h1 class="title text-center display-4">
-  Documentation
+  {{gettext('Documentation')}}
 </h1>
 
 <p class="title text-center display-6">
-  <a class="" href="?topic=config">1. Registration and configuration</a>
+  <a class="" href="?topic=config">{{gettext('1. Registration and configuration')}}</a>
 </p>
 
 {% if 'cl_' in current_user.u_groups or 'cr' in current_user.u_groups %}
     <p class="title text-center display-6">
-    <a class="" href="?topic=cl_in">2. Mail from cr</a>
+    <a class="" href="?topic=cl_in">{{gettext('2. Mail from cr')}}</a>
   </p>
   <p class="title text-center display-6">
-    <a class="" href="?topic=cl_out">3. Mail to cr</a>
+    <a class="" href="?topic=cl_out">{{gettext('3. Mail to cr')}}</a>
   </p>
 {% endif %}
 
 {% if 'cr' in current_user.groups %}
   <p class="title text-center display-6">
-    <a class="" href="?topic=cr">For cr</a>
+  <a class="" href="?topic=cr">{{gettext('For cr')}}</a>
   </p>
 {% endif %}
 

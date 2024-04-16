@@ -2,12 +2,12 @@
   <form  class="modal-content">
 
     <div class="modal-header">
-      <h5 class="modal-title">Recepient</h5>
+      <h5 class="modal-title">{{gettext('Recepient')}}</h5>
       <div>
         <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal">
-          Save
+          {{gettext('Save')}}
         </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{gettext('Close')}}</button>
       </div>
     </div>
 
@@ -19,7 +19,7 @@
         <input class="form-control mb-2" type="search" 
           name="search" placeholder="Begin Typing To Search Users..." 
           hx-post="{{hxpost}}" 
-          hx-trigger="input changed delay:500ms, search" 
+          hx-trigger="input changed delay:200ms, search" 
           hx-target="#search-results"
           hx-indicator=".htmx-indicator">
       </div>

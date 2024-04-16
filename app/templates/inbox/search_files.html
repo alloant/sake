@@ -1,7 +1,7 @@
   <div class="d-flex">
   {% if not 'box' in reg and ('out' in reg or 'min' in reg) %}
     <form class="d-flex p-2" method="POST">
-      <input href="#wait" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="newout" value="New">
+      <input href="#wait" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="newout" value="{{gettext('New')}}">
     </form>
     
   {% endif %}
@@ -14,12 +14,12 @@
     <ul class="pagination justify-content-center">
       {% if prev_url %}
       <li class="page-item">
-        <a class="page-link" href="{{ prev_url }}" tabindex="-1" aria-disabled="true">Previous</a>
+        <a class="page-link" href="{{ prev_url }}" tabindex="-1" aria-disabled="true">{{gettext('Previous')}}</a>
       </li>
       {% endif %}
       {% if next_url %}
       <li class="page-item">
-        <a class="page-link" href="{{ next_url }}">Next</a>
+        <a class="page-link" href="{{ next_url }}">{{gettext('Next')}}</a>
       </li>
       {% endif%}
     </ul>

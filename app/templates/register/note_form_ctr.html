@@ -23,7 +23,7 @@
       
       <div class="p-2">
         {% if note.reg in ['ctr','r'] and ( note.flow == 'in' and ('despacho' in user.groups or user.admin) or note.flow == 'out' and (user.admin or note.sender_id == user.id) and not ctr ) %}
-          <h3 class="mb-4">Receiver</h3>
+        <h3 class="mb-4">{{gettext('Receiver')}}</h3>
           
           <div class="d-flex d-flex-wrap">
             <input type="button" class="btn btn-primary mb-2 mr-2" id="selectall" name="selectall" autocomplete="off" checked onclick="eventCheckBox()" value="All">

@@ -131,6 +131,14 @@ def edit_user():
     
     return render_template('auth/user.html', form=form, user=user)
 
+
+@bp.route('/language')
+def set_language(language=None):
+    lang = request.args.get('lang')
+    session['language'] = lang
+    return redirect(request.referrer)
+
+
 from werkzeug.exceptions import HTTPException
 
 @bp.errorhandler(Exception)

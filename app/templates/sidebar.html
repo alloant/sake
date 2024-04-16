@@ -1,6 +1,6 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" style="background-color: light;">
   {% if 'cr' in current_user.groups %}
-  <a href="/register?reg=pen_in_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext(u'Pendings')}}">
+  <a href="/register?reg=pen_in_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-pendings.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -8,7 +8,7 @@
       {% endif %}
     </a>
     {% if False %}
-    <a href="/register?reg=min_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext(u'Minutas')}}">
+    <a href="/register?reg=min_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Minutas')}}">
       {% if session['theme'] == 'light-mode' %}
       <img src="static/icons/00-minutas.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -23,9 +23,9 @@
     <div class=" dropdown">
       <a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none py-1 py-lg-3 px-1" id="dropdownRegister" data-bs-toggle="dropdown" aria-expanded="false">
       {% if session['theme'] == 'light-mode' %}
-      <img src="static/icons/00-register.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext(u'Registers')}}">
+      <img src="static/icons/00-register.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
       {% else %}
-      <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext(u'Registers')}}">
+      <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
       {% endif %}
       </a>
       <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownRegister">
@@ -64,7 +64,7 @@
  
     {% if 'despacho' in current_user.groups %}
     <div class="border-top">
-      <a href="/register?reg=des_in_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Despacho">
+      <a href="/register?reg=des_in_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-despacho.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -76,7 +76,7 @@
 
     {% if 'scr' in current_user.groups %}
     <div class="border-top">
-      <a href="/inbox_scr" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Inbox">
+      <a href="/inbox_scr" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Inbox')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-inbox.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -86,7 +86,7 @@
     </div>
 
     <div>
-      <a href="/register?reg=box_out_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Outbox">
+      <a href="/register?reg=box_out_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Outbox')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-outbox.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -115,13 +115,13 @@
     {% for gp in current_user.groups %}
       {% if gp[:3] == 'cl_' %}
       <div class="border-top">
-        <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{ngettext(u'Mail from cr to %(ctr)',gp[3:])}}">
+        <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
           <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="35vmin" height="35vmin">
         </a>
       </div>
 
       <div class="">
-        <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{ngettext(u'Mail from %(ctr) to cr',gp[3:])}}">
+        <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
           <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="35vmin" height="35vmin">
         </a>
       </div>
@@ -153,7 +153,7 @@
   {% endif %}
   
   <div class="">
-    <a href="/documentation" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext(u'Documentation')}}">
+    <a href="/documentation" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
       {% if session['theme'] == 'light-mode' %}
       <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -164,12 +164,25 @@
 
   <div class="">
     {% if session['theme'] == 'dark-mode' %}
-    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext(u'Set light mode')}}">
+    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Set light mode')}}">
       <img src="static/icons/sun.svg" width="35vmin" height="35vmin">
     </a>
     {% else %}
-    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext(u'Set dark mode')}}">
+    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Set dark mode')}}">
       <img src="static/icons/moon.svg" width="35vmin" height="35vmin">
+    </a>
+
+    {% endif %}
+  </div>
+
+  <div class="">
+    {% if session['language'] == 'en' %}
+    <a href="/language?lang=ja" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Japanese')}}">
+      <img src="static/icons/ja.svg" width="35vmin" height="35vmin">
+    </a>
+    {% else %}
+    <a href="/language?lang=en" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('English')}}">
+      <img src="static/icons/en.svg" width="35vmin" height="35vmin">
     </a>
 
     {% endif %}
@@ -187,17 +200,17 @@
     </a>
     <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
       {% if current_user.is_authenticated%}
-      <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext(u'Profile')}} {{current_user.alias}}</a></li>
+      <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
       <li><hr class="dropdown-divider"></li>
       {% for ctr in session['ctrs'] %}
-      <li><a class="dropdown-item" href="/edit_user?user={{ctr[0]}}">{{gettext(u'Profile')}} {{ctr[1]}}</a></li>
+      <li><a class="dropdown-item" href="/edit_user?user={{ctr[0]}}">{{gettext('Profile')}} {{ctr[1]}}</a></li>
       {% endfor %}
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext(u'Log out')}}</a></li>
+      <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
       {% else %}
-      <li><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext(u'Log in')}}</a></li>
+      <li><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></li>
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext(u'Sign up')}}</a></li>
+      <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></li>
       {% endif %}
     </ul>
   </div>

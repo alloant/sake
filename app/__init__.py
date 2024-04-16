@@ -1,6 +1,6 @@
 # init.py
 
-from flask import Flask, session
+from flask import Flask, session, request
 from flask_babel import Babel
 from flask_login import LoginManager 
 from flask_bootstrap import Bootstrap5
@@ -19,10 +19,12 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
+
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     bootstrap = Bootstrap5(app)
-    babel = Babel(app)
+    babel = Babel(app, locale_selector=get_locale)
     app.config.from_object(config_class)
     
     db.init_app(app)
@@ -57,4 +59,14 @@ def create_app(config_class=Config):
     
     return app
 
-
+#@babel.localeselector
+def get_locale():
+    # if the user has set up the language manually it will be stored in the session,
+    # so we use the locale from the user settings
+    try:
+        language = session['language']
+    except KeyError:
+        language = None
+    if language is not None:
+        return language
+    return request.accept_languages.best_match(['en','ja'])

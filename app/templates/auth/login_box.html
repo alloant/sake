@@ -1,7 +1,7 @@
 <div class="row">
   <h1 class="display-1 p-4 text-center">
     <img src="static/icons/sake.svg" width="200vmin" height="200vmin">
-    Sake
+    {{gettext('Sake')}}
   </h1>
 </div>
 
@@ -21,7 +21,7 @@
       <div class="row mb-3 mx-auto">
         <label class="checkbox">
             <input type="checkbox">
-            Remember me
+            {{gettext('Remember me')}}
         </label>
       </div>
       {% endif %}
@@ -30,11 +30,11 @@
 
       <div class = "d-inline-flex mt-4 justify-content-center">
         <div class="">
-          <button class="btn btn-primary btn-lg me-2">Login</button>
+          <button class="btn btn-primary btn-lg me-2">{{gettext('Login')}}</button>
         </div>
       
         <div class="align-self-center">
-          Are you not register? Register <a href="{{ url_for('auth.signup') }}">here</a>
+          {{gettext('Are you not register? Register')}} <a href="{{ url_for('auth.signup') }}">{{gettext('here')}}</a>
         </div>
       </div>
   

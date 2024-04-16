@@ -1,7 +1,7 @@
 <div class="row">
   <h1 class="display-1 p-4 text-center">
     <img src="static/icons/sake.svg" width="200vmin" height="200vmin">
-    Sign up
+    {{gettext('Sign up')}}
   </h1>
 </div>
 
@@ -34,11 +34,11 @@
     <div class="row mb-3">
       <div class = "d-flex justify-content-start">
         <div class="">
-          <button class="btn btn-primary btn-lg me-2">Sign up</button>
+          <button class="btn btn-primary btn-lg me-2">{{gettext('Sign up')}}</button>
         </div>
       
         <div class="align-self-end">
-          Already have a user? Login <a href="{{ url_for('auth.login') }}">here</a>
+          {{gettext('Already have a user? Login')}} <a href="{{ url_for('auth.login') }}">{{gettext('here')}}</a>
         </div>
       </div>
     </div>

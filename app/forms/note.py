@@ -1,6 +1,7 @@
 # forms.py
 
 from flask_wtf import FlaskForm
+from flask_babel import gettext
 from wtforms import StringField, BooleanField, SelectField,DateField,IntegerField, RadioField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired
 from wtforms.widgets import ListWidget, CheckboxInput
@@ -15,27 +16,27 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = CheckboxInput()
 
 class ReceiverForm(FlaskForm):
-    receiver = MultiCheckboxField('Receiver',coerce=str)
-    submit = SubmitField("Submit")
+    receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
+    submit = SubmitField(gettext("Submit"))
 
 class NoteForm(FlaskForm):
     #num = IntegerField('Num',validators=[DataRequired()])
-    num = IntegerField('Num')
-    year = IntegerField('Year',validators=[DataRequired()])
-    sender = SelectField('Sender', validators=[DataRequired()])
+    num = IntegerField(gettext('Number'))
+    year = IntegerField(gettext('Year'),validators=[DataRequired()])
+    sender = SelectField(gettext('Sender'), validators=[DataRequired()])
 
-    receiver = MultiCheckboxField('Receiver',coerce=str)
+    receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
     #receiver = SelectMultipleField('Receiver', validators=[DataRequired()])
-    n_groups = StringField('Groups', validators=[])
-    n_date = DateField('Date', validators=[DataRequired()])
-    content = StringField('Content', validators=[DataRequired()])
-    content_jp = StringField('Content JP', validators=[])
-    comments = StringField('Comments', validators=[])
-    comments_ctr = StringField('Comments ctr', validators=[])
-    proc = SelectField('Procedure', validators=[])
+    n_groups = StringField(gettext('Groups'), validators=[])
+    n_date = DateField(gettext('Date'), validators=[DataRequired()])
+    content = StringField(gettext('Content'), validators=[DataRequired()])
+    content_jp = StringField(gettext('Content Japanese'), validators=[])
+    comments = StringField(gettext('Comments'), validators=[])
+    comments_ctr = StringField(gettext('Comments ctr'), validators=[])
+    proc = SelectField(gettext('Procedure'), validators=[])
     #proc = StringField('Procedure', validators=[])
-    ref = StringField('References', validators=[])
+    ref = StringField(gettext('References'), validators=[])
 
-    permanent = BooleanField('Only permanent')
+    permanent = BooleanField(gettext('Only permanent'))
 
-    submit = SubmitField("Submit")
+    submit = SubmitField(gettext("Submit"))
