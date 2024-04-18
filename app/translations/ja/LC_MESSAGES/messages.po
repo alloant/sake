@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-16 17:36+0530\n"
-"PO-Revision-Date: 2024-04-16 17:36+0530\n"
+"POT-Creation-Date: 2024-04-16 17:52+0530\n"
+"PO-Revision-Date: 2024-04-16 17:52+0530\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -19,6 +19,99 @@ msgstr ""
 "Generated-By: Babel 2.14.0\n"
 
 
+#: app/forms/login.py:9 app/forms/login.py:14 app/forms/login.py:28
+msgid "User"
+msgstr "ユーザー"
+
+#: app/forms/login.py:10 app/forms/login.py:16
+msgid "Password"
+msgstr "パスワード"
+
+#: app/forms/login.py:13 app/forms/login.py:27 app/templates/inbox/files.html:9
+msgid "Name"
+msgstr "名前"
+
+#: app/forms/login.py:15 app/forms/login.py:29
+msgid "Email Address"
+msgstr "メールアドレス"
+
+#: app/forms/login.py:18
+msgid "Passwords must match"
+msgstr "パスワードは一致する必要があります"
+
+#: app/forms/login.py:20 app/forms/login.py:31 app/forms/note.py:30
+msgid "Groups"
+msgstr "グループ"
+
+#: app/forms/login.py:21 app/forms/login.py:32
+msgid "User is active"
+msgstr "ユーザーはアクティブです"
+
+#: app/forms/login.py:22 app/forms/login.py:33
+msgid "Admin mode on"
+msgstr "管理者モードがオン"
+
+#: app/forms/login.py:23
+msgid "Repeat Password"
+msgstr "パスワードを繰り返す"
+
+#: app/forms/login.py:30
+msgid "Local folder to download/upload emls"
+msgstr "emlをダウンロード/アップロードするローカルフォルダー"
+
+#: app/forms/login.py:35 app/forms/note.py:20 app/forms/note.py:42
+msgid "Submit"
+msgstr "提出"
+
+#: app/forms/note.py:19 app/forms/note.py:28
+#: app/templates/register/note_form_ctr.html:26
+msgid "Receiver"
+msgstr "レシーバー"
+
+#: app/forms/note.py:24
+msgid "Number"
+msgstr "ナンバー"
+
+#: app/forms/note.py:25
+msgid "Year"
+msgstr "年"
+
+#: app/forms/note.py:26 app/templates/inbox/files.html:10
+msgid "Sender"
+msgstr "送信者"
+
+#: app/forms/note.py:31 app/templates/inbox/files.html:7
+#: app/templates/register/table.html:10
+msgid "Date"
+msgstr "日付"
+
+#: app/forms/note.py:32 app/templates/register/table.html:14
+msgid "Content"
+msgstr "コンテンツ"
+
+#: app/forms/note.py:33
+msgid "Content Japanese"
+msgstr "コンテンツ日本語"
+
+#: app/forms/note.py:34
+msgid "Comments"
+msgstr "コメント"
+
+#: app/forms/note.py:35
+msgid "Comments ctr"
+msgstr "コメント欄"
+
+#: app/forms/note.py:36
+msgid "Procedure"
+msgstr "手順"
+
+#: app/forms/note.py:38
+msgid "References"
+msgstr "参考文献"
+
+#: app/forms/note.py:40
+msgid "Only permanent"
+msgstr "永久のみ"
 
 #: app/models/html/note.py:73
 msgid "Mark as unread"
@@ -249,6 +342,34 @@ msgstr "お待ちください"
 msgid "Loading..."
 msgstr "読み込み中..."
 
+#: app/templates/auth/auth.html:24
+msgid "First time using the program?"
+msgstr "プログラムを初めて使用しますか?"
+
+#: app/templates/auth/auth.html:25
+msgid ""
+"If you have never enter you will have to signup first. You have to use "
+"your same user and password you use in Synology. You can signup in this"
+msgstr "エントリーしたことがない場合は、まずサインアップする必要があります。 "
+
+#: app/templates/auth/auth.html:25
+msgid "link"
+msgstr "リンク"
+
+#: app/templates/auth/auth.html:41
+msgid "Synology credentials"
+msgstr "Synology 認証情報"
+
+#: app/templates/auth/auth.html:42
+msgid ""
+"You have to use the same user and password you use in Synology. Problems?"
+" contact the"
+msgstr "Synology で使用しているのと同じユーザーとパスワードを使用する必要があります。"
+
+#: app/templates/auth/auth.html:42
+msgid "administrator"
+msgstr "管理者"
+
 #: app/templates/auth/login_box.html:24
 msgid "Remember me"
 msgstr "私を覚えておいてください"
@@ -419,21 +540,9 @@ msgid ""
 " the ctr"
 msgstr "すべての CTR にはプロファイルがあります。"
 
-#: app/templates/inbox/files.html:7 app/templates/register/table.html:10
-msgid "Date"
-msgstr "日付"
-
 #: app/templates/inbox/files.html:8
 msgid "Subject"
 msgstr "件名"
-
-#: app/templates/inbox/files.html:9
-msgid "Name"
-msgstr "名前"
-
-#: app/templates/inbox/files.html:10
-msgid "Sender"
-msgstr "送信者"
 
 #: app/templates/inbox/files.html:24
 msgid "Remove file"
@@ -510,10 +619,6 @@ msgstr "パーマネントのみ"
 msgid "Recipients"
 msgstr "受信者"
 
-#: app/templates/register/note_form_ctr.html:26
-msgid "Receiver"
-msgstr "レシーバー"
-
 #: app/templates/register/receivers_form.html:5
 msgid "Recepient"
 msgstr "受信者"
@@ -529,10 +634,6 @@ msgstr "すべて"
 #: app/templates/register/table.html:8
 msgid "Protocol"
 msgstr "プロトコル"
-
-#: app/templates/register/table.html:14
-msgid "Content"
-msgstr "コンテンツ"
 
 #: app/templates/register/table.html:15
 msgid "Files"
@@ -582,5 +683,4 @@ msgstr "ctrにノー​​トを生成"
 #: app/templates/register/table_row_buttons.html:33
 msgid "Generate minuta from note"
 msgstr "音符からミニュータを生成"
-
 

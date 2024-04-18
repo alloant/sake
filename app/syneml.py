@@ -102,9 +102,10 @@ def read_eml(file_eml,emails = None):
 
     if 'attachment' in parsed_eml:
         attachments = parsed_eml['attachment']
-    
+        efiles = []
         for file in attachments:
             fext = file['filename'].split(".")[-1]
+            
             if fext in EXT.keys():
                 fn = f"{file['filename'][:-len(fext)]}{EXT[fext]}"
             else:
@@ -112,6 +113,7 @@ def read_eml(file_eml,emails = None):
 
             rnt = db.session.scalar(select(File).where(and_(File.path.contains(fn),File.sender==sender)))
             exists = False
+            efiles.append(False)
             
             if rnt: # Note same name but could be different year
                 dt = rnt.note.year if rnt.note else rnt.date.year
@@ -121,9 +123,12 @@ def read_eml(file_eml,emails = None):
               
             if exists:
                 flash(f"The file {file['filename']} is already in the database")
-                return False
+                efiles.append(True)
         
-        for file in attachments:
+        for i,file in enumerate(attachments):
+            if efiles[i]:
+                continue
+
             b_file = io.BytesIO(base64.b64decode(file['raw']))
             b_file.name = f"{file['filename']}"
             

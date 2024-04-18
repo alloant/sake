@@ -131,7 +131,7 @@ def view_title(reg,note=None):
         else:
             return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"{gettext('Notes from')} {rg[2]} {gettext('to cr')}" if rg[1] == 'out' else f"{gettext('Notes from cr to')} {rg[2]}"]
     elif rg[0] == 'min':
-        return ['',gettext('Minutas')]
+        return [f'static/icons/00-minutas{dark}.svg',gettext('Minutas')]
     else:
         return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
 

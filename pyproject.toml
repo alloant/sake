@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sake-1"
+name = "sake"
 version = "0.9.9"
 description = ""
 authors = ["Antonio Alonso"]

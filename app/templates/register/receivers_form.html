@@ -20,11 +20,11 @@
           name="search" placeholder="Begin Typing To Search Users..." 
           hx-post="{{hxpost}}" 
           hx-trigger="input changed delay:200ms, search" 
-          hx-target="#search-results"
+          hx-target="#search-results-modal"
           hx-indicator=".htmx-indicator">
       </div>
 
-      <ul class="list-group" id="search-results">
+      <ul class="list-group" id="search-results-modal">
         {% include 'register/receivers_list.html' %}
       </ul>
       

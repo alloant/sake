@@ -87,35 +87,69 @@
         
       <!-- Recipients -->
       <div class="p-4">
-          {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r','vc','vcr'] and (user.admin or note.sender_id == user.id or 'scr' in user.groups)) %}
-          <h3 class=mb-4> {{gettext('Recipients')}}</h3>
-    
-          <div class="d-flex d-flex-wrap">
-            <input type="button" class="btn btn-primary mb-2 mr-2" id="selectall" name="selectall" autocomplete="off" checked onclick="eventCheckBox()" value="All">
-            <input class="form-control mb-2" type="search" 
-              name="search" placeholder="Begin Typing To Search Users..." 
-              hx-post="/edit_receivers?note={{note.id}}" 
-              hx-trigger="input changed delay:500ms, search" 
-              hx-target="#search-results"
-              hx-indicator=".htmx-indicator">
-          </div>
-          
-          <div id="recList">
-            <ul class="list-group" id="search-results">
+          {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r','vc','vcr'] and (user.admin or note.sender_id == user.id or 'scr' in user.groups)) or note.reg == 'min' %}
+            <h3 class=mb-4> {{gettext('Recipients')}}</h3>
+     
+            {% if note.reg == 'min' %}
+              <div class="d-flex d-flex-wrap">
+                <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+                <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+                <input class="form-control mb-2" id="recInput" type="text" placeholder="Search..">
+              </div>
+            {% else%}
+              <div class="d-flex d-flex-wrap">
+                <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+                <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+                <input class="form-control mb-2" type="search" 
+                  name="search" placeholder="Begin Typing To Search Users..." 
+                  hx-post="/edit_receivers?note={{note.id}}" 
+                  hx-trigger="input changed delay:200ms, search" 
+                  hx-target="#search-results"
+                  hx-indicator=".htmx-indicator">
+              </div>
+            {% endif %}
+            
+            {% if note.reg == 'min' %}
+              {% include 'register/receivers_list_order_list.html' %}
+            {% else %}
+              <ul class="list-group" id="search-results">
               {% include 'register/receivers_list.html' %}
-            </ul>
-          </div>
-          
-          <script>
-            function eventCheckBox() {
-              let checkboxs = document.getElementsByClassName("chbox");
-              let labels = document.getElementsByClassName("chbox_label");
+              </ul>
+            {% endif %}
+           
+            <script>
+              function tickCheckBox() {
+                let checkboxs = document.getElementsByClassName("chbox");
+                let labels = document.getElementsByClassName("chbox_label");
 
-              for(let i = 0; i < checkboxs.length ; i++) {
-                checkboxs[i].checked = !checkboxs[i].checked;
-              } 
-            }
-          </script>
+                for(let i = 0; i < checkboxs.length ; i++) {
+                  checkboxs[i].checked = 1;
+                } 
+              }
+            </script>
+           
+            <script>
+              function minusCheckBox() {
+                let checkboxs = document.getElementsByClassName("chbox");
+                let labels = document.getElementsByClassName("chbox_label");
+
+                for(let i = 0; i < checkboxs.length ; i++) {
+                  checkboxs[i].checked = 0;
+                } 
+              }
+            </script> 
+            
+            <script>
+            $(document).ready(function(){
+              $("#recInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#recList li").filter(function() {
+                  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+              });
+            });
+            </script>
+
         {% endif %}
       </div>
       <!-- Recipients end -->

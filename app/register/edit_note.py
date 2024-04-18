@@ -11,6 +11,11 @@ from app import db
 from app.models import Note, User, get_ref, Comment, File
 from app.forms.note import NoteForm, ReceiverForm
 
+def sortable_view(request):
+    form = ReceiverForm(request.form)
+    order = request.form.keys()
+    print(order,form.receiver.data)
+    return ("",204)
 
 def rec_files_view(request):
     print("asdasdasd")
@@ -26,7 +31,16 @@ def edit_receivers_files_view(request):
     form = ReceiverForm(request.form)
 
     filter = output['search'] if 'search' in output else ''
-    form.receiver.choices = note.potential_receivers(filter)
+    if 'rst_checkbox' in session:
+        possibles = session['rst_checkbox']
+    else:
+        possibles = []
+
+    form.receiver.choices = note.potential_receivers(filter,possibles = possibles)
+    print('------')
+    print(form.receiver.choices)
+    print('------')
+    print(session['rst_checkbox'])
     
     if request.method == 'POST':
         if 'frst_checkbox' in session:
@@ -72,13 +86,13 @@ def edit_receivers_view(request):
             for ch in session['opt_checkbox']:
                 if ch[0] in session['rst_checkbox']:
                     session['rst_checkbox'].remove(ch[0])
-
+            
             session['rst_checkbox'] += form.receiver.data
             form.receiver.data = session['rst_checkbox']
             session['opt_checkbox'] = form.receiver.choices
         else:
             session['rst_checkbox'] = form.receiver.data
-
+        
         if save:
             for n,user in enumerate(reversed(note.receiver)):
                 if not user.alias in form.receiver.data:
@@ -156,7 +170,10 @@ def edit_note_view(request):
     
     filter = output['search'] if 'search' in output else ''
 
-    form.receiver.choices = note.potential_receivers(filter)
+    if note.reg == 'min':
+        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
+    else:
+        form.receiver.choices = note.potential_receivers(filter)
          
     if request.method == 'POST' and form.validate():
         error = False
@@ -178,7 +195,7 @@ def edit_note_view(request):
             note.permanent = form.permanent.data
             #note.sender = form.sender.data
     
-            if 'rst_checkbox' in session:
+            if 'rst_checkbox' in session and note.reg != 'min':
                 for ch in session['opt_checkbox']:
                     if ch[0] in session['rst_checkbox']:
                         session['rst_checkbox'].remove(ch[0])
@@ -188,7 +205,11 @@ def edit_note_view(request):
                 session['opt_checkbox'] = form.receiver.choices
             else:
                 session['rst_checkbox'] = form.receiver.data
-            
+
+            if note.reg == 'min':
+                note.received_by = ",".join(form.receiver.data)
+        
+             
             for n,user in enumerate(reversed(note.receiver)):
                 if not user.alias in form.receiver.data:
                     note.receiver.remove(user)

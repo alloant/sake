@@ -92,8 +92,31 @@ def inbox_view(request):
         do_check = True
         files = db.session.scalars(select(File).where(File.note_id==None))
         involved_notes = []
+        print('NOTES')
         for file in files:
-            gfk = file.guess_fullkey(output[f"number_{file.id}"])
+            prot = output[f"number_{file.id}"].lower()
+            prots = re.findall(r'\w+',prot)
+            
+            
+            ref = False
+            print(len(prots),prots)
+            if len(prots) > 2:
+                if len(prots) == 3:
+                    if prots[0] == 'ref':
+                        ref = True
+                        pt = "cg"
+                    else:
+                        pt = prots[0]
+                elif len(prots) == 4:
+                    print('here')
+                    ref = True
+                    pt = prots[1]
+
+                gfk = f"{pt} {prots[-2]}/{prots[-1]}"
+            else:
+                gfk = file.guess_fullkey(prot)
+            
+
             if gfk == "":
                 continue
 
@@ -105,12 +128,29 @@ def inbox_view(request):
 
             sender = aliased(User,name="sender_user")
             nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
+            if ref and nt:
+                rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.num==0,Note.ref.contains(nt))))
+            else:
+                rnt = None
+
+            print("rnt",rnt,nt)
+                 
             
-            if nt:
-                file.move_to_note(nt.path_note)
-                nt.addFile(file)
+            if rnt:
+                print('!@#!@#',rnt,rnt.path_note)
+                rst = file.move_to_note(f"{rnt.path_note}")
+                if rst:
+                    rnt.addFile(file)
+                if not rnt in involved_notes: involved_notes.append(rnt)
+            elif nt and not ref:
+                rst = file.move_to_note(f"{nt.path_note}")
+                if rst:
+                    nt.addFile(file)
                 if not nt in involved_notes: involved_notes.append(nt)
             else: # We need to create the note
+                if ref:
+                    nref = nt
+
                 num = re.findall(r'\d+',gfk)[0]                
                 year = re.findall(r'\d+',gfk)[1]                
                 
@@ -134,10 +174,17 @@ def inbox_view(request):
                 else:
                     nreg = 'r'
                 
-                nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content)
+                if ref:
+                    nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content,ref=[nref])
+                    #nt.ref.append(nref)
+                else:
+                    nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content)
                 
-                file.move_to_note(nt.path_note)
-                nt.addFile(file)
+                print('@@',nt.path_note)
+                rst = file.move_to_note(nt.path_note)
+                if rst:
+                    nt.addFile(file)
+                
                 if not nt in involved_notes: involved_notes.append(nt)
                 db.session.add(nt)
         
@@ -153,11 +200,12 @@ def inbox_view(request):
             
                 if len(refs) != len(nrefs): # I didn't get all refs
                     flash(f"There was a problem with {file.subject}. Not all references are in place")
+        
+            db.session.commit()
 
         for note in involved_notes:
             note.updateFiles()
 
-        db.session.commit()
 
 
     sql = select(File).where(File.note_id == None)

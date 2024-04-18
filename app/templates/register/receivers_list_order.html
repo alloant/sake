@@ -1,0 +1,31 @@
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+    </tr>
+  </thead>
+  <tbody class="sortable" hx-post="/sortable" hx-include="tr" hx-trigger="end" hx-swap="none">
+      {% for rec in form.receiver %}
+      <form>
+      <tr>
+            <td>{{ rec(class="form-check-input chbox") }}
+            {{ rec.label(class="form-check-label chbox_label") }}</td>
+      </tr>
+    </form>
+      {%endfor%}
+  </tbody>
+</table>
+
+<script>
+  htmx.onLoad(function(content) {
+      var sortables = content.querySelectorAll(".sortable");
+      for (var i = 0; i < sortables.length; i++) {
+          var sortable = sortables[i];
+          new Sortable(sortable, {
+              animation: 150,
+              ghostClass: 'blue-background-class'
+          });
+      }
+  })
+</script>

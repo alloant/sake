@@ -157,8 +157,6 @@ class NoteProp(object):
         else: 
             folder = self.fullkey.split("/")[0]
         
-        print(folder)    
-        
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
         if self.reg == 'min':
@@ -217,8 +215,9 @@ class NoteProp(object):
     def updateState(self,reg,user):
         rg = reg.split("_")
         if rg[0] == 'box': # Is the scr getting mail from cg, asr, ctr or r
+            pass
             # Here we move to Archive and if the move is succesful we put state 2
-            self.state = 2
+            #self.state = 2
         elif rg[0] == 'des': # Here states are only 2 or 3
             self.state += self.updateRead(f"des_{user.alias}")
         elif rg[0] == 'cl':

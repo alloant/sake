@@ -122,7 +122,7 @@ note_ref = db.Table('note_ref',
 
 note_receiver = db.Table('note_receiver',
                 db.Column('note_id', db.Integer, db.ForeignKey('note.id')),
-                db.Column('receiver_id', db.Integer, db.ForeignKey('user.id'))
+                db.Column('receiver_id', db.Integer, db.ForeignKey('user.id')),
                 )
 
 class Note(NoteProp,NoteHtml,NoteNas,db.Model):
@@ -173,12 +173,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
-        print(self.reg,self.flow)
         
         if self.sender.alias in ['cg','asr'] or 'r' in self.sender.groups:
             self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} in"
         elif self.reg == 'min':
-            self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{folder}/Minutas/{datetime.now().year}"
+            self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{datetime.now().year}/{alias}"
         elif 'ctr' in self.sender.groups: # Note created by a ctr
             self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
         elif self.reg in ['vc','vcr','dg','cc','desr']:
@@ -221,7 +220,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         
         return check in self.receiver
     
-    def potential_receivers(self,filter):
+    def potential_receivers(self,filter,possibles = []):
         fn = []
         fn.append(User.active==1)
         if filter:
@@ -234,18 +233,31 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             fn.append(and_(*ftn))
         
         recs = []
-        if self.flow == 'in' and self.reg in ['cg','asr','ctr','r'] or self.reg == 'min':
+        if self.reg == 'min':
             fn.append(User.u_groups.regexp_match(r'\bcr\b'))
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all()]
+            firsts = []
+            for pot in possibles:
+                for rc in recs:
+                    if rc[0] == pot:
+                        firsts.append(rc)
+
+            for ft in firsts:
+                recs.remove(ft)
+
+            recs = firsts + recs
+        if self.flow == 'in' and self.reg in ['cg','asr','ctr','r']:
+            fn.append(User.u_groups.regexp_match(r'\bcr\b'))
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
         elif self.flow == 'out' and self.reg in ['ctr','r']:
             fn.append(User.u_groups.regexp_match(fr'\b{self.reg}\b'))
-            recs = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+            recs = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
         elif self.flow == 'out' and self.reg in ['vc','vcr']:
             fn.append(User.u_groups.regexp_match(r'\bcg\b'))
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
             fn.pop()
             fn.append(User.u_groups.regexp_match(r'\bvc-r\b'))
-            recs += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all()]
+            recs += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
     
         return recs
 
