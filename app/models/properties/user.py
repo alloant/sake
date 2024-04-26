@@ -16,3 +16,12 @@ class UserProp(object):
         if self.description: rst = f"{rst} ({self.description})"
 
         return rst
+
+    @property
+    def severalCalendars(self):
+        if 'cr' in self.groups:
+            return True
+        elif len([g for g in self.groups if 'cl_' in g]) > 1:
+            return True
+
+        return False

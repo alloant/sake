@@ -39,8 +39,14 @@ def get_ref(ref):
         if len(nums) == 2:
             fk = f"cg {nums[0]}/{nums[1]}"
     elif len(rst) == 2 and len(nums) == 2:
-        if rst[1] == '/': # Otherwise there is not rf
-            if rst[0][:2] == 'cr' or rst[0][:3] == 'Aes': # Is note out
+        if rst[1] == '/': # Otherwise there is not rf vc- vcr- -vc -vcr
+            if rst[0][:3] == 'vcr':
+                fk = f"vcr {nums[0]}/{nums[1]}"
+            elif rst[0][:2] in ['vc','dg','cc']: # Is note out from vc or vcr
+                fk = f"{rst[0][2]} {nums[0]}/{nums[1]}"
+            elif rst[0][:4] == 'desr':
+                fk = f"desr {nums[0]}/{nums[1]}"
+            elif rst[0][:2] == 'cr' or rst[0][:3] == 'Aes': # Is note out
                 if int(nums[0]) < 250: # Note to cg
                     fk = f"Aes {nums[0]}/{nums[1]}"
                 elif int(nums[0]) < 1000: # Note to asr
@@ -150,6 +156,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     permanent: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
     reg: Mapped[str] = mapped_column(db.String(15), default = '')
+    register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'))
+    register: Mapped["Register"] = relationship(back_populates="notes")
+
+
+
     n_groups: Mapped[str] = mapped_column(db.String(15), default = '')
 
     done: Mapped[bool] = mapped_column(db.Boolean, default=False)
@@ -173,18 +184,18 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
-        
-        if self.sender.alias in ['cg','asr'] or 'r' in self.sender.groups:
+       
+        if self.reg in ['vc','vcr','dg','cc','desr']:
+            if 'cr' in self.sender.groups:
+                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} out"
+            else:
+                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} in"
+        elif self.sender.alias in ['cg','asr'] or 'r' in self.sender.groups:
             self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} in"
         elif self.reg == 'min':
             self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{datetime.now().year}/{alias}"
         elif 'ctr' in self.sender.groups: # Note created by a ctr
             self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
-        elif self.reg in ['vc','vcr','dg','cc','desr']:
-            if 'cr' in self.sender.groups:
-                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} out"
-            else:
-                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} in"
         else: # Note create by dr/of cr
             self.path = f"/team-folders/Mail {alias}/Outbox"
 
@@ -317,3 +328,23 @@ class User(UserProp,UserMixin, db.Model):
 
     def __gt__(self,other):
         return self.order > other.order
+
+class Register(db.Model):
+    __tablename__ = 'register'
+
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    
+    name: Mapped[str] = mapped_column(db.String(200), default='')
+    alias: Mapped[str] = mapped_column(db.String(20), unique=True)
+    
+    r_groups: Mapped[str] = mapped_column(db.String(200), default=False)
+    
+    protocol_pattern: Mapped[str] = mapped_column(db.String(200), default='')
+    folder: Mapped[str] = mapped_column(db.String(200), default='')
+
+    active: Mapped[str] = mapped_column(db.Boolean, default=True)
+    
+    notes: Mapped[list["Note"]] = relationship(back_populates="register")
+
+    def __repr__(self):
+        return f"{self.name} ({self.alias})"

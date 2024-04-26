@@ -116,6 +116,7 @@ class NoteHtml(object):
         return "<tr>"
     
     def status_html(self,reg):
+        print(self.content)
         rg = reg.split("_")
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if rg[0] == 'des':
@@ -137,7 +138,7 @@ class NoteHtml(object):
                 mine = True
             else:
                 done = True if self.state > 5 else False
-                mine = True if current_user in self.receiver else False
+                mine = True if current_user in self.receiver or self.reg in ['vcr','vc','dg','cc','desr'] else False
 
             if mine:
                 mn = '-fill'
@@ -182,158 +183,6 @@ class NoteHtml(object):
         sp.append(i)
         return ET.tostring(sp,encoding='unicode',method='html')
     
-    def state_html(self,reg,user,ctr):
-        rg = reg.split("_")
-
-        if rg[0] == 'cl':
-            return self.state_cl_html(reg,user,ctr)
-        elif rg[0] in ['cr','pen']:
-            return self.state_cr_html(reg,user)
-        elif rg[0] == 'min':
-            return self.state_min_html(reg,user)
-        elif rg[0] == 'des':
-            return self.state_des_html(reg,user)
-        elif rg[0] == 'box':
-            return self.state_box_html(reg,user)
-        else:
-            return self.state_cr_html(reg,user)
-
-    def state_other_html(self,reg,user):
-        rg = reg.split("_")
-
-    def state_cl_html(self,reg,user,ctr):
-        rg = reg.split("_")
-        if self.flow == 'out': # Notes in for the ctr. 3 options: no read, read and done
-            if self.is_read(user):
-                if self.is_done(ctr):
-                    icon = "bi-check-circle"
-                    action = "state"
-                    text = gettext('Mark as undone')
-                    color = "green"
-                else:
-                    icon = "bi-x-circle"
-                    action = "state"
-                    text = gettext('Mark as done')
-                    color = "red"
-            else:
-                if self.is_done(ctr):
-                    color = "gray"
-                else:
-                    color = "red"
-                icon = "bi-envelope-fill"
-                text = gettext('Mark as read')
-                action = "read"
-        else: # Note from ctr to cr
-            action = "state"
-            if self.state == 0: # cl is still working on it
-                icon = "bi-send"
-                color = "gray"
-                text = gettext('Send note to cr')
-            elif self.state == 1: # cl send it to cr but it is still in outbox
-                icon = "bi-check"
-                color = "gray" 
-                text = gettext('Take note back from cr')
-            elif self.state > 1: # Note is already on despacho or beyond that
-                icon = "bi-check"
-                color = "blue"
-                text = gettext('Note has been received')
-                action = ""
-            
-        if action:
-            a = ET.Element('a',attrib={'href':f'?reg={reg}&{action}={self.id}','data-bs-toggle':'tooltip','title':text})
-        else:
-            a = ET.Element('span',attrib={'data-bs-toggle':'tooltip','title':text})
-        
-        i = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};'})
-        a.append(i)
-        
-        return ET.tostring(a,encoding='unicode',method='html')
-
-    def state_des_html(self,reg,user):
-        if self.is_read(f"des_{user.alias}"):
-            icon = "bi-hourglass-bottom"
-            color = "gray"
-            text = gettext('Unsign note (other dr has already signed)')
-        else:
-            if self.state == 3: #Nobody has check it before
-                text = gettext('Sign note')
-                icon = "bi-circle-fill"
-            else:
-                text = gettext('Sign note (the other d has already signed)')
-                icon = "bi-check-circle"
-            color = "orange"
-
-        a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':text})
-        i = ET.Element('i',attrib={'class':f'bi {icon}','style':f'color: {color};'})
-        a.append(i)
-        
-        return ET.tostring(a,encoding='unicode',method='html') 
-    
-    def state_box_html(self,reg,user):
-        rg = reg.split("_")
-        a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':gettext("Archive the note")})
-        if rg[1] == 'in':
-            i = ET.Element('i',attrib={'class':'bi bi-floppy2','style':'color: orange;'})
-        else:
-            i = ET.Element('i',attrib={'class':'bi bi-send','style':'color: orange;'})
-        
-        a.append(i)
-       
-        return ""
-        return ET.tostring(a,encoding='unicode',method='html') 
-    
-    def state_cr_html(self,reg,user):         
-        if self.flow == 'in': # Notes from cg,asr,r and ctr. They could be read/unread and done/undone
-            fill = "-fill" if self.is_involve(user,reg) else ""
-            action = ""
-            text = ""
-            if self.is_read(user): # The note has been read   
-                icon = f"bi-envelope-open{fill}"
-            else:
-                icon = f"bi-envelope{fill}"
-                text = gettext("Mark as read")
-                action = "read"
-
-            if self.state == 5: # Note is not done
-                color = "gray"
-                if fill and not action:
-                    text = gettext("Mark as done")
-                    action = "state"
-                    icon = f"bi-x-circle"
-                    color = "red"
-            else:
-                color = "gray"
-                if fill and not action:
-                    text = gettext("Mark as not done")
-                    action = "state"
-                    icon = "bi-check-circle"
-                    color = "green"
-        else: # Note send to cg,asr,r,ctr. Could be working, waiting, sent
-            action = "state"
-            if self.state == 0: # dr is still working on the note
-                icon = "bi-send"
-                color = "gray"
-                text = gettext("Send note to scr")
-            elif self.state == 1: # dr send it to scr but it is still in outbox
-                icon = "bi-check"
-                color = "gray" 
-                text = gettext("Take note back from scr")
-            elif self.state > 1: # Note is already sent
-                icon = "bi-check"
-                color = "blue"
-                text = gettext("Note has been sent")
-                action = ""
-            
-        if action:
-            a = ET.Element('a',attrib={'href':f'?reg={reg}&{action}={self.id}','data-bs-toggle':'tooltip','title':text})
-        else:
-            a = ET.Element('span',attrib={'data-bs-toggle':'tooltip','title':text})
-        
-        i = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};'})
-        a.append(i)
-        
-        return ET.tostring(a,encoding='unicode',method='html')
-
     def state_min_html(self,reg,user):
         if self.sender == user:
             if self.state == 0: # Sender is working on it

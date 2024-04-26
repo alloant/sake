@@ -145,14 +145,15 @@ def read_eml(file_eml,emails = None):
 
             fl = File(path=path,permanent_link=link,subject=subject,sender=sender.lower(),date=date.date())
             db.session.add(fl)
+            flash(f"{fl} has been added to the database")
 
         db.session.commit()
                 
  
-    else:
-        if 'body' in parsed_eml:
-            if parsed_eml['body']:
-                if 'content' in parsed_eml['body'][0]:
-                    b_file = io.BytesIO(str.encode(parsed_eml['body'][0]['content']))
-                    b_file.name = f"{subject}"
-                    upload_path(b_file,dest)
+#    else:
+#        if 'body' in parsed_eml:
+#            if parsed_eml['body']:
+#                if 'content' in parsed_eml['body'][0]:
+#                    b_file = io.BytesIO(str.encode(parsed_eml['body'][0]['content']))
+#                    b_file.name = f"{subject}"
+#                    upload_path(b_file,dest)

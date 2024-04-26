@@ -1,30 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if note.num > 0 %}
+  <h1 class="text-center display-4 mb-5 border rounded bg-secondary text-white">{{ note.fullkey }}</h1>
+{% elif note.ref %}
+  <h1 class="text-center display-4 mb-5 border rounded bg-secondary text-white">ref {{ note.ref[0].fullkey }}</h1>
+{% endif %}
 
-  
-
-<div class="container border rounded mt-4 mb-4">
-  <div class="row bg-secondary">
-  {% if note.num > 0 %}
-    <h1 class="title text-center display-4 text-white">{{ note.fullkey }}</h1>
-  {% elif note.ref %}
-    <h1 class="title text-center display-4 text-white">ref {{ note.ref[0].fullkey }}</h1>
-  {% endif %}
-  </div>
-
-  {% if session['theme'] == 'dark-mode' %}
-    <div class="row">
-  {% else %}
-    <div class="row bg-light">
-  {% endif %}
-  
-  <form method="POST">
+<form method="POST">
     {{ form.csrf_token }}
     <fieldset class="form-group">
-
-    <div class="d-flex d-flex-wrap justify-content-center bg-light">
-      <div class="flex p-4">
+   
+    <div class="d-flex d-flex-wrap justify-content-center m-2" style="background-color: light;">
+      
+      <div class="flex-grow-1 p-4 border rounded">
         <h3 class="mb-4">Data</h3>
         
         <div class="d-flex d-flex-wrap">
@@ -89,7 +78,7 @@
         </div>
       </div>
       
-      <div class="flex p-4 border">
+      <div class="p-4 border rounded">
         <h3 class=mb-4> Files</h3>
         {% for file in note.files %}
           {% include 'register/file_card.html' %}
@@ -97,7 +86,7 @@
       </div>
         
       <!-- Recipients -->
-      <div class="flex p-4">
+      <div class="p-4">
           {% if (note.flow == 'in' and ('despacho' in user.groups or user.admin)) or (note.flow == 'out' and note.reg in ['ctr','r','vc','vcr'] and (user.admin or note.sender_id == user.id or 'scr' in user.groups)) or note.reg == 'min' %}
             <h3 class=mb-4> {{gettext('Recipients')}}</h3>
      
@@ -169,9 +158,8 @@
 
     </fieldset>
 
-  </form>
-  </div>
-</div>
+</form>
+
 
 {% endblock %}
 

@@ -33,6 +33,17 @@ class FileProp(object):
         else:
             return 'd/f'
 
+    @property
+    def register(self):
+        for rg in ['vcr','vc','dg','cc','desr']:
+            if re.search(fr"\b{rg}\b",self.subject):
+                return rg
+
+        if self.sender == 'cg@cardumen.lan':
+            return 'cg'
+        else:
+            return 'r'
+
     def getLinkSheet(self,text = None):
         link_text = text if text else self.name
         return f'=HYPERLINK("#dlink=/{self.chain_link}/{self.permanent_link}", "{link_text}")'
@@ -65,7 +76,18 @@ class FileProp(object):
 
         if key:
             reg = re.findall(r'\S+',key)
-            prot = reg if reg[0] in ['vc','vcr'] else prot
+            if reg[0] in ['vc','vcr']:
+                prot = reg 
+            elif "vc-" in reg[0]:
+                prot = "vc"
+            elif "vcr-" in reg[0]: # No from vc or vcr to somewhere
+                prot = "vcr"
+            elif "-vc" in reg[0]: # Note to vc
+                prot = f"{prot}-vc"
+            elif "-vcr" in reg[0]:
+                prot = f"{prot}-vcr"
+
+
             return f"{prot} {key}"
 
         if ";" in self.subject:

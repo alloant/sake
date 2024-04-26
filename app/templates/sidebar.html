@@ -20,7 +20,7 @@
   {% endif %}
   
   {% if current_user.is_authenticated%}
-    {% if 'cr' in current_user.groups %}
+    {% if current_user.severalCalendars %}
     <div class=" dropdown">
       <a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none py-1 py-lg-3 px-1" id="dropdownRegister" data-bs-toggle="dropdown" aria-expanded="false">
       {% if session['theme'] == 'light-mode' %}
@@ -29,34 +29,84 @@
       <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
       {% endif %}
       </a>
-      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownRegister">
-        <li class="dropdown-item">
-          <a class="text-decoration-none" href="/register?reg=cr_in_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg in">
-            <img src="static/icons/ctr/cg-in.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_in_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr in">
-            <img src="static/icons/ctr/asr-in.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_in_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr in">
-            <img src="static/icons/ctr/ctr-in.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_in_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r in">
-            <img src="static/icons/ctr/r-in.svg" width="70vmin" height="70vmin">
-          </a>
+      
+      <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
+        <li class="d-inline-flex">
+          <!-- cr registers-->
+          {% if 'cr' in current_user.groups %}
+            <a class="text-decoration-none" href="/register?reg=cr_in_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg in">
+              <img src="static/icons/ctr/cg-in.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_in_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr in">
+              <img src="static/icons/ctr/asr-in.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_in_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr in">
+              <img src="static/icons/ctr/ctr-in.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_in_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r in">
+              <img src="static/icons/ctr/r-in.svg" width="70vmin" height="70vmin">
+            </a>
+          {% endif %}
+          <!-- end of cr registers-->
+          
+          <!-- Especial registers-->
+          {% for esp in ['vc','vcr','dg','cc','desr'] %}
+            {% if esp in current_user.groups %}
+              <a href="/register?reg={{esp}}_in_" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} in">
+                <img src="static/icons/ctr/{{esp}}-in.svg" width="70vmin" height="70vmin">
+              </a>
+            {% endif %}
+          {% endfor %}
+          <!-- End especial registers-->
+          
+          <!-- cl registers-->
+          {% for gp in current_user.groups %}
+            {% if gp[:3] == 'cl_' %}
+              <a href="/register?reg=cl_in_{{gp[3:]}}" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
+                <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="70vmin" height="70vmin">
+              </a>
+            {% endif %}
+          {% endfor %}
+          <!-- End cl registers-->
+
         </li>
-        <li class="dropdown-item">
-          <a class="text-decoration-none" href="/register?reg=cr_out_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg out">
-            <img src="static/icons/ctr/cg-out.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_out_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr out">
-            <img src="static/icons/ctr/asr-out.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_out_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr out">
-            <img src="static/icons/ctr/ctr-out.svg" width="70vmin" height="70vmin">
-          </a>
-          <a class="text-decoration-none" href="/register?reg=cr_out_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r out">
-            <img src="static/icons/ctr/r-out.svg" width="70vmin" height="70vmin">
-          </a>
+        <li class="d-inline-flex">
+          <!-- cr registers-->
+          {% if 'cr' in current_user.groups %}
+            <a class="text-decoration-none" href="/register?reg=cr_out_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg out">
+              <img src="static/icons/ctr/cg-out.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_out_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr out">
+              <img src="static/icons/ctr/asr-out.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_out_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr out">
+              <img src="static/icons/ctr/ctr-out.svg" width="70vmin" height="70vmin">
+            </a>
+            <a class="text-decoration-none" href="/register?reg=cr_out_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r out">
+              <img src="static/icons/ctr/r-out.svg" width="70vmin" height="70vmin">
+            </a>
+          {% endif %}
+          <!-- end of cr registers-->
+          
+          <!-- Especial registers-->
+          {% for esp in ['vc','vcr','dg','cc','desr'] %}
+            {% if esp in current_user.groups %}
+              <a href="/register?reg={{esp}}_out_" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} out">
+                <img src="static/icons/ctr/{{esp}}-out.svg" width="70vmin" height="70vmin">
+              </a>
+            {% endif %}
+          {% endfor %}<!-- End especial registers-->
+          
+          <!-- cl registers-->
+            {% for gp in current_user.groups %}
+              {% if gp[:3] == 'cl_' %}
+                <a href="/register?reg=cl_out_{{gp[3:]}}" class="" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
+                  <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="70vmin" height="70vmin">
+                </a>
+              {% endif %}
+            {% endfor %}
+<!-- End cl registers-->
+          
         </li>
       </ul>
     </div>
@@ -97,37 +147,23 @@
     </div>
     {% endif %}
 
-    {% for esp in ['vc','vcr','dg','cc','desr'] %}
-      {% if esp in current_user.groups %}
+    {% if not current_user.severalCalendars %}
+      {% for gp in current_user.groups %}
+        {% if gp[:3] == 'cl_' %}
         <div class="border-top">
-          <a href="/register?reg={{esp}}_in_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} in">
-            <img src="static/icons/ctr/{{esp}}-in.svg" width="35vmin" height="35vmin">
+          <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
+            <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="35vmin" height="35vmin">
           </a>
         </div>
-        
-        <div>
-          <a href="/register?reg={{esp}}_out_" class="nav-link link-light py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} out">
-            <img src="static/icons/ctr/{{esp}}-out.svg" width="35vmin" height="35vmin">
+
+        <div class="">
+          <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
+            <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="35vmin" height="35vmin">
           </a>
         </div>
-      {% endif %}
-    {% endfor %}
-
-    {% for gp in current_user.groups %}
-      {% if gp[:3] == 'cl_' %}
-      <div class="border-top">
-        <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
-          <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="35vmin" height="35vmin">
-        </a>
-      </div>
-
-      <div class="">
-        <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
-          <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="35vmin" height="35vmin">
-        </a>
-      </div>
-      {% endif %}
-    {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
     
     {% if 'cr' in current_user.groups %}
     <div class="border-top">

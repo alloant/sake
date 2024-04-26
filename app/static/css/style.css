@@ -87,3 +87,8 @@ main {
 
 .fw-semibold { font-weight: 600; }
 .lh-tight { line-height: 1.25; }
+
+.my-handle {
+  cursor: move;
+  cursor: -webkit-grabbing;
+}

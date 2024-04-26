@@ -1,0 +1,34 @@
+<form class="invisible" id="addfiles" method="POST">
+</form>
+
+<div class="table-responsive">  
+  <table class="table table-sm table-striped">
+    <thead class="">
+      <tr class="bg-dark">
+        <th scope="col">{{gettext('Protocol')}}</th>
+        <th scope="col"></th>
+        <th scope="col">{{gettext('Date')}}</th>
+        {% if not 'cl_' in reg %}
+        <th scope="col">Dep</th>
+        {% endif %}
+        <th scope="col">{{gettext('Content')}}</th>
+        <th scope="col">{{gettext('Files')}}</th>
+        <th scope="col">Ref</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for note in notes %}
+        {% include 'register/table_row.html' %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  function myFunction(note_protocol,note_id) {
+    let answer = confirm(`{{gettext('Are you sure you want to delete')}} ${note_protocol}?`);
+    if (answer) {
+      location.replace(`/delete_note?note=${note_id}`)
+    }
+  }
+</script>

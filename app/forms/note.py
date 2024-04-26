@@ -2,7 +2,7 @@
 
 from flask_wtf import FlaskForm
 from flask_babel import gettext
-from wtforms import StringField, BooleanField, SelectField,DateField,IntegerField, RadioField, SubmitField, SelectMultipleField
+from wtforms import StringField, BooleanField, SelectField,DateField,IntegerField, RadioField, SubmitField, SelectMultipleField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms_sqlalchemy.orm import QuerySelectField, QuerySelectMultipleField
@@ -31,7 +31,7 @@ class NoteForm(FlaskForm):
     n_date = DateField(gettext('Date'), validators=[DataRequired()])
     content = StringField(gettext('Content'), validators=[DataRequired()])
     content_jp = StringField(gettext('Content Japanese'), validators=[])
-    comments = StringField(gettext('Comments'), validators=[])
+    comments = TextAreaField(gettext('Comments'), validators=[])
     comments_ctr = StringField(gettext('Comments ctr'), validators=[])
     proc = SelectField(gettext('Procedure'), validators=[])
     #proc = StringField('Procedure', validators=[])

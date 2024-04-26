@@ -60,9 +60,18 @@ def register_filter(rg,h_note = None):
                 fn.append(Note.flow==rg[1]) # Flow is in/out
                 fn.append(or_(Note.state>=5,Note.sender.has(User.id==current_user.id))) # Only notes after desacho or already sent unless I am the sender
         else: # Then we are in pendings
+            fn.append(or_(Note.state>=5,Note.sender.has(User.id==current_user.id))) # Only notes after desacho or already sent unless I am the sender
             if not session['showAll']:
                 fn.append(Note.state < 6)
-            fn.append(or_(Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)))
+            
+            mreg = []
+            for sr in ['vcr','vc','dg','cc','desr']:
+                if sr in current_user.groups:
+                    mreg.append(sr)
+            rfn = [Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)]
+            for r in mreg:
+                rfn.append(Note.reg==r)
+            fn.append(or_(*rfn))
     elif rg[0] == 'cl': # The register of a center
         fn.append(Note.reg!='min') # No minutas
         if rg[1] == 'all':
@@ -229,6 +238,13 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
 
 
     fn = register_filter(rg,h_note)
+
+    if rg[0] == 'des':
+        for rg in ['vcr','vc']: # Only the vcr or vc can see
+            if not rg in current_user.groups:
+                fn.append(Note.reg!=rg)
+
+
     page = args.get('page', 1, type=int)
     sender = aliased(User,name="sender_user")
     sql = select(Note).join(Note.sender.of_type(sender))

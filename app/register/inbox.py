@@ -68,6 +68,7 @@ def inbox_view(request):
                     if not exists:
                         fl = File(path=path,permanent_link=link,sender="asr",date=date.today())
                         db.session.add(fl)
+                        flash(f"File {filename} has been added to database")
                     else:
                         flash(f"File {filename} is already in the database. The copy file in Mail/IN")
                     
@@ -93,13 +94,13 @@ def inbox_view(request):
         files = db.session.scalars(select(File).where(File.note_id==None))
         involved_notes = []
         print('NOTES')
+
         for file in files:
             prot = output[f"number_{file.id}"].lower()
             prots = re.findall(r'\w+',prot)
-            
+            register = output[f"register_{file.id}"].lower()
             
             ref = False
-            print(len(prots),prots)
             if len(prots) > 2:
                 if len(prots) == 3:
                     if prots[0] == 'ref':
@@ -108,7 +109,6 @@ def inbox_view(request):
                     else:
                         pt = prots[0]
                 elif len(prots) == 4:
-                    print('here')
                     ref = True
                     pt = prots[1]
 
@@ -128,25 +128,25 @@ def inbox_view(request):
 
             sender = aliased(User,name="sender_user")
             nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
+            
             if ref and nt:
                 rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.num==0,Note.ref.contains(nt))))
             else:
                 rnt = None
 
-            print("rnt",rnt,nt)
-                 
             
             if rnt:
-                print('!@#!@#',rnt,rnt.path_note)
                 rst = file.move_to_note(f"{rnt.path_note}")
                 if rst:
                     rnt.addFile(file)
                 if not rnt in involved_notes: involved_notes.append(rnt)
+                flash(f"{file} was added to {nt}")
             elif nt and not ref:
                 rst = file.move_to_note(f"{nt.path_note}")
                 if rst:
                     nt.addFile(file)
                 if not nt in involved_notes: involved_notes.append(nt)
+                flash(f"{file} was added to {nt}")
             else: # We need to create the note
                 if ref:
                     nref = nt
@@ -161,7 +161,8 @@ def inbox_view(request):
 
                 if not sender:
                     continue
-            
+           
+                """
                 preg = re.findall(r'\S+',gfk)
                 state = 3
                 if preg[0] in ['vc','vcr','dg','cc','desr']:
@@ -173,20 +174,27 @@ def inbox_view(request):
                     nreg = 'asr'
                 else:
                     nreg = 'r'
+                """
                 
+                state = 3
+                if register in ['dg','cc','desr']:
+                    state = 5
+
                 if ref:
-                    nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content,ref=[nref])
+                    nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=register,state=state,content=content,ref=[nref])
                     #nt.ref.append(nref)
                 else:
-                    nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=nreg,state=state,content=content)
+                    nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register,state=state,content=content)
                 
-                print('@@',nt.path_note)
+                
                 rst = file.move_to_note(nt.path_note)
                 if rst:
                     nt.addFile(file)
                 
                 if not nt in involved_notes: involved_notes.append(nt)
                 db.session.add(nt)
+                flash(f"{nt} was created")
+                flash(f"{file} was added to {nt}")
         
             refs = file.guess_ref
             if refs:

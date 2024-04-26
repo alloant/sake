@@ -1,0 +1,33 @@
+<div class="row border rounded">
+  <div class="col">
+      <h1>{{ file.icon_html|safe }}</h1>
+  </div>
+  
+  <div class="col">
+    <h5 class="card-title">{{file.name}}</h5>
+    <p>
+      <a 
+          hx-get="/edit_receivers_files?file={{file.id}}" 
+          hx-target="#modals-files" 
+          hx-trigger="click" 
+          data-bs-toggle="modal"
+          data-bs-target="#modals-files"
+          class=""
+          role="button">
+        <span id="recFiles-{{file.id}}">{{ file.subject_html|safe }}</span>
+      </a>
+
+      <div id="modals-files"
+          class="modal modal-blur fade"
+          style="display: none"
+          aria-hidden="false"
+          tabindex="-1">
+          <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+              <div class="modal-content"></div>
+          </div>
+      </div>
+    </p>
+
+  </div>
+
+</div>

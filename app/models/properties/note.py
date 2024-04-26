@@ -30,10 +30,19 @@ class NoteProp(object):
 
     def keyto(self,keyto=False,email=False):
         if self.flow == 'in':
+            rst = ""
+            if self.reg in ['vcr','dg','cc','desr']:
+                rst = f"-{self.reg}"
+
             if email and self.sender.alias == 'cg':
+                if rst:
+                    return f"cg{rst} {self.num}"
                 return f"{self.num}"
             else:
-                return f"{self.sender.alias} {self.num}"
+                return f"{self.sender.alias}{rst} {self.num}"
+                        
+            return f"{rst}"
+
         elif 'cg' == self.reg:
             return f"Aes {self.num}"
         elif 'asr' == self.reg:
@@ -76,6 +85,7 @@ class NoteProp(object):
     def fullkey(cls):
         """
         return case(
+            (and_(cls.flow=='in',cls.reg == 'vcr'), literal_column("sender_user.alias") + "-vcr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.flow=='in', cls.alias_sender + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "cg", "Aes " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "asr", "cr-asr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
@@ -85,14 +95,15 @@ class NoteProp(object):
             else_="",
         )
         """
+        rstin = f"-{cls.reg}" if cls.reg in ['vc','vcr','dg','cc','desr'] else ""
         return case(
-            (cls.flow=='in', literal_column("sender_user.alias") + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
+            (cls.flow=='in', literal_column("sender_user.alias") + f"{rstin} " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "cg", "Aes " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "asr", "cr-asr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "ctr", "cr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg.contains(","), "Aes-r " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             (cls.reg == "r", "Aes-r" + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            else_="",
+            else_=cls.reg + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String),
         )
    
 
@@ -151,9 +162,9 @@ class NoteProp(object):
     def note_folder(self):
         if self.num == 0: # Es una ref
             if self.ref:
-                folder = self.ref[0].fullkey.split("/")[0]
-            else:
-                return None
+                if self.ref[0]:
+                    folder = self.ref[0].fullkey.split("/")[0]
+            return None
         else: 
             folder = self.fullkey.split("/")[0]
         
@@ -219,7 +230,10 @@ class NoteProp(object):
             # Here we move to Archive and if the move is succesful we put state 2
             #self.state = 2
         elif rg[0] == 'des': # Here states are only 2 or 3
-            self.state += self.updateRead(f"des_{user.alias}")
+            if self.reg in ['vcr','vc']:
+                self.state = 5
+            else:
+                self.state += self.updateRead(f"des_{user.alias}")
         elif rg[0] == 'cl':
             if self.flow == 'out': # Note from cr to the ctr
                 rst = self.received_by.split(",")
