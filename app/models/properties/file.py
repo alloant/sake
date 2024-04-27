@@ -102,13 +102,3 @@ class FileProp(object):
         if temp:
             return f"{prot} {temp[0]}/{date.today().year-2000}"
 
-    @property
-    def guess_content(self):
-        if ";" in self.subject:
-            temp = self.subject.split(";")
-            if "/" in temp[0]:
-                num = re.findall(r'\d+',temp[0])
-                if len(num) > 1 and temp[1] != '_':
-                    return temp[1]
-
-        return ""

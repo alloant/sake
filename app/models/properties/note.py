@@ -25,61 +25,37 @@ class NoteProp(object):
         return ",".join([rec.alias for rec in self.receiver])
 
     @property
-    def key(self):
-        return self.keyto()
-
-    def keyto(self,keyto=False,email=False):
-        if self.flow == 'in':
-            rst = ""
-            if self.reg in ['vcr','dg','cc','desr']:
-                rst = f"-{self.reg}"
-
-            if email and self.sender.alias == 'cg':
-                if rst:
-                    return f"cg{rst} {self.num}"
-                return f"{self.num}"
-            else:
-                return f"{self.sender.alias}{rst} {self.num}"
-                        
-            return f"{rst}"
-
-        elif 'cg' == self.reg:
-            return f"Aes {self.num}"
-        elif 'asr' == self.reg:
-            return f"cr-asr {self.num}"
-        elif 'r' == self.reg:
-            if len(self.receiver) != 1 or not keyto:
-                return f"Aes-r {self.num}"
-            else:
-                return f"Aes-{self.receiver[0].alias} {self.num}"
-        elif 'ctr' == self.reg:
-            if len(self.receiver) != 1 or not keyto:
-                return f"cr {self.num}"
-            else:
-                return f"cr-{self.receiver[0].alias} {self.num}"
-        elif 'min' == self.reg:
-            return f"Minuta-{self.sender.alias} {self.num}"
-        elif self.reg in ['vcr','dg','cc','desr']:
-            return f"{self.reg}-Aes {self.num}"
-        elif self.reg == 'vc':
-            return f"{self.reg}-Aesf {self.num}"
-
-    @property
     def refs(self):
-        return ",".join([f"{ref.keyto(True,True)}/{self.year-2000}" for ref in self.ref])
-
-    @property
-    def fullkeyto(self):
-        return f"{self.keyto(True)}/{str(self.year)[-2:]}"
+        return ",".join([ref.fullkey_short for ref in self.ref])
 
     @hybrid_property
-    def fullkey(self):
-        return f"{self.keyto()}/{str(self.year)[-2:]}"
+    def fullkey_short(self):
+        return self.fullkey_ls(long_key=False) 
     
     @hybrid_property
-    def fullkey2(self):
-        return self.sender.alias
-        #return f"{self.keyto()}/{str(self.year)[-2:]}"
+    def fullkey(self):
+        return self.fullkey_ls()
+
+    def fullkey_ls(self,long_key = True):
+        if self.flow == 'in':
+            alias = self.sender.alias
+            pattern = self.register.in_pattern.split('|')[-1].strip(' ^$')
+            if pattern == '': # Only for cg, because the short version is none we use the other
+                pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
+        else:
+            if len(self.receiver) == 1 and long_key :
+                alias = self.receiver[0].alias
+                pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
+            else:
+                alias = ""
+                pattern = self.register.out_pattern.split('|')[-1].strip(' ^$')
+
+        prot = eval(fr"f'{pattern}'")
+        
+        return f"{prot} {self.num}/{self.year-2000}"
+
+
+
 
     @fullkey.expression
     def fullkey(cls):
@@ -106,7 +82,6 @@ class NoteProp(object):
             else_=cls.reg + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String),
         )
    
-
     @hybrid_property
     def flow(self) -> str:
         return 'out' if any(map(lambda v: v in self.sender.groups, ['cr'])) else 'in'
@@ -159,36 +134,31 @@ class NoteProp(object):
         return not_(cls.received_by.regexp_match(fr'\b{alias}\b'))
 
     @property
-    def note_folder(self):
+    def folder_name(self):
         if self.num == 0: # Es una ref
             if self.ref:
                 if self.ref[0]:
-                    folder = self.ref[0].fullkey.split("/")[0]
+                    folder = self.ref[0].fullkey_short.split("/")[0]
             return None
         else: 
-            folder = self.fullkey.split("/")[0]
+            folder = self.fullkey_short.split("/")[0]
         
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
-        if self.reg == 'min':
-            return f"Minuta_{num}"
+        
         if self.num == 0:
             return f"ref {name}_{num}"
         else:
             return f"{name}_{num}"
-    
-    @property
-    def path_note(self):
-        return f"{self.path}/{self.note_folder}"
 
-        if self.reg == 'min':
-            return f"{self.path}/{self.year}/{self.note_folder}"
-            return f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{self.sender.alias}/Minutas/{self.year}/{self.note_folder}"
-        else:
-            return f"{self.path}/{self.year}/{self.note_folder}"
-            return f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} {self.flow}/{self.note_folder}"
-    
-    
+    @property
+    def folder_parent(self):
+        return f"{self.path}"
+
+    @property
+    def folder_path(self):
+        return f"{self.folder_parent}/{self.folder_name}"
+
     def is_read(self,user):
         if isinstance(user,str): # This is a ctr or des
             alias = user if user[:4] == 'des_' else user.split('_')[2]

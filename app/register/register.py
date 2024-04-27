@@ -14,7 +14,7 @@ from app.models import Note, User
 from app.mail import send_email
 from app.syneml import write_eml
 
-from .tools import view_title, newNote, filter_from_protocol
+from .tools import view_title, newNote
 
 def find_history(note):
     if note:

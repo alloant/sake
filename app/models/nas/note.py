@@ -41,14 +41,14 @@ class NoteNas(object):
                 return ''
 
     def getPermanentLink(self): # Gets the link and creates the folder if needed
-        rst = create_folder(self.path,self.note_folder)
+        rst = create_folder(self.path,self.folder_name)
 
         if rst:
             self.permanent_link = rst['permanent_link']
             db.session.commit()
             return True
         else:
-            flash(f'Could not create folder {self.path_note}')
+            flash(f'Could not create folder {self.folder_path}')
             return False
 
     def messageLink(self):
@@ -65,13 +65,13 @@ class NoteNas(object):
             return self.files[0].getLinkMessage(text)
 
     def delete_folder(self):
-        delete_path(f"{self.path}/{self.note_folder}")
+        delete_path(f"{self.path}/{self.folder_name}")
 
     def create_folder(self,folder = None):
         if folder:
             rst = create_folder(self.path,folder)
         else:
-            rst = create_folder(self.path,self.note_folder)
+            rst = create_folder(self.path,self.folder_name)
 
         if rst:
             if 'permanent_link' in rst:
@@ -80,7 +80,7 @@ class NoteNas(object):
     def move(self,dest):
         if self.path == dest:
             return True
-        rst = move_path(self.path_note,dest)
+        rst = move_path(self.folder_path,dest)
         if rst:
             self.path = dest
             db.session.commit()
@@ -88,7 +88,7 @@ class NoteNas(object):
         return False
 
     def copy(self,dest):
-        return copy_path(self.path_note,f"{dest}/{self.note_folder}")
+        return copy_path(self.folder_path,f"{dest}/{self.folder_name}")
 
     def organice_files_to_despacho(self,path_dest,path_originals):
         key = self.get_key(full=True)
@@ -139,14 +139,14 @@ class NoteNas(object):
             flash("Could not update files. Try again")
             return False
 
-        files = files_path(self.path_note)
+        files = files_path(self.folder_path)
         
         # Just checking the files that are already assigned to the note and fixing the path of the file in the case it has not been yet 
         ntfiles = []
         for file in self.files:
             if "/" in file.path:
                 if self.path != "/".join(file.path.split("/")[:-1]):
-                    file.move_to_note(self.path_note)
+                    file.move_to_note(self.folder_path)
             ntfiles.append(file.path.split("/")[-1])
         
         extfiles = []

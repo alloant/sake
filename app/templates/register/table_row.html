@@ -1,8 +1,7 @@
-{{ note.row_decoration(reg,user)|safe }}
-  
+<tr class="">
   <!-- Protocol number with link -->
   <th scope="row">
-    {% if 'cr_' in reg or 'pen_' in reg or 'des_' in reg or 'box_' in reg %}
+    {% if reg.startswith('cr_') or reg.startswith('pen_') or reg.startswith('des_') or  reg.startswith('box_') %}
       {{ note.fullkey_link_html(reg)|safe }}
     {% else %}
       {{ note.fullkey }}

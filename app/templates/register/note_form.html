@@ -5,7 +5,7 @@
   
 
 <div class="container border rounded mt-4 mb-4">
-  <div class="row bg-secondary">
+  <div class="row">
   {% if note.num > 0 %}
     <h1 class="title text-center display-4 text-white">{{ note.fullkey }}</h1>
   {% elif note.ref %}
@@ -16,14 +16,14 @@
   {% if session['theme'] == 'dark-mode' %}
     <div class="row">
   {% else %}
-    <div class="row bg-light">
+    <div class="row">
   {% endif %}
   
   <form method="POST">
     {{ form.csrf_token }}
     <fieldset class="form-group">
 
-    <div class="d-flex d-flex-wrap justify-content-center bg-light">
+    <div class="d-flex d-flex-wrap justify-content-center">
       <div class="flex p-4">
         <h3 class="mb-4">Data</h3>
         

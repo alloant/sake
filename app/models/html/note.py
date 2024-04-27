@@ -21,13 +21,16 @@ class NoteHtml(object):
         return ','.join(html)
 
     def fullkey_link_html(self,reg):
+        print(reg,self)
+
         rg = reg.split("_")
         nreg = 'cr' if rg[0] in ['min','pen','des'] else rg[0]
+
         a = ET.Element('a',attrib={'href':f'?reg={nreg}_all_{rg[2]}&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
         if self.num == 0 and self.ref:
-            a.text = f"ref {self.ref[0].keyto(True,True)}/{self.year-2000}"
+            a.text = f"ref {self.fullkey}"
         else:
-            a.text = f"{self.keyto(True,True)}/{self.year-2000}"
+            a.text = self.fullkey
 
         if self.permanent:
             i = ET.Element('i',attrib={'class':'bi bi-asterisk','style':'color: red;'})
@@ -35,6 +38,7 @@ class NoteHtml(object):
         
 
         return ET.tostring(a,encoding='unicode',method='html')
+
 
     @property
     def dep_html(self):
@@ -82,41 +86,8 @@ class NoteHtml(object):
 
         return ET.tostring(ct,encoding='unicode',method='html')
         
-
-
-    def row_decoration(self,reg,user):
-        rg = reg.split('_')
-        return f'<tr class="">'
-
-        if rg[0] == 'min':
-            if self.sender == user: # The one who wrote the minuta
-                if self.state in [0,5]:
-                    return f'<tr class="fw-bold" id="table-row-{self.id}">'
-                elif self.state == 6:
-                    return f'<tr class="fst-italic" id="table-row-{self.id}">'
-            else:
-                if not self.is_read(user):
-                    return f'<tr class="fw-bold" id="table-row-{self.id}">'
-                elif self.state == 6:
-                    return f'<tr class="fst-italic">'
-        elif rg[0] in ['cr','cl','pen']:
-            if self.rel_flow(reg) == 'in':
-                if not self.is_read(user):
-                    return f'<tr class="fw-bold">'
-                elif self.state == 6:
-                    return f'<tr class="fst-italic">'
-            else:
-                if self.state in [0,5]:
-                    return f'<tr class="fw-bold">'
-                elif self.state == 6:
-                    return f'<tr class="text-muted">'
-
-
-
-        return "<tr>"
     
     def status_html(self,reg):
-        print(self.content)
         rg = reg.split("_")
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if rg[0] == 'des':

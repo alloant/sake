@@ -16,6 +16,8 @@ from app.models import Note, File, User
 from app.models.nas.nas import files_path, move_path, delete_path, convert_office
 from app.syneml import read_eml
 
+from app.register.tools import get_register, get_filter_fullkey
+
 def inbox_view(request):
     output = request.form.to_dict()
     args = request.args
@@ -29,6 +31,14 @@ def inbox_view(request):
     #import_dates()
     #find_files()
     #print(output)
+
+    for test in ['2059/24','asr 2459/24','rav 21/24','dlal 1921/24','vc-Usca-vc 6/24','cg-vc 226/24','cg-vcr 2280/24','Aes 46/24','cr-asr 306/24','cr 1164/24','Aes-Usca 2042/24','vc-Aesf 4/24','vcr-Aes 2/24']:
+        fn = get_filter_fullkey(test)
+        tnt = db.session.scalar(select(Note).where(fn))
+        if tnt:
+            print(test,tnt.folder_name)
+        else:
+            print(test)
  
     if rm_file:
         do_check = True
@@ -136,13 +146,13 @@ def inbox_view(request):
 
             
             if rnt:
-                rst = file.move_to_note(f"{rnt.path_note}")
+                rst = file.move_to_note(f"{rnt.folder_path}")
                 if rst:
                     rnt.addFile(file)
                 if not rnt in involved_notes: involved_notes.append(rnt)
                 flash(f"{file} was added to {nt}")
             elif nt and not ref:
-                rst = file.move_to_note(f"{nt.path_note}")
+                rst = file.move_to_note(f"{nt.folder_path}")
                 if rst:
                     nt.addFile(file)
                 if not nt in involved_notes: involved_notes.append(nt)
@@ -161,20 +171,6 @@ def inbox_view(request):
 
                 if not sender:
                     continue
-           
-                """
-                preg = re.findall(r'\S+',gfk)
-                state = 3
-                if preg[0] in ['vc','vcr','dg','cc','desr']:
-                    nreg = preg[0]
-                    state = 5
-                elif file.sender == 'cg@cardumen.lan':
-                    nreg = 'cg'
-                elif file.sender == 'asr':
-                    nreg = 'asr'
-                else:
-                    nreg = 'r'
-                """
                 
                 state = 3
                 if register in ['dg','cc','desr']:
@@ -187,7 +183,7 @@ def inbox_view(request):
                     nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register,state=state,content=content)
                 
                 
-                rst = file.move_to_note(nt.path_note)
+                rst = file.move_to_note(nt.folder_path)
                 if rst:
                     nt.addFile(file)
                 

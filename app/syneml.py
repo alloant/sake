@@ -29,7 +29,7 @@ def write_eml(rec,note,path_download):
     msg["To"] = rec
     msg["From"] = 'Aes-cr@cardumen.org'
     
-    sub1 = f"{note.key}/{note.year-2000}" if note.num > 0 else f"{note.refs[0]}"
+    sub1 = note.fullkey if note.num > 0 else f"{note.refs[0]}"
     sub2_1 = note.content
     sub2_2 = []
 
@@ -59,7 +59,7 @@ def write_eml(rec,note,path_download):
         ext = Path(file.name).suffix[1:]
         file_name = f"{Path(file.name).stem}.{INV_EXT[ext]}" if ext in INV_EXT else file.name
 
-        attachment = download_path(f"{note.path_note}/{file.path}")
+        attachment = download_path(f"{note.folder_path}/{file.path}")
         
         if attachment:
             part = MIMEApplication(attachment.read(),Name=file.name)
@@ -76,8 +76,8 @@ def write_eml(rec,note,path_download):
         emlGenerator = generator.BytesGenerator(fp)
         emlGenerator.flatten(msg)
         fp.seek(0) 
-        return send_file(fp,download_name=f"{note.key}.eml",as_attachment=False)
-        return send_file(fp,download_name=f"{note.key}.eml",as_attachment=True)
+        return send_file(fp,download_name=f"{note.fullkey.replace("/","-")}.eml",as_attachment=False)
+        #return send_file(fp,download_name=f"{note.key}.eml",as_attachment=True)
         
         return True
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from datetime import datetime
+import re
 
 from sqlalchemy import select, func, literal_column, and_
 from sqlalchemy.orm import aliased
@@ -10,28 +11,55 @@ from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
-from app.models import User
-from app.models import Note
+from app.models import User, Note, Register
 
-def filter_from_protocol(text):
-    rst = []
-    # Find first notes to cg
-    rst += re.findall(r'Aes')
-    protocols = re.findall(r'\w+.\d+\/\d+',session['filter_notes'])
-    protocols_cg = re.findall(r'\d+\/\d+',session['filter_notes'])
-    fn = []
-    for prot in protocols:
-        alias = re.findall(r'\w+',prot)
-        num = re.findall(r'\d+',prot)
-        if alias:
-            if 'Aes' in alias[0]: # It is out note
-                if "-" in alias[0]:
-                    pass
-                else: # Is a note to cg
-                    pass
-            user = db.session.scalar(select(User).where(User.alias==alias[0]))
-            if user:
-                pass 
+
+def get_register(prot):
+    registers = db.session.scalars(select(Register).where(Register.active==1))
+    prot = re.sub(r'\d+\/\d+','',prot)
+    prot = prot.strip('- ')
+
+    for reg in registers:
+        alias = r"^\D+"
+        if re.match( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
+            alias = ""
+
+            senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
+            if len(senders) == 1:
+                sender = senders[0]
+            else:
+                rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
+                sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
+            
+            if sender:
+                return {'reg':reg,'sender':sender,'flow':'in'}
+
+        
+        alias = r"\D+$"
+        if re.match( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
+            return {'reg':reg,'flow':'out'}
+
+
+def get_filter_fullkey(prot):
+    reg = get_register(prot)
+    nums = re.findall(r'\d+',prot)
+     
+    if reg and len(nums) == 2:
+        fn = []
+        fn.append(Note.register==reg['reg'])
+        fn.append(Note.flow==reg['flow'])
+        if 'sender' in reg:
+            fn.append(Note.sender==reg['sender'])
+
+        fn.append(Note.num==int(nums[0]))
+        fn.append(Note.year==2000+int(nums[1]))
+
+        return and_(*fn)
+    
+    return None
+
+def get_note_fullkey(prot):
+    return db.session.scalar( select(Note).where(get_filter_fullkey(prot)) )
 
 def get_cr_users():
     if not 'cr' in session or len(session['cr']) == 0:
@@ -82,17 +110,22 @@ def newNote(user,reg,ref = None):
     rg = reg.split('_')
 
     num = nextNumReg(rg)
+    
+    ralias = 'ctr' if rg[0] == 'cl' else rg[2] if rg[0] == 'cr' else rg[0]
+
+    register = db.session.scalar(select(Register).where(Register.alias==ralias))
+    print(register)
 
     # Creating the note. We need to know the register it bellows. This note could have been created by a cr dr or a cl member
     if rg[0] == 'cl': # New note made by a cl member. It's a note for cr from ctr 
         ctr = db.session.scalar(select(User).where(User.alias==rg[2]))
-        nt = Note(num=num,sender_id=ctr.id,reg='ctr')
+        nt = Note(num=num,sender_id=ctr.id,reg='ctr',register=register)
     elif rg[0] == 'min':
-        nt = Note(num=num,sender_id=user.id,reg=rg[0])
+        nt = Note(num=num,sender_id=user.id,reg=rg[0],register=register)
     elif rg[0] in ['vc','vcr','dg','cc','desr']:
-        nt = Note(num=num,sender_id=user.id,reg=rg[0])
+        nt = Note(num=num,sender_id=user.id,reg=rg[0],register=register)
     else: # Note created by a cr dr
-        nt = Note(num=num,sender_id=user.id,reg=rg[2])
+        nt = Note(num=num,sender_id=user.id,reg=rg[2],register=register)
     
         if rg[2] in ['cg','asr']:
             rec = db.session.scalar(select(User).where(User.alias==rg[2]))

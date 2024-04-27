@@ -156,7 +156,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     permanent: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
     reg: Mapped[str] = mapped_column(db.String(15), default = '')
-    register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'))
+    register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'), default=1)
     register: Mapped["Register"] = relationship(back_populates="notes")
 
 
@@ -184,7 +184,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
-       
+      
+
+
         if self.reg in ['vc','vcr','dg','cc','desr']:
             if 'cr' in self.sender.groups:
                 self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} out"
@@ -202,10 +204,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         rst = self.create_folder()
 
     def __repr__(self):
-        return f'<{self.fullkeyto} "{self.content}">'
+        return f'<{self.fullkey_short} "{self.content}">'
 
     def __str__(self):
-         return self.fullkeyto
+         return self.fullkey_short
 
     def __eq__(self,other):
         if isinstance(other,Note):
@@ -339,7 +341,9 @@ class Register(db.Model):
     
     r_groups: Mapped[str] = mapped_column(db.String(200), default=False)
     
-    protocol_pattern: Mapped[str] = mapped_column(db.String(200), default='')
+    in_pattern: Mapped[str] = mapped_column(db.String(200), default='')
+    out_pattern: Mapped[str] = mapped_column(db.String(200), default='')
+    #protocol_pattern: Mapped[str] = mapped_column(db.String(200), default='')
     folder: Mapped[str] = mapped_column(db.String(200), default='')
 
     active: Mapped[str] = mapped_column(db.Boolean, default=True)
