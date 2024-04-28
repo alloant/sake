@@ -40,8 +40,8 @@ class NoteProp(object):
         if self.flow == 'in':
             alias = self.sender.alias
             pattern = self.register.in_pattern.split('|')[-1].strip(' ^$')
-            if pattern == '': # Only for cg, because the short version is none we use the other
-                pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
+            #if pattern == '': # Only for cg, because the short version is none we use the other
+            #    pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
         else:
             if len(self.receiver) == 1 and long_key :
                 alias = self.receiver[0].alias
@@ -55,7 +55,9 @@ class NoteProp(object):
         return f"{prot} {self.num}/{self.year-2000}"
 
 
-
+    @property
+    def can_edit(self):
+        return True if self.sender == current_user and self.state < 2 else False
 
     @fullkey.expression
     def fullkey(cls):

@@ -1,6 +1,6 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" style="background-color: light;">
   {% if 'cr' in current_user.groups %}
-  <a href="/register?reg=pen_in_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
+  <a href="/register?reg=all_all_pending" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-pendings.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -32,81 +32,35 @@
       
       <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
         <li class="d-inline-flex">
-          <!-- cr registers-->
-          {% if 'cr' in current_user.groups %}
-            <a class="text-decoration-none" href="/register?reg=cr_in_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg in">
-              <img src="static/icons/ctr/cg-in.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_in_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr in">
-              <img src="static/icons/ctr/asr-in.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_in_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr in">
-              <img src="static/icons/ctr/ctr-in.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_in_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r in">
-              <img src="static/icons/ctr/r-in.svg" width="70vmin" height="70vmin">
-            </a>
-          {% endif %}
-          <!-- end of cr registers-->
-          
-          <!-- Especial registers-->
-          {% for esp in ['vc','vcr','dg','cc','desr'] %}
-            {% if esp in current_user.groups %}
-              <a href="/register?reg={{esp}}_in_" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} in">
-                <img src="static/icons/ctr/{{esp}}-in.svg" width="70vmin" height="70vmin">
-              </a>
+          {% for register in registers %}
+            {% if register.permissions(user) != 'notallowed' %}
+              {{ register.link_icon_html('in')|safe }}
             {% endif %}
           {% endfor %}
-          <!-- End especial registers-->
           
           <!-- cl registers-->
-          {% for gp in current_user.groups %}
-            {% if gp[:3] == 'cl_' %}
-              <a href="/register?reg=cl_in_{{gp[3:]}}" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
-                <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="70vmin" height="70vmin">
-              </a>
-            {% endif %}
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters(user) %}
+              {{ register.link_icon_html('in',subregister)|safe }}
+            {% endfor %}
           {% endfor %}
           <!-- End cl registers-->
 
         </li>
         <li class="d-inline-flex">
-          <!-- cr registers-->
-          {% if 'cr' in current_user.groups %}
-            <a class="text-decoration-none" href="/register?reg=cr_out_cg" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="cg out">
-              <img src="static/icons/ctr/cg-out.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_out_asr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="asr out">
-              <img src="static/icons/ctr/asr-out.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_out_ctr" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="ctr out">
-              <img src="static/icons/ctr/ctr-out.svg" width="70vmin" height="70vmin">
-            </a>
-            <a class="text-decoration-none" href="/register?reg=cr_out_r" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="r out">
-              <img src="static/icons/ctr/r-out.svg" width="70vmin" height="70vmin">
-            </a>
-          {% endif %}
-          <!-- end of cr registers-->
-          
-          <!-- Especial registers-->
-          {% for esp in ['vc','vcr','dg','cc','desr'] %}
-            {% if esp in current_user.groups %}
-              <a href="/register?reg={{esp}}_out_" class="text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{esp}} out">
-                <img src="static/icons/ctr/{{esp}}-out.svg" width="70vmin" height="70vmin">
-              </a>
+          {% for register in registers %}
+            {% if register.permissions(user) != 'notallowed' %}
+              {{ register.link_icon_html('out')|safe }}
             {% endif %}
-          {% endfor %}<!-- End especial registers-->
+          {% endfor %}
           
           <!-- cl registers-->
-            {% for gp in current_user.groups %}
-              {% if gp[:3] == 'cl_' %}
-                <a href="/register?reg=cl_out_{{gp[3:]}}" class="" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
-                  <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="70vmin" height="70vmin">
-                </a>
-              {% endif %}
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters(user) %}
+              {{ register.link_icon_html('out',subregister)|safe }}
             {% endfor %}
-<!-- End cl registers-->
-          
+          {% endfor %}
+          <!-- End cl registers-->
         </li>
       </ul>
     </div>

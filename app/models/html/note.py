@@ -12,21 +12,17 @@ class NoteHtml(object):
         rg = reg.split("_")
         html = []
         for ref in self.ref:
-            if rg[0] == 'cl' and ref.reg == 'ctr' or rg[0] in ['cr','pen','des','box','min','vc','vcr','dg','cc','desr']:
+            if ref.register.permissions(current_user) != 'notallowed':
                 if rg[0] == 'des':
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
                 else:
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
 
         return ','.join(html)
-
-    def fullkey_link_html(self,reg):
-        print(reg,self)
-
-        rg = reg.split("_")
-        nreg = 'cr' if rg[0] in ['min','pen','des'] else rg[0]
-
-        a = ET.Element('a',attrib={'href':f'?reg={nreg}_all_{rg[2]}&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
+    
+    @property
+    def fullkey_link_html(self):
+        a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
         if self.num == 0 and self.ref:
             a.text = f"ref {self.fullkey}"
         else:
@@ -61,8 +57,7 @@ class NoteHtml(object):
         text = self.content_jp if 'jp' in current_user.groups else self.content
         rg = reg.split("_")
 
-        #if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out' or self.is_read(current_user):
-        if rg[0] == 'cl' and self.flow == 'in' or rg[0] != 'cl' and self.flow == 'out':
+        if not rg[2] in ['','pending'] and self.flow == 'in' or rg[2] in ['','pending'] and self.flow == 'out':
             ct = ET.Element('span',attrib={'class':f''})
             ct.attrib['data-toggle'] = 'tooltip'
             ct.attrib['title'] = ""
@@ -103,14 +98,13 @@ class NoteHtml(object):
                 else:
                     text = gettext('Sign note (the other d has already signed)')
                     icon = "bi-check-circle"
-        elif self.flow == 'out' and rg[0] == 'cl' or self.flow == 'in' and rg[0] != 'cl': # It is IN
-            if rg[0] == 'cl':
+        elif self.flow == 'out' and not rg[2] in ['','pending'] or self.flow == 'in' and rg[2] in ['','pending']: # It is IN
+            if not rg[2] in ['','pending']:
                 done = self.ctr_has_done(session['ctr'])
                 mine = True
             else:
                 done = True if self.state > 5 else False
-                mine = True if current_user in self.receiver or self.reg in ['vcr','vc','dg','cc','desr'] else False
-
+                mine = True if current_user in self.receiver or self.register.permissions(current_user) == 'editor' else False
             if mine:
                 mn = '-fill'
             else:

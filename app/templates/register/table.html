@@ -8,7 +8,7 @@
         <th scope="col">{{gettext('Protocol')}}</th>
         <th scope="col"></th>
         <th scope="col">{{gettext('Date')}}</th>
-        {% if not 'cl_' in reg %}
+        {% if reg.split('_')[2] in ['','pending'] %}
         <th scope="col">Dep</th>
         {% endif %}
         <th scope="col">{{gettext('Content')}}</th>

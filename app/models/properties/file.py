@@ -66,39 +66,4 @@ class FileProp(object):
         if temp:
             return f"{int(temp[0])}/{date.today().year-2000}"
 
-    def guess_fullkey(self,key = None):
-        sender = self.get_user('email')
-
-        if sender:
-            prot = sender.alias
-        else:
-            return ""
-
-        if key:
-            reg = re.findall(r'\S+',key)
-            if reg[0] in ['vc','vcr']:
-                prot = reg 
-            elif "vc-" in reg[0]:
-                prot = "vc"
-            elif "vcr-" in reg[0]: # No from vc or vcr to somewhere
-                prot = "vcr"
-            elif "-vc" in reg[0]: # Note to vc
-                prot = f"{prot}-vc"
-            elif "-vcr" in reg[0]:
-                prot = f"{prot}-vcr"
-
-
-            return f"{prot} {key}"
-
-        if ";" in self.subject:
-            temp = self.subject.split(";")[0]
-            if "/" in temp:
-                temp = re.findall(r'\d+',temp)
-                if len(temp) > 1:
-                    return f"{prot} {temp[0]}/{temp[1]}"
-
-        temp = re.findall(r'\d+',self.path.split('/')[-1])
-        
-        if temp:
-            return f"{prot} {temp[0]}/{date.today().year-2000}"
-
+    

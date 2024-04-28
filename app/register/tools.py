@@ -14,52 +14,6 @@ from app import db
 from app.models import User, Note, Register
 
 
-def get_register(prot):
-    registers = db.session.scalars(select(Register).where(Register.active==1))
-    prot = re.sub(r'\d+\/\d+','',prot)
-    prot = prot.strip('- ')
-
-    for reg in registers:
-        alias = r"^\D+"
-        if re.match( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
-            alias = ""
-
-            senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
-            if len(senders) == 1:
-                sender = senders[0]
-            else:
-                rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
-                sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
-            
-            if sender:
-                return {'reg':reg,'sender':sender,'flow':'in'}
-
-        
-        alias = r"\D+$"
-        if re.match( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
-            return {'reg':reg,'flow':'out'}
-
-
-def get_filter_fullkey(prot):
-    reg = get_register(prot)
-    nums = re.findall(r'\d+',prot)
-     
-    if reg and len(nums) == 2:
-        fn = []
-        fn.append(Note.register==reg['reg'])
-        fn.append(Note.flow==reg['flow'])
-        if 'sender' in reg:
-            fn.append(Note.sender==reg['sender'])
-
-        fn.append(Note.num==int(nums[0]))
-        fn.append(Note.year==2000+int(nums[1]))
-
-        return and_(*fn)
-    
-    return None
-
-def get_note_fullkey(prot):
-    return db.session.scalar( select(Note).where(get_filter_fullkey(prot)) )
 
 def get_cr_users():
     if not 'cr' in session or len(session['cr']) == 0:
@@ -149,8 +103,10 @@ def view_title(reg,note=None):
     dark = '-dark' if session['theme'] == 'dark-mode' else ''
     if rg[0] == 'des':
         return [f'static/icons/00-despacho{dark}.svg',gettext(u'Despacho')]
-    elif rg[0] == 'pen':
+    elif rg[2] == 'pending':
         return [f'static/icons/00-pendings{dark}.svg',gettext(u'My notes')]
+    elif rg[2] != '':
+        return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"{gettext('Notes from')} {rg[2]} {gettext('to cr')}" if rg[1] == 'out' else f"{gettext('Notes from cr to')} {rg[2]}"]
     elif rg[0] == 'box' and rg[1] == 'out':
         return [f'static/icons/00-outbox{dark}.svg',gettext(u'Outbox cr')]
     elif rg[0] == 'cr':

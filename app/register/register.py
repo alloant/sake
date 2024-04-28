@@ -10,7 +10,7 @@ from sqlalchemy.orm import aliased
 from sqlalchemy.sql import text
 
 from app import db
-from app.models import Note, User
+from app.models import Note, User, Register
 from app.mail import send_email
 from app.syneml import write_eml
 
@@ -44,48 +44,8 @@ def find_history(note):
 
 def register_filter(rg,h_note = None):
     fn = []
-    if rg[0] in ['cr','pen']: # Register for cr or pendings
-        if not 'permanente' in current_user.groups:
-            fn.append(Note.permanent==False)
-        
-        if rg[1] != 'all':
-            fn.append(Note.reg!='min') # No minutas
 
-        if rg[0] == 'cr':
-            if rg[1] == 'all': # here is the note history
-                fn.append(or_(Note.reg!='min',and_(Note.reg=='min',or_(Note.state>=5,Note.sender.has(User.id==current_user.id))))) # Only notes after desacho or already sent unless I am the sender
-                fn.append(find_history(h_note)) 
-            else:
-                fn.append(Note.reg==rg[2]) # Type reg (cg,asr,r,ctr) 
-                fn.append(Note.flow==rg[1]) # Flow is in/out
-                fn.append(or_(Note.state>=5,Note.sender.has(User.id==current_user.id))) # Only notes after desacho or already sent unless I am the sender
-        else: # Then we are in pendings
-            fn.append(or_(Note.state>=5,Note.sender.has(User.id==current_user.id))) # Only notes after desacho or already sent unless I am the sender
-            if not session['showAll']:
-                fn.append(Note.state < 6)
-            
-            mreg = []
-            for sr in ['vcr','vc','dg','cc','desr']:
-                if sr in current_user.groups:
-                    mreg.append(sr)
-            rfn = [Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)]
-            for r in mreg:
-                rfn.append(Note.reg==r)
-            fn.append(or_(*rfn))
-    elif rg[0] == 'cl': # The register of a center
-        fn.append(Note.reg!='min') # No minutas
-        if rg[1] == 'all':
-            fn.append(and_(Note.reg!='min',or_( and_(Note.state>=5,Note.receiver.any(User.alias==rg[2])) , Note.sender.has(User.alias==rg[2]) ) )) # Only notes after desacho or already sent unless I am the sender
-            fn.append(find_history(h_note)) 
-        elif rg[1] == 'in': # show notes to the ctr. Flow==out for database
-            fn.append(Note.receiver.any(User.alias==rg[2]))
-            fn.append(Note.state>=5)
-            if not session['showAll']:
-                ctr_fn = db.session.scalar(select(User).where(User.alias==rg[2]))
-                fn.append(Note.is_done(ctr_fn))
-        else:
-            fn.append(Note.sender.has(User.alias==rg[2]))
-    elif rg[0] == 'min':
+    if rg[0] == 'min':
         fn.append(Note.reg=='min')
         fn.append(or_(Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)))
     elif rg[0] == 'des':
@@ -96,10 +56,47 @@ def register_filter(rg,h_note = None):
         fn.append(Note.reg!='min')
         fn.append(Note.flow=='out')
         fn.append(Note.state==1)
-    elif rg[0] in ['vc','vcr','dg','cc','desr']:
-        fn.append(Note.reg==rg[0])
-        fn.append(Note.flow==rg[1])
+    elif rg[2] in ['','pending']: # Register not for cls
+        # First no permanentes
+        if not 'permanente' in current_user.groups:
+            fn.append(Note.permanent==False)
+        
+        # For pendings and for the rest
+        if rg[2] == 'pending':
+            fn.append(or_( Note.sender.has(User.id==current_user.id), Note.receiver.any(User.id==current_user.id) ))
+            if not session['showAll']:
+                fn.append(Note.state < 6)
+        else:
+            fn.append(or_( Note.state>=5,Note.sender.has(User.id==current_user.id) )) # Only notes with state >= 5 or the ones with sender = current_user
 
+        # Registers involve. One in particular or all the ones I can see.
+        if rg[0] == 'all':
+            fn.append(Note.register_id.in_([reg.id for reg in current_user.all_registers])) # No minutas
+        else:
+            register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
+            fn.append(Note.register==register)
+
+        # Flow of the notes. If all no filter needed
+        if rg[1] != 'all':    
+            fn.append(Note.flow==rg[1])
+
+        # For the history of the note
+        if h_note:
+            fn.append(find_history(h_note)) 
+
+    elif rg[2] != '': # The register of a center
+        register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
+        fn.append(Note.register==register)
+        
+        if rg[1] == 'in': # show notes to the ctr. Flow==out for database
+            fn.append(Note.receiver.any(User.alias==rg[2]))
+            fn.append(Note.state>=5)
+            if not session['showAll']:
+                ctr_fn = db.session.scalar(select(User).where(User.alias==rg[2]))
+                fn.append(Note.is_done(ctr_fn))
+        else:
+            fn.append(Note.sender.has(User.alias==rg[2]))
+    
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
         if session['filter_notes'] != "":
@@ -133,7 +130,7 @@ def register_actions(output,args): # Actions like new note, update read/state, u
     state_id = args.get('state')
     if state_id:
         nt = db.session.scalar(select(Note).where(Note.id==state_id))
-        if 'cl_in' in reg:
+        if rg[1] =='in' and rg[2] != "":
             user = db.session.scalar(select(User).where(User.alias==rg[2]))
             
         nt.updateState(reg,current_user)
@@ -173,8 +170,8 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     note = args.get('note')
     reg = args.get('reg')
     h_note = args.get('h_note')
-    if reg:
-        rg = reg.split("_") 
+    
+    rg = reg.split("_") if reg else [""]
 
     # Sending to last url
     if reg == 'lasturl':
@@ -189,34 +186,18 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
  
     # Security check for error and users without authority
     rdct = False
-        
-    if reg:
-        for esp in ['vc','vcr','dg','cc','desr']:
-            if rg[0] == esp and not esp in current_user.groups:
-                rdct = True
-
-        if rg[0] == 'des' and not 'despacho' in current_user.groups:
-            rdct = True
-        
-        if rg[0] == 'box' and not 'scr' in current_user.groups:
-            rdct = True
-
-        if rg[0] in ['cr','min','box','des'] and not 'cr' in current_user.groups:
-            rdct = True
-        
-        if rg[0] == 'cl' and not f"cl_{rg[2]}" in current_user.groups:
-            rdct = True
-
-    if 'cr' in current_user.groups:
-        if rdct or not reg: 
-            return redirect(url_for('register.register', reg='pen_in_', page=1))
-    else:
-        if rdct or not reg:
-            for gp in current_user.groups:
-                if gp[:3] == 'cl_':
-                    break
+    
+    if rg[0] != 'all':
+        register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
+        if register and register.permissions == 'notallowed' or not reg:
+            if 'cr' in current_user.groups:
+                return redirect(url_for('register.register', reg='pen_in_', page=1))
+            else:
+                for gp in current_user.groups:
+                    if gp[:3] == 'cl_':
+                        break
             
-            return redirect(url_for('register.register', reg=gp.replace("_","_in_"), page=1))
+                return redirect(url_for('register.register', reg=gp.replace("_","_in_"), page=1))
     
     # Actions
     rst = register_actions(output,args)
@@ -236,27 +217,19 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     if "showAll" in output:
         session['showAll'] = output['showAll']
 
-
     fn = register_filter(rg,h_note)
-
-    if rg[0] == 'des':
-        for rg in ['vcr','vc']: # Only the vcr or vc can see
-            if not rg in current_user.groups:
-                fn.append(Note.reg!=rg)
-
 
     page = args.get('page', 1, type=int)
     sender = aliased(User,name="sender_user")
     sql = select(Note).join(Note.sender.of_type(sender))
     
-    if rg[0] == "cr" and rg[1] == "out":
+    if rg[2] == "" and rg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
-
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.num.desc())
 
     ctr = None
-    if rg[0] == 'cl':
+    if not rg[2] in ['','pending']:
         ctr = db.session.scalar(select(User).where(User.alias==rg[2]))
         session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
 
@@ -266,7 +239,8 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     next_url = url_for('register.register', reg=reg, page=notes.next_num) if notes.has_next else None
     
     session['lasturl'] = url_for('register.register',reg=reg,page=page)
-    return render_template('register/main.html',title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr)
+    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+    return render_template('register/main.html',title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr, registers=registers)
 
 
 

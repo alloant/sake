@@ -8,7 +8,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, get_ref, Comment, File
+from app.models import Note, User, Comment, File
 from app.forms.note import NoteForm
 
 def read_note_view(request):

@@ -20,51 +20,57 @@ from .properties.note import NoteProp
 from .html.note import NoteHtml
 from .html.file import FileHtml
 from .nas.note import NoteNas
+from .html.register import RegisterHtml
 
 from .properties.user import UserProp
 
-def get_note_fk(fullkey):
-    sender = aliased(User,name="sender_user")
-    nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==fullkey))
-    return nt if nt else None
+def get_register(prot):
+    registers = db.session.scalars(select(Register).where(Register.active==1))
+    prot = re.sub(r'\d+\/\d+','',prot)
+    prot = prot.strip('- ')
 
-def get_ref(ref):
-    rst = re.compile(r'h104\D+|\D+').findall(ref)
-    nums = re.compile(r'\d+').findall(ref)
-    if not nums or not rst:
-        return None
+    for reg in registers:
+        alias = r"^\D+"
+        if re.match( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
+            alias = ""
+
+            senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
+            if len(senders) == 1:
+                sender = senders[0]
+            else:
+                rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
+                sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
+            
+            if sender:
+                return {'reg':reg,'sender':sender,'flow':'in'}
+
+        
+        alias = r"\D+$"
+        if re.match( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
+            return {'reg':reg,'flow':'out'}
+
+
+def get_filter_fullkey(prot):
+    reg = get_register(prot)
+    nums = re.findall(r'\d+',prot)
+     
+    if reg and len(nums) == 2:
+        fn = []
+        fn.append(Note.register==reg['reg'])
+        fn.append(Note.flow==reg['flow'])
+        if 'sender' in reg:
+            fn.append(Note.sender==reg['sender'])
+
+        fn.append(Note.num==int(nums[0]))
+        fn.append(Note.year==2000+int(nums[1]))
+
+        return and_(*fn)
     
-    fk = None
-    if rst == ['/'] or rst[0].replace(' ','') in ['','cg']: # Note in from cg
-        if len(nums) == 2:
-            fk = f"cg {nums[0]}/{nums[1]}"
-    elif len(rst) == 2 and len(nums) == 2:
-        if rst[1] == '/': # Otherwise there is not rf vc- vcr- -vc -vcr
-            if rst[0][:3] == 'vcr':
-                fk = f"vcr {nums[0]}/{nums[1]}"
-            elif rst[0][:2] in ['vc','dg','cc']: # Is note out from vc or vcr
-                fk = f"{rst[0][2]} {nums[0]}/{nums[1]}"
-            elif rst[0][:4] == 'desr':
-                fk = f"desr {nums[0]}/{nums[1]}"
-            elif rst[0][:2] == 'cr' or rst[0][:3] == 'Aes': # Is note out
-                if int(nums[0]) < 250: # Note to cg
-                    fk = f"Aes {nums[0]}/{nums[1]}"
-                elif int(nums[0]) < 1000: # Note to asr
-                    fk = f"cr-asr {nums[0]}/{nums[1]}"
-                elif int(nums[0]) < 2000: # Note to ctr
-                    fk = f"cr {nums[0]}/{nums[1]}"
-                else: # Note to cg
-                    fk = f"Aes-r {nums[0]}/{nums[1]}"
-            else: # is note in
-                alias = rst[0].strip() if rst[0].strip().lower() == 'tokyo-sg' else rst[0].split('-')[0].strip()
-                user = db.session.scalar(select(User).where(User.alias==alias))
-                if user:
-                    fk = f"{user.alias} {nums[0]}/{nums[1]}"
-    
-    if fk:
-        return get_note_fk(fk)
-    else:
-        return None
+    return None
+
+def get_note_fullkey(prot):
+    return db.session.scalar( select(Note).where(get_filter_fullkey(prot)) )
+
 
 class File(FileProp,FileNas,FileHtml,db.Model):
     __tablename__ = 'file'
@@ -96,18 +102,15 @@ class File(FileProp,FileNas,FileHtml,db.Model):
 
     @property
     def guess_ref(self):
-        ids = []
+        refs = []
         if ";" in self.subject:
             subject = self.subject.split(";")
-            if len(subject) < 3:
-                return ""
-            
-            for ref in subject[2].split(","):
-                tid = get_ref(ref)
-                if tid: ids.append([tid.fullkey,tid.id])
-
-        return ids
-
+            if len(subject) == 3:
+                for ref in subject[2].split(","):
+                    tid = get_note_fullkey(ref)
+                    if tid: 
+                        refs.append(tid)
+        return refs
 
 
 class Comment(db.Model):
@@ -331,7 +334,18 @@ class User(UserProp,UserMixin, db.Model):
     def __gt__(self,other):
         return self.order > other.order
 
-class Register(db.Model):
+    @property
+    def all_registers(self):
+        rst = []
+        registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+        for register in registers:
+            if register.permissions(self) != 'notallowed':
+                rst.append(register)
+
+        return rst
+        
+
+class Register(RegisterHtml,db.Model):
     __tablename__ = 'register'
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
@@ -352,3 +366,25 @@ class Register(db.Model):
 
     def __repr__(self):
         return f"{self.name} ({self.alias})"
+
+    def permissions(self,user):
+        rst = re.search(fr'\b._{self.alias}_*.*\b',user.u_groups)
+
+        if not rst:
+            return 'notallowed'
+        elif rst.group().split('_')[0] == 'e':
+            return 'editor'
+        elif rst.group().split('_')[0] == 'v':
+            return 'viewer'
+        elif rst.group().split('_')[0] == 'o':
+            return 'official'
+        else:
+            return 'notallowed'
+
+    def get_subregisters(self,user):
+        rst = re.findall(fr'\b._{self.alias}_.+\b',user.u_groups)
+        if rst:
+            return [sb.split('_')[2] for sb in rst]
+
+        return []
+

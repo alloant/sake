@@ -8,7 +8,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, get_ref, Comment, File
+from app.models import Note, User, Comment, File, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm
 
 def sortable_view(request):
@@ -222,7 +222,7 @@ def edit_note_view(request):
             current_refs = []
             if form.ref.data != "" and not isinstance(form.ref.data,list):
                 for ref in form.ref.data.split(","):
-                    nt = get_ref(ref.strip())
+                    nt = get_note_fullkey(ref.strip())
                     if nt:
                         if nt.reg == 'ctr' or 'cr' in current_user.groups:
                             current_refs.append(nt.fullkey)

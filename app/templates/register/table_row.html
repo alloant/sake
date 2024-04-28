@@ -1,10 +1,10 @@
 <tr class="">
   <!-- Protocol number with link -->
   <th scope="row">
-    {% if reg.startswith('cr_') or reg.startswith('pen_') or reg.startswith('des_') or  reg.startswith('box_') %}
-      {{ note.fullkey_link_html(reg)|safe }}
+    {% if reg.split('_')[2] in ['','pending'] %}
+      {{ note.fullkey_link_html|safe }}
     {% else %}
-      {{ note.fullkey }}
+      {{ note.fullkey_short }}
     {% endif %}
   </th>
 
@@ -19,7 +19,7 @@
   </td>
 
   <!-- Deparments -->
-  {% if not 'cl_' in reg %}
+  {% if reg.split('_')[2] in ['','pending'] %}
     <td>
   {% if user.admin %}
       <a 

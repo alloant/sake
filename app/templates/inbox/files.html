@@ -26,8 +26,8 @@
         <td><a href="?remove_file={{file.id}}" data-bs-toggle="tooltip" title="{{gettext('Remove file')}}"><i class="bi bi-trash3-fill" style="color: red;"></i></a></td>
         <td><input type="text" name="number_{{file.id}}" placeholder="nnn/yy" value="{{ file.guess_number }}"></td>
         <td>
-        {% for fk,ref in file.guess_ref %}
-          <a href="/register?reg=cr_all_cg&h_note={{ref}}" target="_blank">{{ fk }}</a>
+        {% for ref in file.guess_ref %}
+          <a href="/register?reg=cr_all_cg&h_note={{ref.id}}" target="_blank">{{ ref.fullkey_link_html|safe }}</a>
         {% endfor %}
         </td>
       </tr>

@@ -12,11 +12,10 @@ from sqlalchemy import select, and_, func, delete
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, File, User
+from app.models import Note, File, User, Register, get_register, get_filter_fullkey, get_note_fullkey
+
 from app.models.nas.nas import files_path, move_path, delete_path, convert_office
 from app.syneml import read_eml
-
-from app.register.tools import get_register, get_filter_fullkey
 
 def inbox_view(request):
     output = request.form.to_dict()
@@ -32,6 +31,7 @@ def inbox_view(request):
     #find_files()
     #print(output)
 
+    """
     for test in ['2059/24','asr 2459/24','rav 21/24','dlal 1921/24','vc-Usca-vc 6/24','cg-vc 226/24','cg-vcr 2280/24','Aes 46/24','cr-asr 306/24','cr 1164/24','Aes-Usca 2042/24','vc-Aesf 4/24','vcr-Aes 2/24']:
         fn = get_filter_fullkey(test)
         tnt = db.session.scalar(select(Note).where(fn))
@@ -39,7 +39,8 @@ def inbox_view(request):
             print(test,tnt.folder_name)
         else:
             print(test)
- 
+    """
+
     if rm_file:
         do_check = True
         file = db.session.scalar(select(File).where(File.id==rm_file))
@@ -103,7 +104,6 @@ def inbox_view(request):
         do_check = True
         files = db.session.scalars(select(File).where(File.note_id==None))
         involved_notes = []
-        print('NOTES')
 
         for file in files:
             prot = output[f"number_{file.id}"].lower()
@@ -124,10 +124,12 @@ def inbox_view(request):
 
                 gfk = f"{pt} {prots[-2]}/{prots[-1]}"
             else:
-                gfk = file.guess_fullkey(prot)
+                gfk = prot
+
+            nt = get_note_fullkey(gfk)
             
 
-            if gfk == "":
+            if not nt:
                 continue
 
             content = "" 
@@ -137,7 +139,7 @@ def inbox_view(request):
                     content = parts[1]
 
             sender = aliased(User,name="sender_user")
-            nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
+            #nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
             
             if ref and nt:
                 rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.num==0,Note.ref.contains(nt))))
@@ -192,17 +194,12 @@ def inbox_view(request):
                 flash(f"{nt} was created")
                 flash(f"{file} was added to {nt}")
         
-            refs = file.guess_ref
-            if refs:
-                rfs = []
-                for rf in refs:
-                    rfs.append(rf[1])
+                refs = file.guess_ref
 
-                nrefs = db.session.scalars(select(Note).where(Note.id.in_(rfs))).all()
-                for nr in nrefs:
-                    nt.ref.append(nr)
+                for ref in refs:
+                    nt.ref.append(ref)
             
-                if len(refs) != len(nrefs): # I didn't get all refs
+                if len(refs) != len(nt.ref): # I didn't get all refs
                     flash(f"There was a problem with {file.subject}. Not all references are in place")
         
             db.session.commit()
@@ -235,6 +232,7 @@ def inbox_view(request):
 
     #flash(f'There are {IN_files} in Mail/IN, {ctr_notes} waiting from ctrs and {asr_files} in Inbox asr')
     ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
-    return render_template('inbox/main.html',title="Inbox cr", files=files, page=page, ctr_notes=ctr_notes, prev_url=prev_url, next_url=next_url)
+    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+    return render_template('inbox/main.html',title="Inbox cr", files=files, page=page, ctr_notes=ctr_notes, prev_url=prev_url, next_url=next_url, registers=registers, user=current_user)
 
 
