@@ -12,7 +12,7 @@ class NoteHtml(object):
         rg = reg.split("_")
         html = []
         for ref in self.ref:
-            if ref.register.permissions(current_user) != 'notallowed':
+            if ref.register.permissions() != 'notallowed':
                 if rg[0] == 'des':
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
                 else:
@@ -24,7 +24,7 @@ class NoteHtml(object):
     def fullkey_link_html(self):
         a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
         if self.num == 0 and self.ref:
-            a.text = f"ref {self.fullkey}"
+            a.text = f"ref {self.ref[0].fullkey}"
         else:
             a.text = self.fullkey
 
@@ -44,8 +44,10 @@ class NoteHtml(object):
                 dep.attrib['data-bs-toggle'] = 'tooltip'
                 dep.attrib['title'] = self.receivers
                 dep.text = "(...)"
-            else:
+            elif self.receivers:
                 dep.text = self.receivers
+            else:
+                dep.text = "o"
         else:
             dep.text = self.sender.alias
         
@@ -80,15 +82,47 @@ class NoteHtml(object):
             ct.append(cti)
 
         return ET.tostring(ct,encoding='unicode',method='html')
+   
+    def edit_delete_html(self,reg):
+        rg = reg.split('_')
+        div = ET.Element('span')
+        edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil'})
+        delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
+        edit_link = None
+        delete_link = None
+
+        if current_user.admin or rg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions() == 'editor':
+            despacho = '&despacho=true' if rg[0] == 'des' else ''
+            edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}{despacho}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+            delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
         
+        elif not rg[2] in ['','pending'] and self.rel_flow(reg) == 'in':
+            edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+
+        if edit_link != None:
+            separation = ET.Element('span',attrib={'class':'ms-1 me-1'})
+            separation.text = "|"
+            div.append(separation)
+            edit_link.append(edit_icon)
+            div.append(edit_link)
+            if delete_link != None:
+                delete_link.append(delete_icon)
+                div.append(delete_link)
+    
+        return ET.tostring(div,encoding='unicode',method='html')
+
     
     def status_html(self,reg):
         rg = reg.split("_")
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if rg[0] == 'des':
             if self.is_read(f"des_{current_user.alias}"):
-                icon = "bi-hourglass-bottom"
-                color = "gray"
+                if self.state == 5:
+                    icon = "bi-check-circle"
+                    color = "green"
+                else:
+                    icon = "bi-hourglass-bottom"
+                    color = "gray"
                 text = gettext('Unsign note')
             else:
                 color = "orange"
@@ -98,20 +132,20 @@ class NoteHtml(object):
                 else:
                     text = gettext('Sign note (the other d has already signed)')
                     icon = "bi-check-circle"
-        elif self.flow == 'out' and not rg[2] in ['','pending'] or self.flow == 'in' and rg[2] in ['','pending']: # It is IN
+        #elif self.flow == 'out' and not rg[2] in ['','pending'] or self.flow == 'in' and rg[2] in ['','pending']: # It is IN
+        elif self.rel_flow(reg) == 'in': # In note for registers and subregisters
             if not rg[2] in ['','pending']:
                 done = self.ctr_has_done(session['ctr'])
                 mine = True
             else:
                 done = True if self.state > 5 else False
-                mine = True if current_user in self.receiver or self.register.permissions(current_user) == 'editor' else False
+                mine = True if current_user in self.receiver or self.register.permissions() == 'editor' else False
             if mine:
                 mn = '-fill'
             else:
                 mn = ''
                 sp = ET.Element('span')
                 
-
             if done:
                 icon = f"bi-check-circle{mn}"
                 color = "green"
@@ -125,19 +159,22 @@ class NoteHtml(object):
                 case 0:
                     icon = "bi-send"
                     color = "gray"
-                    text = gettext('Send note to cr')
+                    if not rg[2] in ['','pending']:
+                        text = gettext('Send note to cr')
+                    else:
+                        text = gettext('Send note to sccr')
                 case 1:
                     icon = "bi-send-check-fill"
                     color = "gray"
-                    if rg[0] == 'cl':
+                    if not rg[2] in ['','pending']:
                         text = gettext('Waiting for cr to get the note (click to take note back from cr inbox)')
                     else:
-                        text = gettext('Waiting for scr to send note')
+                        text = gettext('Waiting for sccr to send note')
                 case _:
                     sp = ET.Element('span')
                     icon = "bi-send-check-fill"
                     color = "green"
-                    if rg[0] == 'cl':
+                    if not rg[2] in ['','pending']:
                         text = gettext('Note has been received in cr')
                     else:
                         text = gettext('The note has been sent')

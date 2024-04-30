@@ -100,15 +100,33 @@ def register_filter(rg,h_note = None):
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
         if session['filter_notes'] != "":
-            #filter_from_protocal(session['filter_notes'])
-            
             ofn = [
-                Note.fullkey.contains(session['filter_notes']),
                 Note.content.contains(session["filter_notes"]),
                 Note.sender.has(User.alias==session['filter_notes']),
                 Note.receiver.any(User.alias==session['filter_notes'])
             ]
-        
+            rst = re.findall(r'\b[a-zA-Z-]* \b\d+\/\d+\b',session['filter_notes'])
+            if rst:
+                for r in rst:
+                    alias = re.search(r'\b[a-zA-Z-]*\b',r).group().replace('-Aes','')
+                    nums = re.findall(r'\d+',r)
+                    if db.session.scalar(select(User).where(User.alias==alias)):
+                        ofn.append(and_(Note.sender.has(User.alias==alias),Note.num==nums[0],Note.year==2000+int(nums[1])))
+                    else:
+                        ofn.append(and_(Note.num==nums[0],Note.year==2000+int(nums[1])))
+            else:
+                rst = re.findall(r'\b\d+\/\d+\b',session['filter_notes'])
+                if rst:
+                    for r in rst:
+                        nums = re.findall(r'\d+',r)
+                        ofn.append(and_(Note.num==nums[0],Note.year==2000+int(nums[1])))
+                else:
+                    rst = re.findall(r'\b\d+\b',session['filter_notes'])
+                    if rst:
+                        for r in rst:
+                            ofn.append(Note.num==r)
+
+                    
             fn.append(or_(*ofn))
 
     return fn
@@ -126,36 +144,24 @@ def register_actions(output,args): # Actions like new note, update read/state, u
         nt.updateRead(current_user)
         return "lasturl"
 
-    # If the state of the note has change
-    state_id = args.get('state')
-    if state_id:
-        nt = db.session.scalar(select(Note).where(Note.id==state_id))
-        if rg[1] =='in' and rg[2] != "":
-            user = db.session.scalar(select(User).where(User.alias==rg[2]))
-            
-        nt.updateState(reg,current_user)
-        return "lasturl"
-  
     if "newout" in output:
         newNote(current_user,reg)
-    elif "addfiles" in output:
+    elif "addfiles" in output: # To update files in folder
         nt = db.session.scalar(select(Note).where(Note.id==output['addfiles']))
         nt.updateFiles()
-    elif 'sendmail' in output:
+    elif 'sendmail' in output: # Only in Outbox. When you click send mail
         tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
         
         for nt in tosendnotes:
-            if nt.reg in ['vc','vcr','dg','cc','desr']:
-                pass
-            else:
+            if not 'personal' in nt.register.groups: # Only for not personal calendars
                 if not nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out"):
                     continue
 
-            if nt.reg == 'asr': # Note for asr. We just copy it to the right folder
-                nt.copy(f"/team-folders/Mail asr/Mail to asr")
+            if 'folder' in nt.register.groups: # Note for asr. We just copy it to the right folder
+                nt.copy(f"/team-folders/Mail {nt.register.alias}/Mail to {nt.register.alias}") # I have to add this to the register database!!!!! Pending
                 nt.state = 6
             
-            if nt.reg == 'ctr': # note for a ctr. We just change the state
+            if 'sake' in nt.register.groups: # note for a ctr (internal sake system). We just change the state.
                 nt.state = 6
                 for rec in nt.receiver:
                     if rec.email:
@@ -189,16 +195,25 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     
     if rg[0] != 'all':
         register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
-        if register and register.permissions == 'notallowed' or not reg:
-            if 'cr' in current_user.groups:
-                return redirect(url_for('register.register', reg='pen_in_', page=1))
-            else:
-                for gp in current_user.groups:
-                    if gp[:3] == 'cl_':
-                        break
-            
-                return redirect(url_for('register.register', reg=gp.replace("_","_in_"), page=1))
-    
+        
+        if not reg:
+            rdct = True
+        elif rg[2] in ['','pending']:
+            if register and register.permissions() == 'notallowed' or not reg:
+                rdct = True
+        else:
+            if not rg[2] in register.get_subregisters():
+                rdct = True
+        
+        if rdct:
+            if current_user.all_registers:
+                return redirect(url_for('register.register', reg='all_all_pending', page=1))
+
+            registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+            for register in registers:
+                if 'subregister' in register.groups:
+                    for sb in register.get_subregisters():
+                        return redirect(url_for('register.register', reg=f'{register.alias}_in_{sb}', page=1))
     # Actions
     rst = register_actions(output,args)
 

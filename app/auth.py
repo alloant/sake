@@ -10,7 +10,7 @@ from sqlalchemy import select
 
 from app import db
 from .forms.login import LoginForm, RegistrationForm, UserForm
-from .models import User
+from .models import User, Register
 from app.tools import check_folders_synology
 
 bp = Blueprint('auth', __name__)
@@ -32,15 +32,15 @@ def login():
             session.permanent = True
             session['theme'] = 'light-mode'
             print('light')
+        
+        if user.all_registers:
+            return redirect(url_for('register.register', reg='all_all_pending', page=1))
 
-        if 'cr' in user.groups:
-            return redirect(url_for('register.register',reg='pen_in_'))
-        else:
-            for gp in user.groups:
-                if gp[:3] == 'cl_':
-                    break
-            
-            return redirect(url_for('register.register',reg=f'cl_in_{gp[3:]}'))
+        registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+        for register in registers:
+            if 'subregister' in register.groups:
+                for sb in register.get_subregisters():
+                    return redirect(url_for('register.register', reg=f'{register.alias}_in_{sb}', page=1))
 
     
     return render_template('auth/auth.html',login=True, form=form)

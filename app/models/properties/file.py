@@ -41,6 +41,8 @@ class FileProp(object):
 
         if self.sender == 'cg@cardumen.lan':
             return 'cg'
+        elif self.sender == 'asr':
+            return 'asr'
         else:
             return 'r'
 

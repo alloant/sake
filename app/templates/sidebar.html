@@ -29,18 +29,17 @@
       <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
       {% endif %}
       </a>
-      
       <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
         <li class="d-inline-flex">
           {% for register in registers %}
-            {% if register.permissions(user) != 'notallowed' %}
+            {% if register.permissions() != 'notallowed' %}
               {{ register.link_icon_html('in')|safe }}
             {% endif %}
           {% endfor %}
           
           <!-- cl registers-->
           {% for register in registers %}
-            {% for subregister in register.get_subregisters(user) %}
+            {% for subregister in register.get_subregisters() %}
               {{ register.link_icon_html('in',subregister)|safe }}
             {% endfor %}
           {% endfor %}
@@ -49,14 +48,14 @@
         </li>
         <li class="d-inline-flex">
           {% for register in registers %}
-            {% if register.permissions(user) != 'notallowed' %}
+            {% if register.permissions() != 'notallowed' %}
               {{ register.link_icon_html('out')|safe }}
             {% endif %}
           {% endfor %}
           
           <!-- cl registers-->
           {% for register in registers %}
-            {% for subregister in register.get_subregisters(user) %}
+            {% for subregister in register.get_subregisters() %}
               {{ register.link_icon_html('out',subregister)|safe }}
             {% endfor %}
           {% endfor %}
@@ -102,21 +101,23 @@
     {% endif %}
 
     {% if not current_user.severalCalendars %}
-      {% for gp in current_user.groups %}
-        {% if gp[:3] == 'cl_' %}
-        <div class="border-top">
-          <a href="/register?reg=cl_in_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from cr to')}} {{gp[3:]}}">
-            <img src="static/icons/ctr/{{gp[3:]}}-in.svg" width="35vmin" height="35vmin">
-          </a>
-        </div>
+          <!-- cl registers-->
+          <div class="border-top py-1 px-1">
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('in',subregister,45)|safe }}
+            {% endfor %}
+          {% endfor %}
+          </div>
 
-        <div class="">
-          <a href="/register?reg=cl_out_{{gp[3:]}}" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Mail from')}} {{gp[3:]}} {{gettext('to cr')}}">
-            <img src="static/icons/ctr/{{gp[3:]}}-out.svg" width="35vmin" height="35vmin">
-          </a>
-        </div>
-        {% endif %}
-      {% endfor %}
+          <div class="pb-1 px-1">
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('out',subregister,45)|safe }}
+            {% endfor %}
+          {% endfor %}
+          </div>
+          <!-- End cl registers-->
     {% endif %}
     
     {% if 'cr' in current_user.groups %}
@@ -193,9 +194,13 @@
       {% if current_user.is_authenticated%}
       <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
       <li><hr class="dropdown-divider"></li>
-      {% for ctr in session['ctrs'] %}
-      <li><a class="dropdown-item" href="/edit_user?user={{ctr[0]}}">{{gettext('Profile')}} {{ctr[1]}}</a></li>
+      
+      {% for register in registers %}
+        {% for subregister in register.get_subregisters(True) %}
+          <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">{{gettext('Profile')}} {{subregister[1]}}</a></li>
+        {% endfor %}
       {% endfor %}
+
       <li><hr class="dropdown-divider"></li>
       <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
       {% else %}

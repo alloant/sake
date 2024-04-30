@@ -9,7 +9,6 @@ from .state_note import state_note_view, read_note_view
 from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view
 from .download import download_view
 from .inbox import inbox_view
-from .tools import get_cr_users
 
 bp = Blueprint('register', __name__)
 
@@ -17,7 +16,6 @@ bp = Blueprint('register', __name__)
 @bp.route('/register',methods=['POST','GET'])
 @login_required
 def register():
-    get_cr_users()
     return register_view(request.form.to_dict(),request.args)
 
 @bp.route('/edit_receivers_files', methods=['GET','POST'])
@@ -48,7 +46,6 @@ def receivers_form():
 @bp.route('/edit_note', methods=['GET','POST'])
 @login_required
 def edit_note():
-    get_cr_users()
     return edit_note_view(request)
 
 @bp.route('/state_note', methods=['GET','POST'])
@@ -64,29 +61,25 @@ def read_note():
 @bp.route('/delete_note', methods=['GET','POST'])
 @login_required
 def delete_note():
-    get_cr_users()
     return delete_note_view(request)
 
 @bp.route('/download', methods=['GET','POST'])
 @login_required
 def download_note():
-    get_cr_users()
     return download_view(request)
 
 @bp.route('/inbox_scr',methods=['POST','GET'])
 @login_required
 def inbox_scr():
-    get_cr_users()
-    
     return inbox_view(request)
 
 from werkzeug.exceptions import HTTPException
 
-#@bp.errorhandler(Exception)
-#def handle_exception(e):
+@bp.errorhandler(Exception)
+def handle_exception(e):
     # pass through HTTP errors
-#    if isinstance(e, HTTPException):
-#        return e
+    if isinstance(e, HTTPException):
+        return e
 
     # now you're handling non-HTTP exceptions only
-#    return render_template("error.html", e=e), 500
+    return render_template("error.html", e=e), 500

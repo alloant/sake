@@ -1,3 +1,5 @@
+import re
+
 class UserProp(object):
     @property
     def groups(self):
@@ -19,9 +21,8 @@ class UserProp(object):
 
     @property
     def severalCalendars(self):
-        if 'cr' in self.groups:
-            return True
-        elif len([g for g in self.groups if 'cl_' in g]) > 1:
+        rst = re.findall(r'\b[evo]_[a-z]+_*[a-z0-9]*\b',self.u_groups)
+        if len(rst) > 1:
             return True
 
         return False

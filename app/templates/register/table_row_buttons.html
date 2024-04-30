@@ -1,23 +1,8 @@
 
 {{ note.status_html(reg)|safe }}
+{{ note.edit_delete_html(reg)|safe }}
 
-{% if user.admin or reg.split('_')[0] in ['min','des','box'] or note.state <= 1 and note.rel_flow(reg) == 'out' and (user == note.sender or 'cl_out' in reg) or 'cl_in' in reg or reg.split('_')[0] in ['vc','vcr','dg','cc','desr'] %}
-  <span class="text-muted">|</span>
-  
-  {% if reg.split('_')[0] == 'cl' %}
-    {% if note.flow == 'out' or note.state < 1 %}
-    <a href="/edit_note?note={{note.id}}&ctr={{reg.split('_')[2]}}" data-bs-toggle="tooltip" title="{{gettext('Edit note')}}"><i class="bi bi-pencil"></i></a>
-    {% endif %}
-  {% else %}
-  <a href="/edit_note?note={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Edit note')}}"><i class="bi bi-pencil"></i></a>
-  {% endif %}
-  
-  {% if not 'cl_in' in reg %}
-    <button class="btn btn-link p-0" onclick="myFunction('{{note.fullkey}}',{{note.id}})"><i class="bi bi-trash3-fill" style="color: red"></i></button>
-  {% endif %}
-{% endif%}
-
-{% if 'scr' in user.groups and note.flow == 'out' and note.reg in ['cg','r','vc','vcr','dg','cc','desr'] %}
+{% if 'scr' in user.groups and note.flow == 'out' and 'email' in note.register.groups %}
   <span class="text-muted">|</span>
   <a href="/download?note={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Download')}} eml"><i class="bi bi-envelope-arrow-down-fill" style="color: green"></i></a>
 {% endif %}

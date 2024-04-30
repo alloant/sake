@@ -5,7 +5,7 @@ from datetime import datetime
 import re
 
 from flask import current_app
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
 from sqlalchemy import select, delete, func, case, union, and_, or_
@@ -214,7 +214,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     def __eq__(self,other):
         if isinstance(other,Note):
-            if self.fullkey == other.fullkey:
+            if self.num == other.num and self.year == other.year and self.register == other.register:
                 return True
 
         return False
@@ -229,7 +229,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         rg = reg.split("_")
         if rg[0] == 'des':
             return True
-        elif rg[0] == 'cl' and len(rg) == 3:
+        elif not rg[2] in ['','pending']: # It is from a subregister
             check = db.session.scalar(select(User).where(User.alias==rg[2]))
         else:
             check = user
@@ -262,6 +262,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 recs.remove(ft)
 
             recs = firsts + recs
+        """
         if self.flow == 'in' and self.reg in ['cg','asr','ctr','r']:
             fn.append(User.u_groups.regexp_match(r'\bcr\b'))
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
@@ -274,7 +275,14 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             fn.pop()
             fn.append(User.u_groups.regexp_match(r'\bvc-r\b'))
             recs += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
-    
+        """
+        if self.flow == 'in':
+            fn.append(User.u_groups.regexp_match(fr'\b[evo]_{self.register.alias}\b'))
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
+        else:
+            fn.append(User.u_groups.regexp_match(fr'\bct_{self.register.alias}\b'))
+            recs = [(user.alias,f"{user.alias} - {user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
+ 
         return recs
 
     @hybrid_property
@@ -300,6 +308,18 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         return case(
             (and_(cls.n_date < cls.files_date,cls.files_date.isnot(None)), cls.files_date),
             else_=cls.n_date
+        )
+
+    @hybrid_property
+    def flow(self) -> str:
+        return 'out' if any(map(lambda v: v in self.sender.groups, ['sake'])) else 'in'
+
+    @flow.expression
+    def flow(cls):
+        cr_users = [user.id for user in db.session.scalars( select(User).where(User.u_groups.regexp_match(r'\bsake\b')) ).all()]
+        return case(
+            (cls.sender_id.in_(cr_users),'out'),
+            else_='in'
         )
 
 class User(UserProp,UserMixin, db.Model):
@@ -339,7 +359,7 @@ class User(UserProp,UserMixin, db.Model):
         rst = []
         registers = db.session.scalars(select(Register).where(Register.active==1)).all()
         for register in registers:
-            if register.permissions(self) != 'notallowed':
+            if register.permissions() != 'notallowed':
                 rst.append(register)
 
         return rst
@@ -367,24 +387,45 @@ class Register(RegisterHtml,db.Model):
     def __repr__(self):
         return f"{self.name} ({self.alias})"
 
-    def permissions(self,user):
-        rst = re.search(fr'\b._{self.alias}_*.*\b',user.u_groups)
+    @property
+    def groups(self):
+        return [g.strip() for g in self.r_groups.split(",")]
+
+    def permissions(self): # it is only for full register not subregister
+        #rst = re.search(fr'\b[evo]_{self.alias}_*[a-z,0-9]*\b',user.u_groups)
+        rst = re.search(fr'\b[evo]_{self.alias}\b',current_user.u_groups)
 
         if not rst:
             return 'notallowed'
-        elif rst.group().split('_')[0] == 'e':
+         
+        rst = rst.group().split('_')
+        if rst[0] == 'e':
             return 'editor'
-        elif rst.group().split('_')[0] == 'v':
+        elif rst[0] == 'v':
             return 'viewer'
-        elif rst.group().split('_')[0] == 'o':
+        elif rst[0] == 'o':
             return 'official'
         else:
             return 'notallowed'
 
-    def get_subregisters(self,user):
-        rst = re.findall(fr'\b._{self.alias}_.+\b',user.u_groups)
-        if rst:
-            return [sb.split('_')[2] for sb in rst]
+    def get_subregisters(self,ids=False):
+        rst = re.findall(fr'\b[evo]_{self.alias}_[a-z0-9]+\b',current_user.u_groups)
 
-        return []
+        sbs = []
+        for sb in rst:
+            if ids:
+                usb = db.session.scalar(select(User).where(User.alias==sb.split('_')[2]))
+                if usb:
+                    sbs.append([usb.id,sb.split('_')[2]])
+            else:
+                sbs.append(sb.split('_')[2])
+
+        return sbs
+
+    def get_contacts(self):
+        return db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all()
+ 
+    @property
+    def get_num_contacts(self):
+        return len(db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all())
 

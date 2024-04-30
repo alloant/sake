@@ -90,45 +90,6 @@ class NoteNas(object):
     def copy(self,dest):
         return copy_path(self.folder_path,f"{dest}/{self.folder_name}")
 
-    def organice_files_to_despacho(self,path_dest,path_originals):
-        key = self.get_key(full=True)
-        #Change names of files
-        if self.register == 'cr':
-            for i,file in enumerate(self.files):
-                if i == 0:
-                    old_name = Path(file.name).stem
-                    if self.source == 'r': key = f"r_{key}"
-                    new_name = f"{key}.{file.ext}" if self.isref == 0 else f"{key}_ref.{file.ext}" 
-                else:
-                    new_name = f"{file.name.replace(old_name,key)}".strip().replace('&','and')
-
-                file.rename(new_name)
-        else:
-            key = f"{self.register}{key}"
-
-        
-        # Moving files to inbox folder
-        dest =f"{path_dest}"
-
-        #Create a folder if needed
-        if self.of_annex != '':
-            rst = create_folder(dest,key)
-            if not rst: return None
-            dest = f"{dest}/{key}"
-            self.folder_id = rst['id']
-            self.folder_path = dest
-            self.permanent_link = rst['permanent_link']
-        
-        # Convert the files to Synology office
-        if self.flow == 'in' or self.type_from_no == 'ctr':
-            for file in self.files:
-                if file.ext in EXT:
-                    file.convert()
-
-        # Move the files to dest
-        for file in self.files:
-            file.move(dest,path_originals)
-
     def updateFiles(self):
         if not self.permanent_link: # There is no permanent_link, I should get it first
             rst = self.getPermanentLink()

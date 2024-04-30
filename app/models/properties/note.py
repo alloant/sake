@@ -31,17 +31,22 @@ class NoteProp(object):
     @hybrid_property
     def fullkey_short(self):
         return self.fullkey_ls(long_key=False) 
-    
+   
     @hybrid_property
+    def fullkey_folder(self):
+        return self.fullkey_ls(long_key=False,folder=True) 
+ 
+    #@hybrid_property
+    @property
     def fullkey(self):
         return self.fullkey_ls()
 
-    def fullkey_ls(self,long_key = True):
+    def fullkey_ls(self,long_key = True, folder = False):
         if self.flow == 'in':
             alias = self.sender.alias
             pattern = self.register.in_pattern.split('|')[-1].strip(' ^$')
-            #if pattern == '': # Only for cg, because the short version is none we use the other
-            #    pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
+            if pattern == '' and folder: # Only for cg, because the short version is none we use the other
+                pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
         else:
             if len(self.receiver) == 1 and long_key :
                 alias = self.receiver[0].alias
@@ -59,20 +64,11 @@ class NoteProp(object):
     def can_edit(self):
         return True if self.sender == current_user and self.state < 2 else False
 
+    """
     @fullkey.expression
     def fullkey(cls):
-        """
-        return case(
-            (and_(cls.flow=='in',cls.reg == 'vcr'), literal_column("sender_user.alias") + "-vcr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.flow=='in', cls.alias_sender + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.reg == "cg", "Aes " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.reg == "asr", "cr-asr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.reg == "ctr", "cr " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.reg.contains(","), "Aes-r " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            (cls.reg == "r", "Aes-r" + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
-            else_="",
-        )
-        """
+
+
         rstin = f"-{cls.reg}" if cls.reg in ['vc','vcr','dg','cc','desr'] else ""
         return case(
             (cls.flow=='in', literal_column("sender_user.alias") + f"{rstin} " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
@@ -83,17 +79,7 @@ class NoteProp(object):
             (cls.reg == "r", "Aes-r" + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String)),
             else_=cls.reg + " " + cls.num.cast(db.String) + "/" + (cls.year % 100).cast(db.String),
         )
-   
-    @hybrid_property
-    def flow(self) -> str:
-        return 'out' if any(map(lambda v: v in self.sender.groups, ['cr'])) else 'in'
-
-    @flow.expression
-    def flow(cls):
-        return case(
-            (cls.sender_id.in_(session['cr']),'out'),
-            else_='in'
-        )
+    """
    
     @hybrid_method
     def ctr_has_done(self,ctr): #Use in state_cl and updateState for cl. We assume note is in for the ctr
@@ -140,10 +126,10 @@ class NoteProp(object):
         if self.num == 0: # Es una ref
             if self.ref:
                 if self.ref[0]:
-                    folder = self.ref[0].fullkey_short.split("/")[0]
+                    folder = self.ref[0].fullkey_folder.split("/")[0]
             return None
         else: 
-            folder = self.fullkey_short.split("/")[0]
+            folder = self.fullkey_folder.split("/")[0]
         
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
@@ -175,7 +161,7 @@ class NoteProp(object):
     def rel_flow(self,reg):
         rg = reg.split('_')
 
-        if rg[0] == 'cl':
+        if not rg[2] in ['','pending']: # Is a subregister of a ctr
             return 'in' if self.flow == 'out' else 'out'
         else:
             return self.flow
@@ -206,7 +192,7 @@ class NoteProp(object):
                 self.state = 5
             else:
                 self.state += self.updateRead(f"des_{user.alias}")
-        elif rg[0] == 'cl':
+        elif not rg[2] in ['','pending']:
             if self.flow == 'out': # Note from cr to the ctr
                 rst = self.received_by.split(",")
                 if rg[2] in rst:
@@ -220,14 +206,6 @@ class NoteProp(object):
                     self.state = 1
                 elif self.state == 1: # taking it back before the scr archive it
                     self.state =0
-        elif rg[0] in ['cr','pen','vc','vcr','dg','cc','desr']: # Here the states could be 4-6
-            if self.flow == 'in': # Notes from cg,asr,r,ctr. They could be 5 or 6
-                self.state = 6 if self.state == 5 else 5
-            else: # Is out. Only to pass from 0 to 1
-                if self.state == 0:
-                    self.state = 1
-                elif self.state == 1:
-                    self.state = 0
         elif self.reg == 'min': #Minuta is different for sender and the rest
             if self.sender == user:
                 if self.state == 0:
@@ -253,5 +231,13 @@ class NoteProp(object):
                 
                 if not has_next:
                     self.state = 2
-        
+        else: # Here the states could be 4-6
+            if self.flow == 'in': # Notes from cg,asr,r,ctr. They could be 5 or 6
+                self.state = 6 if self.state == 5 else 5
+            else: # Is out. Only to pass from 0 to 1
+                if self.state == 0:
+                    self.state = 1
+                elif self.state == 1:
+                    self.state = 0
+ 
         db.session.commit()

@@ -8,7 +8,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, Comment, File, get_note_fullkey
+from app.models import Note, User, Comment, File, Register, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm
 
 def sortable_view(request):
@@ -37,10 +37,6 @@ def edit_receivers_files_view(request):
         possibles = []
 
     form.receiver.choices = note.potential_receivers(filter,possibles = possibles)
-    print('------')
-    print(form.receiver.choices)
-    print('------')
-    print(session['rst_checkbox'])
     
     if request.method == 'POST':
         if 'frst_checkbox' in session:
@@ -144,6 +140,7 @@ def edit_note_view(request):
     output = request.form.to_dict()
     page = request.args.get('page',1,type=int)
     
+    despacho = request.args.get('despacho')
     note_id = request.args.get('note')
     alias_ctr = request.args.get('ctr')
     ctr = None
@@ -157,7 +154,8 @@ def edit_note_view(request):
     
     #sender = aliased(User,name="sender_user")
     #note = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(Note.id==note_id)).first()
-    
+    despacho = True if despacho and 'despacho' in current_user.groups else False
+
     note = db.session.scalars(select(Note).where(Note.id==note_id)).first()
     
     form = NoteForm(request.form,obj=note)
@@ -224,7 +222,7 @@ def edit_note_view(request):
                 for ref in form.ref.data.split(","):
                     nt = get_note_fullkey(ref.strip())
                     if nt:
-                        if nt.reg == 'ctr' or 'cr' in current_user.groups:
+                        if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
                             current_refs.append(nt.fullkey)
                             note.ref.append(nt)
                         else:
@@ -258,8 +256,9 @@ def edit_note_view(request):
  
     session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
+    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
     if ctr and (note.state > 0 and note.flow == 'in' or note.flow == 'out'):
-        return render_template('register/note_form_ctr.html', form=form, note=note, user=current_user, ctr=ctr)
+        return render_template('register/note_form_ctr.html', form=form, note=note, user=current_user, ctr=ctr, registers=registers, despacho=False)
     else:
-        return render_template('register/note_form.html', form=form, note=note, user=current_user, ctr=ctr)
+        return render_template('register/note_form.html', form=form, note=note, user=current_user, ctr=ctr, registers=registers, despacho=despacho)
 
