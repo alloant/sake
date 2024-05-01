@@ -3,8 +3,9 @@
 
 from flask import Blueprint, request, render_template
 from flask_login import login_required, current_user
+from flask_mobility.decorators import mobile_template
 
-from .register import register_view
+from .register import register_view, notes_view
 from .state_note import state_note_view, read_note_view
 from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view
 from .download import download_view
@@ -14,9 +15,17 @@ bp = Blueprint('register', __name__)
 
 @bp.route('/',methods=['POST','GET'])
 @bp.route('/register',methods=['POST','GET'])
+#@mobile_template("register/{mobile/}main.html")
+@mobile_template("register/main.html")
 @login_required
-def register():
-    return register_view(request.form.to_dict(),request.args)
+def register(template):
+    return register_view(template,request.form.to_dict(),request.args)
+
+@bp.route('/notes')
+@login_required
+def notes():
+    return notes_view(request.form.to_dict(),request.args)
+
 
 @bp.route('/edit_receivers_files', methods=['GET','POST'])
 @login_required

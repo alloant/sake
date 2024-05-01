@@ -4,7 +4,7 @@ from flask import Flask, session, request
 from flask_babel import Babel
 from flask_login import LoginManager 
 from flask_bootstrap import Bootstrap5
-
+from flask_mobility import Mobility
 #from flask_admin import Admin
 
 from config import Config
@@ -23,6 +23,7 @@ db = SQLAlchemy(model_class=Base)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
+    Mobility(app)
     bootstrap = Bootstrap5(app)
     babel = Babel(app, locale_selector=get_locale)
     app.config.from_object(config_class)

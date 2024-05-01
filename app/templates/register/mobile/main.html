@@ -1,0 +1,40 @@
+<!-- templates/profile.html -->
+
+{% extends "base_mobile.html" %}
+
+{% block content %}
+<h1 class="title text-center display-4">
+  <img src="{{title[0]}}" width="70vmin" height="70vmin">
+  {{title[1]}}
+</h1>
+
+<div id="wait" class="modal">
+  {% include 'wait.html' %}
+</div>
+
+{% if reg == 'box_in_' %}
+  <div id="upfile" class="modal">
+    {% include 'upload_file.html' %}
+  </div>
+  <div class="row">
+    <form class="d-flex p-2" method="POST">
+      <input type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="importeml" value="{{gettext('Check for eml')}}">
+    </form>
+  </div>
+{% endif %}
+
+{% if reg == 'box_out_' %}
+  <div class="row">
+    <form class="d-flex p-2" method="POST">
+      <input href="#wait" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="sendmail" value="{{gettext('Send mail')}}">
+    </form>
+  </div>
+{% endif %}
+
+<div class="row">
+  <div class="col">
+    {% include 'register/mobile/search_table.html' %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,17 @@
+<form class="invisible" id="addfiles" method="POST">
+</form>
+
+<div class="container">
+  {% for note in notes %}
+    {% include 'register/mobile/card_note.html' %}
+  {% endfor %}
+</div>
+
+<script>
+  function myFunction(note_protocol,note_id) {
+    let answer = confirm(`{{gettext('Are you sure you want to delete')}} ${note_protocol}?`);
+    if (answer) {
+      location.replace(`/delete_note?note=${note_id}`)
+    }
+  }
+</script>

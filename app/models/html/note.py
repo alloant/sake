@@ -47,7 +47,7 @@ class NoteHtml(object):
             elif self.receivers:
                 dep.text = self.receivers
             else:
-                dep.text = "o"
+                dep.text = "."
         else:
             dep.text = self.sender.alias
         

@@ -25,11 +25,13 @@ class NoteNas(object):
         return message
     
     def addFile(self,file):
-        rst = file.move(self.path)
+        rst = file.move(self.folder_path)
         if rst:
             file.path = file.path.split('/')[-1]
 
         self.files.append(file)
+
+        return rst
 
     def sheetLink(self,text):
         if self.permanent_link:

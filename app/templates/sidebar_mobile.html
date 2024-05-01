@@ -1,0 +1,233 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a href="/register?reg=all_all_pending" class="nav-link active" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-pendings.svg" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-pendings-dark.svg" width="35vmin" height="35vmin">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">My pending notes</span>
+          </a>
+        </li>
+        <li class="nav-item dropdown dropdown-menu-end">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-register.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
+            {% else %}
+              <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Registers</span>
+          </a>
+          <ul class="dropdown-menu">
+
+            {% for register in registers %}
+              {% if register.permissions() != 'notallowed' %}
+                <li class="dropdown-item">
+                {{ register.link_icon_html('in')|safe }}
+                {{ register.link_icon_html('out')|safe }}
+                </li>
+              {% endif %}
+            {% endfor %}
+          
+            <!-- cl registers-->
+            {% for register in registers %}
+              {% for subregister in register.get_subregisters() %}
+                <li class="dropdown-item">
+                {{ register.link_icon_html('in',subregister)|safe }}
+                {{ register.link_icon_html('out',subregister)|safe }}
+                </li>
+              {% endfor %}
+            {% endfor %}
+            <!-- End cl registers-->
+          </ul>
+        </li>
+
+        {% if 'despacho' in current_user.groups %}
+          <li class="nav-item">
+            <a href="/register?reg=des_in_" class="nav-link"data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Despacho')}}">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-despacho.svg" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-despacho-dark.svg" width="35vmin" height="35vmin">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Despacho</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% if 'scr' in current_user.groups %}
+          <li class="nav-item">
+            <a href="/inbox_scr" class="nav-link" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Inbox')}}">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-inbox.svg" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-inbox-dark.svg" width="35vmin" height="35vmin">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Inbox</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="/register?reg=box_out_" class="nav-link" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Outbox')}}">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-outbox.svg" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-outbox-dark.svg" width="35vmin" height="35vmin">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Outbox</span>
+            </a>
+          </li>
+        {% endif %}
+
+
+        {% if 'cr' in current_user.groups %}
+          <li class="nav-item">
+            <a class="nav-link" type="button" data-bs-toggle="offcanvas" data-bs-target="#offlinks">
+              {% if session['theme'] == 'light-mode' %}
+                <img src="static/icons/00-links.svg" width="35vmin" height="35vmin">
+              {% else %}
+                <img src="static/icons/00-links-dark.svg" width="35vmin" height="35vmin">
+              {% endif %}
+              <span class="navbar-text d-md-inline d-lg-none">Interesting links</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item">
+            <a class="nav-link" type="button" data-bs-toggle="offcanvas" data-bs-target="#offlinks_cl">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-links.svg" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-links-dark.svg" width="35vmin" height="35vmin">
+            {% endif %}
+              <span class="navbar-text d-md-inline d-lg-none">Interesting links</span>
+            </a>
+          </li>
+        {% endif %}
+  
+        <li class="nav-item">
+          <a href="/documentation" class="nav-link" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Documentation')}}">
+          {% if session['theme'] == 'light-mode' %}
+            <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
+          {% else %}
+            <img src="static/icons/00-question-dark.svg" width="35vmin" height="35vmin">
+          {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Documentation Sake</span>
+          </a>
+        </li>
+
+        <li class="nav-item dropdown"> 
+
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% if session['theme'] == 'light-mode' %}
+              <img src="static/icons/00-profile.svg" alt="mdo" width="35vmin" height="35vmin">
+            {% else %}
+              <img src="static/icons/00-profile-dark.svg" alt="mdo" width="35vmin" height="35vmin">
+            {% endif %}
+            <span class="navbar-text d-md-inline d-lg-none">Profile and settings</span>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              {% if session['theme'] == 'dark-mode' %}
+                <a href="/theme" class="dropdown-item" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Set light mode')}}">
+                  <img src="static/icons/sun.svg" width="25vmin" height="25vmin" class="me-2">
+                  <span>Light mode</span>
+                </a>
+              {% else %}
+                <a href="/theme" class="dropdown-item" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Set dark mode')}}">
+                  <img src="static/icons/moon.svg" width="25vmin" height="25vmin" class="me-2">
+                  <span>Dark mode</span>
+                </a>
+              {% endif %}
+            </li>
+
+            <li>
+              {% if session['language'] == 'en' %}
+                <a href="/language?lang=ja" class="dropdown-item" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Japanese')}}">
+                  <img src="static/icons/ja.svg" width="25vmin" height="25vmin" class="me-2">
+                  <span>{{gettext('Japanese')}}</span>
+                </a>
+              {% else %}
+                <a href="/language?lang=en" class="dropdown-item" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('English')}}">
+                  <img src="static/icons/en.svg" width="25vmin" height="25vmin" class="me-2">
+                  <span>{{gettext('English')}}</span>
+                </a>
+              {% endif %}
+            </li>
+          
+          <li><hr class="dropdown-divider"></li>
+
+          {% if current_user.is_authenticated%}
+            <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">
+            {% if session['theme'] == 'light-mode' %}
+                  <img src="static/icons/user.svg" width="25vmin" height="25vmin" class="me-2">
+            {% else %}
+                  <img src="static/icons/user-dark.svg" width="25vmin" height="25vmin" class="me-2">
+            {% endif %}
+                <span>{{gettext('Profile')}} {{current_user.alias}}</span>
+            </a></li>
+            
+            <li><hr class="dropdown-divider"></li>
+            
+            {% for register in registers %}
+              {% for subregister in register.get_subregisters(True) %}
+                <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">
+            {% if session['theme'] == 'light-mode' %}
+                  <img src="static/icons/house.svg" width="25vmin" height="25vmin" class="me-2">
+            {% else %}
+                  <img src="static/icons/house-dark.svg" width="25vmin" height="25vmin" class="me-2">
+            {% endif %}
+                    <span>{{gettext('Profile')}} {{subregister[1]}}</span>
+                </a></li>
+              {% endfor %}
+            {% endfor %}
+
+            <li><hr class="dropdown-divider"></li>
+            
+            <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">
+            {% if session['theme'] == 'light-mode' %}
+                  <img src="static/icons/logout.svg" width="25vmin" height="25vmin" class="me-2">
+            {% else %}
+                  <img src="static/icons/logout-dark.svg" width="25vmin" height="25vmin" class="me-2">
+            {% endif %}
+                <span>{{gettext('Log out')}}</span>
+            </a></li>
+          {% else %}
+            <li><a class="dropdown-item" href="{{url_for('auth.login')}}">
+            {% if session['theme'] == 'light-mode' %}
+                  <img src="static/icons/user.svg" width="25vmin" height="25vmin" class="me-2">
+            {% else %}
+                  <img src="static/icons/user-dark.svg" width="25vmin" height="25vmin" class="me-2">
+            {% endif %}
+                <span>{{gettext('Log in')}}</span>
+            </a></li>
+            
+            <li><hr class="dropdown-divider"></li>
+            
+            <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">
+            {% if session['theme'] == 'light-mode' %}
+                <img src="static/icons/user-add.svg" width="25vmin" height="25vmin" class="me-2">
+            {% else %}
+                <img src="static/icons/user-add-dark.svg" width="25vmin" height="25vmin" class="me-2">
+            {% endif %}
+                <span>{{gettext('Sign up')}}</span>
+            </a></li>
+          {% endif %}
+
+          </ul>
+        </li>
+
+      </ul>
+      <form class="d-flex" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>

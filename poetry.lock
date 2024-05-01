@@ -439,6 +439,20 @@ Flask = ">=0.9"
 Flask-SQLAlchemy = ">=1.0"
 
 [[package]]
+name = "flask-mobility"
+version = "2.0.1"
+description = "A Flask extension to simplify building mobile-friendly sites."
+optional = false
+python-versions = "*"
+files = [
+    {file = "Flask-Mobility-2.0.1.tar.gz", hash = "sha256:d05835e2e92f467ce2ddaed993bda21cf4ca54f73f39c574fad900f825715574"},
+    {file = "Flask_Mobility-2.0.1-py3-none-any.whl", hash = "sha256:e2154f2830eb8c1b3d069b67f65ebb7a0216506f08a52f58cde80fedc7763175"},
+]
+
+[package.dependencies]
+Flask = "*"
+
+[[package]]
 name = "flask-sqlalchemy"
 version = "3.1.1"
 description = "Add SQLAlchemy support to your Flask application."
@@ -1206,8 +1220,8 @@ simplejson = "^3.17.0"
 [package.source]
 type = "git"
 url = "https://github.com/alloant/synology-drive-api.git"
-reference = "v0.1.0"
-resolved_reference = "34a4b9836205785d333bf6d6557a8331605ac066"
+reference = "v0.1.1"
+resolved_reference = "80ea1928b761f437f90aec43bced7de76a6252f6"
 
 [[package]]
 name = "typing-extensions"
@@ -1304,4 +1318,4 @@ WTForms = ">=3.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "38969272c6094838c1f99a052b7d357b78aed538d01216045f16aae215731df8"
+content-hash = "59ce357f28873dc967fc93737ad3fdcb909dc75bece46e65af1174cb7337143d"

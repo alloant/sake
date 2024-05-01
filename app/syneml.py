@@ -136,9 +136,9 @@ def read_eml(file_eml,emails = None):
             if not rst:
                 continue
 
-            path = rst['data']['path']
+            path = rst['data']['display_path']
             link = rst['data']['permanent_link']
-            
+        
             if file['filename'].split(".")[-1] in EXT.keys():
                 path,fid,link = convert_office(rst['data']['display_path'])
                 move_path(rst['data']['display_path'],f"{dest}/Originals")

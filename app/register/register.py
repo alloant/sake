@@ -172,7 +172,12 @@ def register_actions(output,args): # Actions like new note, update read/state, u
     if not "notes_filer" in output and not page:
         session['filter_notes'] = ""
     
-def register_view(output,args): # Use for all register in/out for cr and ctr, for pendings, for despacho and for outbox
+def notes_view(output,args):
+    reg = args.get('reg')
+    page = args.get('page', 1, type=int)
+
+
+def register_view(template,output,args): # Use for all register in/out for cr and ctr, for pendings, for despacho and for outbox
     note = args.get('note')
     reg = args.get('reg')
     h_note = args.get('h_note')
@@ -255,7 +260,8 @@ def register_view(output,args): # Use for all register in/out for cr and ctr, fo
     
     session['lasturl'] = url_for('register.register',reg=reg,page=page)
     registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    return render_template('register/main.html',title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr, registers=registers)
+    #return render_template('register/main.html',title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr, registers=registers)
+    return render_template(template,title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr, registers=registers)
 
 
 

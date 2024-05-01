@@ -1,0 +1,91 @@
+{% if session['theme'] == 'light-mode' %}
+<div class="card border-dark mt-2">
+{% else %}
+<div class="card border-light mt-2">
+{% endif %}
+  <div class="card-header d-inline-flex justify-content-between">
+    <span class="fw-bold">
+    {% if reg.split('_')[2] in ['','pending'] %}
+      {{ note.fullkey_link_html|safe }}
+    {% else %}
+      {{ note.fullkey_short }}
+    {% endif %}
+    </span>
+
+    {{ note.refs_html(reg)|safe }}
+
+  </div> <!-- End card-header -->
+
+  <div class="card-body text-center">
+    <span>
+      <!-- Deparments -->
+      {% if reg.split('_')[2] in ['','pending'] %}
+          {% if user.admin or reg.split('_')[0] == 'des' %}
+            <a 
+              hx-get="/edit_receivers?note={{note.id}}" 
+              hx-target="#modals-here" 
+              hx-trigger="click" 
+              data-bs-toggle="modal"
+              data-bs-target="#modals-here"
+              class=""
+              role="button">
+              <span id="recRow-{{note.id}}">{{ note.dep_html|safe }}</span>
+            </a>
+
+            <div id="modals-here"
+              class="modal modal-blur fade"
+              style="display: none"
+              aria-hidden="false"
+              tabindex="-1">
+              <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                  <div class="modal-content"></div>
+              </div>
+            </div>
+          </span>
+
+          {% else %}
+            {{ note.dep_html|safe }}
+            </span>
+          {% endif %}
+        
+      {% endif %}
+      {{ note.content_html(reg)|safe }}
+    </span>
+
+  </div> <!-- End card body -->
+
+  <div class="card-footer text-body-secondary d-inline-flex justify-content-between">
+    <span>
+    {% include 'register/table_row_buttons.html' %}
+    </span>
+
+    <span class=""><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+    <!-- Files-->
+    <span>
+    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
+      <a type="submit" form="addfiles" class="" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></a>
+    {% endif%}
+
+    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
+      <a type="submit" form="addfiles" class="" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></a>
+    {% endif%}
+  
+    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or 'cl_' in reg %}
+      {% if note.permanent_link and not 'cl_in_' in reg %}
+      <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="{{gettext('Folder')}}" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
+      {% endif %}
+
+      <span>:</span> 
+      {% for file in note.files %}
+        {% if reg.split('_') in ['','pending'] or file.subject == '' or reg.split('_')[2] in file.subject.split(',') %}
+          {{ file.icon_html|safe }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    </span>
+    <!-- End of files-->
+
+  </div>
+</div>
+
+<img id="ind" src="/static/icons/bars.svg" class="htmx-indicator" />

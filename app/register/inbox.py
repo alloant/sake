@@ -108,9 +108,15 @@ def inbox_view(request):
         for file in files:
             prot = output[f"number_{file.id}"].lower()
             prots = re.findall(r'\w+',prot)
-            register = output[f"register_{file.id}"].lower()
+            register_field = output[f"register_{file.id}"].lower()
             
             ref = False
+
+            if "@" in file.sender:
+                sender = db.session.scalar(select(User).where(User.email==file.sender))
+            else:
+                sender = db.session.scalar(select(User).where(User.alias==file.sender))
+
             if len(prots) > 2:
                 if len(prots) == 3:
                     if prots[0] == 'ref':
@@ -124,12 +130,13 @@ def inbox_view(request):
 
                 gfk = f"{pt} {prots[-2]}/{prots[-1]}"
             else:
-                gfk = prot
+                if not sender:
+                    continue
+                gfk = f"{sender.alias} {prot}"
 
             nt = get_note_fullkey(gfk)
             
-
-            if not nt:
+            if not gfk:
                 continue
 
             content = "" 
@@ -138,27 +145,26 @@ def inbox_view(request):
                 if "/" in parts[0]:
                     content = parts[1]
 
-            sender = aliased(User,name="sender_user")
+            sndr = aliased(User,name="sender_user")
             #nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
             
             if ref and nt:
-                rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.num==0,Note.ref.contains(nt))))
+                rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sndr)).where(and_(Note.num==0,Note.ref.contains(nt))))
             else:
                 rnt = None
 
-            
             if rnt:
-                rst = file.move_to_note(f"{rnt.folder_path}")
+                #rst = file.move_to_note(f"{rnt.folder_path}")
+                rst = rnt.addFile(file)
                 if rst:
-                    rnt.addFile(file)
-                if not rnt in involved_notes: involved_notes.append(rnt)
-                flash(f"{file} was added to {nt}")
+                    if not rnt in involved_notes: involved_notes.append(rnt)
+                    flash(f"{file} was added to {nt}")
             elif nt and not ref:
-                rst = file.move_to_note(f"{nt.folder_path}")
+                #rst = file.move_to_note(f"{nt.folder_path}")
+                rst = nt.addFile(file)
                 if rst:
-                    nt.addFile(file)
-                if not nt in involved_notes: involved_notes.append(nt)
-                flash(f"{file} was added to {nt}")
+                    if not nt in involved_notes: involved_notes.append(nt)
+                    flash(f"{file} was added to {nt}")
             else: # We need to create the note
                 if ref:
                     nref = nt
@@ -166,28 +172,25 @@ def inbox_view(request):
                 num = re.findall(r'\d+',gfk)[0]                
                 year = re.findall(r'\d+',gfk)[1]                
                 
-                if "@" in file.sender:
-                    sender = db.session.scalar(select(User).where(User.email==file.sender))
-                else:
-                    sender = db.session.scalar(select(User).where(User.alias==file.sender))
-
+                
                 if not sender:
                     continue
-                
+               
+
                 state = 3
-                if register in ['dg','cc','desr']:
+                if register_field in ['dg','cc','desr']:
                     state = 5
+                
+                register = db.session.scalar(select(Register).where(Register.alias==register_field))
 
                 if ref:
-                    nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=register,state=state,content=content,ref=[nref])
+                    nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=state,content=content,ref=[nref])
                     #nt.ref.append(nref)
                 else:
-                    nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register,state=state,content=content)
+                    nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=state,content=content)
                 
                 
-                rst = file.move_to_note(nt.folder_path)
-                if rst:
-                    nt.addFile(file)
+                nt.addFile(file)
                 
                 if not nt in involved_notes: involved_notes.append(nt)
                 db.session.add(nt)
@@ -204,8 +207,8 @@ def inbox_view(request):
         
             db.session.commit()
 
-        for note in involved_notes:
-            note.updateFiles()
+        #for note in involved_notes:
+        #    note.updateFiles()
 
 
 
