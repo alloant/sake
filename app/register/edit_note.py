@@ -142,6 +142,8 @@ def edit_note_view(request):
     
     despacho = request.args.get('despacho')
     note_id = request.args.get('note')
+    note = db.session.scalars(select(Note).where(Note.id==note_id)).first()
+    
     alias_ctr = request.args.get('ctr')
     ctr = None
     
@@ -149,14 +151,13 @@ def edit_note_view(request):
         ctr = db.session.scalar(select(User).where(User.alias==alias_ctr))
         ctr = ctr.id if ctr else None
     else: # No from a ctr then the user has to be in cr
-        if not 'cr' in current_user.groups:
+        if not 'cr' in current_user.groups or not note.current_user_can_edit():
             return redirect(session['lasturl'])
     
     #sender = aliased(User,name="sender_user")
     #note = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(Note.id==note_id)).first()
     despacho = True if despacho and 'despacho' in current_user.groups else False
 
-    note = db.session.scalars(select(Note).where(Note.id==note_id)).first()
     
     form = NoteForm(request.form,obj=note)
     form.sender.choices = [note.sender]

@@ -162,8 +162,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'), default=1)
     register: Mapped["Register"] = relationship(back_populates="notes")
 
-
-
+    n_tags: Mapped[str] = mapped_column(db.String(15), default = '')
     n_groups: Mapped[str] = mapped_column(db.String(15), default = '')
 
     done: Mapped[bool] = mapped_column(db.Boolean, default=False)

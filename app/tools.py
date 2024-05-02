@@ -18,7 +18,7 @@ def check_folders_synology():
 
 def get_pass_nas():
     cipher = Fernet(current_app.config['SECRET_KEY'])
-    PASSWD = cipher.decrypt(db.session.scalar(select(User).where(User.alias=='bharat')).password_nas)
+    PASSWD = cipher.decrypt(db.session.scalar(select(User).where(User.alias=='lc')).password_nas)
     print(PASSWD)
 
 def import_dates():

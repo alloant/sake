@@ -35,6 +35,25 @@ class NoteHtml(object):
 
         return ET.tostring(a,encoding='unicode',method='html')
 
+    @property
+    def tag_html(self):
+        span = ET.Element('span',attrib={'class':'small ms-1'})
+        if len(self.tags) > 3:
+            span.attrib['data-bs-toggle'] = 'tooltip'
+            span.attrib['title'] = ",".join(self.tags)
+
+        for i,tag in enumerate(self.tags):
+            t = ET.Element('span',attrib={'class':f'badge bg-success'})
+            if len(self.tags) > 3 and i == 2:
+                t.text = '...'
+                span.append(t)
+                break
+            else:
+                t.text = tag
+                span.append(t)
+        
+        return ET.tostring(span,encoding='unicode',method='html')
+
 
     @property
     def dep_html(self):
@@ -111,6 +130,17 @@ class NoteHtml(object):
     
         return ET.tostring(div,encoding='unicode',method='html')
 
+    def current_user_can_edit(self):
+        if current_user.admin:
+            return True
+        elif 'despacho' in current_user.groups and self.state < 5 and self.flow == 'in': # People during despacho
+            return True
+        elif self.flow == 'out' and self.state < 2 and self.sender == current_user:
+            return True
+        elif self.flow == 'out' and self.state == 1 and 'scr' in current_user.groups:
+            return True
+
+        return False
     
     def status_html(self,reg):
         rg = reg.split("_")

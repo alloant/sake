@@ -1,4 +1,7 @@
 import re
+from sqlalchemy import case, and_, or_, not_, select, type_coerce, literal_column, func, union
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+
 
 class UserProp(object):
     @property
@@ -26,3 +29,8 @@ class UserProp(object):
             return True
 
         return False
+
+    @hybrid_method
+    def contains_group(cls,group):
+        return cls.u_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
+

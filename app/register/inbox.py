@@ -31,6 +31,7 @@ def inbox_view(request):
     #find_files()
     #print(output)
 
+    #print(db.session.scalars(select(User).where(User.contains_group('v_ctr'))).all())
     """
     for test in ['2059/24','asr 2459/24','rav 21/24','dlal 1921/24','vc-Usca-vc 6/24','cg-vc 226/24','cg-vcr 2280/24','Aes 46/24','cr-asr 306/24','cr 1164/24','Aes-Usca 2042/24','vc-Aesf 4/24','vcr-Aes 2/24']:
         fn = get_filter_fullkey(test)

@@ -17,7 +17,11 @@ class MultiCheckboxField(SelectMultipleField):
 
 class ReceiverForm(FlaskForm):
     receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
-    submit = SubmitField(gettext("Submit"))
+    submit = SubmitField(gettext("Save"))
+
+class TagForm(FlaskForm):
+    receiver = MultiCheckboxField(gettext('Tag'),coerce=str)
+    submit = SubmitField(gettext("Save"))
 
 class NoteForm(FlaskForm):
     #num = IntegerField('Num',validators=[DataRequired()])
@@ -39,4 +43,4 @@ class NoteForm(FlaskForm):
 
     permanent = BooleanField(gettext('Only permanent'))
 
-    submit = SubmitField(gettext("Submit"))
+    submit = SubmitField(gettext("Save"))

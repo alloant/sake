@@ -32,7 +32,7 @@ def wrap_error(func, *args):
             message = f"Synology error: {err.message} in {func.__name__} with parameters {args}"
         else:
             message = f"{err} in {func.__name__} with parameters {args}"
-        #raise   
+        raise   
         #flash(message)
         logging.warning(message)
 
@@ -156,7 +156,8 @@ def _convert_office(synd,path,delete):
 
 def _download_path(synd,path,dest):
     if not path.isdigit():
-        name = get_info(path,attr='name')
+        #name = get_info(path,attr='name')
+        name = path.split('/')[-1]
     else:
         name = Path(path).name
 
