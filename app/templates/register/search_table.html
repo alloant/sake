@@ -1,5 +1,5 @@
   <div class="d-flex">
-  {% if not 'box' in reg and ('out' in reg or 'min' in reg) %}
+  {% if not 'box' in reg and ('out' in reg or 'mat' in reg) %}
     <form class="d-flex p-2" method="POST">
       <input href="#wait" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="newout" value="{{gettext('New')}}">
     </form>
@@ -17,7 +17,7 @@
       <label class="form-check-label" for="flexSwitchCheckDefault">{{gettext('All')}}</label>
     </div>
     {% endif %}
-    <input type="search" class="form-control me-2" placeholder="Search" aria-label="Search" name="notes_filter">
+    <input type="search" class="form-control me-2" placeholder="Search" aria-label="Search" name="notes_filter" value="{{session['filter_notes']}}">
     <button type="submit" class="btn btn-primary"><i class="bi-search"></i></button>
   </form>
   </div>

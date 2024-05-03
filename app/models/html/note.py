@@ -35,14 +35,16 @@ class NoteHtml(object):
 
         return ET.tostring(a,encoding='unicode',method='html')
 
-    @property
-    def tag_html(self):
+    def tag_html(self,show_something=False):
         span = ET.Element('span',attrib={'class':'small ms-1'})
         if len(self.tags) > 3:
             span.attrib['data-bs-toggle'] = 'tooltip'
             span.attrib['title'] = ",".join(self.tags)
 
+        cont = 0
         for i,tag in enumerate(self.tags):
+            if not tag:
+                continue
             t = ET.Element('span',attrib={'class':f'badge bg-success'})
             if len(self.tags) > 3 and i == 2:
                 t.text = '...'
@@ -51,6 +53,13 @@ class NoteHtml(object):
             else:
                 t.text = tag
                 span.append(t)
+            cont +=1
+        
+        if cont == 0 and show_something:
+            t = ET.Element('span',attrib={'class':f'badge bg-success'})
+            t.text = '+'
+            span.append(t)
+
         
         return ET.tostring(span,encoding='unicode',method='html')
 
@@ -144,6 +153,9 @@ class NoteHtml(object):
     
     def status_html(self,reg):
         rg = reg.split("_")
+        if rg[0] == 'mat':
+            return self.status_mat_html(reg)
+
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if rg[0] == 'des':
             if self.is_read(f"des_{current_user.alias}"):
@@ -215,48 +227,80 @@ class NoteHtml(object):
         sp.append(i)
         return ET.tostring(sp,encoding='unicode',method='html')
     
-    def state_min_html(self,reg,user):
-        if self.sender == user:
-            if self.state == 0: # Sender is working on it
-                a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':gettext('Start circulation minuta')})
-                i = ET.Element('i',attrib={'class':'bi bi-hourglass-top','style':'color: green;'})
-            elif self.state == 4:
-                a = ET.Element('span',attrib={'data-bs-toggle':'tooltip','title':f'Circulating ({self.read_by})'})
-                i = ET.Element('i',attrib={'class':'bi bi-hourglass-split','style':'color: gray;'})
-            elif self.state == 2:
-                a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':'Circulation done. Mark as done'})
-                i = ET.Element('i',attrib={'class':'bi bi-hourglass-bottom','style':'color: red;'})
+    
+
+
+
+    def status_mat_html(self,reg):
+        sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':'#status_mat','role':'button'})
+        if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start
+            if self.state == 0:
+                icon = "bi-send"
+                color = "orange"
+                text = gettext('Start circulating note')
+            elif self.state == 1:
+                icon = "bi-hourglass-bottom"
+                color = "orange"
+                text = f"{gettext('Matter is circulating')} ({self.read_by})"
+            elif self.state == 5:
+                icon = "bi-x-circle-fill"
+                color = "red"
+                text = gettext('Matter is back to you after all the directors have checked it. Click here to mark it as done')
             elif self.state == 6:
-                a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':'Mark as undone'})
-                i = ET.Element('i',attrib={'class':'bi bi-check','style':'color: blue;'})
-        else:
-            if self.state <= 5:
-                if not self.is_read(user): # User has already done this note
-                    a = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}','data-bs-toggle':'tooltip','title':'Pass to the next one'})
-                    i = ET.Element('i',attrib={'class':'bi bi-hourglass-split','style':'color: red;'})
-                else: 
-                    a = ET.Element('span',attrib={'data-bs-toggle':'tooltip','title':f'Circulating ({self.read_by})'})
-                    i = ET.Element('i',attrib={'class':'bi bi-hourglass-split','style':'color: gray;'})
+                icon = "bi-check-circle-fill"
+                color = "green"
+                text = gettext('Matter was mark as done. Click here to mark it as undone')
+
+            i1 = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};','data-toggle':'tooltip','title':text})
+            sp1.append(i1)
+
+            if self.state in [0,5]:
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':'#status_mat','role':'button'})
+                i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to restart the matter')})
+                sp2.append(i2)
+                sp = ET.Element('span')
+                sp.append(sp1)
+                sp.append(sp2)
+                sp.attrib['id'] = 'status_mat'
+                return ET.tostring(sp,encoding='unicode',method='html')
+            else:
+                sp1.attrib['id'] = 'status_mat'
+                return ET.tostring(sp1,encoding='unicode',method='html')
+        else: # One of the persons circulating the note
+            if self.state == 1 and not self.is_read(current_user):
+                sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':'#status_mat','role':'button'})
+                icon = "bi-send-fill"
+                color = "red"
+                text = gettext('Click to pass the note to the next one')
+            elif self.state == 1 and self.is_read(current_user):
+                sp1 = ET.Element('span',attrib={})
+                icon = "bi-hourglass-bottom"
+                color = "gray"
+                text = f"{gettext('Matter is circulating')} ({self.read_by})"
+            elif self.state == 5:
+                sp1 = ET.Element('span',attrib={})
+                icon = "bi-x-circle"
+                color = "red"
+                text = gettext('Matter is back to owner')
             elif self.state == 6:
-                a = ET.Element('span',attrib={'data-bs-toggle':'tooltip','title':'Done'})
-                i = ET.Element('i',attrib={'class':'bi bi-check','style':'color: blue;'})
+                sp1 = ET.Element('span',attrib={})
+                icon = "bi-check-circle"
+                color = "green"
+                text = gettext('Matter was mark as done')
 
+            i1 = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};','data-toggle':'tooltip','title':text})
+            sp1.append(i1)
 
+            if self.state == 1 and not self.is_read(current_user):
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':'#status_mat','role':'button'})
+                i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to send matter back to owner')})
+                sp2.append(i2)
+                sp = ET.Element('span')
+                sp.append(sp1)
+                sp.append(sp2)
+                sp.attrib['id'] = 'status_mat'
+                return ET.tostring(sp,encoding='unicode',method='html')
+            else:
+                sp1.attrib['id'] = 'status_mat'
+                return ET.tostring(sp1,encoding='unicode',method='html')
 
-
-        if self.reg == 'min' and self.sender == user and self.state == 2:
-            div = ET.Element('span')
-            a2 = ET.Element('a',attrib={'href':f'?reg={reg}&state={self.id}&again=true','data-bs-toggle':'tooltip','title':'Circulate minuta again from beginning'})
-            i2 = ET.Element('i',attrib={'class':'bi bi-hourglass-bottom','style':'color: green;'})
-            a.append(i)
-            a2.append(i2)
-            div.append(a)
-            div.append(a2)
-            rst = div
-        else:
-            a.append(i)
-            rst = a
-        return ET.tostring(rst,encoding='unicode',method='html')
-
-
-                

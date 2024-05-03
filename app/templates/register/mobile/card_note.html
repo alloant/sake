@@ -62,11 +62,11 @@
     <span class=""><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
     <!-- Files-->
     <span>
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
       <a type="submit" form="addfiles" class="" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></a>
     {% endif%}
 
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
       <a type="submit" form="addfiles" class="" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></a>
     {% endif%}
   

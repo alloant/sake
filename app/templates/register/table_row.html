@@ -35,6 +35,7 @@
 
       <div id="modals-here"
           class="modal modal-blur fade"
+          data-bs-backdrop="static"
           style="display: none"
           aria-hidden="false"
           tabindex="-1">
@@ -55,33 +56,36 @@
     {% endif %}
    
     {{ note.content_html(reg)|safe }}
-      {% if reg.split('_')[2] in ['','pending'] %}
-        {% if user.admin or reg.split('_')[0] == 'des' %}
-        <a 
-            hx-get="/edit_tags?note={{note.id}}" 
-            hx-target="#modal-tag" 
-            hx-trigger="click" 
-            data-bs-toggle="modal"
-            data-bs-target="#modal-tag"
-            class=""
-            role="button">
-            <span id="tagRow-{{note.id}}">{{ note.tag_html|safe }}</span>
-        </a>
 
-        <div id="modal-tag"
-            class="modal modal-blur fade"
-            style="display: none"
-            aria-hidden="false"
-            tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-                <div class="modal-content"></div>
-            </div>
-        </div>
-        {% else %}
-          {{ note.tag_html|safe }}
-        {% endif %}
+    <!-- Tags-->
+    {% if reg.split('_')[2] in ['','pending'] %}
+      {% if user.admin or reg.split('_')[0] == 'des' or reg.split('_')[0] == 'mat' and note.sender == current_user %}
+      <a 
+          hx-get="/edit_tags?note={{note.id}}" 
+          hx-target="#modal-tag" 
+          hx-trigger="click" 
+          data-bs-toggle="modal"
+          data-bs-target="#modal-tag"
+          class=""
+          role="button">
+          <span id="tagRow-{{note.id}}">{{ note.tag_html(True)|safe }}</span>
+      </a>
+
+      <div id="modal-tag"
+          class="modal modal-blur fade"
+          data-bs-backdrop="static"
+          style="display: none"
+          aria-hidden="false"
+          tabindex="-1">
+          <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+              <div class="modal-content"></div>
+          </div>
+      </div>
+      {% else %}
+        {{ note.tag_html()|safe }}
       {% endif %}
-
+    {% endif %}
+    <!-- End of tags-->
     
     {% if ctr and note.comments_ctr %}
       {% for cm in note.comments_ctr %}
@@ -96,11 +100,11 @@
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
     
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></button>
     {% endif%}
 
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></button>
     {% endif%}
   

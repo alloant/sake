@@ -20,7 +20,7 @@ class ReceiverForm(FlaskForm):
     submit = SubmitField(gettext("Save"))
 
 class TagForm(FlaskForm):
-    receiver = MultiCheckboxField(gettext('Tag'),coerce=str)
+    tag = MultiCheckboxField(gettext('Tag'),coerce=str)
     submit = SubmitField(gettext("Save"))
 
 class NoteForm(FlaskForm):

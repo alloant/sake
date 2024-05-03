@@ -186,22 +186,18 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
-      
+        flow = 'in' if 'cr' in self.sender.groups else 'out'
 
-
-        if self.reg in ['vc','vcr','dg','cc','desr']:
-            if 'cr' in self.sender.groups:
-                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} out"
-            else:
-                self.path = f"/team-folders/Mail {self.reg}/Register/{self.year}/{self.reg} in"
-        elif self.sender.alias in ['cg','asr'] or 'r' in self.sender.groups:
-            self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} in"
-        elif self.reg == 'min':
-            self.path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{datetime.now().year}/{alias}"
-        elif 'ctr' in self.sender.groups: # Note created by a ctr
-            self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
-        else: # Note create by dr/of cr
-            self.path = f"/team-folders/Mail {alias}/Outbox"
+        if 'personal' in self.register.groups:
+            self.path = f"/team-folders/Mail {self.register.alias}/Register/{self.year}/{self.register.alias} {flow}"
+        elif 'matters' in self.register.groups: # Is matters
+            self.path = f"/team-folders/Mail {alias}/Matters/{self.year}"
+        elif 'ctr' in self.sender.groups: # A note to cr created in a ctr. The sender is a ctr.
+            self.path = f"/team-folders/Mail {alias}/{alias} to cr"
+        elif flow == 'out': # a dr from cr writing a note out
+            self.path = f"/team-folders/Mail {alias}/Outbox/"
+        else: # Note in from cg, asr or r
+            self.path = f"{self.register.folder}/{self.year}/{self.register.alias} in"
 
         rst = self.create_folder()
 
@@ -248,8 +244,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             fn.append(and_(*ftn))
         
         recs = []
-        if self.reg == 'min':
-            fn.append(User.u_groups.regexp_match(r'\bcr\b'))
+
+        if self.register.alias == 'mat':
+            fn.append(User.contains_group('cr'))
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all()]
             firsts = []
             for pot in possibles:
@@ -260,21 +257,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             for ft in firsts:
                 recs.remove(ft)
 
-            recs = firsts + recs
-        """
-        if self.flow == 'in' and self.reg in ['cg','asr','ctr','r']:
-            fn.append(User.u_groups.regexp_match(r'\bcr\b'))
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
-        elif self.flow == 'out' and self.reg in ['ctr','r']:
-            fn.append(User.u_groups.regexp_match(fr'\b{self.reg}\b'))
-            recs = [(user.alias,f"{user.alias} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
-        elif self.flow == 'out' and self.reg in ['vc','vcr']:
-            fn.append(User.u_groups.regexp_match(r'\bcg\b'))
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
-            fn.pop()
-            fn.append(User.u_groups.regexp_match(r'\bvc-r\b'))
-            recs += [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
-        """
+            return firsts + recs
+        
         if self.flow == 'in':
             fn.append(User.u_groups.regexp_match(fr'\b[evo]_{self.register.alias}\b'))
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
@@ -408,7 +392,7 @@ class Register(RegisterHtml,db.Model):
             return 'notallowed'
 
     def get_subregisters(self,ids=False):
-        rst = re.findall(fr'\b[evo]_{self.alias}_[a-z0-9]+\b',current_user.u_groups)
+        rst = re.findall(fr'\b[evo]_{self.alias}_[a-z0-9-]+\b',current_user.u_groups)
 
         sbs = []
         for sb in rst:

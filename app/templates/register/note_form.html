@@ -101,7 +101,7 @@
           {% if note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or user.admin %}
             <h3 class=mb-4> {{gettext('Recipients')}}</h3>
      
-            {% if note.reg == 'min' %}
+            {% if note.register.alias == 'mat' %}
               <div class="d-flex d-flex-wrap">
                 <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
                 <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
@@ -120,7 +120,7 @@
               </div>
             {% endif %}
             
-            {% if note.reg == 'min' %}
+            {% if note.register.alias == 'mat' %}
               {% include 'register/receivers_list_order_list.html' %}
             {% else %}
               <ul class="list-group" id="search-results">

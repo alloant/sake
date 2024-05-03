@@ -45,15 +45,20 @@ def find_history(note):
 def register_filter(rg,h_note = None):
     fn = []
 
-    if rg[0] == 'min':
-        fn.append(Note.reg=='min')
-        fn.append(or_(Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)))
+    if rg[0] == 'mat':
+        fn.append(Note.reg=='mat')
+        omt = []
+        omt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
+        omt.append(Note.contains_read(current_user.alias))
+        omt.append(Note.sender.has(User.id==current_user.id))
+
+        fn.append(or_(*omt))
     elif rg[0] == 'des':
-        fn.append(Note.reg!='min')
+        fn.append(Note.reg!='mat')
         fn.append(Note.state>1)
         fn.append(Note.state<5)
     elif rg[0] == 'box':
-        fn.append(Note.reg!='min')
+        fn.append(Note.reg!='mat')
         fn.append(Note.flow=='out')
         fn.append(Note.state==1)
     elif rg[2] in ['','pending']: # Register not for cls
@@ -99,13 +104,20 @@ def register_filter(rg,h_note = None):
     
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
-        if session['filter_notes'] != "":
-            ofn = [
-                Note.content.contains(session["filter_notes"]),
-                Note.sender.has(User.alias==session['filter_notes']),
-                Note.receiver.any(User.alias==session['filter_notes'])
-            ]
-            rst = re.findall(r'\b[a-zA-Z-]* \b\d+\/\d+\b',session['filter_notes'])
+        ft = session['filter_notes']
+        tags = re.findall(r'#\w+',ft)
+        ft = re.sub(r'#\w+','',ft)
+        ofn = []
+        for tag in tags:
+            ofn.append(Note.contains_tag(tag.replace('#','').strip()))
+
+        if ft != "":
+            ofn.append( Note.content.contains(ft) )
+            ofn.append( Note.sender.has(User.alias==ft) )
+            ofn.append( Note.receiver.any(User.alias==ft) )
+            
+
+            rst = re.findall(r'\b[a-zA-Z-]* \b\d+\/\d+\b',ft)
             if rst:
                 for r in rst:
                     alias = re.search(r'\b[a-zA-Z-]*\b',r).group().replace('-Aes','')
@@ -115,19 +127,19 @@ def register_filter(rg,h_note = None):
                     else:
                         ofn.append(and_(Note.num==nums[0],Note.year==2000+int(nums[1])))
             else:
-                rst = re.findall(r'\b\d+\/\d+\b',session['filter_notes'])
+                rst = re.findall(r'\b\d+\/\d+\b',ft)
                 if rst:
                     for r in rst:
                         nums = re.findall(r'\d+',r)
                         ofn.append(and_(Note.num==nums[0],Note.year==2000+int(nums[1])))
                 else:
-                    rst = re.findall(r'\b\d+\b',session['filter_notes'])
+                    rst = re.findall(r'\b\d+\b',ft)
                     if rst:
                         for r in rst:
                             ofn.append(Note.num==r)
 
                     
-            fn.append(or_(*ofn))
+        fn.append(or_(*ofn))
 
     return fn
 
@@ -203,6 +215,8 @@ def register_view(template,output,args): # Use for all register in/out for cr an
         
         if not reg:
             rdct = True
+        elif rg[0] == 'mat':
+            rdct = False if 'cr' in current_user.groups else True
         elif rg[2] in ['','pending']:
             if register and register.permissions() == 'notallowed' or not reg:
                 rdct = True

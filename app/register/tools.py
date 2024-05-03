@@ -17,8 +17,8 @@ from app.models import User, Note, Register
 def nextNumReg(rg):
     # Get new number for the note. Here getting the las number in that register
     sender = aliased(User,name="sender_user")
-    if rg[0] == 'min':
-        num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='min',Note.year==datetime.today().year,Note.sender.has(User.id==current_user.id)))) )
+    if rg[0] == 'mat':
+        num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='mat',Note.year==datetime.today().year,Note.sender.has(User.id==current_user.id)))) )
     elif not rg[2] in ['','pending']:
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.year==datetime.today().year,literal_column(f"sender_user.alias = '{rg[2]}'"),Note.flow=='in'))) )
     else:
@@ -61,7 +61,7 @@ def newNote(user,reg,ref = None):
     if ref:
         for irf in ref.split(","):
             rf = db.session.scalar(select(Note).where(Note.id==irf))
-            if rf.reg == 'min':
+            if rf.reg == 'mat':
                 for r in rf.ref:
                     nt.ref.append(r)
             else:
@@ -85,8 +85,8 @@ def view_title(reg,note=None):
         return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"{gettext('Notes from')} {rg[2]} {gettext('to cr')}" if rg[1] == 'out' else f"{gettext('Notes from cr to')} {rg[2]}"]
     elif rg[0] == 'all': # History note, also pendings has the same but we already check that before
         return ['static/icons/sake.svg',gettext(u"Notes history")]
-    elif rg[0] == 'min':
-        return [f'static/icons/00-minutas{dark}.svg',gettext('Minutas')]
+    elif rg[0] == 'mat':
+        return [f'static/icons/00-minutas{dark}.svg',gettext('Matters')]
     else:
         return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
 

@@ -23,7 +23,15 @@ class NoteProp(object):
     @property
     def tags(self):
         return self.n_tags.split(',')
- 
+
+    @hybrid_method
+    def next_in_matters(cls,user):
+        return cls.received_by.regexp_match(func.concat('^',cls.read_by,fr',*{user.alias}.*') )
+
+    @hybrid_method
+    def contains_read(cls,alias):
+        return cls.read_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
+
     @hybrid_method
     def contains_tag(cls,tag):
         return cls.n_tags.regexp_match(fr'(^|[^-])\b{tag}\b($|[^-])')
@@ -60,11 +68,11 @@ class NoteProp(object):
             if pattern == '' and folder: # Only for cg, because the short version is none we use the other
                 pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
         else:
-            if len(self.receiver) == 1 and long_key :
-                alias = self.receiver[0].alias
+            if len(self.receiver) == 1 and long_key:
+                alias = self.receiver[0].alias if self.register.alias != 'mat' else self.sender.alias
                 pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
             else:
-                alias = ""
+                alias = "" if self.register.alias != 'mat' else self.sender.alias
                 pattern = self.register.out_pattern.split('|')[-1].strip(' ^$')
 
         prot = eval(fr"f'{pattern}'")
@@ -193,7 +201,7 @@ class NoteProp(object):
         db.session.commit()
         return inc
 
-    def updateState(self,reg,user):
+    def updateState(self,reg,user,cancel=False):
         rg = reg.split("_")
         if rg[0] == 'box': # Is the scr getting mail from cg, asr, ctr or r
             pass
@@ -218,31 +226,28 @@ class NoteProp(object):
                     self.state = 1
                 elif self.state == 1: # taking it back before the scr archive it
                     self.state =0
-        elif self.reg == 'min': #Minuta is different for sender and the rest
-            if self.sender == user:
-                if self.state == 0:
-                    self.receiver.sort(reverse=True)
-                    if len(self.receiver) > 0:
-                        self.received_by = f"{self.receiver[0].alias}"
-                    self.state = 4
-                elif self.state == 4:
+        elif self.reg == 'mat': #Minuta is different for sender and the rest
+            if self.sender == user: # Here is the sender starting to send the note
+                if cancel:
                     self.state = 0
-                elif self.state == 2:
+                    self.read_by = ''
+                elif self.state == 0:
+                    self.state = 1
+                elif self.state == 1:
+                    self.state = 0
+                elif self.state == 5:
                     self.state = 6
-            else:
-                rb = self.read_by.split('_') if self.read_by != '' else []
-                rb.append(user.alias)
-                self.read_by = ",".join(rb)
-                self.receiver.sort(reverse=True)
-                has_next = False
-                for rec in self.receiver:
-                    if not rec.alias in rb:
-                        self.received_by += f",{rec.alias}"
-                        has_next = True
-                        break
-                
-                if not has_next:
-                    self.state = 2
+                elif self.state == 6:
+                    self.state = 5
+            else: # Here is other user
+                if cancel:
+                    self.state = 0
+                else:
+                    self.updateRead(user)
+                    if self.received_by == self.read_by:
+                        self.state = 5
+                    else:
+                        self.state = 1
         else: # Here the states could be 4-6
             if self.flow == 'in': # Notes from cg,asr,r,ctr. They could be 5 or 6
                 self.state = 6 if self.state == 5 else 5

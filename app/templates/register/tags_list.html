@@ -1,4 +1,4 @@
-      {% for rec in form.receiver %}
+      {% for rec in form.tag %}
         {% if rec.checked %} 
           <li class="list-group-item p-1">
             {{ rec(class="form-check-input chbox") }}
@@ -6,7 +6,7 @@
           </li>
         {% endif %}
       {% endfor %}
-      {% for rec in form.receiver %}
+      {% for rec in form.tag %}
         {% if not rec.checked %} 
           <li class="list-group-item p-1">
             {{ rec(class="form-check-input chbox") }}

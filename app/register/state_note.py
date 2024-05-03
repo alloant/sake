@@ -23,9 +23,10 @@ def read_note_view(request):
 def state_note_view(request):
     note_id = request.args.get('note')
     reg = request.args.get('reg')
+    cancel = request.args.get('cancel',False)
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    note.updateState(reg,current_user)
+    note.updateState(reg,current_user,cancel)
 
     return note.status_html(reg)
    

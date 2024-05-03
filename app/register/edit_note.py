@@ -9,16 +9,14 @@ from sqlalchemy.orm import aliased
 
 from app import db
 from app.models import Note, User, Comment, File, Register, get_note_fullkey
-from app.forms.note import NoteForm, ReceiverForm
+from app.forms.note import NoteForm, ReceiverForm, TagForm
 
 def sortable_view(request):
     form = ReceiverForm(request.form)
     order = request.form.keys()
-    print(order,form.receiver.data)
     return ("",204)
 
 def rec_files_view(request):
-    print("asdasdasd")
     return "asdasd"
 
 def edit_receivers_files_view(request):
@@ -64,6 +62,45 @@ def edit_receivers_files_view(request):
     session['fopt_checkbox'] = form.receiver.choices
     session['frst_checkbox'] = form.receiver.data
     return render_template("register/receivers_form.html", hxpost=f"/edit_receivers_files?file={file.id}", hxtarget=f"recFiles-{file.id}", form=form)
+
+def edit_tags_view(request):
+    output = request.form.to_dict()
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    
+    save = request.args.get('save')
+    form = TagForm(request.form,obj=note)
+
+    filter = output['search'] if 'search' in output else ''
+    
+    form.tag.choices = [(tag,tag) for tag in ['sm','sg','sr','ar','desr','Ind','Aso','Asmo','J'] if filter in tag]
+    
+    if request.method == 'POST':
+        if 'rst_tags' in session:
+            for ch in session['opt_tags']:
+                if ch[0] in session['rst_tags']:
+                    session['rst_tags'].remove(ch[0])
+            
+            session['rst_tags'] += form.tag.data
+            form.tag.data = session['rst_tags']
+            session['opt_tags'] = form.tag.choices
+        else:
+            session['rst_tags'] = form.tag.data
+        
+        if save:
+            note.n_tags = ",".join(form.tag.data)
+
+            db.session.commit()
+            return note.tag_html(True)
+
+        return render_template("register/tags_list.html",note=note, form=form)
+    else:
+        form.tag.data = note.tags
+        
+    
+    session['opt_tags'] = form.tag.choices
+    session['rst_tags'] = form.tag.data
+    return render_template("register/tags_form.html",hxpost=f"/edit_tags?note={note.id}", hxtarget=f"tagRow-{note.id}", form=form)
 
 
 def edit_receivers_view(request):
@@ -169,7 +206,7 @@ def edit_note_view(request):
     
     filter = output['search'] if 'search' in output else ''
 
-    if note.reg == 'min':
+    if note.reg == 'mat':
         form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
     else:
         form.receiver.choices = note.potential_receivers(filter)
@@ -194,7 +231,7 @@ def edit_note_view(request):
             note.permanent = form.permanent.data
             #note.sender = form.sender.data
     
-            if 'rst_checkbox' in session and note.reg != 'min':
+            if 'rst_checkbox' in session and note.reg != 'mat':
                 for ch in session['opt_checkbox']:
                     if ch[0] in session['rst_checkbox']:
                         session['rst_checkbox'].remove(ch[0])
@@ -205,8 +242,11 @@ def edit_note_view(request):
             else:
                 session['rst_checkbox'] = form.receiver.data
 
-            if note.reg == 'min':
-                note.received_by = ",".join(form.receiver.data)
+            if note.reg == 'mat':
+                rd = note.read_by.split(',')
+                rd += [us for us in form.receiver.data if not us in rd]
+                form.receiver.data = rd
+                note.received_by = ",".join([r for r in form.receiver.data if r])
         
              
             for n,user in enumerate(reversed(note.receiver)):
