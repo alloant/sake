@@ -8,7 +8,7 @@
       {% endif %}
     </a>
     
-    {% if current_user.alias in ['antonio','sake','despacho'] %}
+    {% if current_user.alias in ['antonio','sake','despacho','jb'] %}
     <a href="/register?reg=mat_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Minutas')}}">
       {% if session['theme'] == 'light-mode' %}
       <img src="static/icons/00-minutas.svg" width="35vmin" height="35vmin">
