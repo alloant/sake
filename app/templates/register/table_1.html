@@ -8,7 +8,7 @@
         <th scope="col">{{gettext('Protocol')}}</th>
         <th scope="col"></th>
         <th scope="col">{{gettext('Date')}}</th>
-        {% if not 'cl_' in reg %}
+        {% if reg.split('_')[2] in ['','pending'] %}
         <th scope="col">Dep</th>
         {% endif %}
         <th scope="col">{{gettext('Content')}}</th>
@@ -17,6 +17,28 @@
       </tr>
     </thead>
     <tbody>
+      <div id="modal-tag"
+          class="modal modal-blur fade"
+          data-bs-backdrop="static"
+          style="display: none"
+          aria-hidden="false"
+          tabindex="-1">
+          <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+              <div class="modal-content"></div>
+          </div>
+        </div>
+      
+        <div id="modals-here"
+          class="modal modal-blur fade"
+          data-bs-backdrop="static"
+          style="display: none"
+          aria-hidden="false"
+          tabindex="-1">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content"></div>
+          </div>
+      </div>
+
     {% for note in notes %}
         {% include 'register/table_row.html' %}
     {% endfor %}

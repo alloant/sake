@@ -224,7 +224,7 @@ class NoteProp(object):
             rb.append(alias)
             inc = 1
         
-        self.read_by = ",".join(rb)
+        self.read_by = ",".join([r for r in rb if r])
         db.session.commit()
         return inc
 
@@ -247,7 +247,7 @@ class NoteProp(object):
                 else:
                     rst.append(rg[2])
                 if not rst: rst = ""
-                self.received_by = ",".join(rst)
+                self.received_by = ",".join([r for r in rst if r])
             else:
                 if self.state == 0: # sending to cr
                     self.state = 1

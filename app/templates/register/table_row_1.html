@@ -1,11 +1,10 @@
-{{ note.row_decoration(reg,user)|safe }}
-  
+<tr class="">
   <!-- Protocol number with link -->
   <th scope="row">
-    {% if 'cr_' in reg or 'pen_' in reg or 'des_' in reg or 'box_' in reg %}
-      {{ note.fullkey_link_html(reg)|safe }}
+    {% if reg.split('_')[2] in ['','pending'] %}
+      {{ note.fullkey_link_html|safe }}
     {% else %}
-      {{ note.fullkey }}
+      {{ note.fullkey_short }}
     {% endif %}
   </th>
 
@@ -20,9 +19,9 @@
   </td>
 
   <!-- Deparments -->
-  {% if not 'cl_' in reg %}
+  {% if reg.split('_')[2] in ['','pending'] %}
     <td>
-  {% if user.admin %}
+  {% if user.admin or reg.split('_')[0] == 'des' %}
       <a 
           hx-get="/edit_receivers?note={{note.id}}" 
           hx-target="#modals-here" 
@@ -33,16 +32,6 @@
           role="button">
           <span id="recRow-{{note.id}}">{{ note.dep_html|safe }}</span>
       </a>
-
-      <div id="modals-here"
-          class="modal modal-blur fade"
-          style="display: none"
-          aria-hidden="false"
-          tabindex="-1">
-          <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-              <div class="modal-content"></div>
-          </div>
-      </div>
 
   {% else %}
     {{ note.dep_html|safe }}
@@ -58,6 +47,25 @@
    
     {{ note.content_html(reg)|safe }}
 
+    <!-- Tags-->
+    {% if reg.split('_')[2] in ['','pending'] %}
+      {% if user.admin or reg.split('_')[0] == 'des' or reg.split('_')[0] == 'mat' and note.sender == current_user %}
+      <a 
+          hx-get="/edit_tags?note={{note.id}}" 
+          hx-target="#modal-tag" 
+          hx-trigger="click" 
+          data-bs-toggle="modal"
+          data-bs-target="#modal-tag"
+          class=""
+          role="button">
+          <span id="tagRow-{{note.id}}">{{ note.tag_html(True)|safe }}</span>
+      </a>
+
+      {% else %}
+        {{ note.tag_html()|safe }}
+      {% endif %}
+    {% endif %}
+    <!-- End of tags-->
     
     {% if ctr and note.comments_ctr %}
       {% for cm in note.comments_ctr %}
@@ -72,22 +80,22 @@
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
     
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link == "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></button>
     {% endif%}
 
-    {% if (user.admin or reg.split('_')[0] in ['min','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link != "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></button>
     {% endif%}
   
-    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or 'cl_' in reg %}
+    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or not reg.split('_')[2] in ['','pending'] %}
       {% if note.permanent_link and not 'cl_in_' in reg %}
       <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="{{gettext('Folder')}}" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
       {% endif %}
 
       <span>:</span> 
       {% for file in note.files %}
-        {% if not 'cl_' in reg or file.subject == '' or reg.split('_')[2] in file.subject.split(',') %}
+        {% if reg.split('_')[2] in ['','pending'] or file.subject == '' or reg.split('_')[2] in file.subject.split(',') %}
           {{ file.icon_html|safe }}
         {% endif %}
       {% endfor %}

@@ -73,8 +73,9 @@ def edit_tags_view(request):
 
     filter = output['search'] if 'search' in output else ''
     
-    form.tag.choices = [(tag,tag) for tag in ['sm','sg','sr','ar','desr','Ind','Aso','Asmo','J'] if filter in tag]
     
+    form.tag.choices = [(tag,tag) for tag in ['aop','ar','df','dg','dest','desr','stgr','str','sccr','ocsr','minors','vcr','vcsr','sm','sg','sr','Ind','Aso','Asmo','J'] if filter in tag]
+
     if request.method == 'POST':
         if 'rst_tags' in session:
             for ch in session['opt_tags']:
@@ -88,7 +89,7 @@ def edit_tags_view(request):
             session['rst_tags'] = form.tag.data
         
         if save:
-            note.n_tags = ",".join(form.tag.data)
+            note.n_tags = ",".join([t for t in form.tag.data if t])
 
             db.session.commit()
             return note.tag_html(True)

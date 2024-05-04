@@ -12,17 +12,23 @@ class NoteHtml(object):
         rg = reg.split("_")
         html = []
         for ref in self.ref:
-            if ref.register.permissions() != 'notallowed':
+            if not rg[2] in ['','pending']:
+                if ref.sender.alias == rg[2] or rg[2] in [r.alias for r in ref.receiver]:
+                    html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
+            elif ref.register.permissions() != 'notallowed':
                 if rg[0] == 'des':
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
                 else:
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
 
-        return ','.join(html)
+        return ','.join([h for h in html if h])
     
     @property
     def fullkey_link_html(self):
-        a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
+        if self.register.alias == 'mat':
+            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.read_by})
+        else:
+            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
         if self.num == 0 and self.ref:
             a.text = f"ref {self.ref[0].fullkey}"
         else:
@@ -36,17 +42,19 @@ class NoteHtml(object):
         return ET.tostring(a,encoding='unicode',method='html')
 
     def tag_html(self,show_something=False):
+        max_tags = 6
+        
         span = ET.Element('span',attrib={'class':'small ms-1'})
-        if len(self.tags) > 3:
+        if len(self.tags) > max_tags:
             span.attrib['data-bs-toggle'] = 'tooltip'
-            span.attrib['title'] = ",".join(self.tags)
+            span.attrib['title'] = ",".join([t for t in self.tags if t])
 
         cont = 0
         for i,tag in enumerate(self.tags):
             if not tag:
                 continue
             t = ET.Element('span',attrib={'class':f'badge bg-success'})
-            if len(self.tags) > 3 and i == 2:
+            if len(self.tags) > max_tags and i == max_tags - 1:
                 t.text = '...'
                 span.append(t)
                 break
@@ -75,7 +83,7 @@ class NoteHtml(object):
             elif self.receivers:
                 dep.text = self.receivers
             else:
-                dep.text = "."
+                dep.text = "+"
         else:
             dep.text = self.sender.alias
         
@@ -118,14 +126,17 @@ class NoteHtml(object):
         delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
         edit_link = None
         delete_link = None
-
-        if current_user.admin or rg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions() == 'editor':
+        
+        if not rg[2] in ['','pending']:
+            if self.flow == 'out': # IT is in for the ctr
+                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+            elif self.state < 1:
+                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+                delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
+        elif current_user.admin or rg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions() == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
             despacho = '&despacho=true' if rg[0] == 'des' else ''
             edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}{despacho}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
             delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
-        
-        elif not rg[2] in ['','pending'] and self.rel_flow(reg) == 'in':
-            edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
 
         if edit_link != None:
             separation = ET.Element('span',attrib={'class':'ms-1 me-1'})

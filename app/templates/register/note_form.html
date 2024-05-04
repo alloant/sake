@@ -98,7 +98,7 @@
         
       <!-- Recipients -->
       <div class="flex p-4">
-          {% if note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or user.admin %}
+          {% if note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or user.admin or note.register.alias == 'mat' %}
             <h3 class=mb-4> {{gettext('Recipients')}}</h3>
      
             {% if note.register.alias == 'mat' %}

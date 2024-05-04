@@ -75,11 +75,16 @@ def register_filter(rg,h_note = None):
             if not session['showAll']:
                 fn.append(Note.state < 6)
         else:
-            fn.append(or_( Note.state>=5,Note.sender.has(User.id==current_user.id) )) # Only notes with state >= 5 or the ones with sender = current_user
+            omt = []
+            omt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
+            omt.append(Note.contains_read(current_user.alias))
+            omt.append(Note.sender.has(User.id==current_user.id))
+
+            fn.append(or_( Note.state>=5,Note.sender.has(User.id==current_user.id),and_(Note.reg=='mat',or_(*omt)) )) # Only notes with state >= 5 or the ones with sender = current_user or minutas I can see
 
         # Registers involve. One in particular or all the ones I can see.
         if rg[0] == 'all':
-            fn.append(Note.register_id.in_([reg.id for reg in current_user.all_registers])) # No minutas
+            fn.append(Note.register_id.in_([reg.id for reg in current_user.all_registers]))
         else:
             register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
             fn.append(Note.register==register)
