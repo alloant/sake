@@ -186,14 +186,14 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
         self.year = datetime.utcnow().year 
         alias = self.sender.alias
-        flow = 'in' if 'cr' in self.sender.groups else 'out'
-
+        flow = 'out' if 'cr' in self.sender.groups else 'in'
+        
         if 'personal' in self.register.groups:
             self.path = f"/team-folders/Mail {self.register.alias}/Register/{self.year}/{self.register.alias} {flow}"
         elif 'matters' in self.register.groups: # Is matters
             self.path = f"/team-folders/Mail {alias}/Matters/{self.year}"
         elif 'ctr' in self.sender.groups: # A note to cr created in a ctr. The sender is a ctr.
-            self.path = f"/team-folders/Mail {alias}/{alias} to cr"
+            self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
         elif flow == 'out': # a dr from cr writing a note out
             self.path = f"/team-folders/Mail {alias}/Outbox/"
         else: # Note in from cg, asr or r

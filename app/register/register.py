@@ -47,6 +47,9 @@ def register_filter(rg,h_note = None):
 
     if rg[0] == 'mat':
         fn.append(Note.reg=='mat')
+        if not session['showAll']:
+            fn.append(Note.state < 6)
+        
         omt = []
         omt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
         omt.append(Note.contains_read(current_user.alias))
@@ -259,6 +262,8 @@ def register_view(template,output,args): # Use for all register in/out for cr an
     
     if rg[2] == "" and rg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
+    elif rg[0] == "mat":
+        sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.num.desc())
 

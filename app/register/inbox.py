@@ -8,7 +8,7 @@ from datetime import date
 from flask import render_template, flash, url_for, current_app, request, session
 from flask_login import current_user
 
-from sqlalchemy import select, and_, func, delete
+from sqlalchemy import select, and_, func, delete, or_
 from sqlalchemy.orm import aliased
 
 from app import db
@@ -30,6 +30,10 @@ def inbox_view(request):
     #import_dates()
     #find_files()
     #print(output)
+
+    #nts = db.session.scalars(select(Note).where(or_(Note.sender_id==36,Note.sender_id==169)).order_by(Note.n_date))
+    #for nt in nts:
+    #    print(f"{nt} {nt.n_date}")
 
     #print(db.session.scalars(select(User).where(User.contains_group('v_ctr'))).all())
     """

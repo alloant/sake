@@ -1,6 +1,7 @@
 from datetime import date
 
 from flask import flash, session, current_app
+from flask_login import current_user
 
 from sqlalchemy import case, and_, or_, not_, select, type_coerce, literal_column, func, union
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
@@ -120,7 +121,33 @@ class NoteProp(object):
             (ctr['date'] < cls.n_date,not_(cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')) ),
         else_=cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')
         )
- 
+
+    @hybrid_property
+    def matters_order(self):
+        if self.state == 1 and self.sender != current_user:
+            return 1
+        elif self.state == 5 and self.sender == current_user:
+            return 2
+        elif self.state == 0:
+            return 3
+        elif self.state == 1 and self.sender == current_user:
+            return 4
+        elif self.state == 1:
+            return 5
+        else:
+            return 6
+
+    @matters_order.expression
+    def matters_order(cls):
+        return case (
+            (and_(cls.state==1,cls.sender!=current_user),1),
+            (and_(cls.state==5,cls.sender==current_user),2),
+            (cls.state==0,3),
+            (and_(cls.state==1,cls.sender==current_user),4),
+            (cls.state==1,5),
+            else_=6,
+        )
+
     @hybrid_method
     def is_done(self,user): #Use in state_cl and updateState for cl. We assume note is in for the ctr
         if user.alias in self.received_by.split(','):

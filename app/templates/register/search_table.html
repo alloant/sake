@@ -7,7 +7,7 @@
   {% endif %}
  
   <form class="d-flex p-2 flex-grow-1" action="?reg={{reg}}" method="POST">
-    {% if reg.split('_')[2] != '' and reg.split('_')[1] in ['in','all'] %}
+    {% if reg.split('_')[2] != '' and reg.split('_')[1] in ['in','all'] or reg.split('_')[0] == 'mat' %}
     <div class="form-check form-switch me-2">
       {% if session['showAll'] %}
         <input class="form-check-input" onChange="this.form.submit()" type="checkbox" id="flexSwitchCheckDefault" name="showAll" checked>

@@ -100,15 +100,15 @@
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
     
-    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link == "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link == "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></button>
     {% endif%}
 
-    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or 'cl_out' in reg) and note.state == 0) and note.permanent_link != "" %}
+    {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link != "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></button>
     {% endif%}
   
-    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or 'cl_' in reg %}
+    {% if not 'of' in user.groups or 'of' in user.groups and note.is_involve(user,reg) or note.sender == user or not reg.split('_')[2] in ['','pending'] %}
       {% if note.permanent_link and not 'cl_in_' in reg %}
       <a href="https://nas.prome.sg:5001/d/f/{{note.permanent_link}}" data-bs-toggle="tooltip" title="{{gettext('Folder')}}" target="_blank"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
       {% endif %}
