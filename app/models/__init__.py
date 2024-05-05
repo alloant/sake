@@ -392,7 +392,7 @@ class Register(RegisterHtml,db.Model):
             return 'notallowed'
 
     def get_subregisters(self,ids=False):
-        rst = re.findall(fr'\b[evo]_{self.alias}_[a-z0-9-]+\b',current_user.u_groups)
+        rst = re.findall(fr'\b[evo]_{self.alias}_[A-Za-z0-9-]+\b',current_user.u_groups)
 
         sbs = []
         for sb in rst:

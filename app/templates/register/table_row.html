@@ -26,7 +26,7 @@
     {% endif %}
    
     {{ note.content_html(reg)|safe }}
-   
+  
     <!-- Tags-->
     {% if reg.split('_')[2] in ['','pending'] %}
       {% if user.admin or reg.split('_')[0] == 'des' or reg.split('_')[0] == 'mat' and note.sender == current_user %}
@@ -38,9 +38,7 @@
           data-bs-target="#modal-tag"
           class=""
           role="button">
-          <span id="tagRow-{{note.id}}">{{ note.tag_html(True)|safe }}</span>
-      </a>
-
+          <span id="tagRow-{{note.id}}">{{ note.tag_html(True)|safe }}</span></a>
       {% else %}
         {{ note.tag_html()|safe }}
       {% endif %}
@@ -77,7 +75,19 @@
 
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
-    
+ 
+    {% if current_user.alias == 'antonio' %}
+    <a 
+        hx-get="/browse_files?note={{note.id}}" 
+        hx-target="#modal-files" 
+        hx-trigger="click" 
+        data-bs-toggle="modal" 
+        data-bs-target="#modal-files"
+        class=""
+        role="button">
+        <i id="fileRow-{{note.id}}" class="bi bi-folder-symlink-fill" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Copy files from notes or other folders')}}"></i></a>
+
+    {% endif %}
     {% if (user.admin or reg.split('_')[0] in ['mat','des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link == "" %}
     <button type="submit" form="addfiles" class="btn p-0" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></button>
     {% endif%}

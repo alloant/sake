@@ -1,0 +1,30 @@
+<div class="modal-dialog modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Copy files</h5>
+    </div>
+    <div class="modal-body">
+
+      <div>
+        <select class="form-select mb-4" name="path_folder" hx-get="/files" hx-target="#files" hx-indicator=".htmx-indicator">
+          <option value="mydrive">My Drive</option>
+          <option value="note_{{note}}">Note</option>
+        </select>
+      </div>
+      
+      <div>
+        <ul id="files" name="file" class="list-group">
+          <li class="list-group-item" value="a1">A1</li>
+        </ul>
+        <img class="htmx-indicator" width="20" src="/img/bars.svg">
+      </div>
+
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" hx-post="/browse_files?note={{note}}&copy=true" hx-target="#modal-files" hx-swap="none">Copy</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>

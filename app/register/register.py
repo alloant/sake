@@ -22,9 +22,25 @@ def find_history(note):
     else:
         note = session['note']
 
+    nt = db.session.scalar(select(Note).where(Note.id==note))
+    refs = [note]
+    for ref in nt.ref:
+        refs.append(ref.id)
+
+    notes = ",".join([str(r) for r in refs])
+    
     sql = text(
             f"with recursive R as ( \
-            select note_id as n, ref_id as r from note_ref where note_id = {note} or ref_id = {note} \
+            select note_id as n, ref_id as r from note_ref where note_id in ({notes}) or ref_id in ({notes}) \
+            UNION \
+            select note_ref.note_id,note_ref.ref_id from R,note_ref where note_ref.note_id = R.r or note_ref.ref_id in (R.n,R.r) or note_ref.note_id in (R.n,R.r)\
+            ) \
+            select n,r from R"
+        )
+
+    sql_good = text(
+            f"with recursive R as ( \
+            select note_id as n, ref_id as r from note_ref where note_id in ({notes}) or ref_id in ({notes}) \
             UNION \
             select note_ref.note_id,note_ref.ref_id from R,note_ref where note_ref.note_id = R.r or note_ref.ref_id = R.n \
             ) \
@@ -56,6 +72,9 @@ def register_filter(rg,h_note = None):
         omt.append(Note.sender.has(User.id==current_user.id))
 
         fn.append(or_(*omt))
+        if not 'permanente' in current_user.groups:
+            fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
+
     elif rg[0] == 'des':
         fn.append(Note.reg!='mat')
         fn.append(Note.state>1)
@@ -67,7 +86,7 @@ def register_filter(rg,h_note = None):
     elif rg[2] in ['','pending']: # Register not for cls
         # First no permanentes
         if not 'permanente' in current_user.groups:
-            fn.append(Note.permanent==False)
+            fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
         
         # For pendings and for the rest
         if rg[2] == 'pending':

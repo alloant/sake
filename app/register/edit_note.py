@@ -11,6 +11,8 @@ from app import db
 from app.models import Note, User, Comment, File, Register, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm, TagForm
 
+from app.models.nas.nas import files_path
+
 def sortable_view(request):
     form = ReceiverForm(request.form)
     order = request.form.keys()
@@ -18,6 +20,38 @@ def sortable_view(request):
 
 def rec_files_view(request):
     return "asdasd"
+
+
+def files_view(request):
+    path = request.args.get("path_folder")
+    
+    if path == 'My Drive':
+        path = '/mydrive'
+    elif 'note_' in path:
+        nid = int(path.split('_')[1])
+        nt = db.session.scalar(select(Note).where(Note.id==nid))
+        return render_template("register/files_list_db.html",note=nt)
+    
+    if path[:8] == '/mydrive':
+        parent_path = "/".join(path.split("/")[:-1])
+        files = [{'type':'dir','name':'...','display_path':parent_path,'permanent_link':''}]
+    else:
+        files = []
+
+
+    files += files_path(path)
+    
+    return render_template("register/files_list.html",files=files)
+
+def browse_files_view(request):
+    print('HERE')
+    copy = request.args.get("copy","")
+    note_id = request.args.get('note')
+    print(note_id,copy) 
+    if copy == 'true':
+        print('tomate',note_id)
+
+    return render_template("register/files_form.html",note=note_id)
 
 def edit_receivers_files_view(request):
     output = request.form.to_dict()

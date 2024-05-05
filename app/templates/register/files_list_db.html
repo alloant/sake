@@ -1,0 +1,20 @@
+<ul id="files" name="file" class="list-group">
+  {% for file in note.files %}
+    <li class="list-group-item d-flex justify-content-between align-content-center">
+      {{file.icon_html|safe}}
+		  <div class="d-flex flex-row">
+		    <div class="ml-2">
+		      {% if file.ext == "" %}
+		  	    <a class="mb-0" hx-get="/files?path_folder={{file.path}}" hx-target="#files">{{file.name}}</a>
+		  	  {% else %}
+		  	    <h6 class="mb-0">{{file.name}}</h6>
+		  	  {% endif %}
+		    </div>
+		  </div>
+		  <div class="check">
+		    <input type="checkbox" name="{{file.id}}">
+		  </div>
+	  </li>
+  {% endfor %}
+</ul>
+

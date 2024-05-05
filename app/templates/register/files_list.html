@@ -1,3 +1,28 @@
-{% for file in note.files%}
-  <li>{{ file.icon_html|safe }} {{ file.name }}</li>
-{% endfor %}
+<ul id="files" name="file" class="list-group">
+  {% for file in files %}
+
+  <li class="list-group-item d-flex justify-content-left">
+		<div class="check">
+		  <input type="checkbox" name="a">
+		</div>
+
+		<div class="d-flex flex-row ms-4">
+      {% include 'register/file_icon.html' %}
+		  <div class="ml-2 ms-2">
+		    {% if file['type'] == 'dir' %}
+		  	  <a class="mb-0 text-decoration-none" hx-get="/files?path_folder={{file['display_path']}}" hx-target="#files" role="button">{{file['name']}}</a>
+		  	{% else %}
+		  	  <h6 class="mb-0">{{file['display_path']}}</h6>
+		  	{% endif %}
+		  	<div class="about">
+		  		<span>{{file.date}}</span>
+		  	</div>
+		  </div>
+		</div>
+		
+	</li>
+
+
+  {% endfor %}
+</ul>
+
