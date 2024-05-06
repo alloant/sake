@@ -1,0 +1,13 @@
+  
+  {% for file in note.files %}
+    {% if note.reg != 'mat' %}
+      {% if reg.split('_')[2] in ['','pending'] or file.subject == '' or reg.split('_')[2] in file.subject.split(',') %}
+        {{ file.icon_html|safe }}
+      {% endif %}
+    {% else %}
+      {% if current_user.alias in note.received_by.split(',') or note.sender == current_user %}
+        {{ file.icon_html|safe }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+

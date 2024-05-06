@@ -22,7 +22,28 @@ class NoteHtml(object):
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
 
         return ','.join([h for h in html if h])
+
+    def files_html(self,reg):
+        rg = reg.split('_')
+        span = ET.Element('span')
+        if self.permanent_link and rg[2] in ['','pending']:
+            folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
+            folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill','style':'color: orange;'})                         
+            folder_link.append(folder_icon)
+            span.append(folder_link)
+
+        separator = ET.Element('span',attrib={'class':'ms-1 me-1'})
+        separator.text = ":"
+        span.append(separator)
+
+        for file in self.files:
+            if rg[0] == 'mat' and ( current_user.alias in self.received_by.split(',') or self.sender == current_user ):
+                span.append(file.icon_html_raw)
+            elif rg[0] != 'mat' and ( rg[2] in ['','pending'] or file.subject == '' or rg[2] in file.subject.split(',') ):
+                span.append(file.icon_html_raw)
     
+        return ET.tostring(span,encoding='unicode',method='html')
+
     @property
     def fullkey_link_html(self):
         if self.register.alias == 'mat':

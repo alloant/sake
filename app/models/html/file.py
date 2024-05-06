@@ -2,7 +2,7 @@ from xml.etree import ElementTree as ET
 
 class FileHtml(object): 
     @property
-    def icon_html(self):
+    def icon_html_raw(self):
         match self.ext:
             case "osheet":
                 icon = "bi-file-earmark-excel-fill"
@@ -25,7 +25,7 @@ class FileHtml(object):
                 color = "gray"
                 chain = "d/f"
 
-        a = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/{chain}/{self.permanent_link}','target':"_blank",'data-bs-toggle':'tooltip','title':self.name})
+        a = ET.Element('a',attrib={'class':'ms-1','href':f'https://nas.prome.sg:5001/{chain}/{self.permanent_link}','target':"_blank",'data-bs-toggle':'tooltip','title':self.name})
         i = ET.Element('i',attrib={f'class':f'bi {icon} position-relative','style':f'color: {color};'})
         
         if self.note.n_date < self.date:
@@ -40,7 +40,11 @@ class FileHtml(object):
 
         a.append(i)
 
-        return ET.tostring(a,encoding='unicode',method='html')
+        return a
+    
+    @property
+    def icon_html(self):
+        return ET.tostring(self.icon_html_raw,encoding='unicode',method='html')
 
     @property
     def subject_html(self):

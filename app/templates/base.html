@@ -10,6 +10,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+        <!-- This style is necessary to load it as soon as possible and avoid the indicator to appear while loading the page-->
+        <style>
+          .htmx-indicator{
+          opacity:0;
+          transition: opacity 500ms ease-in;
+          }
+        </style>
+
         {% block styles %}
             <!-- Bootstrap CSS -->
             {{ bootstrap.load_css() }}

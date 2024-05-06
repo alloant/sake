@@ -1,30 +1,49 @@
 <div class="modal-dialog modal-dialog-centered">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5 class="modal-title">Copy files</h5>
+  <form class="modal-content" id="copy_files_form">
+    <div class="modal-header justify-content-between">
+        <h5 class="modal-title">Copy files</h5>
+        {% if session['theme'] == 'light-mode' %}
+          <img id="formFiles" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+        {% else %}
+          <img id="formFiles" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+        {% endif %}
     </div>
+
     <div class="modal-body">
 
       <div>
-        <select class="form-select mb-4" name="path_folder" hx-get="/files" hx-target="#files" hx-indicator=".htmx-indicator">
+        <select class="form-select form-select-lg mb-4" name="path_folder" hx-get="/files" hx-target="#files" hx-indicator="#formFiles">
+          {% for ref in note.ref %}
+            {% if ref == note.ref[0] %}
+              <option selected value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
+            {% else %}
+              <option value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
+            {% endif %}
+          {% endfor %}
+          
+          {% if note.ref %}
+            <option value="forms">Forms</option>
+          {% else %}
+            <option selected value="forms">Forms</option>
+          {% endif %}
           <option value="mydrive">My Drive</option>
-          <option value="note_{{note}}">Note</option>
         </select>
       </div>
       
       <div>
-        <ul id="files" name="file" class="list-group">
-          <li class="list-group-item" value="a1">A1</li>
-        </ul>
-        <img class="htmx-indicator" width="20" src="/img/bars.svg">
+        {% if note.ref %}
+          {% include 'register/files_list_db.html' %}
+        {% else %}
+          {% include 'register/files_list.html' %}
+        {% endif %}
       </div>
 
 
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" hx-post="/browse_files?note={{note}}&copy=true" hx-target="#modal-files" hx-swap="none">Copy</button>
+      <button type="button" class="btn btn-primary" hx-include="#copy_files_form" data-bs-dismiss="modal" hx-post="/browse_files?note={{note.id}}&copy=true&reg={{reg}}" hx-target="#filesRow-{{note.id}}" hx-indicator="#filesIndRow-{{note.id}}">Copy</button>
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
-  </div>
+  </form>
 </div>

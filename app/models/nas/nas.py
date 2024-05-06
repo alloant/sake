@@ -128,7 +128,6 @@ def _copy_path(synd,path,dest):
     #if 'data' in rst:
     #    if 'async_task_id'in rst['data']:
     #        rst = synd.get_file_or_folder_info(dest)
-
     return rst
 
 def _convert_office(synd,path,delete):

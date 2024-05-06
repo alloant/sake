@@ -11,7 +11,7 @@ from app import db
 from app.models import Note, User, Comment, File, Register, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm, TagForm
 
-from app.models.nas.nas import files_path
+from app.models.nas.nas import files_path, copy_path
 
 def sortable_view(request):
     form = ReceiverForm(request.form)
@@ -25,12 +25,14 @@ def rec_files_view(request):
 def files_view(request):
     path = request.args.get("path_folder")
     
-    if path == 'My Drive':
+    if path == 'forms':
+        path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
+    elif path == 'My Drive':
         path = '/mydrive'
     elif 'note_' in path:
         nid = int(path.split('_')[1])
         nt = db.session.scalar(select(Note).where(Note.id==nid))
-        return render_template("register/files_list_db.html",note=nt)
+        return render_template("register/files_list_db.html",files=nt.files)
     
     if path[:8] == '/mydrive':
         parent_path = "/".join(path.split("/")[:-1])
@@ -43,15 +45,39 @@ def files_view(request):
     
     return render_template("register/files_list.html",files=files)
 
+def update_files_view(request):
+    reg = request.args.get('reg')
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    note.updateFiles()
+
+    return note.files_html(reg)
+
+
+
 def browse_files_view(request):
-    print('HERE')
+    reg = request.args.get("reg","")
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
-    print(note_id,copy) 
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    
     if copy == 'true':
-        print('tomate',note_id)
+        files = request.form.getlist('files_to_copy')
+        for file in files:
+            copy_path(file,f"{note.folder_path}/{file.split('/')[-1]}")
+        
+        note.updateFiles()
 
-    return render_template("register/files_form.html",note=note_id)
+        return note.files_html(reg)
+   
+    if note.ref:
+        files = note.ref[0].files
+    else:
+        path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
+        files = files_path(path)
+
+    
+    return render_template("register/files_form.html",note=note,files=files,reg=reg)
 
 def edit_receivers_files_view(request):
     output = request.form.to_dict()
