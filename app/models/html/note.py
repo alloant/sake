@@ -176,9 +176,11 @@ class NoteHtml(object):
             return True
         elif 'despacho' in current_user.groups and self.state < 5 and self.flow == 'in': # People during despacho
             return True
-        elif self.flow == 'out' and self.state < 2 and self.sender == current_user:
+        elif (self.flow == 'out' or self.register.alias == 'mat') and self.state < 2 and self.sender == current_user:
             return True
         elif self.flow == 'out' and self.state == 1 and 'scr' in current_user.groups:
+            return True
+        elif self.register.alias == 'mat' and self.sender == current_user:
             return True
 
         return False
@@ -303,7 +305,7 @@ class NoteHtml(object):
                 sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':'#status_mat','role':'button'})
                 icon = "bi-send-fill"
                 color = "red"
-                text = gettext('Click to pass the note to the next one')
+                text = gettext(f'Click to pass the note to the next one ({self.read_by})')
             elif self.state == 1 and self.is_read(current_user):
                 sp1 = ET.Element('span',attrib={})
                 icon = "bi-hourglass-bottom"

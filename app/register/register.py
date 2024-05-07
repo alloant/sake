@@ -134,10 +134,12 @@ def register_filter(rg,h_note = None):
         ft = session['filter_notes']
         tags = re.findall(r'#\w+',ft)
         ft = re.sub(r'#\w+','',ft)
-        ofn = []
-        for tag in tags:
-            ofn.append(Note.contains_tag(tag.replace('#','').strip()))
+        tfn = []
 
+        for tag in tags:
+            tfn.append(Note.contains_tag(tag.replace('#','').strip()))
+        
+        ofn = []
         if ft != "":
             ofn.append( Note.content.contains(ft) )
             ofn.append( Note.sender.has(User.alias==ft) )
@@ -166,7 +168,7 @@ def register_filter(rg,h_note = None):
                             ofn.append(Note.num==r)
 
                     
-        fn.append(or_(*ofn))
+        fn.append( and_( *tfn,or_(*ofn) ) )
 
     return fn
 

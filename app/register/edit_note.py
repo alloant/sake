@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import render_template, render_template_string, redirect, session, flash
+from flask import render_template, render_template_string, redirect, session, flash, url_for, Response
 from flask_login import current_user
 
 from sqlalchemy import select, and_
@@ -10,6 +10,7 @@ from sqlalchemy.orm import aliased
 from app import db
 from app.models import Note, User, Comment, File, Register, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm, TagForm
+from app.register.tools import newNote
 
 from app.models.nas.nas import files_path, copy_path
 
@@ -53,6 +54,39 @@ def update_files_view(request):
 
     return note.files_html(reg)
 
+def reply_note_view(request):
+    reg = request.args.get("reg","")
+    rg = reg.split('_')
+    copy = request.args.get("copy","")
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+
+    if request.method == 'POST' or not rg[2] in ['','pending']:
+        if rg[2] in ['','pending']:
+            reg_new_note = request.form.getlist('reg_new_note')[0]
+            if reg_new_note == 'mat':
+                new_reg = 'mat_all_'
+            else:
+                new_reg = f'{reg_new_note}_out_'
+        else:
+            new_reg = f'{rg[0]}_out_{rg[2]}'
+        
+        
+        newNote(current_user,reg=new_reg,ref=note)
+        resp = Response()
+        resp.headers["hx-redirect"] = url_for('register.register', reg=new_reg, page=1)
+        return resp
+   
+    regs = [['mat','To matters'],['cg','To cg'],['asr','To asr'],['ctr','To ctr'],['r','To r']]
+
+    if rg[0] != 'mat':
+        selected = 'mat'
+    else:
+        selected = 'cg'
+        if note.ref:
+            selected = note.ref[0].register.alias
+
+    return render_template("register/modal_reply_note.html",reg=reg,note=note,regs=regs,selected=selected)
 
 
 def browse_files_view(request):

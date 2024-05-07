@@ -7,7 +7,7 @@ from flask_mobility.decorators import mobile_template
 
 from .register import register_view, notes_view
 from .state_note import state_note_view, read_note_view
-from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view
+from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view
 from .download import download_view
 from .inbox import inbox_view
 
@@ -70,6 +70,11 @@ def edit_receivers():
 @login_required
 def receivers_form():
     return receivers_form_view(request)
+
+@bp.route('/reply_note', methods=['GET','POST'])
+@login_required
+def reply_note():
+    return reply_note_view(request)
 
 @bp.route('/edit_note', methods=['GET','POST'])
 @login_required

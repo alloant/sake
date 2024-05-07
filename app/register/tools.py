@@ -59,13 +59,16 @@ def newNote(user,reg,ref = None):
         nt.receiver.append(contacts[0])
 
     if ref:
-        for irf in ref.split(","):
-            rf = db.session.scalar(select(Note).where(Note.id==irf))
-            if rf.reg == 'mat':
-                for r in rf.ref:
-                    nt.ref.append(r)
-            else:
-                nt.ref.append(rf)
+        if type(ref) == Note:
+            nt.ref.append(ref)
+        else:
+            for irf in ref.split(","):
+                rf = db.session.scalar(select(Note).where(Note.id==irf))
+                if rf.reg == 'mat':
+                    for r in rf.ref:
+                        nt.ref.append(r)
+                else:
+                    nt.ref.append(rf)
 
     db.session.add(nt)
     rst = db.session.commit()

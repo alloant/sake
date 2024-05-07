@@ -1,0 +1,31 @@
+<div class="modal-dialog modal-sm modal-dialog-centered">
+  <form class="modal-content" id="reg_new_note_form">
+    <div class="modal-header justify-content-between">
+      <h5 class="modal-title">New note</h5>
+        {% if session['theme'] == 'light-mode' %}
+          <img id="formNewNote" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+        {% else %}
+          <img id="formNewNote" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+        {% endif %}
+    </div>
+    <div class="modal-body">
+      <div>
+        <label>New note to:</label>
+        <select class="form-select form-select-lg mb-4" name="reg_new_note">
+          {% for r in regs%}
+            {% if r[0] == selected %}
+              <option selected value={{r[0]}}>{{r[1]}}</option>
+            {% else %}
+              <option value={{r[0]}}>{{r[1]}}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" hx-include="#reg_new_note_form" hx-post="/reply_note?note={{note.id}}&reg={{reg}}" hx-swap="none" hx-indicator="#formNewNote">New</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </form>
+</div>
