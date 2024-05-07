@@ -63,6 +63,13 @@ def newNote(user,reg,ref = None):
         if type(ref) == Note:
             nt.content = f"Re: {ref.content}"
             nt.n_tags = ref.n_tags
+            
+            if nt.register.alias == 'mat':
+                rb = []
+                for rec in ref.receiver:
+                    if rec != current_user:
+                        rb.append(rec.alias)
+                nt.received_by = ','.join([r for r in rb if r])
             nt.ref.append(ref)
         else:
             for irf in ref.split(","):

@@ -364,7 +364,8 @@ def edit_note_view(request):
                     if nt:
                         if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
                             current_refs.append(nt.fullkey)
-                            note.ref.append(nt)
+                            if not nt in note.ref:
+                                note.ref.append(nt)
                         else:
                             flash(f"Note {ref} cannot be add")
                             error = True
@@ -384,8 +385,11 @@ def edit_note_view(request):
     
     else:
         form.ref.data = ",".join([r.fullkey for r in note.ref]) if note.ref else "" 
-        for rec in note.receiver:
-            form.receiver.data.append(rec.alias)
+        if note.reg == 'mat':
+            form.receiver.data = note.received_by
+        else:
+            for rec in note.receiver:
+                form.receiver.data.append(rec.alias)
         
         form.permanent.data = note.permanent
         
