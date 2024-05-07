@@ -8,7 +8,7 @@
       {% include 'register/file_icon.html' %}
 		  <div class="ml-2 ms-2">
 		    {% if file['type'] == 'dir' %}
-		  	  <a class="mb-0 text-decoration-none" hx-get="/files?path_folder={{file['display_path']}}" hx-target="#files" role="button">{{file['name']}}</a>
+		  	  <a class="mb-0 text-decoration-none" hx-get="/files?path_folder={{file['display_path']}}" hx-indicator="#formFiles" hx-target="#files" role="button">{{file['name']}}</a>
 		  	{% else %}
 		  	  <h6 class="mb-0">{{file['name']}}</h6>
 		  	{% endif %}

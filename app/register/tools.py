@@ -54,12 +54,15 @@ def newNote(user,reg,ref = None):
     else: # Note created by a cr dr
         nt = Note(num=num,sender_id=user.id,reg=rg[0],register=register)
     
+    
     contacts = register.get_contacts()
     if len(contacts) == 1: # There is only one possibility I add it from the beginning
         nt.receiver.append(contacts[0])
 
     if ref:
         if type(ref) == Note:
+            nt.content = f"Re: {ref.content}"
+            nt.n_tags = ref.n_tags
             nt.ref.append(ref)
         else:
             for irf in ref.split(","):

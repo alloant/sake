@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 
 from flask import render_template, render_template_string, redirect, session, flash, url_for, Response
 from flask_login import current_user
@@ -28,14 +29,16 @@ def files_view(request):
     
     if path == 'forms':
         path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
-    elif path == 'My Drive':
+    elif path == 'mydrive':
         path = '/mydrive'
+    elif path == 'teams':
+        path = '/team-folders'
     elif 'note_' in path:
         nid = int(path.split('_')[1])
         nt = db.session.scalar(select(Note).where(Note.id==nid))
         return render_template("register/files_list_db.html",files=nt.files)
     
-    if path[:8] == '/mydrive':
+    if re.match(r'^/mydrive.+',path) or re.match(r'^/team-folders.+',path):
         parent_path = "/".join(path.split("/")[:-1])
         files = [{'type':'dir','name':'...','display_path':parent_path,'permanent_link':''}]
     else:
@@ -72,6 +75,7 @@ def reply_note_view(request):
             new_reg = f'{rg[0]}_out_{rg[2]}'
         
         
+        session['filter_notes'] = ""
         newNote(current_user,reg=new_reg,ref=note)
         resp = Response()
         resp.headers["hx-redirect"] = url_for('register.register', reg=new_reg, page=1)

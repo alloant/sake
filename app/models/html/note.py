@@ -26,7 +26,7 @@ class NoteHtml(object):
     def files_html(self,reg):
         rg = reg.split('_')
         span = ET.Element('span')
-        if self.permanent_link and rg[2] in ['','pending']:
+        if self.permanent_link and rg[2] in ['','pending'] or self.flow == 'in' and not rg[2] in ['','pending']:
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill','style':'color: orange;'})                         
             folder_link.append(folder_icon)

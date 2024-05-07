@@ -22,11 +22,17 @@
           {% endfor %}
           
           {% if note.ref %}
-            <option value="forms">Forms</option>
+            <option value="teams">Team folders</option>
           {% else %}
-            <option selected value="forms">Forms</option>
+            <option selected value="teams">Team folders</option>
           {% endif %}
+          
           <option value="mydrive">My Drive</option>
+
+          {% if reg.split('_')[2] in ['','pending'] %}
+            <option value="forms">Forms</option>
+          {% endif %}
+
         </select>
       </div>
       
