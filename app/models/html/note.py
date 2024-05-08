@@ -1,3 +1,5 @@
+import re
+
 from flask import session
 from flask_babel import gettext
 from flask_login import current_user
@@ -26,7 +28,7 @@ class NoteHtml(object):
     def files_html(self,reg):
         rg = reg.split('_')
         span = ET.Element('span')
-        if self.permanent_link and rg[2] in ['','pending'] or self.flow == 'in' and not rg[2] in ['','pending']:
+        if self.permanent_link and rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']:
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill','style':'color: orange;'})                         
             folder_link.append(folder_icon)
@@ -92,6 +94,101 @@ class NoteHtml(object):
         
         return ET.tostring(span,encoding='unicode',method='html')
 
+    @property
+    def people_matter_html(self):
+        if self.register.alias != 'mat':
+            return ""
+       
+        max_people = 4
+        people = [p for p in self.received_by.split(',') if p]
+        people_read = [p for p in self.read_by.split(',') if p]
+
+        num_people = len(people)
+        num_read = len(people_read)
+        count_people = 0
+        count_read = 0
+        rst = []
+
+        over_people = 0
+        over_read = 0
+        for p in people[num_read:]:
+            if len(rst) < max_people:
+                rst.append(p)
+                count_people += 1
+            else:
+                over_people += 1
+
+        for p in people[:num_read]:
+            if len(rst) < max_people:
+                rst = [p] + rst
+                count_read += 1
+            else:
+                over_read += 1
+
+        if count_read < num_read:
+            #rst = ['<'] + rst
+            if over_read > 0:
+                rst[0] = '<'
+
+        if count_people < num_people:
+            #rst.append('>')
+            if over_people > 0:
+                rst[-1] = '>'
+
+        span = ET.Element('span',attrib={'class':'small ms-1'})
+        for rec in rst:
+            if rec == '<':
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: Maroon; color: gray'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = ",".join([p for p in people_read if not p in rst])
+                t.text = '...'
+            elif rec == '>':
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SandyBrown; color: black'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = ",".join([p for p in people if not p in rst and p not in people_read])
+                t.text = '...'
+            elif rec in self.read_by.split(','): # Was read
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: Maroon; color: gray'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} has already signed"
+                t.text = rec
+            elif re.search(fr'^{self.read_by},*{rec}',self.received_by) and self.state > 0:
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SaddleBrown; color: white'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} is studying the matter"
+                t.text = rec
+            else:
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SandyBrown; color: black'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} has not seen yet the matter"
+                t.text = rec
+
+
+            span.append(t)
+
+        
+        """
+        span = ET.Element('span',attrib={'class':'small ms-1'})
+        for rec in self.received_by.split(","):
+            if rec in self.read_by.split(','): # Was read
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: Maroon; color: gray'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} has already signed"
+            elif re.search(fr'^{self.read_by},*{rec}',self.received_by) and self.state > 0:
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SaddleBrown; color: white'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} is studying the matter"
+            else:
+                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SandyBrown; color: black'})
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = f"{rec} has not seen yet the matter"
+
+            t.text = rec
+
+            span.append(t)
+        """
+        
+        return ET.tostring(span,encoding='unicode',method='html')
 
     @property
     def dep_html(self):
@@ -266,7 +363,8 @@ class NoteHtml(object):
 
 
     def status_mat_html(self,reg):
-        sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':'#status_mat','role':'button'})
+        #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
+        sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','role':'button'})
         if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start
             if self.state == 0:
                 icon = "bi-send"
@@ -289,20 +387,23 @@ class NoteHtml(object):
             sp1.append(i1)
 
             if self.state in [0,5]:
-                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':'#status_mat','role':'button'})
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
                 i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to restart the matter')})
                 sp2.append(i2)
                 sp = ET.Element('span')
                 sp.append(sp1)
                 sp.append(sp2)
-                sp.attrib['id'] = 'status_mat'
+                sp.attrib['id'] = f'status_mat-{self.id}'
+                sp.attrib['class'] = f"status-people-{self.id}"
                 return ET.tostring(sp,encoding='unicode',method='html')
             else:
-                sp1.attrib['id'] = 'status_mat'
+                sp1.attrib['id'] = f'status_mat-{self.id}'
+                sp1.attrib['class'] = f"status-people-{self.id}"
                 return ET.tostring(sp1,encoding='unicode',method='html')
+
         else: # One of the persons circulating the note
             if self.state == 1 and not self.is_read(current_user):
-                sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':'#status_mat','role':'button'})
+                sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
                 icon = "bi-send-fill"
                 color = "red"
                 text = gettext(f'Click to pass the note to the next one ({self.read_by})')
@@ -326,15 +427,15 @@ class NoteHtml(object):
             sp1.append(i1)
 
             if self.state == 1 and not self.is_read(current_user):
-                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':'#status_mat','role':'button'})
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
                 i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to send matter back to owner')})
                 sp2.append(i2)
                 sp = ET.Element('span')
                 sp.append(sp1)
                 sp.append(sp2)
-                sp.attrib['id'] = 'status_mat'
+                sp.attrib['id'] = f'status_mat-{self.id}'
                 return ET.tostring(sp,encoding='unicode',method='html')
             else:
-                sp1.attrib['id'] = 'status_mat'
+                sp1.attrib['id'] = f'status_mat-{self.id}'
                 return ET.tostring(sp1,encoding='unicode',method='html')
 

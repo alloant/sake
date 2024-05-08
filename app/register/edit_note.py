@@ -26,7 +26,7 @@ def rec_files_view(request):
 
 def files_view(request):
     path = request.args.get("path_folder")
-    
+    print('--',path) 
     if path == 'forms':
         path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
     elif path == 'mydrive':
@@ -36,6 +36,7 @@ def files_view(request):
     elif 'note_' in path:
         nid = int(path.split('_')[1])
         nt = db.session.scalar(select(Note).where(Note.id==nid))
+        print('[]',nid,nt)
         return render_template("register/files_list_db.html",files=nt.files)
     
     if re.match(r'^/mydrive.+',path) or re.match(r'^/team-folders.+',path):

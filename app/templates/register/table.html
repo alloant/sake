@@ -15,25 +15,25 @@
     </thead>
     <tbody>
       <div id="modal-tag"
-          class="modal modal-blur fade"
-          data-bs-backdrop="static"
-          style="display: none"
-          aria-hidden="false"
-          tabindex="-1">
-          <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-              <div class="modal-content"></div>
-          </div>
+        class="modal modal-blur fade"
+        data-bs-backdrop="static"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
         </div>
+      </div>
       
-        <div id="modals-here"
-          class="modal modal-blur fade"
-          data-bs-backdrop="static"
-          style="display: none"
-          aria-hidden="false"
-          tabindex="-1">
-          <div class="modal-dialog modal-lg modal-dialog-centered">
-              <div class="modal-content"></div>
-          </div>
+      <div id="modals-here"
+        class="modal modal-blur fade"
+        data-bs-backdrop="static"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content"></div>
+        </div>
       </div>
       
       <div id="modal-files"
@@ -59,11 +59,16 @@
       </div>
 
     {% for note in notes %}
-        {% include 'register/table_row.html' %}
+      {% include 'register/table_row.html' %}
     {% endfor %}
     </tbody>
   </table>
 </div>
+
+<!-- because we are using table rows here, we must enable template fragment parsing -->
+<script>
+    htmx.config.useTemplateFragments = true;
+</script>
 
 <script>
   function myFunction(note_protocol,note_id) {
