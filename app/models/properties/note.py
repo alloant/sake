@@ -81,9 +81,21 @@ class NoteProp(object):
         return f"{prot} {self.num}/{self.year-2000}"
 
 
-    @property
-    def can_edit(self):
-        return True if self.sender == current_user and self.state < 2 else False
+    def can_edit(self,reg):
+        rg = reg.split('_')
+        if current_user.admin:
+            return True
+        elif rg[0] in ['box','des']:
+            return True
+        elif self.rel_flow(reg) == 'out' and self.state < 1: # because state is 0 only owner can see it
+            return True
+        elif self.register.permissions() == 'editor':
+            return True
+        elif rg[0] == 'mat' and self.state < 1:
+            return True
+
+        return False
+        
 
     """
     @fullkey.expression

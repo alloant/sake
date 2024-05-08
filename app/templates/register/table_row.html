@@ -80,36 +80,12 @@
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
  
-    {% if (user.admin or reg.split('_')[0] in ['des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state == 0) and note.permanent_link != "" %}
-    {% if current_user.alias in ['antonio','jb','sake'] %}
-    <a 
-        hx-get="browse_files?note={{note.id}}&reg={{reg}}" 
-        hx-target="#modal-files" 
-        hx-trigger="click" 
-        data-bs-toggle="modal" 
-        data-bs-target="#modal-files"
-        class=""
-        role="button">
-        <i id="fileRow-{{note.id}}" class="bi bi-folder-symlink-fill" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Copy files from notes or other folders')}}"></i></a>
+    <span hx-get="note_files?note={{note.id}}&reg={{reg}}" hx-trigger="status-updated from:body" id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
 
-    {% endif %}
-    {% endif %}
-    
-    {% if (user.admin or reg.split('_')[0] in ['des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state <= 1) and note.permanent_link == "" %}
-    <button type="submit" form="addfiles" class="btn p-0 ms-1 me-1" data-bs-toggle="modal" data-bs-target="#wait" name="addfiles" value="{{note.id}}"><i class="bi bi-folder-plus" style="color: orange;" data-bs-toggle="tooltip" title="{{gettext('Create folder for note')}}"></i></button>
-    {% endif%}
-
-    
-    {% if (user.admin or reg.split('_')[0] in ['des','box'] or (user == note.sender or not reg.split('_')[2] in ['','pending']) and note.state <= 1) and note.permanent_link != "" %}
-    <a hx-get="update_files?note={{note.id}}&reg={{reg}}" hx-target="#filesRow-{{note.id}}" hx-indicator="#filesIndRow-{{note.id}}" role="button"><i class="bi bi-arrow-repeat" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Update files in folder')}}"></i></a>
-    {% endif%}
-    
-
-    <span id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
     {% if session['theme'] == 'light-mode' %}
-    <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+      <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
     {% else %}
-    <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+      <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
     {% endif %}
 
   </td>

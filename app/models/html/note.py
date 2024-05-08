@@ -27,10 +27,56 @@ class NoteHtml(object):
 
     def files_html(self,reg):
         rg = reg.split('_')
+        
         span = ET.Element('span')
+        
+        if self.can_edit(reg):
+            copy_files = ET.Element('a')
+            copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
+            copy_files.attrib['hx-target'] = "#modal-files" 
+            copy_files.attrib['hx-trigger'] = "click" 
+            copy_files.attrib['data-bs-toggle'] = "modal" 
+            copy_files.attrib['data-bs-target'] = "#modal-files"
+            copy_files.attrib['class'] = "ms-1"
+            copy_files.attrib['role'] = "button"
+            
+            copy_files_icon = ET.Element('i')
+            copy_files_icon.attrib['id'] = f'fileRow-{self.id}'
+            copy_files_icon.attrib['class'] = 'bi bi-folder-symlink-fill'
+            copy_files_icon.attrib['style'] = 'color: orange;'
+            copy_files_icon.attrib['data-bs-toggle'] = 'tooltip'
+            copy_files_icon.attrib['title'] = gettext('Copy files from notes or other folders')
+
+            copy_files.append(copy_files_icon)
+            span.append(copy_files)
+
+            update_folder = ET.Element('a')
+            update_folder.attrib['hx-get'] = f"update_files?note={self.id}&reg={reg}"
+            update_folder.attrib['hx-target'] = f"#filesRow-{self.id}" 
+            update_folder.attrib['hx-trigger'] = "click"
+            update_folder.attrib['hx-indicator'] = f"#filesIndRow-{self.id}"
+            update_folder.attrib['class'] = "ms-1"
+            update_folder.attrib['role'] = "button"
+            
+            update_folder_icon = ET.Element('i')
+            update_folder_icon.attrib['id'] = f'fileRow-{self.id}'
+            if self.permanent_link == '':
+                update_folder_icon.attrib['class'] = 'bi bi-folder-plus'
+                update_folder_icon.attrib['style'] = 'color: orange;'
+                update_folder_icon.attrib['title'] = gettext('Create folder for note')
+            else:
+                update_folder_icon.attrib['class'] = 'bi bi-arrow-repeat'
+                update_folder_icon.attrib['style'] = 'color: blue;'
+                update_folder_icon.attrib['title'] = gettext('Update files in folder')
+            update_folder_icon.attrib['data-bs-toggle'] = 'tooltip'
+
+            update_folder.append(update_folder_icon)
+            span.append(update_folder)
+ 
+
         if self.permanent_link and rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']:
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
-            folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill','style':'color: orange;'})                         
+            folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         
             folder_link.append(folder_icon)
             span.append(folder_link)
 
@@ -192,17 +238,27 @@ class NoteHtml(object):
 
     @property
     def dep_html(self):
-        dep = ET.Element('span',attrib={'class':f'badge {"bg-primary" if self.flow == "out" else "bg-danger"}'})
         if self.flow == 'in':
-            if len(self.receiver) > 1:
-                dep.attrib['data-bs-toggle'] = 'tooltip'
-                dep.attrib['title'] = self.receivers
-                dep.text = "(...)"
-            elif self.receivers:
-                dep.text = self.receivers
+            if len(self.receiver) <= 3:
+                dep = ET.Element('span',attrib={'class':'small'})
+                for rec in self.receiver:
+                    dp = ET.Element('span',attrib={'class':'badge bg-danger'})
+                    dp.attrib['data-bs-toggle'] = 'tooltip'
+                    dp.attrib['title'] = rec.name
+                    dp.text = rec.alias
+                    dep.append(dp) 
             else:
-                dep.text = "+"
+                dep = ET.Element('span',attrib={'class':'small badge bg-danger'})
+                if len(self.receiver) > 3:
+                    dep.attrib['data-bs-toggle'] = 'tooltip'
+                    dep.attrib['title'] = self.receivers
+                    dep.text = "(...)"
+                elif self.receivers:
+                    dep.text = self.receivers
+                else:
+                    dep.text = "+"
         else:
+            dep = ET.Element('span',attrib={'class':'small badge bg-primary'})
             dep.text = self.sender.alias
         
         return ET.tostring(dep,encoding='unicode',method='html')

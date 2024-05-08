@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
 from .register import register_view, notes_view
-from .state_note import state_note_view, read_note_view, note_people_view
+from .state_note import state_note_view, read_note_view, note_people_view, note_files_view
 from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view
 from .download import download_view
 from .inbox import inbox_view
@@ -26,6 +26,11 @@ def register(template):
 @login_required
 def note_people():
     return note_people_view(request)
+
+@bp.route('/note_files')
+@login_required
+def note_files():
+    return note_files_view(request)
 
 
 @bp.route('/notes')

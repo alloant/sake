@@ -26,6 +26,13 @@ def note_people_view(request):
 
     return note.people_matter_html
 
+def note_files_view(request):
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    reg = request.args.get('reg')
+
+    return note.files_html(reg)
+
 def state_note_view(request):
     note_id = request.args.get('note')
     reg = request.args.get('reg')

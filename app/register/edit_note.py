@@ -112,7 +112,7 @@ def browse_files_view(request):
     if note.ref:
         files = note.ref[0].files
     else:
-        path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
+        path = '/team-folders'
         files = files_path(path)
 
     

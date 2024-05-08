@@ -3,7 +3,7 @@
 {{ note.edit_delete_html(reg)|safe }}
 
 {% if reg.split('_')[2] in ['','pending'] %}
-{% if current_user.alias in ['jb','antonio'] %}
+{% if current_user.alias in ['jb','antonio','sake','dms'] %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
   hx-target="#modal-small" 
