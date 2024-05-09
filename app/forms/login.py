@@ -3,7 +3,12 @@
 from app.models import User
 from flask_babel import gettext
 
-from wtforms import Form, BooleanField, StringField, PasswordField, validators, SubmitField, IntegerField
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, SubmitField, IntegerField, SelectMultipleField
+from wtforms.widgets import ListWidget, CheckboxInput
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 class LoginForm(Form):
     alias = StringField(gettext('User'), [validators.Length(min=2, max=25)])
@@ -31,5 +36,7 @@ class UserForm(Form):
     u_groups = StringField(gettext('Groups'))
     active = BooleanField(gettext('User is active'))
     admin_active = BooleanField(gettext('Admin mode on'))
+    
+    groups = MultiCheckboxField(gettext('Groups'),coerce=str)
    
     submit = SubmitField(gettext('Submit'))

@@ -1,12 +1,13 @@
 # auth.py
+import re
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from app import db
 from .forms.login import LoginForm, RegistrationForm, UserForm
@@ -31,7 +32,6 @@ def login():
         if session.get('theme') is None:
             session.permanent = True
             session['theme'] = 'light-mode'
-            print('light')
         
         if user.all_registers:
             return redirect(url_for('register.register', reg='all_all_pending', page=1))
@@ -98,6 +98,18 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
+
+@bp.route('/users')
+@login_required
+def list_users():
+    if not ('admin' in current_user.groups or 'scr' in current_user.groups):
+        return redirect(request.referrer)
+
+    users = db.session.scalars(select(User).where(User.u_groups.regexp_match(r'\bsake\b')).order_by(User.alias))
+
+    return render_template('auth/list_users.html', users=users)
+
+
 @bp.route('/edit_user', methods=['GET', 'POST'])
 @login_required
 def edit_user():
@@ -105,7 +117,29 @@ def edit_user():
     user = db.session.scalars(select(User).where(User.id==user_id)).first()
  
     form = UserForm(request.form,obj=user)
+    
+    groups_choices = ['sake','admin','cr','of','despacho','scr','permanente']
 
+    group1 = len(groups_choices)
+
+    registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.r_groups.regexp_match(r'\bpersonal\b'))))
+
+
+    for register in registers:
+        groups_choices.append(f"{register.alias}")
+    
+    group2 = len(groups_choices)
+
+    ctrs = db.session.scalars(select(User).where(and_(User.active==1,User.u_groups.regexp_match(r'\bctr\b'))).order_by(User.alias))
+
+    for ctr in ctrs:
+        groups_choices.append(f"{ctr.alias}")
+    
+    group3 = len(groups_choices)
+    
+    form.groups.choices = [(group,group) for group in groups_choices]
+
+    
     #form.active.data =  1 if user.active else 0
     #form.admin_active.data = 1 if user.admin_active else 0
     if request.method == 'POST' and form.validate():
@@ -115,10 +149,27 @@ def edit_user():
         
         if 'admin' in user.groups:
             user.local_path = form.local_path.data
-            user.u_groups = form.u_groups.data
+            #user.u_groups = form.u_groups.data
        
             user.active = form.active.data
             user.admin_active = form.admin_active.data
+
+            if 'cr' in form.groups.data:
+                rst = ['v_cg','v_asr','v_ctr','v_r']
+            else:
+                rst = []
+
+            for group in form.groups.data:
+                if group in groups_choices[:group1]:
+                    rst.append(group)
+
+                if group in groups_choices[group1:group2]:
+                    rst.append(f"e_{group}")
+
+                if group in groups_choices[group2:]:
+                    rst.append(f"v_ctr_{group}")
+            
+            user.u_groups = ",".join([g for g in rst if g])
 
         db.session.commit()
 
@@ -126,10 +177,24 @@ def edit_user():
     else:
         form.active.data = user.active
         form.admin_active.data = user.admin_active
+        
+        for group in user.groups:
+            if group in groups_choices:
+                form.groups.data.append(group)
+            
+            if re.match(fr'e_\w+',group):
+                form.groups.data.append(group.split('_')[1])
+
+            if re.match(fr'[veo]_ctr_\w+',group):
+                form.groups.data.append(group.split('_')[2])
 
     
-    
-    return render_template('auth/user.html', form=form, user=user)
+    if 'admin' in current_user.groups or 'scr' in current_user.groups:
+        is_admin = True
+    else:
+        is_admin = False
+
+    return render_template('auth/user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin)
 
 
 @bp.route('/language')

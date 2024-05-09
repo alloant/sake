@@ -70,7 +70,13 @@ def newNote(user,reg,ref = None):
                     if rec != current_user:
                         rb.append(rec.alias)
                 nt.received_by = ','.join([r for r in rb if r])
-            nt.ref.append(ref)
+            if ref.register.alias == 'mat':
+                if ref.ref:
+                    nt.ref = ref.ref
+                else:
+                    nt.ref.append(ref)
+            else:
+                nt.ref.append(ref)
         else:
             for irf in ref.split(","):
                 rf = db.session.scalar(select(Note).where(Note.id==irf))

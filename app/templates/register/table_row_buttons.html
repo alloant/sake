@@ -2,7 +2,7 @@
 {{ note.status_html(reg)|safe }}
 {{ note.edit_delete_html(reg)|safe }}
 
-{% if reg.split('_')[2] in ['','pending'] %}
+{% if reg.split('_')[2] in ['','pending'] and not reg.split('_')[0] in ['des','box'] %}
 {% if current_user.alias in ['jb','antonio','sake','dms'] %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
@@ -14,7 +14,9 @@
   role="button">
   <i id="replyRow-{{note.id}}" class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>
 {% endif %}
-{% else %}
+{% endif %}
+
+{% if not reg.split('_')[2] in ['','pending'] %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
   hx-trigger="click" 

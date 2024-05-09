@@ -33,6 +33,16 @@ def note_files_view(request):
 
     return note.files_html(reg)
 
+def note_row_view(request):
+    print('here we are')
+    note_id = request.args.get('note')
+    reg = request.args.get('reg')
+    
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    
+    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
+
+
 def state_note_view(request):
     note_id = request.args.get('note')
     reg = request.args.get('reg')

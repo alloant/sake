@@ -132,13 +132,22 @@ def register_filter(rg,h_note = None):
     # Find filter in fullkey, sender, receivers or content
     if 'filter_notes' in session:
         ft = session['filter_notes']
+        
         tags = re.findall(r'#\w+',ft)
         ft = re.sub(r'#\w+','',ft)
         tfn = []
 
         for tag in tags:
             tfn.append(Note.contains_tag(tag.replace('#','').strip()))
-        
+       
+        senders = re.findall(r'@\w+',ft)
+        ft = re.sub(r'@\w+','',ft)
+        sfn = []
+
+        for sender in senders:
+            alias = sender.replace('@','').strip()
+            sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver.any(User.alias==alias)) )
+ 
         ofn = []
         if ft != "":
             ofn.append( Note.content.contains(ft) )
@@ -168,7 +177,7 @@ def register_filter(rg,h_note = None):
                             ofn.append(Note.num==r)
 
                     
-        fn.append( and_( *tfn,or_(*ofn) ) )
+        fn.append( and_( *sfn,*tfn,or_(*ofn) ) )
 
     return fn
 

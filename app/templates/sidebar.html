@@ -9,7 +9,7 @@
     </a>
     
     {% if current_user.alias in ['antonio','sake','despacho','jb','dms'] %}
-    <a href="/register?reg=mat_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Minutas')}}">
+    <a href="/register?reg=mat_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Matters')}}">
       {% if session['theme'] == 'light-mode' %}
       <img src="static/icons/00-minutas.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -193,25 +193,30 @@
         <img src="static/icons/00-profile-dark.svg" alt="mdo" width="35vmin" height="35vmin">
       {% endif %}
     </a>
+    
     <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
       {% if current_user.is_authenticated%}
-      <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
-      <li><hr class="dropdown-divider"></li>
-      
-      {% for register in registers %}
-        {% for subregister in register.get_subregisters(True) %}
-          <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">{{gettext('Profile')}} {{subregister[1]}}</a></li>
+        <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
+        {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
+        <li><a class="dropdown-item" href="/users">{{gettext('List users')}}</a></li>
+        {% endif %}
+        <li><hr class="dropdown-divider"></li>
+        
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters(True) %}
+            <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">{{gettext('Profile')}} {{subregister[1]}}</a></li>
+          {% endfor %}
         {% endfor %}
-      {% endfor %}
 
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
-      {% else %}
-      <li><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
+        {% else %}
+        <li><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></li>
       {% endif %}
     </ul>
+  
   </div>
 
 </div>

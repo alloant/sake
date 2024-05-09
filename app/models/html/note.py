@@ -419,7 +419,7 @@ class NoteHtml(object):
 
 
     def status_mat_html(self,reg):
-        #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
+        #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#noteRow-{self.id}','role':'button'})
         sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','role':'button'})
         if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start
             if self.state == 0:

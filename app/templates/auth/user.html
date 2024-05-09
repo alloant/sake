@@ -2,62 +2,102 @@
 
 {% block content %}
 <div class="container">
+  
   <div class="row">
     <h1 class="text-center">Editing user {{ user.alias }}</h1>
   </div>
 
-  <div class="row p-2 rounded-3 border border-secondary">
     
     <form method="POST">
       {{ form.crsf_token }}
       <fieldset class="form-group">
-      <div class="container">
-        
-        {% if user.admin %}
-        <div class="row mb-3">
-            {{ form.alias(class="form-control", placeholder="User name") }}
-        </div>
-        {% endif %}
 
-        <div class="row mb-3">
-            {{ form.name(class="form-control", placeholder="Your full name") }}
-        </div>
+        <div class="row p-2 rounded-3 border border-secondary">
+          <div class="col-6 me-2"> 
+            {% if is_admin %}
+              <div class="row mb-3">
+                {{ form.alias(class="form-control", placeholder="User name") }}
+              </div>
+            {% endif %}
 
-        <div class="row mb-3">
-          {{ form.email(class="form-control", placeholder="Your Email") }}
-        </div>
-       
-        {% if 'scr' in user.groups %}
-          <div class="row mb-3">
-            {{ form.local_path(class="form-control", placeholder="Local folder for emls") }}
-          </div>
-        {% endif %}
- 
-        {% if 'admin' in user.u_groups.split(',') %}
-          <div class="row mb-3">
-            {{ form.u_groups(class="form-control") }}
-          </div>
-       
-          <div class="row mb-3">
-            <div>
-              {{ form.active(class="form-check-input") }}
-              Active
-              </br>
+            <div class="row mb-3">
+              {{ form.name(class="form-control", placeholder="Your full name") }}
             </div>
-            <div>
-              {{ form.admin_active(class="form-check-input") }}
-              Admin is active
-            </div> 
+
+            <div class="row mb-3">
+              {{ form.email(class="form-control", placeholder="Your Email") }}
+            </div>
+           
+            {% if 'scr' in user.groups %}
+              <div class="row mb-3">
+                {{ form.local_path(class="form-control", placeholder="Local folder for emls") }}
+              </div>
+            {% endif %}
+     
+            {% if is_admin %}
+              <div class="row mb-3">
+                <div>
+                  {{ form.active(class="form-check-input") }}
+                  Active
+                  </br>
+                </div>
+                <div>
+                  {{ form.admin_active(class="form-check-input") }}
+                  Admin is active
+                </div> 
+              </div>
+            {% endif %}
           </div>
-        {% endif %}
-        </fieldset>
-        <div class="form-group p-2">
+
+          {% if is_admin %}
+          <div class="col">
+            <ul class="">
+              {% for group in form.groups %}
+                {% if loop.index <= group1 %}
+                <li class="list-group-item">
+                  {{ group(class="form-check-input chbox") }}
+                  {{ group.label(class="form-check-label chbox_label") }}
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          
+          <div class="col">
+            <ul class="">
+              {% for group in form.groups %}
+                {% if loop.index > group1 and loop.index <= group2 %}
+                <li class="list-group-item">
+                  {{ group(class="form-check-input chbox") }}
+                  {{ group.label(class="form-check-label chbox_label") }}
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          
+          <div class="col">
+            <ul class="">
+              {% for group in form.groups %}
+                {% if loop.index > group2 %}
+                <li class="list-group-item">
+                  {{ group(class="form-check-input chbox") }}
+                  {{ group.label(class="form-check-label chbox_label") }}
+                </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+
+      </fieldset>
+        
+      <div class="form-group p-2">
           {{ form.submit(class="btn btn-primary") }}
         </div>
       </div>
     </form>
-
-  </div>
   
 </div>
 {% endblock %}
