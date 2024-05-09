@@ -90,7 +90,7 @@ def register_filter(rg,h_note = None):
         
         # For pendings and for the rest
         if rg[2] == 'pending':
-            fn.append(or_( Note.sender.has(User.id==current_user.id), Note.receiver.any(User.id==current_user.id) ))
+            fn.append(or_( Note.sender.has(User.id==current_user.id), and_( Note.receiver.any(User.id==current_user.id),Note.state >=5) ))
             if not session['showAll']:
                 fn.append(Note.state < 6)
         else:
