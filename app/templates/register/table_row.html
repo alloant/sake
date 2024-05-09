@@ -21,7 +21,7 @@
   
   <!-- Comments and content with jp version if needed -->
   <td>
-    {% if note.comments and note.is_involve(user,reg) %}
+    {% if note.comments and note.is_involve(current_user,reg) %}
     <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text" style="color: OrangeRed;"></i></span>
     {% endif %}
    
@@ -33,7 +33,7 @@
 
     <!-- Tags-->
     {% if reg.split('_')[2] in ['','pending'] %}
-      {% if user.admin or reg.split('_')[0] == 'des' or reg.split('_')[0] == 'mat' and note.sender == current_user %}
+      {% if current_user.admin or reg.split('_')[0] == 'des' or reg.split('_')[0] == 'mat' and note.sender == current_user %}
       <a 
           hx-get="/edit_tags?note={{note.id}}" 
           hx-target="#modal-tag" 
@@ -51,7 +51,7 @@
  
     <!-- Deparments -->
     {% if reg.split('_')[2] in ['','pending'] and not reg.split('_')[0] == 'mat' %}
-      {% if user.admin or reg.split('_')[0] == 'des' %}
+      {% if current_user.admin or reg.split('_')[0] == 'des' %}
         <a 
             hx-get="/edit_receivers?note={{note.id}}" 
             hx-target="#modals-here" 

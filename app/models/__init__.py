@@ -8,7 +8,7 @@ from flask import current_app
 from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
-from sqlalchemy import select, delete, func, case, union, and_, or_
+from sqlalchemy import select, delete, func, case, union, and_, or_, not_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
@@ -346,7 +346,20 @@ class User(UserProp,UserMixin, db.Model):
                 rst.append(register)
 
         return rst
-        
+    
+    @property
+    def has_pendings(self):
+        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6)))
+        for note in pendings:
+            if not note.is_read(current_user):
+                return True
+
+        return False
+ 
+    @property
+    def pending_matters(self):
+        return db.session.scalar(select(func.count(Note.id)).where(and_(Note.register.has(Register.alias=='mat'),Note.receiver.any(User.id==current_user.id),Note.state==1,Note.next_in_matters(current_user))))
+
 
 class Register(RegisterHtml,db.Model):
     __tablename__ = 'register'

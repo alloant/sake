@@ -1,6 +1,6 @@
-# Synology Document Database Management with User-Specific Access Control
+# SAKE
 
-This Flask project integrates Synology Drive, SQLAlchemy, and user authentication to create a robust and secure document management system.
+This Flask project integrates Synology Drive, SQLAlchemy, HTMX and user authentication to create a robust and secure document management system.
 
 ## Key Features:
 
@@ -16,7 +16,7 @@ This Flask project integrates Synology Drive, SQLAlchemy, and user authenticatio
 ## Getting Started:
 
 
-1. Clone the repository: `git clone https://github.com/alloant/synomail`
+1. Clone the repository: `git clone https://github.com/alloant/sake`
 
 2. Install dependencies: `pip install -r requirements.txt` or `poetry install`
 
@@ -26,9 +26,9 @@ This Flask project integrates Synology Drive, SQLAlchemy, and user authenticatio
 
 ### With docker
 
-1. Clone the repository: `git clone https://github.com/alloant/synomail`
+1. Clone the repository: `git clone https://github.com/alloant/sake`
 
-2. Build image: `docker build -t synomail .`
+2. Build image: `docker build -t sake .`
 
 3. Run docker: `docker run --env SECRET_KEY="secret" DATABASE_URI="mariadb+pymysql://user:password@host/database?charset=utf8mb4"`
 

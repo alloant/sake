@@ -1,37 +1,23 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" >
   {% if 'cr' in current_user.groups %}
-  <a href="/register?reg=all_all_pending" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
-      {% if session['theme'] == 'light-mode' %}
-        <img src="static/icons/00-pendings.svg" width="35vmin" height="35vmin">
-      {% else %}
-        <img src="static/icons/00-pendings-dark.svg" width="35vmin" height="35vmin">
-      {% endif %}
-    </a>
+  
+  <span hx-get='/register_icon?reg=pendings' hx-trigger='read-updated from:body'>
+  {{ current_user.register_icon_html('pendings')|safe }}
+  </span>
+  
     
     {% if current_user.alias in ['antonio','sake','despacho','jb','dms'] %}
-    <a href="/register?reg=mat_all_" class=" link-light text-decoration-none py-sm-1 py-lg-3 px-sm-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Matters')}}">
-      {% if session['theme'] == 'light-mode' %}
-      <img src="static/icons/00-minutas.svg" width="35vmin" height="35vmin">
-      {% else %}
-      <img src="static/icons/00-minutas-dark.svg" width="35vmin" height="35vmin">
-      {% endif %}
-    </a>
-    
-    
-    
+      <span hx-get='/register_icon?reg=pendings' hx-trigger='state-updated from:body'>
+        {{ current_user.register_icon_html('minutas')|safe }}
+      </span>
     {% endif %}
   {% endif %}
   
   {% if current_user.is_authenticated%}
     {% if current_user.severalCalendars %}
     <div class=" dropdown">
-      <a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none py-1 py-lg-3 px-1" id="dropdownRegister" data-bs-toggle="dropdown" aria-expanded="false">
-      {% if session['theme'] == 'light-mode' %}
-      <img src="static/icons/00-register.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
-      {% else %}
-      <img src="static/icons/00-register-dark.svg" width="35vmin" height="35vmin" data-bs-toggle="tooltip" data-bs-original-title="{{gettext('Registers')}}">
-      {% endif %}
-      </a>
+      {{ current_user.register_icon_html('register')|safe }}
+      
       <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
         <li class="d-inline-flex">
           {% for register in registers %}

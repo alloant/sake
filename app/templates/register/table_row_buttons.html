@@ -28,7 +28,7 @@
 
 
 
-{% if 'scr' in user.groups and note.flow == 'out' and 'email' in note.register.groups %}
+{% if 'scr' in current_user.groups and note.flow == 'out' and 'email' in note.register.groups %}
   <span class="text-muted">|</span>
   <a href="/download?note={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Download')}} eml"><i class="bi bi-envelope-arrow-down-fill" style="color: green"></i></a>
 {% endif %}

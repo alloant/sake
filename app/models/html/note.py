@@ -1,6 +1,6 @@
 import re
 
-from flask import session
+from flask import session, make_response
 from flask_babel import gettext
 from flask_login import current_user
 
@@ -290,7 +290,7 @@ class NoteHtml(object):
             cti.text = text
 
             ct.append(cti)
-
+        
         return ET.tostring(ct,encoding='unicode',method='html')
    
     def edit_delete_html(self,reg):

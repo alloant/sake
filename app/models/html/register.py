@@ -12,3 +12,6 @@ class RegisterHtml(object):
         a.append(img)
 
         return ET.tostring(a,encoding='unicode',method='html')
+
+
+    

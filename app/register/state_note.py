@@ -17,6 +17,11 @@ def read_note_view(request):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
    
     note.updateRead(current_user)
+    
+    res = make_response(note.content_html(reg))
+    res.headers['HX-Trigger'] = 'read-updated'
+
+    return res
 
     return note.content_html(reg)
 
@@ -34,7 +39,6 @@ def note_files_view(request):
     return note.files_html(reg)
 
 def note_row_view(request):
-    print('here we are')
     note_id = request.args.get('note')
     reg = request.args.get('reg')
     
@@ -64,4 +68,6 @@ def state_note_view(request):
 
     return note.status_html(reg)
    
-
+def register_icon_view (request):
+    reg = request.args.get('reg')
+    return current_user.register_icon_html(reg)
