@@ -147,7 +147,7 @@ def edit_user():
         user.name = form.name.data
         user.email = form.email.data
         
-        if 'admin' in user.groups:
+        if 'admin' in current_user.groups:
             user.local_path = form.local_path.data
             #user.u_groups = form.u_groups.data
        

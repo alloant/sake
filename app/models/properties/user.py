@@ -76,9 +76,10 @@ class UserProp(object):
             dark += '-red'
         elif register == 'minutas':
             mats = self.pending_matters
-            sp = ET.Element('span',attrib={'class':'position-absolute top-0 start-50 translate-middle badge bg-danger','style':'font-size: 1vmin'})
-            sp.text = str(mats)
-            a.append(sp)
+            if mats > 0:
+                sp = ET.Element('span',attrib={'class':'position-absolute top-0 start-50 translate-middle badge bg-danger','style':'font-size: 1vmin'})
+                sp.text = str(mats)
+                a.append(sp)
 
         
         img = ET.Element('img',attrib={'class':'mb-lg-4 mb-sm-1 me-sm-1','src':f'static/icons/00-{register}{dark}.svg','width':f'{size}vmin','height':f'{size}vmin'})

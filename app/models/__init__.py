@@ -349,7 +349,7 @@ class User(UserProp,UserMixin, db.Model):
     
     @property
     def has_pendings(self):
-        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6)))
+        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4)))
         for note in pendings:
             if not note.is_read(current_user):
                 return True

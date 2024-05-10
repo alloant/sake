@@ -29,8 +29,9 @@ class NoteHtml(object):
         rg = reg.split('_')
         
         span = ET.Element('span')
-        
+        dots = False 
         if self.can_edit(reg):
+            dots = True
             copy_files = ET.Element('a')
             copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
             copy_files.attrib['hx-target'] = "#modal-files" 
@@ -75,14 +76,16 @@ class NoteHtml(object):
  
 
         if self.permanent_link and rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']:
+            dots = True
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         
             folder_link.append(folder_icon)
             span.append(folder_link)
 
-        separator = ET.Element('span',attrib={'class':'ms-1 me-1'})
-        separator.text = ":"
-        span.append(separator)
+        if dots:
+            separator = ET.Element('span',attrib={'class':'ms-1 me-1'})
+            separator.text = ":"
+            span.append(separator)
 
         for file in self.files:
             if rg[0] == 'mat' and ( current_user.alias in self.received_by.split(',') or self.sender == current_user ):
