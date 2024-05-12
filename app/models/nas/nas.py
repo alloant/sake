@@ -23,7 +23,8 @@ def wrap_error(func, *args):
         cipher = Fernet(current_app.config['SECRET_KEY'])
         #PASSWD = User.query.where(User.alias==USER).first().password_nas
         PASSWD = cipher.decrypt(current_user.password_nas)
-        https = False if current_app.config['SYNOLOGY_SERVER'] == 'localhost' else True
+        #https = False if current_app.config['SYNOLOGY_SERVER'] == 'localhost' else True
+        https = True
         with SynologyDrive(USER,PASSWD,current_app.config['SYNOLOGY_SERVER'],dsm_version='7',https=https) as synd:
             return func(synd,*args)
         return None
@@ -32,9 +33,12 @@ def wrap_error(func, *args):
             message = f"Synology error: {err.message} in {func.__name__} with parameters {args}"
         else:
             message = f"{err} in {func.__name__} with parameters {args}"
-        #raise   
-        #flash(message)
+        
+        
         logging.warning(message)
+        #if current_app.config['DEBUG']:
+        #flash(message)
+        #raise   
 
 
 # Wrapped functions

@@ -31,25 +31,26 @@ class NoteHtml(object):
         span = ET.Element('span')
         dots = False 
         if self.can_edit(reg):
-            dots = True
-            copy_files = ET.Element('a')
-            copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
-            copy_files.attrib['hx-target'] = "#modal-files" 
-            copy_files.attrib['hx-trigger'] = "click" 
-            copy_files.attrib['data-bs-toggle'] = "modal" 
-            copy_files.attrib['data-bs-target'] = "#modal-files"
-            copy_files.attrib['class'] = "ms-1"
-            copy_files.attrib['role'] = "button"
-            
-            copy_files_icon = ET.Element('i')
-            copy_files_icon.attrib['id'] = f'fileRow-{self.id}'
-            copy_files_icon.attrib['class'] = 'bi bi-folder-symlink-fill'
-            copy_files_icon.attrib['style'] = 'color: orange;'
-            copy_files_icon.attrib['data-bs-toggle'] = 'tooltip'
-            copy_files_icon.attrib['title'] = gettext('Copy files from notes or other folders')
+            if self.permanent_link:
+                dots = True
+                copy_files = ET.Element('a')
+                copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
+                copy_files.attrib['hx-target'] = "#modal-files" 
+                copy_files.attrib['hx-trigger'] = "click" 
+                copy_files.attrib['data-bs-toggle'] = "modal" 
+                copy_files.attrib['data-bs-target'] = "#modal-files"
+                copy_files.attrib['class'] = "ms-1"
+                copy_files.attrib['role'] = "button"
+                
+                copy_files_icon = ET.Element('i')
+                copy_files_icon.attrib['id'] = f'fileRow-{self.id}'
+                copy_files_icon.attrib['class'] = 'bi bi-folder-symlink-fill'
+                copy_files_icon.attrib['style'] = 'color: orange;'
+                copy_files_icon.attrib['data-bs-toggle'] = 'tooltip'
+                copy_files_icon.attrib['title'] = gettext('Copy files from notes or other folders')
 
-            copy_files.append(copy_files_icon)
-            span.append(copy_files)
+                copy_files.append(copy_files_icon)
+                span.append(copy_files)
 
             update_folder = ET.Element('a')
             update_folder.attrib['hx-get'] = f"update_files?note={self.id}&reg={reg}"
@@ -75,7 +76,7 @@ class NoteHtml(object):
             span.append(update_folder)
  
 
-        if self.permanent_link and rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']:
+        if self.permanent_link and (rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']):
             dots = True
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         

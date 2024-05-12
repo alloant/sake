@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, current_app
 from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
@@ -15,8 +15,8 @@ bp = Blueprint('register', __name__)
 
 @bp.route('/',methods=['POST','GET'])
 @bp.route('/register',methods=['POST','GET'])
-#@mobile_template("register/{mobile/}main.html")
-@mobile_template("register/main.html")
+@mobile_template("register/{mobile/}main.html")
+#@mobile_template("register/main.html")
 @login_required
 def register(template):
     return register_view(template,request.form.to_dict(),request.args)

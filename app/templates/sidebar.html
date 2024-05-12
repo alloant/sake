@@ -21,7 +21,7 @@
       <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
         <li class="d-inline-flex">
           {% for register in registers %}
-            {% if register.permissions() != 'notallowed' %}
+            {% if register.permissions() != 'notallowed' and not 'matters' in register.groups %}
               {{ register.link_icon_html('in')|safe }}
             {% endif %}
           {% endfor %}
@@ -37,7 +37,7 @@
         </li>
         <li class="d-inline-flex">
           {% for register in registers %}
-            {% if register.permissions() != 'notallowed' %}
+            {% if register.permissions() != 'notallowed' and not 'matters' in register.groups %}
               {{ register.link_icon_html('out')|safe }}
             {% endif %}
           {% endfor %}

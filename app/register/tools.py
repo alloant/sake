@@ -72,7 +72,9 @@ def newNote(user,reg,ref = None):
                 nt.received_by = ','.join([r for r in rb if r])
             if ref.register.alias == 'mat':
                 if ref.ref:
-                    nt.ref = ref.ref
+                    nt.ref = ref.ref + [ref]
+                    if ref.ref[0].register == register:
+                        nt.receiver.append(ref.ref[0].sender)
                 else:
                     nt.ref.append(ref)
             else:

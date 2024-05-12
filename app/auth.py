@@ -155,7 +155,7 @@ def edit_user():
             user.admin_active = form.admin_active.data
 
             if 'cr' in form.groups.data:
-                rst = ['v_cg','v_asr','v_ctr','v_r']
+                rst = ['v_cg','v_asr','v_ctr','v_r','v_mat']
             else:
                 rst = []
 

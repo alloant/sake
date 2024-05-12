@@ -3,19 +3,16 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if 'cr' in current_user.groups %}
         <li class="nav-item">
-          <a href="/register?reg=all_all_pending" class="nav-link active" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Pendings')}}">
-            {% if session['theme'] == 'light-mode' %}
-              <img src="static/icons/00-pendings.svg" width="35vmin" height="35vmin">
-            {% else %}
-              <img src="static/icons/00-pendings-dark.svg" width="35vmin" height="35vmin">
-            {% endif %}
-            <span class="navbar-text d-md-inline d-lg-none">My pending notes</span>
-          </a>
+          {{ current_user.register_icon_html('pendings')|safe }}
         </li>
+        <li class="nav-item">
+          {{ current_user.register_icon_html('minutas')|safe }}
+        </li>
+        {% endif %}
         <li class="nav-item dropdown dropdown-menu-end">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {% if session['theme'] == 'light-mode' %}
@@ -224,10 +221,6 @@
         </li>
 
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
     </div>
   </div>
 </nav>
