@@ -13,7 +13,7 @@ from app.models import Note, User, Comment, File, Register, get_note_fullkey
 from app.forms.note import NoteForm, ReceiverForm, TagForm
 from app.register.tools import newNote
 
-from app.models.nas.nas import files_path, copy_path
+from app.models.nas.nas import files_path, copy_path, copy_office_path
 
 def sortable_view(request):
     form = ReceiverForm(request.form)
@@ -28,6 +28,8 @@ def files_view(request):
     path = request.args.get("path_folder")
     if path == 'forms':
         path = '/team-folders/Experiencias/Forms for decisions, appointments, etc'
+    elif path == 'templates':
+        path = '/team-folders/Data/Templates'
     elif path == 'mydrive':
         path = '/mydrive'
     elif path == 'teams':
@@ -97,11 +99,26 @@ def browse_files_view(request):
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    
+    untitled =[]
     if copy == 'true':
         files = request.form.getlist('files_to_copy')
+        cont = 0
         for file in files:
-            copy_path(file,f"{note.folder_path}/{file.split('/')[-1]}")
+            if re.match(r'Untitled\.(odoc|osheet|oslide)',file.split('/')[-1]):
+                name = file.split('/')[-1]
+                ext = name.split('.')[-1]
+                for fn in note.files + untitled:
+                    fname = fn if isinstance(fn,str) else fn.path
+                    if re.match(fr'{note.folder_name}_*a*[0-9]*\.[a-zA-Z]+',fname):
+                        cont += 1
+
+                if cont == 0:
+                    copy_office_path(file,f"{note.folder_path}/{note.folder_name}.{ext}")
+                else:
+                    copy_office_path(file,f"{note.folder_path}/{note.folder_name}_a{cont}.{ext}")
+                untitled.append(note.folder_name)
+            else:
+                copy_path(file,f"{note.folder_path}/{file.split('/')[-1]}")
         
         note.updateFiles()
 

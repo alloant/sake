@@ -61,6 +61,9 @@ def move_path(path:str,dest:str):
 def copy_path(path:str,dest:str):
     return wrap_error(_copy_path,path,dest)
 
+def copy_office_path(path:str,dest:str):
+    return wrap_error(_copy_office_path,path,dest)
+
 def convert_office(path:str,delete:bool = False):
     return wrap_error(_convert_office,path,delete)
 
@@ -126,6 +129,8 @@ def _move_path(synd,path,new_path):
         else:
             return {'id':rst_data['targets'][0]['file_id'],'path':new_path}
 
+def _copy_office_path(synd,path,dest):
+    rst = synd.copy_office(path,dest)
 
 def _copy_path(synd,path,dest):
     rst = synd.copy(path,dest)
