@@ -1,4 +1,8 @@
+{% if note.register.alias == 'mat' and reg.split('_')[0] != 'mat' %}
+<tr class="table-danger" data-bs-theme="light">
+{% else %}
 <tr>
+{% endif%}
   <!-- Protocol number with link -->
   <th scope="row">
     {% if reg.split('_')[2] in ['','pending'] %}
@@ -27,7 +31,7 @@
    
     {{ note.content_html(reg)|safe }}
   
-    <span hx-get="note_people?note={{note.id}}" hx-trigger="status-updated from:body">
+    <span hx-get="note_people?note={{note.id}}" hx-trigger="status-updated-{{note.id}} from:body">
     {{ note.people_matter_html|safe }}
     </span>
 
@@ -80,7 +84,7 @@
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td>
  
-    <span hx-get="note_files?note={{note.id}}&reg={{reg}}" hx-trigger="status-updated from:body" id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
+    <span hx-get="note_files?note={{note.id}}&reg={{reg}}" hx-trigger="status-updated-{{note.id}} from:body" id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
 
     {% if session['theme'] == 'light-mode' %}
       <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">

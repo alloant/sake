@@ -43,7 +43,7 @@ class UserProp(object):
         match register:
             case 'pendings':
                 href = '/register?reg=all_all_pending'
-                title = gettext('Pendings')
+                title = gettext('Pending')
             case 'minutas':
                 href = '/register?reg=mat_all_'
                 title = gettext('Matters')

@@ -7,6 +7,7 @@ from sqlalchemy import case, and_, or_, not_, select, type_coerce, literal_colum
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
+from app.mail import send_email
 
 class NoteProp(object):
     #@hybrid_property
@@ -45,9 +46,12 @@ class NoteProp(object):
     def receivers(self):
         return ",".join([rec.alias for rec in self.receiver])
 
-    @property
-    def refs(self):
-        return ",".join([ref.fullkey_short for ref in self.ref])
+    def refs(self,only = []):
+        rst = []
+        for ref in self.ref:
+            if only == [] or ref.register.alias in only:
+                rst.append(ref)
+        return ",".join([ref.fullkey_short for ref in rst])
 
     @hybrid_property
     def fullkey_short(self):
@@ -69,7 +73,10 @@ class NoteProp(object):
             if pattern == '' and folder: # Only for cg, because the short version is none we use the other
                 pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
         else:
-            if len(self.receiver) == 1 and long_key:
+            if len(self.receiver) == 0 and self.register.alias != 'mat' and not folder:
+                alias = "EMPTY"
+                pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
+            elif len(self.receiver) == 1 and long_key:
                 alias = self.receiver[0].alias if self.register.alias != 'mat' else self.sender.alias
                 pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
             else:
@@ -83,6 +90,7 @@ class NoteProp(object):
 
     def can_edit(self,reg):
         rg = reg.split('_')
+        
         if current_user.admin:
             return True
         elif rg[0] in ['box','des']:
@@ -130,8 +138,8 @@ class NoteProp(object):
     @ctr_has_done.expression
     def ctr_has_done(cls,ctr):
         return case (
-            (ctr['date'] < cls.n_date,not_(cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')) ),
-        else_=cls.received_by.regexp_match(fr'\b{ctr['alias']}\b')
+            (ctr['date'] < cls.n_date,not_(cls.received_by.regexp_match( fr'(^|[^-])\b{alias}\b($|[^-])' )) ),
+        else_=cls.received_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
         )
 
     @hybrid_property
@@ -175,10 +183,9 @@ class NoteProp(object):
     @is_done.expression
     def is_done(cls,user):
         return case (
-            (user.date < cls.n_date,not_(cls.received_by.regexp_match(fr'\b{user.alias}\b')) ),
-        else_=cls.received_by.regexp_match(fr'\b{user.alias}\b')
+            (user.date < cls.n_date,not_(cls.received_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )) ),
+        else_=cls.received_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )
         )
-        return not_(cls.received_by.regexp_match(fr'\b{alias}\b'))
 
     @property
     def folder_name(self):
@@ -243,7 +250,18 @@ class NoteProp(object):
     def updateState(self,reg,user,cancel=False):
         rg = reg.split("_")
         if rg[0] == 'box': # Is the scr getting mail from cg, asr, ctr or r
-            pass
+            if not 'personal' in self.register.groups: # Only for not personal calendars
+                if self.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} out"):
+                    if 'folder' in self.register.groups: # Note for asr. We just copy it to the right folder
+                        self.copy(f"/team-folders/Mail {self.register.alias}/Mail to {self.register.alias}") # I have to add this to the register database!!!!! Pending
+                        self.state = 6
+                    
+                    if 'sake' in self.register.groups: # note for a ctr (internal sake system). We just change the state.
+                        self.state = 6
+                        for rec in self.receiver:
+                            if rec.email:
+                                send_email(f"New mail for {rec.alias}. {self.comments}","",rec.email)
+
             # Here we move to Archive and if the move is succesful we put state 2
             #self.state = 2
         elif rg[0] == 'des': # Here states are only 2 or 3

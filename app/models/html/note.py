@@ -46,7 +46,7 @@ class NoteHtml(object):
                 copy_files_icon.attrib['id'] = f'fileRow-{self.id}'
                 copy_files_icon.attrib['class'] = 'bi bi-folder-symlink-fill'
                 copy_files_icon.attrib['style'] = 'color: orange;'
-                copy_files_icon.attrib['data-bs-toggle'] = 'tooltip'
+                copy_files_icon.attrib['data-toggle'] = 'tooltip'
                 copy_files_icon.attrib['title'] = gettext('Copy files from notes or other folders')
 
                 copy_files.append(copy_files_icon)
@@ -70,15 +70,15 @@ class NoteHtml(object):
                 update_folder_icon.attrib['class'] = 'bi bi-arrow-repeat'
                 update_folder_icon.attrib['style'] = 'color: blue;'
                 update_folder_icon.attrib['title'] = gettext('Update files in folder')
-            update_folder_icon.attrib['data-bs-toggle'] = 'tooltip'
+            update_folder_icon.attrib['data-toggle'] = 'tooltip'
 
             update_folder.append(update_folder_icon)
             span.append(update_folder)
  
 
-        if self.permanent_link and (rg[2] in ['','pending'] and rg[0] != 'mat' or rg[0] and self.sender == current_user or self.flow == 'in' and not rg[2] in ['','pending']):
+        if self.permanent_link and (rg[2] in ['','pending'] and (self.register.permissions() in ['editor','viewer'] or self.sender == current_user or current_user in self.receiver and self.register.alias != 'mat') or not rg[2] in ['','pending'] and self.flow == 'in'):
             dots = True
-            folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-bs-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
+            folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         
             folder_link.append(folder_icon)
             span.append(folder_link)
@@ -89,17 +89,25 @@ class NoteHtml(object):
             span.append(separator)
 
         for file in self.files:
-            if rg[0] == 'mat' and ( current_user.alias in self.received_by.split(',') or self.sender == current_user ):
-                span.append(file.icon_html_raw)
-            elif rg[0] != 'mat' and ( rg[2] in ['','pending'] or file.subject == '' or rg[2] in file.subject.split(',') ):
-                span.append(file.icon_html_raw)
+            if not rg[2] in ['','pending']: # We are in a cl register
+                if file.subject == '' or rg[2] in file.subject.split(','):
+                    span.append(file.icon_html_raw)
+            else: # For everything else
+                if self.register.alias == 'mat': # Are the files of a mmatter
+                    if current_user.alias in self.received_by.split(',') or self.sender == current_user:
+                        span.append(file.icon_html_raw)
+                elif current_user in self.receiver or self.sender == current_user:
+                    span.append(file.icon_html_raw)
+                elif self.register.permissions() in ['editor','viewer']:
+                    span.append(file.icon_html_raw)
+
     
         return ET.tostring(span,encoding='unicode',method='html')
 
     @property
     def fullkey_link_html(self):
         if self.register.alias == 'mat':
-            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.read_by})
+            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.received_by})
         else:
             a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
         if self.num == 0 and self.ref:
@@ -344,7 +352,7 @@ class NoteHtml(object):
     
     def status_html(self,reg):
         rg = reg.split("_")
-        if rg[0] == 'mat':
+        if self.register.alias == 'mat':
             return self.status_mat_html(reg)
 
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
@@ -402,7 +410,8 @@ class NoteHtml(object):
                     if not rg[2] in ['','pending']:
                         text = gettext('Waiting for cr to get the note (click to take note back from cr inbox)')
                     else:
-                        text = gettext('Waiting for sccr to send note')
+                        sp.attrib['hx-indicator'] = f"#send-{self.id}"
+                        text = gettext('Click to send note')
                 case _:
                     sp = ET.Element('span')
                     icon = "bi-send-check-fill"

@@ -59,9 +59,9 @@ def state_note_view(request):
     #<tr id="noteRow-{{note.id}}" class="" hx-swap="outerHTML">
     #if rg[0] == 'mat':
     #    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
-
+    
     res = make_response(note.status_html(reg))
-    res.headers['HX-Trigger'] = 'status-updated'
+    res.headers['HX-Trigger'] = f'status-updated-{note.id}'
 
     return res
 

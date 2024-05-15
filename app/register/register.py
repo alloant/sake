@@ -135,14 +135,14 @@ def register_filter(rg,h_note = None):
         ft = session['filter_notes']
         
         tags = re.findall(r'#\w+',ft)
-        ft = re.sub(r'#\w+','',ft)
+        ft = re.sub(r'#\w+','',ft).strip()
         tfn = []
 
         for tag in tags:
             tfn.append(Note.contains_tag(tag.replace('#','').strip()))
        
         senders = re.findall(r'@\w+',ft)
-        ft = re.sub(r'@\w+','',ft)
+        ft = re.sub(r'@\w+','',ft).strip()
         sfn = []
 
         for sender in senders:
@@ -197,9 +197,6 @@ def register_actions(output,args): # Actions like new note, update read/state, u
 
     if "newout" in output:
         newNote(current_user,reg)
-    elif "addfiles" in output: # To update files in folder
-        nt = db.session.scalar(select(Note).where(Note.id==output['addfiles']))
-        nt.updateFiles()
     elif 'sendmail' in output: # Only in Outbox. When you click send mail
         tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
         
@@ -272,6 +269,7 @@ def register_view(template,output,args): # Use for all register in/out for cr an
                 if 'subregister' in register.groups:
                     for sb in register.get_subregisters():
                         return redirect(url_for('register.register', reg=f'{register.alias}_in_{sb}', page=1))
+    
     # Actions
     rst = register_actions(output,args)
 
@@ -301,7 +299,7 @@ def register_view(template,output,args): # Use for all register in/out for cr an
     elif rg[0] == "mat":
         sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
     else:
-        sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.num.desc())
+        sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
 
     ctr = None
     if not rg[2] in ['','pending']:

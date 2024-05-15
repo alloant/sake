@@ -154,8 +154,10 @@ def edit_user():
             user.active = form.active.data
             user.admin_active = form.admin_active.data
 
-            if 'cr' in form.groups.data:
-                rst = ['v_cg','v_asr','v_ctr','v_r','v_mat']
+            if 'of' in form.groups.data:
+                rst = ['o_cg','o_asr','o_ctr','o_r','o_mat']
+            elif 'cr' in form.groups.data:
+                rst = ['v_cg','v_asr','v_ctr','v_r','o_mat']
             else:
                 rst = []
 

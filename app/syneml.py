@@ -43,7 +43,7 @@ def write_eml(rec,note,path_download):
 
     sub2 = f"{sub2_1} ({'.'.join(sub2_2)})" if sub2_2 else sub2_1
 
-    sub3 = note.refs
+    sub3 = note.refs(only=['cg','r'])
 
     
     msg["Subject"] = f"{sub1};{sub2};{sub3}"

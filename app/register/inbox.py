@@ -102,6 +102,8 @@ def inbox_view(request):
             if rst:
                 note.state = 3
                 note.n_date = date.today()
+            else:
+                flash(f"Could not move note {note} to its destination")
 
         db.session.commit()
 
