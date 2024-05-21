@@ -31,7 +31,7 @@
    
     {{ note.content_html(reg)|safe }}
   
-    <span hx-get="note_people?note={{note.id}}" hx-trigger="status-updated-{{note.id}} from:body">
+    <span class="" hx-get="note_people?note={{note.id}}" hx-trigger="status-updated-{{note.id}} from:body">
     {{ note.people_matter_html|safe }}
     </span>
 

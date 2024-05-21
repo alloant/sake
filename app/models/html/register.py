@@ -7,8 +7,10 @@ class RegisterHtml(object):
         else:
             img = ET.Element('img',attrib={'src':f'static/icons/ctr/{self.alias}-{flow}.svg','width':f'{size}vmin','height':f'{size}vmin'})
         
-        a = ET.Element('a',attrib={'class':'text-decoration-none','href':f'/register?reg={self.alias}_{flow}_{subregister}','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':f'{self.alias} {flow}'})
-        
+        #a = ET.Element('a',attrib={'class':'text-decoration-none','href':f'/register?reg={self.alias}_{flow}_{subregister}','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':f'{self.alias} {flow}'})
+        reg = [self.alias,flow,subregister]
+        a = ET.Element('a',attrib={'class':'text-decoration-none','hx-get':f"/main_body?reg={reg}",'hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':f'{self.alias} {flow}'})
+        a.attrib['role'] = 'button' 
         a.append(img)
 
         return ET.tostring(a,encoding='unicode',method='html')

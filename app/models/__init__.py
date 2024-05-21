@@ -221,11 +221,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         self.addFile(File(**kargs))
 
     def is_involve(self,user,reg):
-        rg = reg.split("_")
-        if rg[0] == 'des':
+        if reg[0] == 'des':
             return True
-        elif not rg[2] in ['','pending']: # It is from a subregister
-            check = db.session.scalar(select(User).where(User.alias==rg[2]))
+        elif reg[2]: # It is from a subregister
+            check = db.session.scalar(select(User).where(User.alias==reg[2]))
         else:
             check = user
         
@@ -342,7 +341,7 @@ class User(UserProp,UserMixin, db.Model):
         rst = []
         registers = db.session.scalars(select(Register).where(Register.active==1)).all()
         for register in registers:
-            if register.permissions() != 'notallowed':
+            if register.permissions != 'notallowed':
                 rst.append(register)
 
         return rst
@@ -386,7 +385,8 @@ class Register(RegisterHtml,db.Model):
     @property
     def groups(self):
         return [g.strip() for g in self.r_groups.split(",")]
-
+    
+    @hybrid_property
     def permissions(self): # it is only for full register not subregister
         #rst = re.search(fr'\b[evo]_{self.alias}_*[a-z,0-9]*\b',user.u_groups)
         rst = re.search(fr'\b[evo]_{self.alias}\b',current_user.u_groups)
@@ -403,6 +403,16 @@ class Register(RegisterHtml,db.Model):
             return 'official'
         else:
             return 'notallowed'
+    
+    @permissions.expression
+    def permissions(cls):
+        rst = re.findall(fr'\b[evo]_[A-Za-z]*\b',current_user.u_groups)
+        registers = [r.split('_')[1] for r in rst]
+        
+        return case(
+            (cls.alias.in_(registers),'allowed'),
+            else_='notallowed'
+        )
 
     def get_subregisters(self,ids=False):
         rst = re.findall(fr'\b[evo]_{self.alias}_[A-Za-z0-9-]+\b',current_user.u_groups)

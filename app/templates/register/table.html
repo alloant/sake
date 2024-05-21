@@ -1,8 +1,12 @@
 <form class="invisible" id="addfiles" method="POST">
 </form>
 
-<div class="table-responsive">  
-  <table class="table table-sm table-striped">
+<div class="table-responsive">
+  {% if session['theme'] == 'light-mode' %}
+  <table class="table table-sm table-striped table-hover">
+  {% else %}
+  <table class="table table-sm table-striped table-hover table-dark">
+  {% endif %}
     <thead class="">
       <tr class="bg-dark">
         <th scope="col">{{gettext('Protocol')}}</th>

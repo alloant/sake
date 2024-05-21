@@ -313,7 +313,8 @@ def register_view(template,output,args): # Use for all register in/out for cr an
     
     session['lasturl'] = url_for('register.register',reg=reg,page=page)
     registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    #return render_template('register/main.html',title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, user=current_user, ctr=ctr, registers=registers)
+    
+    return render_template('new/dashboard.html', registers=registers,page=1)
     return render_template(template,title=view_title(reg,note), notes=notes, reg=reg, page=page, prev_url=prev_url, next_url=next_url, ctr=ctr, registers=registers)
 
 

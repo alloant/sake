@@ -1,7 +1,7 @@
 <div class="modal-dialog modal-sm modal-dialog-centered">
   <form class="modal-content" id="reg_new_note_form">
     <div class="modal-header justify-content-between">
-      <h5 class="modal-title">New note</h5>
+      <h5 class="modal-title">New entry from {{note.fullkey}}</h5>
         {% if session['theme'] == 'light-mode' %}
           <img id="formNewNote" class="htmx-indicator" width="20" src="static/icons/bars.svg">
         {% else %}
@@ -10,7 +10,7 @@
     </div>
     <div class="modal-body">
       <div>
-        <label>New note to:</label>
+        <label>New entry:</label>
         <select class="form-select form-select-lg mb-4" name="reg_new_note">
           {% for r in regs%}
             {% if r[0] == selected %}

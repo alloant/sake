@@ -42,35 +42,38 @@ class UserProp(object):
     def register_icon_html(self,register, size=35):
         match register:
             case 'pendings':
-                href = '/register?reg=all_all_pending'
+                href = ['all','pen','']
                 title = gettext('Pending')
             case 'minutas':
-                href = '/register?reg=mat_all_'
+                href = ['mat','all','']
                 title = gettext('Matters')
             case 'register':
                 href = '#'
                 title = gettext('Register')
             case 'despacho':
-                href = '/register?reg=des_in_'
+                href = ['des','in','']
                 title = gettext('Despacho')
             case 'inbox':
-                href = '/register?reg=inbox_scr'
+                href = ['box','in','']
                 title = gettext('Inbox')
             case 'outbox':
-                href = '/register?reg=box_out_'
+                href = ['box','out','']
                 title = gettext('Outbox')
 
         dark = f'-dark' if session['theme'] == 'dark-mode' else ''
 
         if register == 'register':
             #<a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none py-1 py-lg-3 px-1" id="dropdownRegister" data-bs-toggle="dropdown" aria-expanded="false">
-            a = ET.Element('a',attrib={'class':'text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            #a = ET.Element('a',attrib={'class':'text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            a = ET.Element('a',attrib={'class':'text-decoration-none', 'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title,'hx-disinherit':'*'})
             a.attrib['id'] = "dropdownRegister"
             a.attrib['data-bs-toggle'] = "dropdown"
             a.attrib['aria-expanded'] = "false"
-            
+            a.attrib['role'] = "button"
         else:
-            a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','hx-get':f'/main_body?reg={href}','hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            a.attrib['role'] = "button"
+            #a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
        
         if register == 'pendings' and self.has_pendings:
             dark += '-red'

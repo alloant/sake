@@ -1,0 +1,208 @@
+<div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" >
+  {% if 'cr' in current_user.groups %}
+    <span>
+      <span hx-get='/register_icon?reg=pendings' hx-trigger='read-updated from:body'>
+        {{ current_user.register_icon_html('pendings')|safe }}
+      </span>
+    </span>
+    
+    {% if current_user.alias in ['antonio','sake','despacho','jb','dms'] %}
+      <span hx-get='/register_icon?reg=pendings' hx-trigger='state-updated from:body'>
+        {{ current_user.register_icon_html('minutas')|safe }}
+      </span>
+    {% endif %}
+  {% endif %}
+  
+  {% if current_user.is_authenticated%}
+    {% if current_user.severalCalendars %}
+    <div class=" dropdown">
+      {{ current_user.register_icon_html('register')|safe }}
+      
+      <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
+        <li class="d-inline-flex">
+          {% for register in registers %}
+            {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+              {{ register.link_icon_html('in')|safe }}
+            {% endif %}
+          {% endfor %}
+          
+          <!-- cl registers-->
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('in',subregister)|safe }}
+            {% endfor %}
+          {% endfor %}
+          <!-- End cl registers-->
+
+        </li>
+        <li class="d-inline-flex">
+          {% for register in registers %}
+            {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+              {{ register.link_icon_html('out')|safe }}
+            {% endif %}
+          {% endfor %}
+          
+          <!-- cl registers-->
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('out',subregister)|safe }}
+            {% endfor %}
+          {% endfor %}
+          <!-- End cl registers-->
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+
+ 
+    {% if 'despacho' in current_user.groups %}
+    <div class="border-top">
+      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['des','in','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-despacho.svg" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-despacho-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+      </a>
+    </div>
+    {% endif %}
+
+    {% if 'scr' in current_user.groups %}
+    <div class="border-top">
+      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['box','in','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-inbox.svg" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-inbox-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+      </a>
+    </div>
+
+    <div>
+      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['box','out','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-outbox.svg" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-outbox-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+      </a>
+    </div>
+    {% endif %}
+
+    {% if not current_user.severalCalendars %}
+          <!-- cl registers-->
+          <div class="border-top py-1 px-1">
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('in',subregister,45)|safe }}
+            {% endfor %}
+          {% endfor %}
+          </div>
+
+          <div class="pb-1 px-1">
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters() %}
+              {{ register.link_icon_html('out',subregister,45)|safe }}
+            {% endfor %}
+          {% endfor %}
+          </div>
+          <!-- End cl registers-->
+    {% endif %}
+    
+    {% if 'cr' in current_user.groups %}
+    <div class="border-top">
+      <a class="btn nav-link link-light py-1 py-lg-3 px-1" type="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-links.svg" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-links-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+      </a>
+    </div>
+    {% else %}
+      <div class="border-top">
+        <a class="btn nav-link link-light py-1 py-lg-3 px-1" type="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks_cl">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-links.svg" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-links-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+      </a>
+    </div>
+    {% endif %}
+    
+  {% endif %}
+  
+  <div class="">
+    <a href="/documentation" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
+      {% if session['theme'] == 'light-mode' %}
+      <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
+      {% else %}
+      <img src="static/icons/00-question-dark.svg" width="35vmin" height="35vmin">
+      {% endif %}
+    </a>
+  </div>
+
+  <div class="">
+    {% if session['theme'] == 'dark-mode' %}
+    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Set light mode')}}">
+      <img src="static/icons/sun.svg" width="35vmin" height="35vmin">
+    </a>
+    {% else %}
+    <a href="/theme" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Set dark mode')}}">
+      <img src="static/icons/moon.svg" width="35vmin" height="35vmin">
+    </a>
+
+    {% endif %}
+  </div>
+
+  <div class="">
+    {% if session['language'] == 'en' %}
+    <a href="/language?lang=ja" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Japanese')}}">
+      <img src="static/icons/ja.svg" width="35vmin" height="35vmin">
+    </a>
+    {% else %}
+    <a href="/language?lang=en" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('English')}}">
+      <img src="static/icons/en.svg" width="35vmin" height="35vmin">
+    </a>
+
+    {% endif %}
+  </div>
+
+  <hr>
+
+  <div class="dropdown border-top">
+    <a href="#" class="d-flex align-items-center justify-content-center py-1 py-lg-3 px-1 link-dark text-decoration-none dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-profile.svg" alt="mdo" width="35vmin" height="35vmin">
+      {% else %}
+        <img src="static/icons/00-profile-dark.svg" alt="mdo" width="35vmin" height="35vmin">
+      {% endif %}
+    </a>
+    
+    <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
+      {% if current_user.is_authenticated%}
+        <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
+        {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
+        <li><a class="dropdown-item" href="/users">{{gettext('List users')}}</a></li>
+        {% endif %}
+        <li><hr class="dropdown-divider"></li>
+        
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters(True) %}
+            <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">{{gettext('Profile')}} {{subregister[1]}}</a></li>
+          {% endfor %}
+        {% endfor %}
+
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
+        {% else %}
+        <li><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></li>
+      {% endif %}
+    </ul>
+  
+  </div>
+
+</div>

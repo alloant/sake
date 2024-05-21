@@ -1,0 +1,40 @@
+  <!-- Protocol number with link -->
+  <th id="row_{{note.id}}_protocol" scope="row">
+    {% if reg[2] == '' %}
+      {{ note.fullkey_link_html|safe }}
+    {% else %}
+      {{ note.fullkey_short }}
+    {% endif %}
+  </th>
+
+  <!-- Action buttons -->
+  <td id="row_{{note.id}}_buttons">
+    {% include 'new/table/table_column_buttons.html' %}
+  </td>
+
+  <!-- Date -->
+  <td id="row_{{note.id}}_date">
+    <span class="d-md-none d-lg-block"><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+  </td>
+  
+  <!-- Comments and content with jp version if needed -->
+  <td id="row_{{note.id}}_content">
+    {% include 'new/table/table_column_content.html' %}
+  </td>
+
+  <!-- Link to folder, button to updateFiles and files in folder -->
+  <td id="row_{{note.id}}_files">
+    <span id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
+
+    {% if session['theme'] == 'light-mode' %}
+      <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+    {% else %}
+      <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+    {% endif %}
+  </td>
+
+  <!-- Refs of the note with tooltip with content -->
+  <td  id="row_{{note.id}}_references"class="">
+    {{ note.refs_html(reg)|safe }}
+  </td>
+

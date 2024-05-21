@@ -41,18 +41,16 @@ def nextNumReg(rg):
     return num
 
 def newNote(user,reg,ref = None):
-    rg = reg.split('_')
-
-    num = nextNumReg(rg)
+    num = nextNumReg(reg)
     
-    register = db.session.scalar(select(Register).where(Register.alias==rg[0]))
+    register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
 
     # Creating the note. We need to know the register it bellows. This note could have been created by a cr dr or a cl member
-    if not rg[2] in ['','pending']: # New note made by a cl member. It's a note for cr from ctr 
-        ctr = db.session.scalar(select(User).where(User.alias==rg[2]))
-        nt = Note(num=num,sender_id=ctr.id,reg=rg[0],register=register)
+    if reg[2]: # New note made by a cl member. It's a note for cr from ctr 
+        ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
+        nt = Note(num=num,sender_id=ctr.id,reg=reg[0],register=register)
     else: # Note created by a cr dr
-        nt = Note(num=num,sender_id=user.id,reg=rg[0],register=register)
+        nt = Note(num=num,sender_id=user.id,reg=reg[0],register=register)
     
     
     contacts = register.get_contacts()

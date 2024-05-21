@@ -3,21 +3,19 @@
 {{ note.status_html(reg)|safe }}
 {{ note.edit_delete_html(reg)|safe }}
 
-{% if reg.split('_')[2] in ['','pending'] and not reg.split('_')[0] in ['des','box'] %}
-{% if current_user.alias in ['jb','antonio','sake','dms'] %}
+{% if not reg[2] and not reg[0] in ['des','box'] %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
-  hx-target="#modal-small" 
+  hx-target="#modal-htmx" 
   hx-trigger="click" 
   data-bs-toggle="modal" 
-  data-bs-target="#modal-small"
+  data-bs-target="#modal-htmx"
   class=""
   role="button">
   <i id="replyRow-{{note.id}}" class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>
 {% endif %}
-{% endif %}
 
-{% if not reg.split('_')[2] in ['','pending'] %}
+{% if reg[2] != '' %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
   hx-trigger="click" 
@@ -33,11 +31,11 @@
   <a href="/download?note={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Download')}} eml"><i class="bi bi-envelope-arrow-down-fill" style="color: green"></i></a>
 {% endif %}
 
-{% if reg.split('_')[0] == 'mat' and False %}
+{% if reg[0] == 'mat' and False %}
   <a href="/register?reg=cr_out_cg&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to cr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: blue;"></i></a>
   <a href="/register?reg=cr_out_asr&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to asr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: red;"></i></a>
   <a href="/register?reg=cr_out_r&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to r')}}"><i class="bi bi-file-earmark-arrow-up" style="color: yellow;"></i></a>
   <a href="/register?reg=cr_out_ctr&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to ctr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: green;"></i></a>
-{% elif reg.split('_')[0] == 'crNO' %}
+{% elif reg[0] == 'crNO' %}
   <a href="/register?reg=min_all_&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate minuta from note')}}"><i class="bi bi-file-earmark-arrow-up"></i></a>
 {% endif %}

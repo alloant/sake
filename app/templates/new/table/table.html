@@ -1,0 +1,64 @@
+<div class="table-responsive">
+  {% if session['theme'] == 'light-mode' %}
+  <table class="table table-sm table-striped table-hover">
+  {% else %}
+  <table class="table table-sm table-striped table-hover table-dark">
+  {% endif %}
+    <thead class="">
+      <tr class="bg-dark">
+        <th scope="col">{{gettext('Protocol')}}</th>
+        <th scope="col"></th>
+        <th scope="col">{{gettext('Date')}}</th>
+        <th scope="col">{{gettext('Content')}}</th>
+        <th scope="col">{{gettext('Files')}}</th>
+        <th scope="col">{{gettext('References')}}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for note in notes %}
+      {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
+        <tr id="row_{{note.id}}" hx-get="/note_row?note={{note.id}}&reg={{reg}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+      {% else %}
+        <tr id="row_{{note.id}}" hx-get="/note_row?note={{note.id}}&reg={{reg}}" hx-swap="innerHTML" class="" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+      {% endif%}
+      {% include 'new/table/table_row.html' %}
+      </tr>
+    {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+<nav aria-label="Page navigation example mt-5">
+    <ul class="pagination justify-content-center">
+      {% if notes.has_prev %}
+      <li class="page-item">
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.prev_num}}" hx-trigger="click" hx-target="#body-table" role="button">{{gettext('Previous')}}</a>
+      </li>
+      {% endif %}
+      {% if notes.has_next %}
+      <li class="page-item">
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.next_num}}" hx-trigger="click" hx-target="#body-table" role="button">{{gettext('Next')}}</a>
+      </li>
+      {% endif%}
+    </ul>
+  </nav>
+<!-- because we are using table rows here, we must enable template fragment parsing -->
+<script>
+    htmx.config.useTemplateFragments = true;
+</script>
+
+<script>
+  function myFunction(note_protocol,note_id) {
+    let answer = confirm(`{{gettext('Are you sure you want to delete')}} ${note_protocol}?`);
+    if (answer) {
+      location.replace(`/delete_note?note=${note_id}`)
+    }
+  }
+</script>
+
+<script>
+  $(".modal").on("hidden.bs.modal", function(){
+    $(".modal-body1").html("");
+  });
+</script>

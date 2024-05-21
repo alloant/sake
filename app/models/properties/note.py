@@ -33,6 +33,10 @@ class NoteProp(object):
     @hybrid_method
     def contains_read(cls,alias):
         return cls.read_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
+    
+    @hybrid_method
+    def contains_received_by(cls,alias):
+        return cls.read_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
 
     @hybrid_method
     def contains_tag(cls,tag):
@@ -89,21 +93,30 @@ class NoteProp(object):
 
 
     def can_edit(self,reg):
-        rg = reg.split('_')
         
         if current_user.admin:
             return True
-        elif rg[0] in ['box','des']:
+        elif reg[0] in ['box','des']:
             return True
         elif self.rel_flow(reg) == 'out' and self.state < 1: # because state is 0 only owner can see it
             return True
-        elif self.register.permissions() == 'editor':
+        elif self.register.permissions == 'editor':
             return True
-        elif rg[0] == 'mat' and self.state < 1:
+        elif reg[0] == 'mat' and self.state < 1:
             return True
 
         return False
-        
+    
+    def can_see(self): # This is use only for cr and of as the ctr is easier.
+        if self.sender_id == current_user.id:
+            return True
+        elif 'matters' in self.register.groups:
+            if self.state == 6 and (not self.permanent or 'permanent' in current_user.groups):
+                return True
+            elif self.state > 0 and self.next_in_matters():
+                pass
+
+
 
     """
     @fullkey.expression
@@ -225,9 +238,7 @@ class NoteProp(object):
 
 
     def rel_flow(self,reg):
-        rg = reg.split('_')
-
-        if not rg[2] in ['','pending']: # Is a subregister of a ctr
+        if reg[2]: # Is a subregister of a ctr
             return 'in' if self.flow == 'out' else 'out'
         else:
             return self.flow
@@ -248,8 +259,7 @@ class NoteProp(object):
         return inc
 
     def updateState(self,reg,user,cancel=False):
-        rg = reg.split("_")
-        if rg[0] == 'box': # Is the scr getting mail from cg, asr, ctr or r
+        if reg[0] == 'box': # Is the scr getting mail from cg, asr, ctr or r
             if not 'personal' in self.register.groups: # Only for not personal calendars
                 if self.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} out"):
                     if 'folder' in self.register.groups: # Note for asr. We just copy it to the right folder
@@ -264,18 +274,18 @@ class NoteProp(object):
 
             # Here we move to Archive and if the move is succesful we put state 2
             #self.state = 2
-        elif rg[0] == 'des': # Here states are only 2 or 3
+        elif reg[0] == 'des': # Here states are only 2 or 3
             if self.reg in ['vcr','vc']:
                 self.state = 5
             else:
                 self.state += self.updateRead(f"des_{user.alias}")
-        elif not rg[2] in ['','pending']:
+        elif reg[2]:
             if self.flow == 'out': # Note from cr to the ctr
                 rst = self.received_by.split(",")
-                if rg[2] in rst:
-                    rst.remove(rg[2])
+                if reg[2] in rst:
+                    rst.remove(reg[2])
                 else:
-                    rst.append(rg[2])
+                    rst.append(reg[2])
                 if not rst: rst = ""
                 self.received_by = ",".join([r for r in rst if r])
             else:

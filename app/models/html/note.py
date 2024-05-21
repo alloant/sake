@@ -11,14 +11,13 @@ from sqlalchemy import select
 
 class NoteHtml(object): 
     def refs_html(self,reg):
-        rg = reg.split("_")
         html = []
         for ref in self.ref:
-            if not rg[2] in ['','pending']:
-                if ref.sender.alias == rg[2] or rg[2] in [r.alias for r in ref.receiver]:
+            if not reg[2] == '':
+                if ref.sender.alias == reg[2] or reg[2] in [r.alias for r in ref.receiver]:
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
-            elif ref.register.permissions() != 'notallowed':
-                if rg[0] == 'des':
+            elif ref.register.permissions != 'notallowed':
+                if reg[0] == 'des':
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
                 else:
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
@@ -26,8 +25,6 @@ class NoteHtml(object):
         return ','.join([h for h in html if h])
 
     def files_html(self,reg):
-        rg = reg.split('_')
-        
         span = ET.Element('span')
         dots = False 
         if self.can_edit(reg):
@@ -35,10 +32,10 @@ class NoteHtml(object):
                 dots = True
                 copy_files = ET.Element('a')
                 copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
-                copy_files.attrib['hx-target'] = "#modal-files" 
+                copy_files.attrib['hx-target'] = "#modal-htmx" 
                 copy_files.attrib['hx-trigger'] = "click" 
                 copy_files.attrib['data-bs-toggle'] = "modal" 
-                copy_files.attrib['data-bs-target'] = "#modal-files"
+                copy_files.attrib['data-bs-target'] = "#modal-htmx"
                 copy_files.attrib['class'] = "ms-1"
                 copy_files.attrib['role'] = "button"
                 
@@ -76,7 +73,7 @@ class NoteHtml(object):
             span.append(update_folder)
  
 
-        if self.permanent_link and (rg[2] in ['','pending'] and (self.register.permissions() in ['editor','viewer'] or self.sender == current_user or current_user in self.receiver and self.register.alias != 'mat') or not rg[2] in ['','pending'] and self.flow == 'in'):
+        if self.permanent_link and (not reg[2] and (self.register.permissions in ['editor','viewer'] or self.sender == current_user or current_user in self.receiver and self.register.alias != 'mat') or reg[2] and self.flow == 'in'):
             dots = True
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         
@@ -89,8 +86,8 @@ class NoteHtml(object):
             span.append(separator)
 
         for file in self.files:
-            if not rg[2] in ['','pending']: # We are in a cl register
-                if file.subject == '' or rg[2] in file.subject.split(','):
+            if reg[2]: # We are in a cl register
+                if file.subject == '' or reg[2] in file.subject.split(','):
                     span.append(file.icon_html_raw)
             else: # For everything else
                 if self.register.alias == 'mat': # Are the files of a mmatter
@@ -98,7 +95,7 @@ class NoteHtml(object):
                         span.append(file.icon_html_raw)
                 elif current_user in self.receiver or self.sender == current_user:
                     span.append(file.icon_html_raw)
-                elif self.register.permissions() in ['editor','viewer']:
+                elif self.register.permissions in ['editor','viewer']:
                     span.append(file.icon_html_raw)
 
     
@@ -279,9 +276,8 @@ class NoteHtml(object):
     
     def content_html(self,reg):
         text = self.content_jp if 'jp' in current_user.groups else self.content
-        rg = reg.split("_")
 
-        if not rg[2] in ['','pending'] and self.flow == 'in' or rg[2] in ['','pending'] and self.flow == 'out':
+        if reg[2] and self.flow == 'in' or not reg[2] and self.flow == 'out':
             ct = ET.Element('span',attrib={'class':f''})
             ct.attrib['data-toggle'] = 'tooltip'
             ct.attrib['title'] = ""
@@ -306,28 +302,27 @@ class NoteHtml(object):
         return ET.tostring(ct,encoding='unicode',method='html')
    
     def edit_delete_html(self,reg):
-        rg = reg.split('_')
         div = ET.Element('span')
         edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil'})
         delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
         edit_link = None
         delete_link = None
         
-        if not rg[2] in ['','pending']:
+        if reg[2]:
             if self.flow == 'out': # IT is in for the ctr
-                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={reg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
             elif self.state < 1:
-                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={rg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={reg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
                 delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
-        elif current_user.admin or rg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions() == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
-            despacho = '&despacho=true' if rg[0] == 'des' else ''
+        elif current_user.admin or reg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
+            despacho = '&despacho=true' if reg[0] == 'des' else ''
             edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}{despacho}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
             delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
 
         if edit_link != None:
-            separation = ET.Element('span',attrib={'class':'ms-1 me-1'})
-            separation.text = "|"
-            div.append(separation)
+            #separation = ET.Element('span',attrib={'class':'ms-1 me-1'})
+            #separation.text = "|"
+            #div.append(separation)
             edit_link.append(edit_icon)
             div.append(edit_link)
             if delete_link != None:
@@ -351,12 +346,11 @@ class NoteHtml(object):
         return False
     
     def status_html(self,reg):
-        rg = reg.split("_")
         if self.register.alias == 'mat':
             return self.status_mat_html(reg)
 
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
-        if rg[0] == 'des':
+        if reg[0] == 'des':
             if self.is_read(f"des_{current_user.alias}"):
                 if self.state == 5:
                     icon = "bi-check-circle"
@@ -375,12 +369,12 @@ class NoteHtml(object):
                     icon = "bi-check-circle"
         #elif self.flow == 'out' and not rg[2] in ['','pending'] or self.flow == 'in' and rg[2] in ['','pending']: # It is IN
         elif self.rel_flow(reg) == 'in': # In note for registers and subregisters
-            if not rg[2] in ['','pending']:
+            if reg[2]:
                 done = self.ctr_has_done(session['ctr'])
                 mine = True
             else:
                 done = True if self.state > 5 else False
-                mine = True if current_user in self.receiver or self.register.permissions() == 'editor' else False
+                mine = True if current_user in self.receiver or self.register.permissions == 'editor' else False
             if mine:
                 mn = '-fill'
             else:
@@ -400,14 +394,14 @@ class NoteHtml(object):
                 case 0:
                     icon = "bi-send"
                     color = "gray"
-                    if not rg[2] in ['','pending']:
+                    if reg[2]:
                         text = gettext('Send note to cr')
                     else:
                         text = gettext('Send note to sccr')
                 case 1:
                     icon = "bi-send-check-fill"
                     color = "gray"
-                    if not rg[2] in ['','pending']:
+                    if reg[2]:
                         text = gettext('Waiting for cr to get the note (click to take note back from cr inbox)')
                     else:
                         sp.attrib['hx-indicator'] = f"#send-{self.id}"
@@ -416,7 +410,7 @@ class NoteHtml(object):
                     sp = ET.Element('span')
                     icon = "bi-send-check-fill"
                     color = "green"
-                    if not rg[2] in ['','pending']:
+                    if reg[2]:
                         text = gettext('Note has been received in cr')
                     else:
                         text = gettext('The note has been sent')
@@ -508,3 +502,12 @@ class NoteHtml(object):
                 sp1.attrib['id'] = f'status_mat-{self.id}'
                 return ET.tostring(sp1,encoding='unicode',method='html')
 
+    def row_html(self):
+        tr = ET.Element('tr')
+        for i in range(6):
+            tr.append(ET.Element('td'))
+            tr[-1].text = f"Column {i}"
+
+        return ET.tostring(tr,encoding='unicode',method='html')
+
+        

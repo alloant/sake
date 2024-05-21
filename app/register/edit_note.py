@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import re
+import ast
 
 from flask import render_template, render_template_string, redirect, session, flash, url_for, Response
 from flask_login import current_user
@@ -22,7 +23,6 @@ def sortable_view(request):
 
 def rec_files_view(request):
     return "asdasd"
-
 
 def files_view(request):
     path = request.args.get("path_folder")
@@ -51,7 +51,8 @@ def files_view(request):
     return render_template("register/files_list.html",files=files)
 
 def update_files_view(request):
-    reg = request.args.get('reg')
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateFiles()
@@ -59,21 +60,21 @@ def update_files_view(request):
     return note.files_html(reg)
 
 def reply_note_view(request):
-    reg = request.args.get("reg","")
-    rg = reg.split('_')
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
 
-    if request.method == 'POST' or not rg[2] in ['','pending']:
-        if rg[2] in ['','pending']:
+    if request.method == 'POST' or not reg[2]:
+        if not reg[2]:
             reg_new_note = request.form.getlist('reg_new_note')[0]
             if reg_new_note == 'mat':
                 new_reg = 'mat_all_'
             else:
                 new_reg = f'{reg_new_note}_out_'
         else:
-            new_reg = f'{rg[0]}_out_{rg[2]}'
+            new_reg = f'{reg[0]}_out_{reg[2]}'
         
         
         session['filter_notes'] = ""
@@ -84,18 +85,69 @@ def reply_note_view(request):
    
     regs = [['mat','To matters'],['cg','To cg'],['asr','To asr'],['ctr','To ctr'],['r','To r']]
 
-    if rg[0] != 'mat':
+    if note.register.alias != 'mat':
         selected = 'mat'
     else:
         selected = 'cg'
-        if note.ref:
-            selected = note.ref[0].register.alias
+        for rf in note.ref:
+            if rf.register.alias != 'mat':
+                selected = rf.register.alias
 
     return render_template("register/modal_reply_note.html",reg=reg,note=note,regs=regs,selected=selected)
 
 
+def get_files_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
+    
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+       
+    if note.ref:
+        files = note.ref[0].files
+        return render_template('new/modals/modal_files_list_sake.html',files=files)
+    else:
+        path = '/team-folders'
+        files = files_path(path)
+        return render_template('new/modals/modal_files_list_synology.html',files=files)
+
+
 def browse_files_view(request):
-    reg = request.args.get("reg","")
+    reg = ast.literal_eval(request.args.get('reg'))
+    
+    copy = request.args.get("copy","")
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    untitled =[]
+    if copy == 'true':
+        files = request.form.getlist('files_to_copy')
+        cont = 0
+        for file in files:
+            if re.match(r'Untitled\.(odoc|osheet|oslide)',file.split('/')[-1]):
+                name = file.split('/')[-1]
+                ext = name.split('.')[-1]
+                for fn in note.files + untitled:
+                    fname = fn if isinstance(fn,str) else fn.path
+                    if re.match(fr'{note.folder_name}_*a*[0-9]*\.[a-zA-Z]+',fname):
+                        cont += 1
+
+                if cont == 0:
+                    copy_office_path(file,f"{note.folder_path}/{note.folder_name}.{ext}")
+                else:
+                    copy_office_path(file,f"{note.folder_path}/{note.folder_name}_a{cont}.{ext}")
+                untitled.append(note.folder_name)
+            else:
+                copy_path(file,f"{note.folder_path}/{file.split('/')[-1]}")
+        
+        note.updateFiles()
+
+        return note.files_html(reg)
+   
+    
+    return render_template("new/modals/modal_files.html",note=note, reg=reg)
+
+def browse_files_view_old(request):
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
@@ -131,7 +183,8 @@ def browse_files_view(request):
         files = files_path(path)
 
     
-    return render_template("register/files_form.html",note=note,files=files,reg=reg)
+    return render_template("new/modals/modal_files.html",note=note,files=files,reg=reg)
+
 
 def edit_receivers_files_view(request):
     output = request.form.to_dict()
@@ -219,6 +272,7 @@ def edit_tags_view(request):
 
 
 def edit_receivers_view(request):
+    print('here')
     output = request.form.to_dict()
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))

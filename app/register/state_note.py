@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import ast
+
 from flask import render_template, redirect, session, flash, make_response
 from flask_login import current_user
 
@@ -10,15 +12,17 @@ from sqlalchemy.orm import aliased
 from app import db
 from app.models import Note, User, Comment, File
 from app.forms.note import NoteForm
+from xml.etree import ElementTree as ET
 
 def read_note_view(request):
-    reg = request.args.get('reg')
+    reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
    
     note.updateRead(current_user)
     
     res = make_response(note.content_html(reg))
+    #res.headers['HX-Trigger'] = 'read-updated'
     res.headers['HX-Trigger'] = 'read-updated'
 
     return res
@@ -32,25 +36,26 @@ def note_people_view(request):
     return note.people_matter_html
 
 def note_files_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    reg = request.args.get('reg')
 
     return note.files_html(reg)
 
 def note_row_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
-    reg = request.args.get('reg')
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+    print(note.fullkey)
     
-    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
+    return render_template('new/table/table_row.html',note=note, reg=reg, user=current_user)
 
 
 def state_note_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
-    reg = request.args.get('reg')
-    rg = reg.split('_')
+    
     cancel = request.args.get('cancel',False)
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
@@ -61,7 +66,7 @@ def state_note_view(request):
     #    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
     
     res = make_response(note.status_html(reg))
-    res.headers['HX-Trigger'] = f'status-updated-{note.id}'
+    res.headers['HX-Trigger'] = f'update-row-{note.id}'
 
     return res
 
@@ -69,5 +74,6 @@ def state_note_view(request):
     return note.status_html(reg)
    
 def register_icon_view (request):
-    reg = request.args.get('reg')
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     return current_user.register_icon_html(reg)
