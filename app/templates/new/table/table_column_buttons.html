@@ -3,6 +3,7 @@
 {{ note.status_html(reg)|safe }}
 {{ note.edit_delete_html(reg)|safe }}
 
+
 {% if not reg[2] and not reg[0] in ['des','box'] %}
 <a 
   hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
@@ -29,13 +30,4 @@
 
 {% if 'scr' in current_user.groups and note.flow == 'out' and 'email' in note.register.groups %}
   <a href="/download?note={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Download')}} eml"><i class="bi bi-envelope-arrow-down-fill" style="color: green"></i></a>
-{% endif %}
-
-{% if reg[0] == 'mat' and False %}
-  <a href="/register?reg=cr_out_cg&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to cr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: blue;"></i></a>
-  <a href="/register?reg=cr_out_asr&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to asr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: red;"></i></a>
-  <a href="/register?reg=cr_out_r&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to r')}}"><i class="bi bi-file-earmark-arrow-up" style="color: yellow;"></i></a>
-  <a href="/register?reg=cr_out_ctr&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate note to ctr')}}"><i class="bi bi-file-earmark-arrow-up" style="color: green;"></i></a>
-{% elif reg[0] == 'crNO' %}
-  <a href="/register?reg=min_all_&ref={{note.id}}" data-bs-toggle="tooltip" title="{{gettext('Generate minuta from note')}}"><i class="bi bi-file-earmark-arrow-up"></i></a>
 {% endif %}

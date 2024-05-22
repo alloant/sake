@@ -1,0 +1,67 @@
+<div id="inbox-title">
+  <h1 class="title text-center display-4">
+    <img src="{{title['icon']}}" width="70vmin" height="70vmin">
+    {{title['text']}}
+    
+    {% if session['theme'] == 'light-mode' %}
+      <img id="indicator-table" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+    {% else %}
+      <img id="indicator-table" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+    {% endif %}
+  </h1>
+</div>
+
+
+<div id="upfile" class="modal fade">
+  {% include 'upload_file.html' %}
+</div>
+
+<form class="" id="inboxscr" method="POST">
+<div class="row p-4">
+  <fieldset class="col-8 border">
+    <legend class="float-none w-auto p-2">{{gettext('Mail from cg, asr and r')}}</legend>
+      <ul class="list-group list-group-flush">
+        <li class="p-2 list-group-item">
+          <button 
+            hx-get="/action_inbox?action=import_eml" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            class="btn btn-primary"
+            role="button">
+            {{gettext('Import eml')}}</button>
+         
+          <span> {{gettext('1. Import EML files from Cardumen')}}</span>
+        </li>
+        
+        <li class="p-2 list-group-item">
+          <button class="btn btn-primary" hx-get="/action_inbox?action=import_asr" hx-trigger="click" hx-target="#body-inbox" hx-indicator="#indicator-table">{{gettext('Import asr')}}</button>
+          <span> {{gettext('2. Get mails from asr in Mail asr/Mail from asr')}}</span>
+        </li>
+        
+        <li class="p-2 list-group-item">
+          <button class="btn btn-primary" hx-post="/action_inbox?action=generate_notes" hx-trigger="click" hx-target="#body-inbox" hx-include="#inboxscr" hx-indicator="#indicator-table">{{gettext('Generate notes')}}</button>
+          <span> {{gettext('3. After checking numbers generate notes from files imported in 1 and 2')}}</span>
+        </li>
+      </ul>
+  </fieldset>
+  
+    <fieldset class="border col-4">
+      <legend class="float-none w-auto p-2">{{gettext('Mail from ctr')}} ({{ctr_notes[0]}})</legend>
+      <ul class="list-group list-group-flush">
+        <li class="p-2 list-group-item">
+          <button class="btn btn-primary" hx-get="/action_inbox?action=import_ctr" hx-trigger="click" hx-target="#body-inbox" hx-indicator="#indicator-table">{{gettext('Get mail')}} ({{ctr_notes[1]}})</button>
+          <span>{{gettext('Pass notes from ctr to Despacho')}}</span>
+        </li>
+      </ul>
+    </fieldset>
+
+</div>
+
+<div id="body-inbox" class="">
+{% include 'new/inbox/table.html' %}
+</div>
+</form>
+
+

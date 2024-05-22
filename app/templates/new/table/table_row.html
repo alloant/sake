@@ -24,7 +24,7 @@
 
   <!-- Link to folder, button to updateFiles and files in folder -->
   <td id="row_{{note.id}}_files">
-    <span id="filesRow-{{note.id}}">{{note.files_html(reg)|safe}}</span>
+    <span id="filesRow-{{note.id}}">{{note.files_html()|safe}}</span>
 
     {% if session['theme'] == 'light-mode' %}
       <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
@@ -35,6 +35,6 @@
 
   <!-- Refs of the note with tooltip with content -->
   <td  id="row_{{note.id}}_references"class="">
-    {{ note.refs_html(reg)|safe }}
+    {{ note.refs_html()|safe }}
   </td>
 

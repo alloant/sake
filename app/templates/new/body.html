@@ -14,44 +14,29 @@
 
   <div class="d-flex flex-row mb-4">
     {% if title['new'] %}
-        <button class="btn btn-primary" hx-get="/action_note?action=new&reg={{reg}}" hx-trigger="click" hx-target="#body-table" hx-indicator="#indicator-table" hx-disinherit="*">New</button>
+    <button class="btn btn-primary" hx-get="/action_note?action=new" hx-trigger="click" hx-target="#body-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('New')}}</button>
     {% endif %}
    
     {% if title['showAll'] %}
       <div class="p-2">
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/body_table?reg={{reg}}&showAll=toggle" hx-trigger="click" hx-target="#body-table" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
-          <label class="form-check-label" for="flexSwitchCheckDefault">All</label>
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/body_table?showAll=toggle" hx-trigger="click" hx-target="#body-table" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
+          <label class="form-check-label" for="flexSwitchCheckDefault">{{gettext('All')}}</label>
         </div>
       </div>
     {% endif %}
  
     {% if title['filter'] %}
       <input class="form-control flex-grow-1" type="search" 
-        name="search" placeholder="Search..." 
-        hx-post="/body_table?reg={{reg}}" 
+        name="search" placeholder="Search..." id="search_text"
+        hx-post="/body_table" 
         hx-trigger="input changed delay:500ms, search" 
         hx-target="#body-table"> 
     {% endif %}
   </div>
 
-  {% if title['page'] == 'inbox' %}
-    <div id="upfile" class="modal">
-      {% include 'upload_file.html' %}
-    </div>
-    <div class="row">
-      <form class="d-flex p-2" method="POST">
-        <input type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="importeml" value="{{gettext('Check for eml')}}">
-      </form>
-    </div>
-  {% endif %}
-  
-  {% if title['page'] == 'inbox' %}
-    <div class="row">
-      <form class="d-flex p-2" method="POST">
-        <input href="#wait" type="submit" class="btn btn-primary me-2" data-bs-toggle="modal" name="sendmail" value="{{gettext('Send mail')}}">
-      </form>
-    </div>
+  {% if title['sendmail'] %}
+  <button class="btn btn-primary" hx-get="/action_note?action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#body-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
   {% endif %}
 </div>
 

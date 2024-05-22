@@ -92,8 +92,9 @@ class NoteProp(object):
         return f"{prot} {self.num}/{self.year-2000}"
 
 
-    def can_edit(self,reg):
-        
+    def can_edit(self):
+        reg = session['reg']
+
         if current_user.admin:
             return True
         elif reg[0] in ['box','des']:

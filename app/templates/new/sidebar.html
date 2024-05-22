@@ -69,7 +69,7 @@
 
     {% if 'scr' in current_user.groups %}
     <div class="border-top">
-      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['box','in','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/inbox_body" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Inbox')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-inbox.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -79,7 +79,7 @@
     </div>
 
     <div>
-      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['box','out','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+      <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/main_body?reg=['box','out','']" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Outbox')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-outbox.svg" width="35vmin" height="35vmin">
       {% else %}

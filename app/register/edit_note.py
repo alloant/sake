@@ -24,6 +24,131 @@ def sortable_view(request):
 def rec_files_view(request):
     return "asdasd"
 
+
+
+def fill_form_note(form,note, filter = ""):
+    reg = session['reg']
+
+    if reg[2] or note.flow == 'in':
+        form.sender.choices = [note.sender]
+    else:
+        form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
+
+    form.proc.choices = ['Ord','Not Ord','Consultivo','Deliberativo']
+
+
+    if note.reg == 'mat':
+        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
+    else:
+        form.receiver.choices = note.potential_receivers(filter)
+
+    form.ref.data = ",".join([r.fullkey for r in note.ref]) if note.ref else "" 
+    
+    if note.reg == 'mat':
+        form.receiver.data = note.received_by
+    else:
+        for rec in note.receiver:
+            form.receiver.data.append(rec.alias)
+    
+    form.permanent.data = note.permanent
+    
+    form.comments_ctr.data = ""
+    for cm in note.comments_ctr:
+        if cm.sender_id == ctr:
+            form.comments_ctr.data = cm.comment
+
+    session['opt_checkbox'] = form.receiver.choices
+    session['rst_checkbox'] = form.receiver.data
+    
+    return form
+
+def extract_form_note(form,note):
+    reg = session['reg']
+     
+    if reg[2] or note.flow == 'in':
+        form.sender.choices = [note.sender]
+    else:
+        form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
+
+    form.proc.choices = ['Ord','Not Ord','Consultivo','Deliberativo']
+
+    filter = ''
+
+    if note.reg == 'mat':
+        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
+    else:
+        form.receiver.choices = note.potential_receivers(filter)
+
+    if reg[2]:
+        cm = db.session.scalar(select(Comment).where(and_(Comment.sender.has(User.alias==reg[2]),Comment.note_id==note.id)))
+        if not cm and form.comments_ctr.data != "":
+            cm = Comment(sender_id=ctr,note_id=note.id,comment=form.comments_ctr.data)
+            db.session.add(cm)
+        else:
+            cm.comment = form.comments_ctr.data
+    else:
+        note.n_date = form.n_date.data
+        note.year = form.year.data
+        note.content = form.content.data
+        note.content_jp = form.content_jp.data
+        note.comments = form.comments.data
+        note.proc = form.proc.data
+        note.permanent = form.permanent.data
+        #print(form.sender.data)
+        #note.sender_id = form.sender.data
+
+        if 'rst_checkbox' in session and note.reg != 'mat':
+            for ch in session['opt_checkbox']:
+                if ch[0] in session['rst_checkbox']:
+                    session['rst_checkbox'].remove(ch[0])
+
+            session['rst_checkbox'] += form.receiver.data
+            form.receiver.data = session['rst_checkbox']
+            session['opt_checkbox'] = form.receiver.choices
+        else:
+            session['rst_checkbox'] = form.receiver.data
+
+        if note.reg == 'mat':
+            rd = note.read_by.split(',')
+            rd += [us for us in form.receiver.data if not us in rd]
+            form.receiver.data = rd
+            note.received_by = ",".join([r for r in form.receiver.data if r])
+    
+         
+        for n,user in enumerate(reversed(note.receiver)):
+            if not user.alias in form.receiver.data:
+                note.receiver.remove(user)
+        
+        for user in session['rst_checkbox']:
+            rec = db.session.scalars(select(User).where(User.alias==user)).first()
+            if not rec in note.receiver:
+                note.receiver.append(rec)
+
+        current_refs = []
+        if form.ref.data != "" and not isinstance(form.ref.data,list):
+            for ref in form.ref.data.split(","):
+                nt = get_note_fullkey(ref.strip())
+                if nt:
+                    if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
+                        current_refs.append(nt.fullkey)
+                        if not nt in note.ref:
+                            note.ref.append(nt)
+                    else:
+                        flash(f"Note {ref} cannot be add")
+                        error = True
+                else:
+                    flash(f"Note {ref} doesn't exist")
+                    error = True
+
+        # Now I remove the notes not in current
+        for ref in reversed(note.ref):
+            if not ref.fullkey in current_refs:
+                note.ref.remove(ref)
+    
+    db.session.commit()
+
+    
+
 def files_view(request):
     path = request.args.get("path_folder")
     if path == 'forms':
@@ -57,30 +182,30 @@ def update_files_view(request):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateFiles()
 
-    return note.files_html(reg)
+    return note.files_html()
 
 def reply_note_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    
+    reg = session['reg']
+    print('HERER',reg) 
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
 
-    if request.method == 'POST' or not reg[2]:
+    if request.method == 'POST' or reg[2]:
         if not reg[2]:
             reg_new_note = request.form.getlist('reg_new_note')[0]
             if reg_new_note == 'mat':
-                new_reg = 'mat_all_'
+                new_reg = ['mat','all','']
             else:
-                new_reg = f'{reg_new_note}_out_'
+                new_reg = [reg_new_note,'out','']
         else:
-            new_reg = f'{reg[0]}_out_{reg[2]}'
+            new_reg = [reg[0],'out',reg[2]]
         
-        
-        session['filter_notes'] = ""
+         
         newNote(current_user,reg=new_reg,ref=note)
+        session['reg'] = new_reg
         resp = Response()
-        resp.headers["hx-redirect"] = url_for('register.register', reg=new_reg, page=1)
+        resp.headers["hx-redirect"] = '/'
         return resp
    
     regs = [['mat','To matters'],['cg','To cg'],['asr','To asr'],['ctr','To ctr'],['r','To r']]

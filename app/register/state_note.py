@@ -43,11 +43,10 @@ def note_files_view(request):
     return note.files_html(reg)
 
 def note_row_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
+    reg = session['reg']
     note_id = request.args.get('note')
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    print(note.fullkey)
     
     return render_template('new/table/table_row.html',note=note, reg=reg, user=current_user)
 

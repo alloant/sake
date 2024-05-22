@@ -10,7 +10,8 @@ from app import db
 from sqlalchemy import select
 
 class NoteHtml(object): 
-    def refs_html(self,reg):
+    def refs_html(self):
+        reg = session['reg']
         html = []
         for ref in self.ref:
             if not reg[2] == '':
@@ -24,11 +25,12 @@ class NoteHtml(object):
 
         return ','.join([h for h in html if h])
 
-    def files_html(self,reg):
+    def files_html(self, copy = True):
+        reg = session['reg']
         span = ET.Element('span')
         dots = False 
-        if self.can_edit(reg):
-            if self.permanent_link:
+        if self.can_edit():
+            if self.permanent_link and copy:
                 dots = True
                 copy_files = ET.Element('a')
                 copy_files.attrib['hx-get'] = f"browse_files?note={self.id}&reg={reg}" 
@@ -303,26 +305,24 @@ class NoteHtml(object):
    
     def edit_delete_html(self,reg):
         div = ET.Element('span')
-        edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil'})
+        edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil','style':'color: blue;'})
         delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
         edit_link = None
         delete_link = None
-        
+   
         if reg[2]:
             if self.flow == 'out': # IT is in for the ctr
-                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={reg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+                edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
             elif self.state < 1:
-                edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}&ctr={reg[2]}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
-                delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
+                edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#moda-htmx','hx-indicator':'#indicator-table','data-bs-toggle':'tooltip','title':gettext('Edit note'),'role':'button'})
+                delete_link = ET.Element('a',attrib={'class':'btn btn-link p-0 ms-1','hx-get':f'/action_note?action=delete_note&note={self.id}','hx-trigger':'click','hx-target':f'#body-table','hx-indicator':'#indicator-table','hx-confirm':f'Are you sure you want to delete {self.fullkey}?','data-bs-toggle':'tooltip','title':gettext('Delete note'),'role':'button'})
+                #delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id},{reg})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
         elif current_user.admin or reg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
             despacho = '&despacho=true' if reg[0] == 'des' else ''
-            edit_link = ET.Element('a',attrib={'href':f'/edit_note?note={self.id}{despacho}','data-bs-toggle':'tooltip','title':gettext('Edit note')})
+            edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
             delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
 
         if edit_link != None:
-            #separation = ET.Element('span',attrib={'class':'ms-1 me-1'})
-            #separation.text = "|"
-            #div.append(separation)
             edit_link.append(edit_icon)
             div.append(edit_link)
             if delete_link != None:

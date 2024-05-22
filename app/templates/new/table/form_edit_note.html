@@ -1,0 +1,170 @@
+{{ form.csrf_token }}
+
+<fieldset class="form-group">
+
+<div class="d-flex d-flex-wrap justify-content-center me-4">
+
+  <div>
+    {% if current_user.admin %}
+    <div class="d-inline-flex flex-row">
+    {% else %}
+    <div class="d-inline-flex flex-row d-none">
+    {% endif %}
+      <div class="p-2">
+        {{ form.num.label(class="form-label") }}
+        {{ form.num(class="form-control") }}
+      </div>
+      <div class="p-2">
+        {{ form.year.label(class="form-label") }}
+        {{ form.year(class="form-control") }}
+      </div>
+      <div class="p-2">
+        {{ form.sender.label(class="form-label") }}
+        {{ form.sender(class="form-control") }}
+      </div>
+    </div>
+    
+    <div class="d-inline-flex flex-row">
+      {% if current_user.admin or 'despacho' in current_user.groups or note.register.alias == 'mat' and note.sender_id == current_user.id %}
+        <div class="p-2">
+      {% else %}
+        <div class="p-2 d-none">
+      {% endif %}
+          <p data-bs-toggle="tooltip" title="{{gettext('Only permanente')}}"><i class="bi bi-asterisk" style="color: red"></i></p>
+          {{ form.permanent(class="form-check-input") }}
+        </div>
+      
+      <div class="p-2">
+        {{ form.n_date.label(class="form-label") }}
+        {{ form.n_date(class="form-control") }}
+      </div>
+      
+      {% if note.register.alias == 'mat' %}
+        <div class="p-2">
+      {% else %}
+        <div class="p-2 d-none">
+      {% endif %}
+          {{ form.proc.label(class="form-label") }}
+          {{ form.proc(class="form-control") }}
+        </div>
+    </div>
+    
+    <div class="p-2">
+      {{ form.content.label(class="form-label") }}
+      {{ form.content(class="form-control") }}
+    </div>
+    
+    <div class="p-2">
+      {{ form.content_jp.label(class="form-label") }}
+      {{ form.content_jp(class="form-control") }}
+    </div>
+   
+    {% if session['reg'][2] %}
+    <div class="p-2">
+    {% else %}
+    <div class="p-2 d-none">
+    {% endif %}
+      {{ form.comments_ctr.label(class="form-label") }}
+      {{ form.comments_ctr(class="form-control") }}
+    </div>
+
+    {% if 'despacho' in current_user.groups or current_user.admin %}
+    <div class="p-2">
+    {% else %}
+    <div class="p-2">
+    {% endif %}
+      {{ form.comments.label(class="form-label") }}
+      {{ form.comments(class="form-control") }}
+    </div>
+    
+    <div class="p-2">
+      {{ form.ref.label(class="form-label") }}
+      {{ form.ref(class="form-control") }}
+    </div>
+
+  </div>
+
+  
+<!-- Recipients -->
+  <div class="flex p-2">
+    {% if note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat' %}
+
+      {% if note.register.alias == 'mat' %}
+        <div class="d-flex d-flex-wrap">
+          <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+          <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+          <input class="form-control mb-2" id="recInput" type="text" placeholder="Search..">
+        </div>
+      {% else%}
+        <div class="d-flex d-flex-wrap">
+          <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+          <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+          <input class="form-control mb-2" type="search" 
+            name="search" placeholder="Begin Typing To Search Users..." 
+            hx-post="/edit_receivers?note={{note.id}}" 
+            hx-trigger="input changed delay:200ms, search" 
+            hx-target="#search-results"
+            hx-indicator=".htmx-indicator">
+        </div>
+      {% endif %}
+      
+      {% if note.register.alias == 'mat' %}
+        {% include 'register/receivers_list_order_list.html' %}
+      {% else %}
+        <ul class="list-group" id="search-results">
+        {% include 'register/receivers_list.html' %}
+        </ul>
+      {% endif %}
+     
+      <script>
+        function tickCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
+
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = 1;
+          } 
+        }
+      </script>
+     
+      <script>
+        function minusCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
+
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = 0;
+          } 
+        }
+      </script> 
+      
+      <script>
+      $(document).ready(function(){
+        $("#recInput").on("keyup", function() {
+          var value = $(this).val().toLowerCase();
+          $("#recList li").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+          });
+        });
+      });
+      </script>
+
+  {% endif %}
+  </div>
+<!-- Recipients end -->
+
+</div>
+
+<!-- Link to folder, button to updateFiles and files in folder -->
+<div class="flex p-4 border">
+  <h1 id="filesRow-{{note.id}}">{{note.files_html(copy=False)|safe}}</h1>
+
+  {% if session['theme'] == 'light-mode' %}
+    <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+  {% else %}
+    <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+  {% endif %}
+</div>
+
+
+</fieldset>

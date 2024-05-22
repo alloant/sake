@@ -1,0 +1,23 @@
+<div class="modal-dialog modal-sm modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header justify-content-between">
+      <h5 class="modal-title">{{gettext('Import eml')}}</h5>
+        {% if session['theme'] == 'light-mode' %}
+          <img id="formFiles" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+        {% else %}
+          <img id="formFiles" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
+        {% endif %}
+    </div>
+
+    <div class="modal-body">
+        <input type="file" name="files" multiple="multiple" form="import_eml_form">
+    </div>
+
+    <form class="modal-footer" id="import_eml_form" hx-encoding="multipart/form-data" method="POST" hx-post="/action_inbox?action=eml_imported" hx-target="#body-inbox" hx-indicator="#indicator-table">
+      <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Upload</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </form>
+  </div>
+</div>
+
+

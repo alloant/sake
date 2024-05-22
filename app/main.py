@@ -10,13 +10,20 @@ from flask_login import current_user
 
 from flask_babel import gettext
 
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, Register
+from app.models import Note, User, Register, File
 
-from app.register.tools import newNote
+from app.register.edit_note import fill_form_note, extract_form_note
+from app.register.tools import newNote, sendmail, delete_note
+from app.register.inbox import import_asr, import_ctr, generate_notes, remove_file
+from app.register.state_note import note_row_view
+
+from app.syneml import read_eml
+
+from app.forms.note import NoteForm
 
 def register_filter(reg, filter = ""):
     fn = []
@@ -126,55 +133,12 @@ def register_filter(reg, filter = ""):
 
     return fn
 
-
-def get_notes(reg, filter = ""):
-    sender = aliased(User,name="sender_user")
-    sql = select(Note).join(Note.sender.of_type(sender))
-    
-    fn = register_filter(reg,filter)
-    if reg[2] == "" and reg[1] == "out":
-        sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
-    elif reg[0] == "mat":
-        sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
-    else:
-        sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
-   
-    notes = db.paginate(sql, per_page=22)
-    
-
-    return notes
-
-def action_note_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    newNote(current_user,reg)
-
-    return body_table_view(request)
-
-def dashboard_view(request):
-    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    return render_template('new/dashboard.html', registers=registers)
-
-def body_table_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    showAll = request.args.get('showAll')
-    output = request.form.to_dict()
-    page = request.args.get('page', 1, type=int)
-
-    if showAll == 'toggle':
-        session['showAll'] = not session['showAll']
-
-    notes = get_notes(reg,filter = output['search'] if 'search' in output else '')
-        
-    return render_template('new/table/table.html', notes=notes, reg=reg)
-
-def main_body_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    print(reg)
+def get_title(reg):
     dark = '-dark' if session['theme'] == 'dark-mode' else ''
-    
     title = {}
     title['filter'] = False
     title['showAll'] = False
+    title['sendmail'] = False
     title['new'] = False
 
     if reg[1] == 'pen':
@@ -188,6 +152,7 @@ def main_body_view(request):
     elif reg[0] == 'box' and reg[1] == 'out':
         title['icon'] = f'static/icons/00-outbox{dark}.svg' 
         title['text'] = gettext(u'Outbox cr')
+        title['sendmail'] = True
     elif reg[2] != '':
         title['icon'] = f'static/icons/ctr/{reg[2]}-{reg[1]}.svg' 
         if reg[1] == 'in': # Notes from cr to ctr
@@ -215,7 +180,142 @@ def main_body_view(request):
             title['showAll'] = True
         else:
             title['new'] = True
+    
+    return title
 
+def get_notes(reg, filter = ""):
+    sender = aliased(User,name="sender_user")
+    sql = select(Note).join(Note.sender.of_type(sender))
+    
+    fn = register_filter(reg,filter)
+    if reg[2] == "" and reg[1] == "out":
+        sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
+    elif reg[0] == "mat":
+        sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
+    else:
+        sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
+   
+    notes = db.paginate(sql, per_page=22)
+    
+
+    return notes
+
+def action_note_view(request):
+    action = request.args.get('action')
+    reg = session['reg']
+    
+    match action:
+        case 'new':
+            newNote(current_user,reg)
+        case 'sendmail':
+            sendmail()
+        case 'delete_note':
+            note_id = request.args.get('note')
+            delete_note(note_id)
+        case 'edit_note':
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            output = request.form.to_dict()
+            
+            filter = output['search'] if 'search' in output else ''
+            
+            form = NoteForm(request.form,obj=note)
+            form = fill_form_note(form,note,filter)
+
+            return render_template('new/modals/modal_edit_note.html',note=note,form=form)
+        case 'edited':
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            
+            form = NoteForm(request.form,obj=note)
+            extract_form_note(form,note)
+            
+            return note_row_view(request)
+
+    return body_table_view(request)
+
+def action_inbox_view(request):
+    action = request.args.get('action')
+    reg = session['reg']
+     
+    match action:
+        case 'import_eml':
+            return render_template('new/inbox/modal_import_eml.html')
+        case 'eml_imported':
+            files = request.files.getlist('files')
+            for file in files:
+                read_eml(file.read())
+        case 'import_asr':
+            import_asr()
+        case 'import_ctr':
+            import_ctr()
+        case 'generate_notes':
+            output = request.form.to_dict()
+            generate_notes(output)
+        case 'remove_file':
+            file = request.args.get('file')
+            remove_file(file)
+
+
+    return inbox_body_view(request)
+
+def dashboard_view(request):
+    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+    return render_template('new/dashboard.html', registers=registers)
+
+def body_table_view(request):
+    reg = session['reg']
+    showAll = request.args.get('showAll')
+    output = request.form.to_dict()
+    page = request.args.get('page', 1, type=int)
+
+    if showAll == 'toggle':
+        session['showAll'] = not session['showAll']
+
+    if not 'page' in request.args:
+        if 'search' in output:
+            session['filter_notes'] = output['search']
+        else:
+            session['filter_notes'] = ''
+
+    notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
+        
+    return render_template('new/table/table.html', notes=notes, reg=reg)
+
+def main_body_view(request):
+    reg = request.args.get('reg','')
+    if reg:
+        reg = ast.literal_eval(reg)
+        session['reg'] = reg
+    else:
+        reg = session['reg']
+    
+    title = get_title(reg) 
     notes = get_notes(reg)
     
     return render_template('new/body.html',title=title, notes=notes, reg=reg)
+
+
+def inbox_main_view(request):
+    session['reg'] = ['box','in','']
+    dark = '-dark' if session['theme'] == 'dark-mode' else ''
+    
+    title = {}
+    title['icon'] = f'static/icons/00-inbox{dark}.svg' 
+    title['text'] = gettext(u'Inbox cr')
+
+
+    sql = select(File).where(File.note_id == None)
+    files = db.paginate(sql, per_page=22)
+    
+    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
+    
+    return render_template('new/inbox/body.html',title=title, files=files, ctr_notes=ctr_notes)
+
+def inbox_body_view(request):
+    sql = select(File).where(File.note_id == None)
+    files = db.paginate(sql, per_page=22)
+    
+    return render_template('new/inbox/table.html', files=files)
+
+

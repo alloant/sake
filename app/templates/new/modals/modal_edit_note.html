@@ -1,0 +1,17 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+  <form class="modal-content">
+    <div class="modal-header justify-content-between">
+        <h3 class="modal-title">Edit note {{note.fullkey}}</h3>
+        <div>
+          <button type="button" class="btn btn-primary" hx-post="/action_note?action=edited&note={{note.id}}" hx-target="#row_{{note.id}}" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-body">
+      {% include 'new/table/form_edit_note.html' %}      
+    </div>
+  </form>
+</div>
+
+

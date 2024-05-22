@@ -6,13 +6,15 @@ import re
 from sqlalchemy import select, func, literal_column, and_
 from sqlalchemy.orm import aliased
 
-from flask import session
+from flask import session, current_app
 from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
 from app.models import User, Note, Register
 
+
+from app.mail import send_email
 
 def nextNumReg(rg):
     # Get new number for the note. Here getting the las number in that register
@@ -40,7 +42,29 @@ def nextNumReg(rg):
 
     return num
 
-def newNote(user,reg,ref = None):
+def delete_note(note_id):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+   
+    for file in note.files:
+        db.session.delete(file)
+    
+    for ref in note.ref:
+        note.ref.remove(ref)
+    
+    for comment in note.comments_ctr:
+        db.session.delete(comment)
+
+    for rec in note.receiver:
+        note.receiver.remove(rec)
+
+    
+    note.delete_folder()
+
+    db.session.delete(note)
+    db.session.commit()
+
+
+def newNote(user, reg, ref = None):
     num = nextNumReg(reg)
     
     register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
@@ -88,6 +112,26 @@ def newNote(user,reg,ref = None):
 
     db.session.add(nt)
     rst = db.session.commit()
+
+def sendmail():
+    tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
+        
+    for nt in tosendnotes:
+        if not 'personal' in nt.register.groups: # Only for not personal calendars
+            if not nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out"):
+                continue
+
+        if 'folder' in nt.register.groups: # Note for asr. We just copy it to the right folder
+            nt.copy(f"/team-folders/Mail {nt.register.alias}/Mail to {nt.register.alias}") # I have to add this to the register database!!!!! Pending
+            nt.state = 6
+        
+        if 'sake' in nt.register.groups: # note for a ctr (internal sake system). We just change the state.
+            nt.state = 6
+            for rec in nt.receiver:
+                if rec.email:
+                    send_email(f"New mail for {rec.alias}. {nt.comments}","",rec.email)
+
+        db.session.commit()
 
 
 def view_title(reg,note=None):

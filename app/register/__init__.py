@@ -10,7 +10,7 @@ from .state_note import state_note_view, read_note_view, note_people_view, note_
 from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
 from .download import download_view
 from .inbox import inbox_view
-from app.main import main_body_view, body_table_view, dashboard_view, action_note_view
+from app.main import main_body_view, body_table_view, dashboard_view, action_note_view, inbox_body_view, inbox_main_view, action_inbox_view
 
 bp = Blueprint('register', __name__)
 
@@ -23,10 +23,15 @@ def register(template):
     return dashboard_view(request)
     return register_view(template,request.form.to_dict(),request.args)
 
-@bp.route('/action_note')
+@bp.route('/action_note',methods=['GET','POST'])
 @login_required
 def action_note():
     return action_note_view(request)
+
+@bp.route('/action_inbox',methods=['GET','POST'])
+@login_required
+def action_inbox():
+    return action_inbox_view(request)
 
 @bp.route('/main_body')
 @login_required
@@ -143,10 +148,10 @@ def delete_note():
 def download_note():
     return download_view(request)
 
-@bp.route('/inbox_scr',methods=['POST','GET'])
+@bp.route('/inbox_body',methods=['POST','GET'])
 @login_required
 def inbox_scr():
-    return inbox_view(request)
+    return inbox_main_view(request)
 
 from werkzeug.exceptions import HTTPException
 

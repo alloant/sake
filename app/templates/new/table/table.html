@@ -48,17 +48,3 @@
     htmx.config.useTemplateFragments = true;
 </script>
 
-<script>
-  function myFunction(note_protocol,note_id) {
-    let answer = confirm(`{{gettext('Are you sure you want to delete')}} ${note_protocol}?`);
-    if (answer) {
-      location.replace(`/delete_note?note=${note_id}`)
-    }
-  }
-</script>
-
-<script>
-  $(".modal").on("hidden.bs.modal", function(){
-    $(".modal-body1").html("");
-  });
-</script>
