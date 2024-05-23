@@ -28,10 +28,10 @@ class FileHtml(object):
         a = ET.Element('a',attrib={'class':'ms-1','href':f'https://nas.prome.sg:5001/{chain}/{self.permanent_link}','target':"_blank",'data-bs-toggle':'tooltip','title':self.name})
         i = ET.Element('i',attrib={f'class':f'bi {icon} position-relative','style':f'color: {color};'})
         
-        if self.note.n_date < self.date:
-            sp = ET.Element('span',attrib={'class':'position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle'})
+        #if self.note.n_date < self.date:
+        #    sp = ET.Element('span',attrib={'class':'position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle'})
 
-            i.append(sp)
+        #    i.append(sp)
         
         if "/" in self.path:
             sp = ET.Element('span',attrib={'class':'position-absolute top-0 translate-middle p-1 bg-warning border border-light rounded-circle'})

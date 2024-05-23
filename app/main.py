@@ -25,7 +25,8 @@ from app.syneml import read_eml
 
 from app.forms.note import NoteForm
 
-def register_filter(reg, filter = ""):
+def register_filter(filter = ""):
+    reg = session['reg']
     fn = []
     
     # First filter register notes. Diving for ctr or the rest
@@ -75,8 +76,8 @@ def register_filter(reg, filter = ""):
                     fn.append(Note.state<6)
             else:
                 fn.append(Note.flow==reg[1])
-                if not session['showAll'] and reg[1] == 'in':
-                    fn.append(Note.state<6)
+                #if not session['showAll'] and reg[1] == 'in':
+                #    fn.append(Note.state<6)
             
         if not 'permanente' in current_user.groups:
             fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
@@ -133,7 +134,8 @@ def register_filter(reg, filter = ""):
 
     return fn
 
-def get_title(reg):
+def get_title():
+    reg = session['reg']
     dark = '-dark' if session['theme'] == 'dark-mode' else ''
     title = {}
     title['filter'] = False
@@ -153,7 +155,7 @@ def get_title(reg):
         title['icon'] = f'static/icons/00-outbox{dark}.svg' 
         title['text'] = gettext(u'Outbox cr')
         title['sendmail'] = True
-    elif reg[2] != '':
+    elif reg[2]:
         title['icon'] = f'static/icons/ctr/{reg[2]}-{reg[1]}.svg' 
         if reg[1] == 'in': # Notes from cr to ctr
             title['text'] = f"{gettext('Notes from cr to')} {reg[2]}"
@@ -176,29 +178,57 @@ def get_title(reg):
         title['text'] = f"{reg[0]} {reg[1]}"
         title['filter'] = True
 
-        if reg[1] == 'in':
-            title['showAll'] = True
-        else:
+        if reg[1] == 'out':
             title['new'] = True
     
     return title
 
-def get_notes(reg, filter = ""):
+def get_notes(filter = ""):
+    reg = session['reg']
     sender = aliased(User,name="sender_user")
     sql = select(Note).join(Note.sender.of_type(sender))
     
-    fn = register_filter(reg,filter)
+    fn = register_filter(filter)
     if reg[2] == "" and reg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
     elif reg[0] == "mat":
         sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
-   
+  
     notes = db.paginate(sql, per_page=22)
-    
 
     return notes
+
+def visibility_note_form(note):
+    reg = session['reg']
+    
+    dnone = {'admin':'d-none','permanent':'d-none','date':'d-none','proc':'d-none','content':'d-none','content_jp':'d-none','comments':'d-none','comments_ctr':'d-none','ref':'d-none','rec':'d-none'}
+
+    if reg[2]: # Note in a register of a ctr
+        if note.flow == 'out': # Not IN for the ctr, only comments
+            dnone['comments_ctr'] = ''
+        else:
+            dnone['date'] = ''
+            dnone['content'] = ''
+            dnone['content_jp'] = ''
+            dnone['ref'] = ''
+    else: # Everything else
+        if current_user.admin:
+            dnone['admin'] = ''
+
+        if note.sender_id == current_user.id or 'despacho' in current_user.groups: # My note, I can change everything
+            dnone['permanent'] = ''
+            dnone['date'] = ''
+            if note.register.alias == 'alias':
+                dnone['proc'] = ''
+            dnone['content'] = ''
+            dnone['content_jp'] = ''
+            dnone['comments'] = ''
+            dnone['ref'] = ''
+            dnone['rec'] = ''
+
+    return dnone
 
 def action_note_view(request):
     action = request.args.get('action')
@@ -222,7 +252,7 @@ def action_note_view(request):
             form = NoteForm(request.form,obj=note)
             form = fill_form_note(form,note,filter)
 
-            return render_template('new/modals/modal_edit_note.html',note=note,form=form)
+            return render_template('modals/modal_edit_note.html',note=note,form=form, dnone=visibility_note_form(note))
         case 'edited':
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))
@@ -240,7 +270,7 @@ def action_inbox_view(request):
      
     match action:
         case 'import_eml':
-            return render_template('new/inbox/modal_import_eml.html')
+            return render_template('inbox/modal_import_eml.html')
         case 'eml_imported':
             files = request.files.getlist('files')
             for file in files:
@@ -249,6 +279,7 @@ def action_inbox_view(request):
             import_asr()
         case 'import_ctr':
             import_ctr()
+            return inbox_main_view(request)
         case 'generate_notes':
             output = request.form.to_dict()
             generate_notes(output)
@@ -261,26 +292,26 @@ def action_inbox_view(request):
 
 def dashboard_view(request):
     registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    return render_template('new/dashboard.html', registers=registers)
+    return render_template('dashboard.html', registers=registers)
 
 def body_table_view(request):
     reg = session['reg']
-    showAll = request.args.get('showAll')
+    showAll = request.args.get('showAll','')
     output = request.form.to_dict()
     page = request.args.get('page', 1, type=int)
 
     if showAll == 'toggle':
         session['showAll'] = not session['showAll']
-
+    
     if not 'page' in request.args:
         if 'search' in output:
             session['filter_notes'] = output['search']
         else:
             session['filter_notes'] = ''
 
-    notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
-        
-    return render_template('new/table/table.html', notes=notes, reg=reg)
+    notes = get_notes(filter = session['filter_notes'] if 'filter_notes' in session else '')
+
+    return render_template('table/table.html', notes=notes, page=page)
 
 def main_body_view(request):
     reg = request.args.get('reg','')
@@ -290,10 +321,10 @@ def main_body_view(request):
     else:
         reg = session['reg']
     
-    title = get_title(reg) 
-    notes = get_notes(reg)
+    title = get_title() 
+    notes = get_notes()
     
-    return render_template('new/body.html',title=title, notes=notes, reg=reg)
+    return render_template('body.html',title=title, notes=notes)
 
 
 def inbox_main_view(request):
@@ -310,12 +341,12 @@ def inbox_main_view(request):
     
     ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
     
-    return render_template('new/inbox/body.html',title=title, files=files, ctr_notes=ctr_notes)
+    return render_template('inbox/body.html',title=title, files=files, ctr_notes=ctr_notes)
 
 def inbox_body_view(request):
     sql = select(File).where(File.note_id == None)
     files = db.paginate(sql, per_page=22)
     
-    return render_template('new/inbox/table.html', files=files)
+    return render_template('inbox/table.html', files=files)
 
 

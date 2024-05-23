@@ -15,13 +15,13 @@ from app.forms.note import NoteForm
 from xml.etree import ElementTree as ET
 
 def read_note_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
+    reg = session['reg'] 
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
    
     note.updateRead(current_user)
     
-    res = make_response(note.content_html(reg))
+    res = make_response(note.content_html())
     #res.headers['HX-Trigger'] = 'read-updated'
     res.headers['HX-Trigger'] = 'read-updated'
 
@@ -29,30 +29,18 @@ def read_note_view(request):
 
     return note.content_html(reg)
 
-def note_people_view(request):
-    note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
-
-    return note.people_matter_html
-
-def note_files_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
-
-    return note.files_html(reg)
 
 def note_row_view(request):
-    reg = session['reg']
+    reg = session['reg'] 
     note_id = request.args.get('note')
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     
-    return render_template('new/table/table_row.html',note=note, reg=reg, user=current_user)
+    return render_template('table/table_row.html',note=note, reg=reg, user=current_user)
 
 
 def state_note_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
+    reg = session['reg'] 
     note_id = request.args.get('note')
     
     cancel = request.args.get('cancel',False)
@@ -64,7 +52,7 @@ def state_note_view(request):
     #if rg[0] == 'mat':
     #    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
     
-    res = make_response(note.status_html(reg))
+    res = make_response(note.status_html())
     res.headers['HX-Trigger'] = f'update-row-{note.id}'
 
     return res
@@ -73,6 +61,5 @@ def state_note_view(request):
     return note.status_html(reg)
    
 def register_icon_view (request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    
+    reg = session['reg'] 
     return current_user.register_icon_html(reg)

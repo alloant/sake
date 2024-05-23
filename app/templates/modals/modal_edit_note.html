@@ -1,4 +1,8 @@
+{% if dnone['rec'] == '' %}
 <div class="modal-dialog modal-xl modal-dialog-centered">
+{% else %}
+<div class="modal-dialog modal-lg modal-dialog-centered">
+{% endif %}
   <form class="modal-content">
     <div class="modal-header justify-content-between">
         <h3 class="modal-title">Edit note {{note.fullkey}}</h3>
@@ -9,7 +13,7 @@
     </div>
 
     <div class="modal-body">
-      {% include 'new/table/form_edit_note.html' %}      
+      {% include 'table/form_edit_note.html' %}      
     </div>
   </form>
 </div>

@@ -4,7 +4,7 @@
 from datetime import datetime
 import re
 
-from flask import current_app
+from flask import current_app, session
 from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
@@ -120,6 +120,7 @@ class Comment(db.Model):
     note_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('note.id'))
     note: Mapped["Note"] = relationship(back_populates="comments_ctr")
     sender_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('user.id'))
+    sender: Mapped["User"] = relationship()
     comment: Mapped[str] = mapped_column(db.Text, default = '')
     
 
@@ -220,7 +221,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def addFileArgs(self,*args,**kargs):
         self.addFile(File(**kargs))
 
-    def is_involve(self,user,reg):
+    def is_involve(self,user):
+        reg = session['reg']
         if reg[0] == 'des':
             return True
         elif reg[2]: # It is from a subregister

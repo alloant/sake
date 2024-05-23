@@ -4,12 +4,8 @@
 
 <div class="d-flex d-flex-wrap justify-content-center me-4">
 
-  <div>
-    {% if current_user.admin %}
-    <div class="d-inline-flex flex-row">
-    {% else %}
-    <div class="d-inline-flex flex-row d-none">
-    {% endif %}
+  <div class="d-flex flex-fill flex-column">
+    <div class="d-flex flex-row {{dnone['admin']}}">
       <div class="p-2">
         {{ form.num.label(class="form-label") }}
         {{ form.num(class="form-control") }}
@@ -24,60 +20,44 @@
       </div>
     </div>
     
-    <div class="d-inline-flex flex-row">
-      {% if current_user.admin or 'despacho' in current_user.groups or note.register.alias == 'mat' and note.sender_id == current_user.id %}
-        <div class="p-2">
-      {% else %}
-        <div class="p-2 d-none">
-      {% endif %}
+    <div class="d-flex flex-row">
+        <div class="p-2 {{dnone['permanent']}}">
           <p data-bs-toggle="tooltip" title="{{gettext('Only permanente')}}"><i class="bi bi-asterisk" style="color: red"></i></p>
           {{ form.permanent(class="form-check-input") }}
         </div>
       
-      <div class="p-2">
+      <div class="flex-fill p-2 {{dnone['date']}}">
         {{ form.n_date.label(class="form-label") }}
         {{ form.n_date(class="form-control") }}
       </div>
       
-      {% if note.register.alias == 'mat' %}
-        <div class="p-2">
-      {% else %}
-        <div class="p-2 d-none">
-      {% endif %}
-          {{ form.proc.label(class="form-label") }}
-          {{ form.proc(class="form-control") }}
-        </div>
+      <div class="flex-fill p-2 {{dnone['proc']}}">
+        {{ form.proc.label(class="form-label") }}
+        {{ form.proc(class="form-control") }}
+      </div>
     </div>
     
-    <div class="p-2">
+    <div class="p-2 {{dnone['content']}}">
       {{ form.content.label(class="form-label") }}
       {{ form.content(class="form-control") }}
     </div>
     
-    <div class="p-2">
+    <div class="p-2 {{dnone['content_jp']}}">
       {{ form.content_jp.label(class="form-label") }}
       {{ form.content_jp(class="form-control") }}
     </div>
    
-    {% if session['reg'][2] %}
-    <div class="p-2">
-    {% else %}
-    <div class="p-2 d-none">
-    {% endif %}
+    <div class="p-2 {{dnone['comments_ctr']}}">
       {{ form.comments_ctr.label(class="form-label") }}
       {{ form.comments_ctr(class="form-control") }}
     </div>
 
-    {% if 'despacho' in current_user.groups or current_user.admin %}
-    <div class="p-2">
-    {% else %}
-    <div class="p-2">
-    {% endif %}
+    <div class="p-2 {{dnone['comments']}}">
       {{ form.comments.label(class="form-label") }}
       {{ form.comments(class="form-control") }}
     </div>
     
-    <div class="p-2">
+    <div class="p-2 {{dnone['ref']}}">
       {{ form.ref.label(class="form-label") }}
       {{ form.ref(class="form-control") }}
     </div>
@@ -86,8 +66,8 @@
 
   
 <!-- Recipients -->
-  <div class="flex p-2">
-    {% if note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat' %}
+    {% if not session['reg'][2] and (note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat') %}
+    <div class="flex-fill p-2">
 
       {% if note.register.alias == 'mat' %}
         <div class="d-flex d-flex-wrap">
@@ -109,10 +89,10 @@
       {% endif %}
       
       {% if note.register.alias == 'mat' %}
-        {% include 'register/receivers_list_order_list.html' %}
+        {% include 'modals/modal_receivers_list_order.html' %}
       {% else %}
         <ul class="list-group" id="search-results">
-        {% include 'register/receivers_list.html' %}
+        {% include 'modals/modal_receivers_list.html' %}
         </ul>
       {% endif %}
      
@@ -148,9 +128,9 @@
         });
       });
       </script>
+  </div>
 
   {% endif %}
-  </div>
 <!-- Recipients end -->
 
 </div>

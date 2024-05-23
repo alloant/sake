@@ -5,9 +5,9 @@ from flask import Blueprint, request, render_template, current_app
 from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
-from .register import register_view, notes_view
-from .state_note import state_note_view, read_note_view, note_people_view, note_files_view, note_row_view, register_icon_view
-from .edit_note import edit_note_view, delete_note_view, edit_receivers_view, edit_receivers_files_view,rec_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
+
+from .state_note import state_note_view, read_note_view, note_row_view, register_icon_view
+from .edit_note import edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
 from .download import download_view
 from .inbox import inbox_view
 from app.main import main_body_view, body_table_view, dashboard_view, action_note_view, inbox_body_view, inbox_main_view, action_inbox_view
@@ -15,13 +15,11 @@ from app.main import main_body_view, body_table_view, dashboard_view, action_not
 bp = Blueprint('register', __name__)
 
 @bp.route('/',methods=['POST','GET'])
-@bp.route('/register',methods=['POST','GET'])
-@mobile_template("register/{mobile/}main.html")
-#@mobile_template("register/main.html")
+#@mobile_template("register/{mobile/}main.html")
+@mobile_template("main.html")
 @login_required
 def register(template):
     return dashboard_view(request)
-    return register_view(template,request.form.to_dict(),request.args)
 
 @bp.route('/action_note',methods=['GET','POST'])
 @login_required
@@ -43,11 +41,6 @@ def main_body():
 def body_table():
     return body_table_view(request)
 
-@bp.route('/note_people')
-@login_required
-def note_people():
-    return note_people_view(request)
-
 @bp.route('/note_row')
 @login_required
 def note_row():
@@ -57,16 +50,6 @@ def note_row():
 @login_required
 def register_icon():
     return register_icon_view(request)
-
-@bp.route('/note_files')
-@login_required
-def note_files():
-    return note_files_view(request)
-
-@bp.route('/notes')
-@login_required
-def notes():
-    return notes_view(request.form.to_dict(),request.args)
 
 @bp.route('/update_files', methods=['GET','POST'])
 @login_required
@@ -98,11 +81,6 @@ def edit_receivers_files():
 def sortable():
     return sortable_view(request)
 
-@bp.route('/rec_files', methods=['GET','POST'])
-@login_required
-def rec_files():
-    return rec_files_view(request)
-
 @bp.route('/edit_tags', methods=['GET','POST'])
 @login_required
 def edit_tags():
@@ -113,20 +91,10 @@ def edit_tags():
 def edit_receivers():
     return edit_receivers_view(request)
 
-@bp.route('/receivers_form', methods=['GET','POST'])
-@login_required
-def receivers_form():
-    return receivers_form_view(request)
-
 @bp.route('/reply_note', methods=['GET','POST'])
 @login_required
 def reply_note():
     return reply_note_view(request)
-
-@bp.route('/edit_note', methods=['GET','POST'])
-@login_required
-def edit_note():
-    return edit_note_view(request)
 
 @bp.route('/state_note', methods=['GET','POST'])
 @login_required
@@ -137,11 +105,6 @@ def state_note():
 @login_required
 def read_note():
     return read_note_view(request)
-
-@bp.route('/delete_note', methods=['GET','POST'])
-@login_required
-def delete_note():
-    return delete_note_view(request)
 
 @bp.route('/download', methods=['GET','POST'])
 @login_required

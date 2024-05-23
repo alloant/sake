@@ -12,10 +12,6 @@
 </div>
 
 
-<div id="upfile" class="modal fade">
-  {% include 'upload_file.html' %}
-</div>
-
 <form class="" id="inboxscr" method="POST">
 <div class="row p-4">
   <fieldset class="col-8 border">
@@ -51,7 +47,7 @@
       <legend class="float-none w-auto p-2">{{gettext('Mail from ctr')}} ({{ctr_notes[0]}})</legend>
       <ul class="list-group list-group-flush">
         <li class="p-2 list-group-item">
-          <button class="btn btn-primary" hx-get="/action_inbox?action=import_ctr" hx-trigger="click" hx-target="#body-inbox" hx-indicator="#indicator-table">{{gettext('Get mail')}} ({{ctr_notes[1]}})</button>
+          <button class="btn btn-primary" hx-get="/action_inbox?action=import_ctr" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table">{{gettext('Get mail')}} ({{ctr_notes[1]}})</button>
           <span>{{gettext('Pass notes from ctr to Despacho')}}</span>
         </li>
       </ul>
@@ -60,7 +56,7 @@
 </div>
 
 <div id="body-inbox" class="">
-{% include 'new/inbox/table.html' %}
+{% include 'inbox/table.html' %}
 </div>
 </form>
 

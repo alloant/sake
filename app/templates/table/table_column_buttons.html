@@ -1,12 +1,12 @@
 
 <img id="send-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
-{{ note.status_html(reg)|safe }}
-{{ note.edit_delete_html(reg)|safe }}
+{{ note.status_html()|safe }}
+{{ note.edit_delete_html()|safe }}
 
 
-{% if not reg[2] and not reg[0] in ['des','box'] %}
+{% if not session['reg'][2] and not session['reg'][0] in ['des','box'] %}
 <a 
-  hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
+  hx-get="reply_note?note={{note.id}}" 
   hx-target="#modal-htmx" 
   hx-trigger="click" 
   data-bs-toggle="modal" 
@@ -16,10 +16,11 @@
   <i id="replyRow-{{note.id}}" class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>
 {% endif %}
 
-{% if reg[2] != '' %}
+{% if session['reg'][2] != '' %}
 <a 
-  hx-get="reply_note?note={{note.id}}&reg={{reg}}" 
-  hx-trigger="click" 
+  hx-get="reply_note?note={{note.id}}" 
+  hx-trigger="click"
+  hx-indicator="#indicator-table"
   class=""
   role="button">
   <i id="replyRow-{{note.id}}" class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>

@@ -1,4 +1,4 @@
-<div class="modal-dialog modal-sm modal-dialog-centered">
+<div class="modal-dialog modal-lg modal-dialog-centered">
   <form  class="modal-content">
 
     <div class="modal-header">
@@ -15,30 +15,41 @@
     <!-- Form -->
     
       <div class="d-flex d-flex-wrap">
-        <input type="button" class="btn btn-primary mb-2 mr-2" id="selectall" name="selectall" autocomplete="off" checked onclick="tagCheckBox()" value="All">
+        <button type="button" class="btn btn-primary mt-0 mb-2 me-1" checked onclick="tickCheckBox()"><i class="bi bi-check-lg"></i></button>
+        <button type="button" class="btn btn-secondary mt-0 mb-2 me-2" checked onclick="minusCheckBox()"><i class="bi bi-dash-lg"></i></button>
         <input class="form-control mb-2" type="search" 
-          name="search" placeholder="Filter..." 
-          hx-post="{{hxpost}}"
+          name="search" placeholder="Begin Typing To Search Users..." 
+          hx-post="{{hxpost}}" 
           hx-trigger="input changed delay:200ms, search" 
-          hx-target="#search-tags-modal"
+          hx-target="#search-results-modal"
           hx-indicator=".htmx-indicator">
       </div>
 
-      <ul class="list-group" id="search-tags-modal">
-        {% include 'register/tags_list.html' %}
+      <ul class="list-group" id="search-results-modal">
+        {% include 'modals/modal_receivers_list.html' %}
       </ul>
-      
+     
       <script>
-        function tagCheckBox() {
+        function tickCheckBox() {
           let checkboxs = document.getElementsByClassName("chbox");
           let labels = document.getElementsByClassName("chbox_label");
 
           for(let i = 0; i < checkboxs.length ; i++) {
-            checkboxs[i].checked = !checkboxs[i].checked;
+            checkboxs[i].checked = 1;
           } 
         }
       </script>
+     
+      <script>
+        function minusCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
 
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = 0;
+          } 
+        }
+      </script> 
     <!-- End form -->
     </div>
 

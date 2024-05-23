@@ -276,7 +276,8 @@ class NoteHtml(object):
 
        
     
-    def content_html(self,reg):
+    def content_html(self):
+        reg = session['reg']
         text = self.content_jp if 'jp' in current_user.groups else self.content
 
         if reg[2] and self.flow == 'in' or not reg[2] and self.flow == 'out':
@@ -303,7 +304,8 @@ class NoteHtml(object):
         
         return ET.tostring(ct,encoding='unicode',method='html')
    
-    def edit_delete_html(self,reg):
+    def edit_delete_html(self):
+        reg = session['reg']
         div = ET.Element('span')
         edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil','style':'color: blue;'})
         delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
@@ -312,20 +314,20 @@ class NoteHtml(object):
    
         if reg[2]:
             if self.flow == 'out': # IT is in for the ctr
-                edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
+                edit_link = True
             elif self.state < 1:
-                edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#moda-htmx','hx-indicator':'#indicator-table','data-bs-toggle':'tooltip','title':gettext('Edit note'),'role':'button'})
-                delete_link = ET.Element('a',attrib={'class':'btn btn-link p-0 ms-1','hx-get':f'/action_note?action=delete_note&note={self.id}','hx-trigger':'click','hx-target':f'#body-table','hx-indicator':'#indicator-table','hx-confirm':f'Are you sure you want to delete {self.fullkey}?','data-bs-toggle':'tooltip','title':gettext('Delete note'),'role':'button'})
-                #delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id},{reg})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
-        elif current_user.admin or reg[0] in ['des','box'] or self.state < 2 and self.rel_flow(reg) == 'out' or self.register.permissions == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
-            despacho = '&despacho=true' if reg[0] == 'des' else ''
-            edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
-            delete_link = ET.Element('button',attrib={'class':'btn btn-link p-0 ms-1','onclick':f"myFunction('{self.fullkey}',{self.id})",'data-bs-toggle':'tooltip','title':gettext('Delete note')})
+                edit_link = True
+                delete_link = True
+        elif current_user.admin or reg[0] in ['des','box'] or self.state < 2 and self.sender_id == current_user.id or self.register.permissions == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
+            edit_link = True
+            delete_link = True
 
         if edit_link != None:
+            edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
             edit_link.append(edit_icon)
             div.append(edit_link)
             if delete_link != None:
+                delete_link = ET.Element('a',attrib={'class':'btn btn-link p-0 ms-1','hx-get':f'/action_note?action=delete_note&note={self.id}','hx-trigger':'click','hx-target':f'#body-table','hx-indicator':'#indicator-table','hx-confirm':f'Are you sure you want to delete {self.fullkey}?','data-bs-toggle':'tooltip','title':gettext('Delete note'),'role':'button'})
                 delete_link.append(delete_icon)
                 div.append(delete_link)
     
@@ -345,9 +347,10 @@ class NoteHtml(object):
 
         return False
     
-    def status_html(self,reg):
+    def status_html(self):
+        reg = session['reg']
         if self.register.alias == 'mat':
-            return self.status_mat_html(reg)
+            return self.status_mat_html()
 
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if reg[0] == 'des':
@@ -425,7 +428,8 @@ class NoteHtml(object):
 
 
 
-    def status_mat_html(self,reg):
+    def status_mat_html(self):
+        reg = session['reg']
         #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#noteRow-{self.id}','role':'button'})
         sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','role':'button'})
         if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start

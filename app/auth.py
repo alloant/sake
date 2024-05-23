@@ -90,6 +90,7 @@ def signup():
 @login_required
 def theme():
     session['theme'] = 'light-mode' if session['theme'] == 'dark-mode' else 'dark-mode'
+    return redirect('/')
     return redirect(request.referrer)
 
 @bp.route('/logout')
@@ -203,16 +204,17 @@ def edit_user():
 def set_language(language=None):
     lang = request.args.get('lang')
     session['language'] = lang
+    return redirect('/')
     return redirect(request.referrer)
 
 
 from werkzeug.exceptions import HTTPException
 
-#@bp.errorhandler(Exception)
-#def handle_exception(e):
+@bp.errorhandler(Exception)
+def handle_exception(e):
     # pass through HTTP errors
-#    if isinstance(e, HTTPException):
-#        return e
+    if isinstance(e, HTTPException):
+        return e
 
     # now you're handling non-HTTP exceptions only
-#    return render_template("error.html", e=e), 500
+    return render_template("error.html", e=e), 500
