@@ -1,9 +1,5 @@
 <!-- templates/profile.html -->
 
-{% extends "base.html" %}
-
-{% block content %}
-
 <div id="main-body">
 
   <h1 class="title text-center display-4">
@@ -11,24 +7,23 @@
   </h1>
 
   <p class="title text-center display-6">
-    <a class="" href="?topic=config">{{gettext('1. Registration and configuration')}}</a>
+    <a class="btn btn-primary" hx-get="/documentation?topic=config" hx-trigger="click" hx-target="#main-body">{{gettext('1. Registration and configuration')}}</a>
   </p>
 
   {% if 'cl_' in current_user.u_groups or 'cr' in current_user.u_groups %}
       <p class="title text-center display-6">
-      <a class="" href="?topic=cl_in">{{gettext('2. Mail from cr')}}</a>
+      <a class="btn btn-primary" hx-get="/documentation?topic=cl_in" hx-trigger="click" hx-target="#main-body">{{gettext('2. Mail from cr')}}</a>
     </p>
     <p class="title text-center display-6">
-      <a class="" href="?topic=cl_out">{{gettext('3. Mail to cr')}}</a>
+      <a class="btn btn-primary" hx-get="/documentation?topic=cl_out" hx-trigger="click" hx-target="#main-body">{{gettext('3. Mail to cr')}}</a>
     </p>
   {% endif %}
 
   {% if 'cr' in current_user.groups %}
     <p class="title text-center display-6">
-    <a class="" href="?topic=cr">{{gettext('For cr')}}</a>
+    <a class="btn btn-primary" hx-get="/documentation?topic=cr" hx-trigger="click" hx-target="#main-body">{{gettext('For cr')}}</a>
     </p>
   {% endif %}
 
   </div>
 
-{% endblock %}

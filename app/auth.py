@@ -1,7 +1,7 @@
 # auth.py
 import re
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session
+from flask import Blueprint, render_template, redirect, url_for, request, flash, current_app, session, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -143,7 +143,7 @@ def edit_user():
     
     #form.active.data =  1 if user.active else 0
     #form.admin_active.data = 1 if user.admin_active else 0
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
         user.alias = form.alias.data
         user.name = form.name.data
         user.email = form.email.data
@@ -161,7 +161,7 @@ def edit_user():
                 rst = ['v_cg','v_asr','v_ctr','v_r','o_mat']
             else:
                 rst = []
-
+            
             for group in form.groups.data:
                 if group in groups_choices[:group1]:
                     rst.append(group)
@@ -176,7 +176,13 @@ def edit_user():
 
         db.session.commit()
 
-        return redirect(url_for('register.register',reg='lasturl'))
+        if user == current_user:
+            res = make_response()
+            #res.headers['HX-Refresh'] = True
+            res.headers['HX-Redirect'] = "/"
+            return res
+        else:
+            return ""
     else:
         form.active.data = user.active
         form.admin_active.data = user.admin_active
@@ -197,7 +203,7 @@ def edit_user():
     else:
         is_admin = False
 
-    return render_template('auth/user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin)
+    return render_template('modals/modal_edit_user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin)
 
 
 @bp.route('/language')
@@ -210,11 +216,11 @@ def set_language(language=None):
 
 from werkzeug.exceptions import HTTPException
 
-@bp.errorhandler(Exception)
-def handle_exception(e):
+#@bp.errorhandler(Exception)
+#def handle_exception(e):
     # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+#    if isinstance(e, HTTPException):
+#        return e
 
     # now you're handling non-HTTP exceptions only
-    return render_template("error.html", e=e), 500
+#    return render_template("error.html", e=e), 500

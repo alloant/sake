@@ -16,12 +16,16 @@
     </thead>
     <tbody>
     {% for note in notes %}
-      {% if note.register.alias == 'mat' and session['reg'][0] != 'mat' %}
-        <tr id="row_{{note.id}}" hx-get="/note_row?note={{note.id}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+      {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
+        <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
       {% else %}
-        <tr id="row_{{note.id}}" hx-get="/note_row?note={{note.id}}" hx-swap="innerHTML" class="" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+        <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
       {% endif%}
-      {% include 'table/table_row.html' %}
+      {% if reg[2]%}
+        {% include 'notes/table_row_subregister.html' %}
+      {% else %}
+        {% include 'notes/table_row.html' %}
+      {% endif %}
       </tr>
     {% endfor %}
 
@@ -33,12 +37,12 @@
     <ul class="pagination justify-content-center">
       {% if notes.has_prev %}
       <li class="page-item">
-        <a class="page-link" hx-get="/body_table?page={{notes.prev_num}}" hx-trigger="click" hx-target="#body-table" role="button">{{gettext('Previous')}}</a>
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.prev_num}}" hx-trigger="click" hx-target="#notes-table" role="button">{{gettext('Previous')}}</a>
       </li>
       {% endif %}
       {% if notes.has_next %}
       <li class="page-item">
-        <a class="page-link" hx-get="/body_table?page={{notes.next_num}}" hx-trigger="click" hx-target="#body-table" role="button">{{gettext('Next')}}</a>
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.next_num}}" hx-trigger="click" hx-target="#notes-table" role="button">{{gettext('Next')}}</a>
       </li>
       {% endif%}
     </ul>

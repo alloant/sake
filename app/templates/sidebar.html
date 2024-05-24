@@ -134,11 +134,11 @@
   {% endif %}
   
   <div class="">
-    <a href="/documentation" class="nav-link link-dark py-1 py-lg-3 px-1" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
+    <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
       {% if session['theme'] == 'light-mode' %}
-      <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
+        <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
       {% else %}
-      <img src="static/icons/00-question-dark.svg" width="35vmin" height="35vmin">
+        <img src="static/icons/00-question-dark.svg" width="35vmin" height="35vmin">
       {% endif %}
     </a>
   </div>
@@ -182,9 +182,23 @@
     
     <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
       {% if current_user.is_authenticated%}
-        <li><a class="dropdown-item" href="/edit_user?user={{current_user.id}}">{{gettext('Profile')}} {{current_user.alias}}</a></li>
+
+        <li><a class="dropdown-item"
+            hx-get="/edit_user?user={{current_user.id}}" 
+            hx-trigger="click"
+            hx-target="#modal-htmx"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button">
+            {{gettext('Profile')}} {{current_user.alias}}</a></li>
+
         {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
-        <li><a class="dropdown-item" href="/users">{{gettext('List users')}}</a></li>
+        <li><a class="dropdown-item" 
+            hx-get="/users" 
+            hx-trigger="click"
+            hx-target="#main-body"
+            role="button">
+            {{gettext('List users')}}</a></li>
         {% endif %}
         <li><hr class="dropdown-divider"></li>
         

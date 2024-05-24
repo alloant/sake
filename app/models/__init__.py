@@ -221,8 +221,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def addFileArgs(self,*args,**kargs):
         self.addFile(File(**kargs))
 
-    def is_involve(self,user):
-        reg = session['reg']
+    def is_involve(self,reg,user):
         if reg[0] == 'des':
             return True
         elif reg[2]: # It is from a subregister

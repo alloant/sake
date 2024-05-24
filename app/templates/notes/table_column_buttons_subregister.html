@@ -1,0 +1,34 @@
+
+<img id="send-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
+{{ note.status_html(reg)|safe }}
+
+{% if reg[1] == 'in' or reg[1] == 'out' and note.state < 1%}
+<a  hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
+    hx-trigger="click"
+    hx-target="#modal-htmx"
+    data-bs-toggle="modal"
+    data-bs-target="#modal-htmx"
+    role="button">
+      <i class="bi bi-pencil-fill" style="color: blue;" data-bs-toggle="tooltip" title="{{gettext('Edit note')}}"></i></a>
+{% endif %}
+
+{% if reg[1] == 'out' and note.state < 1%}
+<a  hx-get="action_note?reg={{reg}}&action=delete_note&note={{note.id}}" 
+    hx-trigger="click"
+    hx-target="#notes-table"
+    hx-indicator="#indicator-table"
+    hx-confirm="Are you sure you want to delete {{note.fullkey}}?"
+    role="button">
+      <i class="bi bi-trash3-fill" style="color: red;" data-bs-toggle="tooltip" title="{{gettext('Delete note')}}"></i></a>
+{% endif %}
+
+
+<a  hx-get="reply_note?reg={{reg}}&note={{note.id}}" 
+    hx-trigger="click"
+    hx-indicator="#indicator-table"
+    class=""
+    role="button">
+      <i class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>
+
+
+

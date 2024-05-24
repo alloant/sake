@@ -43,7 +43,6 @@ def change_file_dates():
     db.session.commit()
 
 def find_files():
-    print("FInd files")
     year = 2024
     regs = ['cg','asr','ctr','r']
     

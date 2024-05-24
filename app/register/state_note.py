@@ -15,7 +15,8 @@ from app.forms.note import NoteForm
 from xml.etree import ElementTree as ET
 
 def read_note_view(request):
-    reg = session['reg'] 
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
    
@@ -31,16 +32,20 @@ def read_note_view(request):
 
 
 def note_row_view(request):
-    reg = session['reg'] 
+    reg = ast.literal_eval(request.args.get('reg'))
+     
     note_id = request.args.get('note')
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     
-    return render_template('table/table_row.html',note=note, reg=reg, user=current_user)
+    if reg[2]:
+        return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)
+    else:
+        return render_template('notes/table_row.html',note=note, reg=reg, user=current_user)
 
 
 def state_note_view(request):
-    reg = session['reg'] 
+    reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
     
     cancel = request.args.get('cancel',False)
@@ -52,14 +57,12 @@ def state_note_view(request):
     #if rg[0] == 'mat':
     #    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
     
-    res = make_response(note.status_html())
+    res = make_response(note.status_html(reg))
     res.headers['HX-Trigger'] = f'update-row-{note.id}'
 
     return res
-
-
-    return note.status_html(reg)
    
 def register_icon_view (request):
-    reg = session['reg'] 
+    reg = ast.literal_eval(request.args.get('reg'))
+    
     return current_user.register_icon_html(reg)

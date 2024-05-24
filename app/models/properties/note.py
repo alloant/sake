@@ -91,8 +91,18 @@ class NoteProp(object):
         
         return f"{prot} {self.num}/{self.year-2000}"
 
+    
+    def can_see(self): # This is use only for cr and of as the ctr is easier.
+        if self.sender_id == current_user.id:
+            return True
+        elif 'matters' in self.register.groups:
+            if self.state == 6 and (not self.permanent or 'permanent' in current_user.groups):
+                return True
+            elif self.state > 0 and self.next_in_matters():
+                pass
 
-    def can_edit(self):
+
+    def can_edit(self,reg):
         reg = session['reg']
 
         if current_user.admin:
@@ -107,17 +117,6 @@ class NoteProp(object):
             return True
 
         return False
-    
-    def can_see(self): # This is use only for cr and of as the ctr is easier.
-        if self.sender_id == current_user.id:
-            return True
-        elif 'matters' in self.register.groups:
-            if self.state == 6 and (not self.permanent or 'permanent' in current_user.groups):
-                return True
-            elif self.state > 0 and self.next_in_matters():
-                pass
-
-
 
     """
     @fullkey.expression

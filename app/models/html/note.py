@@ -10,8 +10,7 @@ from app import db
 from sqlalchemy import select
 
 class NoteHtml(object): 
-    def refs_html(self):
-        reg = session['reg']
+    def refs_html(self,reg):
         html = []
         for ref in self.ref:
             if not reg[2] == '':
@@ -25,11 +24,10 @@ class NoteHtml(object):
 
         return ','.join([h for h in html if h])
 
-    def files_html(self, copy = True):
-        reg = session['reg']
+    def files_html(self,reg, copy = True):
         span = ET.Element('span')
         dots = False 
-        if self.can_edit():
+        if self.can_edit(reg):
             if self.permanent_link and copy:
                 dots = True
                 copy_files = ET.Element('a')
@@ -276,8 +274,7 @@ class NoteHtml(object):
 
        
     
-    def content_html(self):
-        reg = session['reg']
+    def content_html(self,reg):
         text = self.content_jp if 'jp' in current_user.groups else self.content
 
         if reg[2] and self.flow == 'in' or not reg[2] and self.flow == 'out':
@@ -304,34 +301,6 @@ class NoteHtml(object):
         
         return ET.tostring(ct,encoding='unicode',method='html')
    
-    def edit_delete_html(self):
-        reg = session['reg']
-        div = ET.Element('span')
-        edit_icon = ET.Element('i',attrib={'class':'bi bi-pencil','style':'color: blue;'})
-        delete_icon = ET.Element('i',attrib={'class':'bi bi-trash3-fill','style':'color: red;'})
-        edit_link = None
-        delete_link = None
-   
-        if reg[2]:
-            if self.flow == 'out': # IT is in for the ctr
-                edit_link = True
-            elif self.state < 1:
-                edit_link = True
-                delete_link = True
-        elif current_user.admin or reg[0] in ['des','box'] or self.state < 2 and self.sender_id == current_user.id or self.register.permissions == 'editor' or self.reg == 'mat' and self.sender == current_user and self.state < 6:
-            edit_link = True
-            delete_link = True
-
-        if edit_link != None:
-            edit_link = ET.Element('a',attrib={'hx-get':f'/action_note?action=edit_note&note={self.id}','hx-trigger':'click','hx-target':f'#modal-htmx','data-bs-toggle':'modal','data-bs-target':'#modal-htmx','title':gettext('Edit note'),'role':'button'})
-            edit_link.append(edit_icon)
-            div.append(edit_link)
-            if delete_link != None:
-                delete_link = ET.Element('a',attrib={'class':'btn btn-link p-0 ms-1','hx-get':f'/action_note?action=delete_note&note={self.id}','hx-trigger':'click','hx-target':f'#body-table','hx-indicator':'#indicator-table','hx-confirm':f'Are you sure you want to delete {self.fullkey}?','data-bs-toggle':'tooltip','title':gettext('Delete note'),'role':'button'})
-                delete_link.append(delete_icon)
-                div.append(delete_link)
-    
-        return ET.tostring(div,encoding='unicode',method='html')
 
     def current_user_can_edit(self):
         if current_user.admin:
@@ -347,10 +316,10 @@ class NoteHtml(object):
 
         return False
     
-    def status_html(self):
-        reg = session['reg']
+    def status_html(self,reg):
+        print(self,self.register)
         if self.register.alias == 'mat':
-            return self.status_mat_html()
+            return self.status_mat_html(reg)
 
         sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
         if reg[0] == 'des':
@@ -428,8 +397,7 @@ class NoteHtml(object):
 
 
 
-    def status_mat_html(self):
-        reg = session['reg']
+    def status_mat_html(self,reg):
         #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#noteRow-{self.id}','role':'button'})
         sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','role':'button'})
         if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start

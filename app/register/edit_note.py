@@ -22,9 +22,7 @@ def sortable_view(request):
     return ("",204)
 
 
-def fill_form_note(form,note, filter = ""):
-    reg = session['reg']
-
+def fill_form_note(reg,form,note, filter = ""):
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
@@ -60,9 +58,7 @@ def fill_form_note(form,note, filter = ""):
     
     return form
 
-def extract_form_note(form,note):
-    reg = session['reg']
-     
+def extract_form_note(reg,form,note):
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
@@ -77,12 +73,13 @@ def extract_form_note(form,note):
     else:
         form.receiver.choices = note.potential_receivers(filter)
 
-    if reg[2]:
+    if reg[2] and note.flow == 'out':
         ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
         cm = db.session.scalar(select(Comment).where(and_(Comment.sender_id==ctr.id,Comment.note_id==note.id)))
-        if not cm and form.comments_ctr.data != "":
-            cm = Comment(sender_id=ctr.id,note_id=note.id,comment=form.comments_ctr.data)
-            db.session.add(cm)
+        if not cm:
+            if form.comments_ctr.data != "":
+                cm = Comment(sender_id=ctr.id,note_id=note.id,comment=form.comments_ctr.data)
+                db.session.add(cm)
         else:
             cm.comment = form.comments_ctr.data
     else:
@@ -184,7 +181,7 @@ def update_files_view(request):
     return note.files_html()
 
 def reply_note_view(request):
-    reg = session['reg']
+    reg = ast.literal_eval(request.args.get('reg'))
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))

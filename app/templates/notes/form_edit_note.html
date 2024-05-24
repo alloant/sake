@@ -66,7 +66,7 @@
 
   
 <!-- Recipients -->
-    {% if not session['reg'][2] and (note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat') %}
+    {% if not reg[2] and (note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat') %}
     <div class="flex-fill p-2">
 
       {% if note.register.alias == 'mat' %}

@@ -1,16 +1,16 @@
-{% if note.comments and note.is_involve(current_user) %}
+{% if note.comments and note.is_involve(reg,current_user) %}
   <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text" style="color: OrangeRed;"></i></span>
 {% endif %}
 
-{{ note.content_html()|safe }}
+{{ note.content_html(reg)|safe }}
 
 <span class="">
   {{ note.people_matter_html|safe }}
 </span>
 
 <!-- Tags-->
-{% if session['reg[2]'] == '' %}
-  {% if current_user.admin or session['reg'][0] == 'des' or session['reg'][0] == 'mat' and note.sender == current_user %}
+{% if reg[2] == '' %}
+  {% if current_user.admin or reg[0] == 'des' or reg[0] == 'mat' and note.sender == current_user %}
     <a 
       hx-get="/edit_tags?note={{note.id}}" 
       hx-target="#modal-htmx" 
@@ -27,8 +27,8 @@
 <!-- End of tags-->
 
 <!-- Deparments -->
-{% if not session['reg'][2] and not session['reg'][0] == 'mat' %}
-  {% if current_user.admin or session['reg'][0] == 'des' %}
+{% if not reg[2] and not reg[0] == 'mat' %}
+  {% if current_user.admin or reg[0] == 'des' %}
     <a 
       hx-get="/edit_receivers?note={{note.id}}" 
       hx-target="#modal-htmx" 
@@ -44,12 +44,14 @@
 {% endif %}
 
   
-{% if session['reg'][2] and note.comments_ctr %}
+{% if reg[2] and note.comments_ctr %}
   {% for cm in note.comments_ctr %}
-    {% if cm.sender.alias == session['reg'][2] %}
-      <mark>
-        ({{cm.comment}})
-      </mark>
+    {% if cm.sender.alias == reg[2] %}
+      {% if cm.comment %}
+        <mark>
+          ({{cm.comment}})
+        </mark>
+      {% endif %}
     {% endif %}
   {% endfor %}
 {% endif %}

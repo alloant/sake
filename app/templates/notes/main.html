@@ -1,4 +1,4 @@
-<div id="body-title">
+<div id="notes-title">
   <h1 class="title text-center display-4">
     <img src="{{title['icon']}}" width="70vmin" height="70vmin">
     {{title['text']}}
@@ -14,13 +14,13 @@
 
   <div class="d-flex flex-row mb-4">
     {% if title['new'] %}
-    <button class="btn btn-primary" hx-get="/action_note?action=new" hx-trigger="click" hx-target="#body-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('New')}}</button>
+    <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=new" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('New')}}</button>
     {% endif %}
    
     {% if title['showAll'] %}
       <div class="p-2">
         <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/body_table?showAll=toggle" hx-trigger="click" hx-target="#body-table" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/body_table?reg={{reg}}&showAll=toggle" hx-trigger="click" hx-target="#notes-table" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
           <label class="form-check-label" for="flexSwitchCheckDefault">{{gettext('All')}}</label>
         </div>
       </div>
@@ -29,19 +29,19 @@
     {% if title['filter'] %}
       <input class="form-control flex-grow-1" type="search" 
         name="search" placeholder="Search..." id="search_text"
-        hx-post="/body_table" 
+        hx-post="/body_table?reg={{reg}}" 
         hx-trigger="input changed delay:500ms, search" 
-        hx-target="#body-table"> 
+        hx-target="#notes-table"> 
     {% endif %}
   </div>
 
   {% if title['sendmail'] %}
-  <button class="btn btn-primary" hx-get="/action_note?action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#body-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
+  <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
   {% endif %}
 </div>
 
 
-<div id="body-table" class="">
-  {% include 'table/table.html' %}
+<div id="notes-table" class="">
+  {% include 'notes/table.html' %}
 </div>
 

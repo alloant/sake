@@ -32,12 +32,12 @@
         </li>
         
         <li class="p-2 list-group-item">
-          <button class="btn btn-primary" hx-get="/action_inbox?action=import_asr" hx-trigger="click" hx-target="#body-inbox" hx-indicator="#indicator-table">{{gettext('Import asr')}}</button>
+          <button class="btn btn-primary" hx-get="/action_inbox?action=import_asr" hx-trigger="click" hx-target="#inbox-table" hx-indicator="#indicator-table">{{gettext('Import asr')}}</button>
           <span> {{gettext('2. Get mails from asr in Mail asr/Mail from asr')}}</span>
         </li>
         
         <li class="p-2 list-group-item">
-          <button class="btn btn-primary" hx-post="/action_inbox?action=generate_notes" hx-trigger="click" hx-target="#body-inbox" hx-include="#inboxscr" hx-indicator="#indicator-table">{{gettext('Generate notes')}}</button>
+          <button class="btn btn-primary" hx-post="/action_inbox?action=generate_notes" hx-trigger="click" hx-target="#inbox-table" hx-include="#inboxscr" hx-indicator="#indicator-table">{{gettext('Generate notes')}}</button>
           <span> {{gettext('3. After checking numbers generate notes from files imported in 1 and 2')}}</span>
         </li>
       </ul>
@@ -55,7 +55,7 @@
 
 </div>
 
-<div id="body-inbox" class="">
+<div id="inbox-table" class="">
 {% include 'inbox/table.html' %}
 </div>
 </form>
