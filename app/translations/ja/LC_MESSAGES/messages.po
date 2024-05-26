@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-16 17:52+0530\n"
-"PO-Revision-Date: 2024-04-16 17:52+0530\n"
+"POT-Creation-Date: 2024-05-26 17:16+0530\n"
+"PO-Revision-Date: 2024-05-26 17:16+0530\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ja\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -16,331 +16,330 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.14.0\n"
+"Generated-By: Babel 2.15.0\n"
 
 
-#: app/forms/login.py:9 app/forms/login.py:14 app/forms/login.py:28
-msgid "User"
-msgstr "ユーザー"
+#: app/main.py:174 app/models/properties/user.py:46 app/register/tools.py:144
+msgid "Pending"
+msgstr "保留中"
 
-#: app/forms/login.py:10 app/forms/login.py:16
-msgid "Password"
-msgstr "パスワード"
-
-#: app/forms/login.py:13 app/forms/login.py:27 app/templates/inbox/files.html:9
-msgid "Name"
-msgstr "名前"
-
-#: app/forms/login.py:15 app/forms/login.py:29
-msgid "Email Address"
-msgstr "メールアドレス"
-
-#: app/forms/login.py:18
-msgid "Passwords must match"
-msgstr "パスワードは一致する必要があります"
-
-#: app/forms/login.py:20 app/forms/login.py:31 app/forms/note.py:30
-msgid "Groups"
-msgstr "グループ"
-
-#: app/forms/login.py:21 app/forms/login.py:32
-msgid "User is active"
-msgstr "ユーザーはアクティブです"
-
-#: app/forms/login.py:22 app/forms/login.py:33
-msgid "Admin mode on"
-msgstr "管理者モードがオン"
-
-#: app/forms/login.py:23
-msgid "Repeat Password"
-msgstr "パスワードを繰り返す"
-
-#: app/forms/login.py:30
-msgid "Local folder to download/upload emls"
-msgstr "emlをダウンロード/アップロードするローカルフォルダー"
-
-#: app/forms/login.py:35 app/forms/note.py:20 app/forms/note.py:42
-msgid "Submit"
-msgstr "提出"
-
-#: app/forms/note.py:19 app/forms/note.py:28
-#: app/templates/register/note_form_ctr.html:26
-msgid "Receiver"
-msgstr "レシーバー"
-
-#: app/forms/note.py:24
-msgid "Number"
-msgstr "ナンバー"
-
-#: app/forms/note.py:25
-msgid "Year"
-msgstr "年"
-
-#: app/forms/note.py:26 app/templates/inbox/files.html:10
-msgid "Sender"
-msgstr "送信者"
-
-#: app/forms/note.py:31 app/templates/inbox/files.html:7
-#: app/templates/register/table.html:10
-msgid "Date"
-msgstr "日付"
-
-#: app/forms/note.py:32 app/templates/register/table.html:14
-msgid "Content"
-msgstr "コンテンツ"
-
-#: app/forms/note.py:33
-msgid "Content Japanese"
-msgstr "コンテンツ日本語"
-
-#: app/forms/note.py:34
-msgid "Comments"
-msgstr "コメント"
-
-#: app/forms/note.py:35
-msgid "Comments ctr"
-msgstr "コメント欄"
-
-#: app/forms/note.py:36
-msgid "Procedure"
-msgstr "手順"
-
-#: app/forms/note.py:38
-msgid "References"
-msgstr "参考文献"
-
-#: app/forms/note.py:40
-msgid "Only permanent"
-msgstr "永久のみ"
-
-#: app/models/html/note.py:73
-msgid "Mark as unread"
-msgstr "未読としてマークする"
-
-#: app/models/html/note.py:76 app/models/html/note.py:224
-#: app/models/html/note.py:294
-msgid "Mark as read"
-msgstr "既読としてマーク"
-
-#: app/models/html/note.py:125
-msgid "Unsign note"
-msgstr "メモの署名を外す"
-
-#: app/models/html/note.py:129 app/models/html/note.py:259
-msgid "Sign note"
-msgstr "サインノート"
-
-#: app/models/html/note.py:132 app/models/html/note.py:262
-msgid "Sign note (the other d has already signed)"
-msgstr "メモに署名（もう一方のdはすでに署名済み）"
-
-#: app/models/html/note.py:152
-msgid "Mark note as pending"
-msgstr "メモを保留中としてマークする"
-
-#: app/models/html/note.py:156 app/templates/docs/cl_inbox.html:22
-msgid "Mark note as done"
-msgstr "ノートに完了マークを付ける"
-
-#: app/models/html/note.py:162 app/models/html/note.py:231
-msgid "Send note to cr"
-msgstr "メモを cr に送信"
-
-#: app/models/html/note.py:167
-msgid "Waiting for cr to get the note (click to take note back from cr inbox)"
-msgstr "cr がメモを取得するのを待っています (クリックして cr の受信箱からメモを取得します)"
-
-#: app/models/html/note.py:169
-msgid "Waiting for scr to send note"
-msgstr "scr がメモを送信するのを待っています"
-
-#: app/models/html/note.py:175
-msgid "Note has been received in cr"
-msgstr "メモが cr で受信されました"
-
-#: app/models/html/note.py:177
-msgid "The note has been sent"
-msgstr "メモを送信しました"
-
-#: app/models/html/note.py:211
-msgid "Mark as undone"
-msgstr "未完了としてマーク"
-
-#: app/models/html/note.py:216 app/models/html/note.py:300
-msgid "Mark as done"
-msgstr "完了としてマークする"
-
-#: app/models/html/note.py:235
-msgid "Take note back from cr"
-msgstr "CRからメモを取り返す"
-
-#: app/models/html/note.py:239
-msgid "Note has been received"
-msgstr "メモを受け取りました"
-
-#: app/models/html/note.py:256
-msgid "Unsign note (other dr has already signed)"
-msgstr "メモの署名を解除します（他の医師がすでに署名しています）"
-
-#: app/models/html/note.py:274
-msgid "Archive the note"
-msgstr "メモをアーカイブする"
-
-#: app/models/html/note.py:307
-msgid "Mark as not done"
-msgstr "未完了としてマークする"
-
-#: app/models/html/note.py:316
-msgid "Send note to scr"
-msgstr "メモをscrに送信"
-
-#: app/models/html/note.py:320
-msgid "Take note back from scr"
-msgstr "SCRからメモを取り返す"
-
-#: app/models/html/note.py:324
-msgid "Note has been sent"
-msgstr "メモが送信されました"
-
-#: app/models/html/note.py:340
-msgid "Start circulation minuta"
-msgstr "回覧開始"
-
-#: app/register/tools.py:118 app/templates/sidebar.html:67
+#: app/main.py:179 app/models/properties/user.py:55 app/register/tools.py:142
+#: app/templates/mobile/sidebar_mobile.html:51 app/templates/sidebar.html:58
+#: app/templates/sidebar.html:135
 msgid "Despacho"
 msgstr "デスパチョ"
 
-#: app/register/tools.py:120 app/templates/docs/cr.html:15
-msgid "My notes"
-msgstr "私のメモ"
-
-#: app/register/tools.py:122
+#: app/main.py:182 app/register/tools.py:146
 msgid "Outbox cr"
-msgstr "送信トレイcr"
+msgstr "送信ボックスcr"
 
-#: app/register/tools.py:125 app/register/tools.py:130
-msgid "Notes history"
-msgstr "メモ履歴"
+#: app/main.py:187 app/register/tools.py:148
+msgid "Notes from cr to"
+msgstr "CRからのメモ"
 
-#: app/register/tools.py:127 app/register/tools.py:132
+#: app/main.py:190 app/register/tools.py:148
 msgid "Notes from"
 msgstr "メモ"
 
-#: app/register/tools.py:127
-msgid "Notes to"
-msgstr "注意事項"
-
-#: app/register/tools.py:132 app/templates/sidebar.html:124
+#: app/main.py:190 app/register/tools.py:148
 msgid "to cr"
 msgstr "CRへ"
 
-#: app/register/tools.py:132
-msgid "Notes from cr to"
-msgstr "crからのメモ"
+#: app/main.py:195
+msgid "Note history"
+msgstr "ノート履歴"
 
-#: app/register/tools.py:134 app/templates/sidebar.html:11
-msgid "Minutas"
-msgstr "ミヌタス"
+#: app/main.py:198 app/models/properties/user.py:49 app/register/tools.py:152
+msgid "Matters"
+msgstr "大事"
 
-#: app/templates/auth/login_box.html:4 app/templates/base.html:22
+#: app/main.py:369
+msgid "Inbox cr"
+msgstr "受信トレイcr"
+
+#: app/forms/login.py:14 app/forms/login.py:19 app/forms/login.py:33
+msgid "User"
+msgstr "ユーザー"
+
+#: app/forms/login.py:15 app/forms/login.py:21
+msgid "Password"
+msgstr "パスワード"
+
+#: app/forms/login.py:18 app/forms/login.py:32 app/templates/inbox/table.html:7
+msgid "Name"
+msgstr "名前"
+
+#: app/forms/login.py:20 app/forms/login.py:34
+msgid "Email Address"
+msgstr "メールアドレス"
+
+#: app/forms/login.py:23
+msgid "Passwords must match"
+msgstr "パスワードは一致する必要があります"
+
+#: app/forms/login.py:25 app/forms/login.py:36 app/forms/login.py:40
+#: app/forms/note.py:34
+msgid "Groups"
+msgstr "グループ"
+
+#: app/forms/login.py:26 app/forms/login.py:37
+msgid "User is active"
+msgstr "ユーザーはアクティブです"
+
+#: app/forms/login.py:27 app/forms/login.py:38
+msgid "Admin mode on"
+msgstr "管理者モードがオン"
+
+#: app/forms/login.py:28
+msgid "Repeat Password"
+msgstr "パスワードを繰り返す"
+
+#: app/forms/login.py:35
+msgid "Local folder to download/upload emls"
+msgstr "emlをダウンロード/アップロードするローカルフォルダー"
+
+#: app/forms/login.py:42
+msgid "Submit"
+msgstr "提出"
+
+#: app/forms/note.py:19 app/forms/note.py:32
+msgid "Receiver"
+msgstr "受信機"
+
+#: app/forms/note.py:20 app/forms/note.py:24 app/forms/note.py:46
+#: app/templates/modals/modal_receivers.html:8
+#: app/templates/modals/modal_tags_form.html:8
+msgid "Save"
+msgstr "保存"
+
+#: app/forms/note.py:23
+msgid "Tag"
+msgstr "タグ"
+
+#: app/forms/note.py:28
+msgid "Number"
+msgstr "番号"
+
+#: app/forms/note.py:29
+msgid "Year"
+msgstr "年"
+
+#: app/forms/note.py:30 app/templates/inbox/table.html:9
+msgid "Sender"
+msgstr "差出人"
+
+#: app/forms/note.py:35 app/templates/inbox/table.html:5
+#: app/templates/notes/table.html:11
+msgid "Date"
+msgstr "日付"
+
+#: app/forms/note.py:36 app/templates/notes/table.html:12
+msgid "Content"
+msgstr "コンテンツ"
+
+#: app/forms/note.py:37
+msgid "Content Japanese"
+msgstr "コンテンツ日本語"
+
+#: app/forms/note.py:38
+msgid "Comments"
+msgstr "コメント"
+
+#: app/forms/note.py:39
+msgid "Comments ctr"
+msgstr "コメント欄"
+
+#: app/forms/note.py:40
+msgid "Procedure"
+msgstr "手順"
+
+#: app/forms/note.py:42 app/templates/notes/table.html:14
+msgid "References"
+msgstr "参考文献"
+
+#: app/forms/note.py:44
+msgid "Only permanent"
+msgstr "永久のみ"
+
+#: app/models/html/note.py:47
+msgid "Copy files from notes or other folders"
+msgstr "メモまたは他のフォルダーからファイルをコピーする"
+
+#: app/models/html/note.py:66 app/templates/mobile/card_note.html:66
+msgid "Create folder for note"
+msgstr "メモ用フォルダーの作成"
+
+#: app/models/html/note.py:70 app/templates/mobile/card_note.html:70
+msgid "Update files in folder"
+msgstr "フォルダー内のファイルを更新する"
+
+#: app/models/html/note.py:79 app/templates/mobile/card_note.html:75
+msgid "Folder"
+msgstr "フォルダー"
+
+#: app/models/html/note.py:293
+msgid "Mark as unread"
+msgstr "未読としてマークする"
+
+#: app/models/html/note.py:296
+msgid "Mark as read"
+msgstr "既読としてマーク"
+
+#: app/models/html/note.py:333
+msgid "Unsign note"
+msgstr "メモに署名を外す"
+
+#: app/models/html/note.py:337
+msgid "Sign note"
+msgstr "サインノート"
+
+#: app/models/html/note.py:340
+msgid "Sign note (the other d has already signed)"
+msgstr "メモに署名（他のdはすでに署名しています）"
+
+#: app/models/html/note.py:359
+msgid "Mark note as pending"
+msgstr "メモを保留中としてマークする"
+
+#: app/models/html/note.py:363 app/templates/docs/cl_inbox.html:19
+msgid "Mark note as done"
+msgstr "ノートに完了マークを付ける"
+
+#: app/models/html/note.py:370
+msgid "Send note to cr"
+msgstr "メモを cr に送信"
+
+#: app/models/html/note.py:372
+msgid "Send note to sccr"
+msgstr "scr にメモを送信"
+
+#: app/models/html/note.py:377
+msgid "Waiting for cr to get the note (click to take note back from cr inbox)"
+msgstr "cr がメモを取得するのを待っています (クリックして cr の受信箱からメモを取得します)"
+
+#: app/models/html/note.py:380
+msgid "Click to send note"
+msgstr "クリックしてメモを送信"
+
+#: app/models/html/note.py:386
+msgid "Note has been received in cr"
+msgstr "メモが cr で受信されました"
+
+#: app/models/html/note.py:388
+msgid "The note has been sent"
+msgstr "メモを送信しました"
+
+#: app/models/html/note.py:407
+msgid "Start circulating note"
+msgstr "紙幣の回覧開始"
+
+#: app/models/html/note.py:411 app/models/html/note.py:449
+msgid "Matter is circulating"
+msgstr "物質は循環している"
+
+#: app/models/html/note.py:415
+msgid ""
+"Matter is back to you after all the directors have checked it. Click here"
+" to mark it as done"
+msgstr "すべてのディレクターがチェックした後、問題はあなたに戻ります。"
+
+#: app/models/html/note.py:419
+msgid "Matter was mark as done. Click here to mark it as undone"
+msgstr "問題は完了としてマークされました。"
+
+#: app/models/html/note.py:426
+msgid "Click here to restart the matter"
+msgstr "ここをクリックして話を再開してください"
+
+#: app/models/html/note.py:454
+msgid "Matter is back to owner"
+msgstr "物質は持ち主に戻りました"
+
+#: app/models/html/note.py:459
+msgid "Matter was mark as done"
+msgstr "問題は完了としてマークされました"
+
+#: app/models/html/note.py:466
+msgid "Click here to send matter back to owner"
+msgstr "ここをクリックして所有者に問題を返送してください"
+
+#: app/models/properties/user.py:52 app/templates/inbox/table.html:8
+msgid "Register"
+msgstr "登録"
+
+#: app/models/properties/user.py:58 app/templates/mobile/sidebar_mobile.html:64
+#: app/templates/sidebar.html:70
+msgid "Inbox"
+msgstr "受信箱"
+
+#: app/models/properties/user.py:61 app/templates/mobile/sidebar_mobile.html:75
+#: app/templates/sidebar.html:80
+msgid "Outbox"
+msgstr "送信ボックス"
+
+#: app/register/tools.py:150
+msgid "Notes history"
+msgstr "メモ履歴"
+
+#: app/templates/auth/login_box.html:4 app/templates/base.html:46
+#: app/templates/mobile/base_mobile.html:27
 msgid "Sake"
 msgstr "日本酒"
 
 #: app/templates/error.html:8
 msgid "There was an error"
-msgstr "エラーがありました"
+msgstr "エラーが発生しました"
 
 #: app/templates/error.html:12
 msgid ""
 "Please try again as sometimes there are problems with the connexion and "
 "may work if you try again."
-msgstr "接続に問題がある場合があり、再試行するとうまくいく可能性があるため、再試行してください。"
+msgstr "接続に問題がある場合があり、再試行すると機能する可能性があるため、再試行してください。"
 
 #: app/templates/error.html:13
 msgid "If the error persist contact the administrator"
 msgstr "エラーが解決しない場合は、管理者に連絡してください"
 
-#: app/templates/sidebar.html:3
-msgid "Pendings"
-msgstr "保留中"
-
-#: app/templates/sidebar.html:26 app/templates/sidebar.html:28
-msgid "Registers"
-msgstr "レジスター"
-
-#: app/templates/sidebar.html:79
-msgid "Inbox"
-msgstr "受信箱"
-
-#: app/templates/sidebar.html:89
-msgid "Outbox"
-msgstr "送信ボックス"
-
-#: app/templates/sidebar.html:118
-msgid "Mail from cr to"
-msgstr "CRからメール"
-
-#: app/templates/sidebar.html:124
-msgid "Mail from"
-msgstr "からのメール"
-
-#: app/templates/docs/main.html:7 app/templates/sidebar.html:156
-msgid "Documentation"
-msgstr "ドキュメント"
-
-#: app/templates/sidebar.html:167
+#: app/templates/mobile/sidebar_mobile.html:135 app/templates/sidebar.html:146
 msgid "Set light mode"
 msgstr "ライトモードの設定"
 
-#: app/templates/sidebar.html:171
+#: app/templates/mobile/sidebar_mobile.html:140 app/templates/sidebar.html:150
 msgid "Set dark mode"
 msgstr "ダークモードを設定する"
 
-#: app/templates/sidebar.html:180
+#: app/templates/mobile/sidebar_mobile.html:149
+#: app/templates/mobile/sidebar_mobile.html:151 app/templates/sidebar.html:159
 msgid "Japanese"
 msgstr "日本語"
 
-#: app/templates/sidebar.html:184
+#: app/templates/mobile/sidebar_mobile.html:154
+#: app/templates/mobile/sidebar_mobile.html:156 app/templates/sidebar.html:163
 msgid "English"
 msgstr "英語"
 
-#: app/templates/sidebar.html:203 app/templates/sidebar.html:206
+#: app/templates/mobile/sidebar_mobile.html:170
+#: app/templates/mobile/sidebar_mobile.html:183 app/templates/sidebar.html:191
+#: app/templates/sidebar.html:205
 msgid "Profile"
 msgstr "プロフィール"
 
-#: app/templates/sidebar.html:209
+#: app/templates/sidebar.html:199
+msgid "List users"
+msgstr "ユーザーの一覧表示"
+
+#: app/templates/mobile/sidebar_mobile.html:196 app/templates/sidebar.html:210
 msgid "Log out"
 msgstr "ログアウト"
 
-#: app/templates/sidebar.html:211
+#: app/templates/mobile/sidebar_mobile.html:205 app/templates/sidebar.html:212
 msgid "Log in"
 msgstr "ログイン"
 
 #: app/templates/auth/signup_box.html:4 app/templates/auth/signup_box.html:37
-#: app/templates/sidebar.html:213
+#: app/templates/mobile/sidebar_mobile.html:216 app/templates/sidebar.html:214
 msgid "Sign up"
 msgstr "サインアップ"
-
-#: app/templates/upload_file.html:6
-msgid "Choose files"
-msgstr "ファイルの選択"
-
-#: app/templates/upload_file.html:14
-msgid "Upload"
-msgstr "アップロード"
-
-#: app/templates/register/receivers_form.html:10
-#: app/templates/upload_file.html:20
-msgid "Close"
-msgstr "閉じる"
-
-#: app/templates/wait.html:6
-msgid "Please wait"
-msgstr "お待ちください"
-
-#: app/templates/wait.html:13
-msgid "Loading..."
-msgstr "読み込み中..."
 
 #: app/templates/auth/auth.html:24
 msgid "First time using the program?"
@@ -384,35 +383,35 @@ msgstr "登録してないの？"
 
 #: app/templates/auth/login_box.html:37 app/templates/auth/signup_box.html:41
 msgid "here"
-msgstr "ここ"
+msgstr "ここに"
 
 #: app/templates/auth/signup_box.html:41
 msgid "Already have a user? Login"
 msgstr "すでにユーザーがいますか?"
 
-#: app/templates/docs/cl_inbox.html:6
+#: app/templates/docs/cl_inbox.html:3
 msgid "Mail from cr"
 msgstr "crからのメール"
 
-#: app/templates/docs/cl_inbox.html:8
+#: app/templates/docs/cl_inbox.html:5
 msgid ""
 "Every ctr has to icons in the navigation bar to see the mail from/to cr. "
 "In mail from cr the default view will show only the pendings notes. To "
 "see all notes click in see All"
-msgstr "CR からのメールまたは CR へのメールを表示するには、すべての CTR がナビゲーション バーにアイコンを表示する必要があります。 "
+msgstr "CR からのメールまたは CR へのメールを表示するには、すべての Ctr がナビゲーション バーにアイコンを表示する必要があります。 "
 
-#: app/templates/docs/cl_inbox.html:14
+#: app/templates/docs/cl_inbox.html:11
 msgid "Mark note as read"
 msgstr "メモを既読としてマークする"
 
-#: app/templates/docs/cl_inbox.html:16
+#: app/templates/docs/cl_inbox.html:13
 msgid ""
 "Every user can keep track of the notes he has read. New notes will appear"
 " in bold letters. After reading the note you can mark it as read using "
 "the icon of the envelope."
 msgstr "すべてのユーザーは、自分が読んだメモを追跡できます。"
 
-#: app/templates/docs/cl_inbox.html:24
+#: app/templates/docs/cl_inbox.html:21
 msgid ""
 "The new notes will appear as pending note. When the cl has finish with a "
 "note (because it was answer, the information was trasmits, ...) you can "
@@ -420,22 +419,22 @@ msgid ""
 "mark the note again as pending clicking again."
 msgstr "新しいノートは保留中のノートとして表示されます。 "
 
-#: app/templates/docs/cl_inbox.html:30
+#: app/templates/docs/cl_inbox.html:27
 msgid "Comments in a note for the cl"
-msgstr "clのメモのコメント"
+msgstr "clのノートのコメント"
 
-#: app/templates/docs/cl_inbox.html:32
+#: app/templates/docs/cl_inbox.html:29
 msgid ""
 "The cl can add some comments to the notes from cr (for example to see who"
 " is going to take care of it) using the icon of the pencil. Only the cl "
 "can see those comments"
 msgstr "cl は、鉛筆のアイコンを使用して、cr からのメモにいくつかのコメントを追加できます (たとえば、誰がそれを処理するかを確認するため)。 "
 
-#: app/templates/docs/cl_outbox.html:6
+#: app/templates/docs/cl_outbox.html:3
 msgid "New mail to cr"
 msgstr "crへの新着メール"
 
-#: app/templates/docs/cl_outbox.html:8
+#: app/templates/docs/cl_outbox.html:5
 msgid ""
 "To create new mail for cr go to the page with the notes to cr and click "
 "in New. Then use the pencil to edit the content of the note in english "
@@ -444,11 +443,11 @@ msgid ""
 " num/year\" or \"ctr num/year\""
 msgstr "cr 用の新しいメールを作成するには、cr へのメモが記載されたページに移動し、[新規] をクリックします。"
 
-#: app/templates/docs/cl_outbox.html:14
+#: app/templates/docs/cl_outbox.html:11
 msgid "Add synology note to Sake"
 msgstr "Sakeにsynologyノートを追加"
 
-#: app/templates/docs/cl_outbox.html:16
+#: app/templates/docs/cl_outbox.html:13
 msgid ""
 "Now you can click in the folder icon to open the Synology folder link to "
 "the note in Sake. Put/Create there all the files you want to send to cr. "
@@ -456,34 +455,50 @@ msgid ""
 "to the note."
 msgstr "これで、フォルダー アイコンをクリックして、Sake のノートへの Synology フォルダー リンクを開くことができます。 "
 
-#: app/templates/docs/cl_outbox.html:22
+#: app/templates/docs/cl_outbox.html:19
 msgid "Send the note to cr"
 msgstr "メモを cr に送信する"
 
-#: app/templates/docs/cl_outbox.html:24
+#: app/templates/docs/cl_outbox.html:21
 msgid ""
 "When everything is ready click in the send icon. A gray tick will appear."
 " When the gray tick becomes blue means cr is already working with the "
 "note"
 msgstr "すべての準備ができたら、送信アイコンをクリックします。"
 
-#: app/templates/docs/cr.html:6
+#: app/templates/docs/cr.html:3
+msgid "How to navigate the registers and use the filter"
+msgstr "レジスタを操作してフィルタを使用する方法"
+
+#: app/templates/docs/cr.html:4
+msgid "Introduction to matters"
+msgstr "事項の紹介"
+
+#: app/templates/docs/cr.html:5
+msgid "A full example using matters"
+msgstr "事柄を使った完全な例"
+
+#: app/templates/docs/cr_old.html:6
 msgid "Register cr"
 msgstr "crを登録する"
 
-#: app/templates/docs/cr.html:8
+#: app/templates/docs/cr_old.html:8
 msgid ""
 "To see how to use Sake for cr first see all the pages for cl. It is the "
 "same."
-msgstr "cr酒の使い方を知りたい方は、まずclの全ページをご覧ください。"
+msgstr "cr酒の使い方を見るには、まずclの全ページを見てください。"
 
-#: app/templates/docs/cr.html:9
+#: app/templates/docs/cr_old.html:9
 msgid ""
 "To see the different register click in the icon and choose the register "
 "as in the next video."
-msgstr "別のレジスタを表示するには、アイコンをクリックし、次のビデオのようにレジスタを選択します。"
+msgstr "別のレジスタを表示するには、次のビデオのようにアイコンをクリックしてレジスタを選択します。"
 
-#: app/templates/docs/cr.html:17
+#: app/templates/docs/cr_old.html:15
+msgid "My notes"
+msgstr "私のメモ"
+
+#: app/templates/docs/cr_old.html:17
 msgid ""
 "To see all the notes I am involved click in pendings as in the video. "
 "There are all the notes from cg,asr,ctr or r that have been assigne to me"
@@ -491,196 +506,178 @@ msgid ""
 "choose to see all the notes or only the pendings."
 msgstr "私が関与しているすべてのメモを表示するには、ビデオのように保留中をクリックします。"
 
-#: app/templates/docs/cr.html:23
+#: app/templates/docs/cr_old.html:23
 msgid "Special registers"
-msgstr "特殊レジスター"
+msgstr "特殊レジスタ"
 
-#: app/templates/docs/cr.html:25
+#: app/templates/docs/cr_old.html:25
 msgid ""
 "There are some special register you may have access. In the next video "
 "you can see the register for cc. The special registers are: vc, vcr, dg, "
 "cc, desr."
 msgstr "アクセスできる特殊なレジスタがいくつかあります。"
 
-#: app/templates/docs/main.html:11
+#: app/templates/docs/main.html:6 app/templates/mobile/sidebar_mobile.html:112
+msgid "Documentation"
+msgstr "ドキュメント"
+
+#: app/templates/docs/main.html:10
 msgid "1. Registration and configuration"
 msgstr "1。"
 
-#: app/templates/docs/main.html:16
+#: app/templates/docs/main.html:15
 msgid "2. Mail from cr"
 msgstr "2。 "
 
-#: app/templates/docs/main.html:19
+#: app/templates/docs/main.html:18
 msgid "3. Mail to cr"
 msgstr "3。 "
 
-#: app/templates/docs/main.html:25
+#: app/templates/docs/main.html:24
 msgid "For cr"
 msgstr "CR用"
 
-#: app/templates/docs/registration.html:6
+#: app/templates/docs/registration.html:3
 msgid "Registration and login"
 msgstr "登録とログイン"
 
-#: app/templates/docs/registration.html:8
+#: app/templates/docs/registration.html:5
 msgid ""
 "To use Sake first you need to register. This only need to be done once. "
 "Use the same user and password that you use in Synology."
 msgstr "Sakeを利用するにはまず登録が必要です。"
 
-#: app/templates/docs/registration.html:14
+#: app/templates/docs/registration.html:11
 msgid "Configuration for the ctr"
 msgstr "ctrの設定"
 
-#: app/templates/docs/registration.html:16
+#: app/templates/docs/registration.html:13
 msgid ""
 "Every ctr has a profile. Go to profile as in the next video and click in "
 "the profile of your ctr. There you can set the name of the ctr and the "
 "mails which will receive a notification when there is new mail from cr to"
 " the ctr"
-msgstr "すべての CTR にはプロファイルがあります。"
+msgstr "すべてのctrにはプロファイルがあります。"
 
-#: app/templates/inbox/files.html:8
-msgid "Subject"
-msgstr "件名"
-
-#: app/templates/inbox/files.html:24
-msgid "Remove file"
-msgstr "ファイルの削除"
-
-#: app/templates/inbox/main.html:25
+#: app/templates/inbox/main.html:18
 msgid "Mail from cg, asr and r"
 msgstr "cg、asr、rからのメール"
 
-#: app/templates/inbox/main.html:28
+#: app/templates/inbox/main.html:29 app/templates/inbox/modal_import_eml.html:4
 msgid "Import eml"
 msgstr "emlのインポート"
 
-#: app/templates/inbox/main.html:29
+#: app/templates/inbox/main.html:31
 msgid "1. Import EML files from Cardumen"
 msgstr "1。 "
 
-#: app/templates/inbox/main.html:33
+#: app/templates/inbox/main.html:35
 msgid "Import asr"
 msgstr "インポートasr"
 
-#: app/templates/inbox/main.html:34
+#: app/templates/inbox/main.html:36
 msgid "2. Get mails from asr in Mail asr/Mail from asr"
 msgstr "2。 "
 
-#: app/templates/inbox/main.html:38
+#: app/templates/inbox/main.html:40
 msgid "Generate notes"
 msgstr "メモの生成"
 
-#: app/templates/inbox/main.html:39
+#: app/templates/inbox/main.html:41
 msgid "3. After checking numbers generate notes from files imported in 1 and 2"
 msgstr "3。"
 
-#: app/templates/inbox/main.html:45
+#: app/templates/inbox/main.html:47
 msgid "Mail from ctr"
 msgstr "ctrからのメール"
 
-#: app/templates/inbox/main.html:48
+#: app/templates/inbox/main.html:50
 msgid "Get mail"
 msgstr "メールの受信"
 
-#: app/templates/inbox/main.html:49
+#: app/templates/inbox/main.html:51
 msgid "Pass notes from ctr to Despacho"
 msgstr "ctrからデスパチョにメモを渡す"
 
-#: app/templates/inbox/search_files.html:4
-#: app/templates/register/search_table.html:4
-msgid "New"
-msgstr "新"
+#: app/templates/inbox/table.html:6
+msgid "Subject"
+msgstr "件名"
 
-#: app/templates/inbox/search_files.html:17
-#: app/templates/register/search_table.html:31
-msgid "Previous"
-msgstr "前へ"
+#: app/templates/inbox/table_row.html:7
+msgid "Remove file"
+msgstr "ファイルの削除"
 
-#: app/templates/inbox/search_files.html:22
-#: app/templates/register/search_table.html:36
-msgid "Next"
-msgstr "次へ"
-
-#: app/templates/register/main.html:21
+#: app/templates/mobile/main.html:21
 msgid "Check for eml"
 msgstr "emlをチェックする"
 
-#: app/templates/register/main.html:29
+#: app/templates/mobile/main.html:29 app/templates/notes/main.html:39
 msgid "Send mail"
 msgstr "メールを送信する"
 
-#: app/templates/register/note_form.html:23
-msgid "Only permanente"
-msgstr "パーマネントのみ"
+#: app/templates/mobile/search_table.html:4 app/templates/notes/main.html:17
+msgid "New"
+msgstr "新"
 
-#: app/templates/register/note_form.html:91
-msgid "Recipients"
-msgstr "受信者"
-
-#: app/templates/register/receivers_form.html:5
-msgid "Recepient"
-msgstr "受信者"
-
-#: app/templates/register/receivers_form.html:8
-msgid "Save"
-msgstr "保存"
-
-#: app/templates/register/search_table.html:17
+#: app/templates/mobile/search_table.html:17 app/templates/notes/main.html:24
 msgid "All"
 msgstr "すべて"
 
-#: app/templates/register/table.html:8
-msgid "Protocol"
-msgstr "プロトコル"
+#: app/templates/mobile/search_table.html:31 app/templates/notes/table.html:40
+msgid "Previous"
+msgstr "前"
 
-#: app/templates/register/table.html:15
-msgid "Files"
-msgstr "ファイル"
+#: app/templates/mobile/search_table.html:36 app/templates/notes/table.html:45
+msgid "Next"
+msgstr "次へ"
 
-#: app/templates/register/table.html:29
+#: app/templates/mobile/sidebar_mobile.html:19
+#: app/templates/mobile/sidebar_mobile.html:21
+msgid "Registers"
+msgstr "レジスター"
+
+#: app/templates/mobile/table.html:12
 msgid "Are you sure you want to delete"
 msgstr "削除してもよろしいですか"
 
-#: app/templates/register/table_row.html:76
-msgid "Create folder for note"
-msgstr "メモ用フォルダーの作成"
+#: app/templates/modals/modal_receivers.html:5
+#: app/templates/modals/modal_tags_form.html:5
+msgid "Recepient"
+msgstr "受信者"
 
-#: app/templates/register/table_row.html:80
-msgid "Update files in folder"
-msgstr "フォルダー内のファイルを更新する"
+#: app/templates/modals/modal_receivers.html:10
+#: app/templates/modals/modal_tags_form.html:10
+msgid "Close"
+msgstr "閉じる"
 
-#: app/templates/register/table_row.html:85
-msgid "Folder"
-msgstr "フォルダー"
+#: app/templates/notes/form_edit_note.html:25
+msgid "Only permanente"
+msgstr "パーマネントのみ"
 
-#: app/templates/register/table_row_buttons.html:9
-#: app/templates/register/table_row_buttons.html:12
+#: app/templates/notes/table.html:9
+msgid "Protocol"
+msgstr "プロトコル"
+
+#: app/templates/notes/table.html:13
+msgid "Files"
+msgstr "ファイル"
+
+#: app/templates/notes/table_column_buttons.html:12
+#: app/templates/notes/table_column_buttons_subregister.html:12
 msgid "Edit note"
 msgstr "メモを編集する"
 
-#: app/templates/register/table_row_buttons.html:22
+#: app/templates/notes/table_column_buttons.html:20
+#: app/templates/notes/table_column_buttons_subregister.html:22
+msgid "Delete note"
+msgstr "メモの削除"
+
+#: app/templates/notes/table_column_buttons.html:30
+#: app/templates/notes/table_column_buttons_subregister.html:31
+msgid "Create note with this ref"
+msgstr "この参照を使用してメモを作成する"
+
+#: app/templates/notes/table_column_buttons.html:37
 msgid "Download"
 msgstr "ダウンロード"
-
-#: app/templates/register/table_row_buttons.html:27
-msgid "Generate note to cr"
-msgstr "cr へのメモを生成"
-
-#: app/templates/register/table_row_buttons.html:28
-msgid "Generate note to asr"
-msgstr "ASR へのメモを生成"
-
-#: app/templates/register/table_row_buttons.html:29
-msgid "Generate note to r"
-msgstr "rへのノートを生成"
-
-#: app/templates/register/table_row_buttons.html:30
-msgid "Generate note to ctr"
-msgstr "ctrにノー​​トを生成"
-
-#: app/templates/register/table_row_buttons.html:33
-msgid "Generate minuta from note"
-msgstr "音符からミニュータを生成"
 
