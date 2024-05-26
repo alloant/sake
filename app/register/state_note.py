@@ -22,13 +22,9 @@ def read_note_view(request):
    
     note.updateRead(current_user)
     
-    res = make_response(note.content_html())
-    #res.headers['HX-Trigger'] = 'read-updated'
+    res = make_response(note.content_html(reg))
     res.headers['HX-Trigger'] = 'read-updated'
-
     return res
-
-    return note.content_html(reg)
 
 
 def note_row_view(request):
@@ -58,11 +54,11 @@ def state_note_view(request):
     #    return render_template('register/table_row.html',note=note, reg=reg, user=current_user)
     
     res = make_response(note.status_html(reg))
-    res.headers['HX-Trigger'] = f'update-row-{note.id}'
+    #res.headers['HX-Trigger'] = f'update-row-{note.id}'
+    res.headers['HX-Trigger'] = f'update-row-{note.id}, state-updated'
 
     return res
    
 def register_icon_view (request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    
-    return current_user.register_icon_html(reg)
+    register = request.args.get('reg')
+    return current_user.register_icon_html(register)

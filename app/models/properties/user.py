@@ -44,7 +44,7 @@ class UserProp(object):
             case 'pendings':
                 href = ['all','pen','']
                 title = gettext('Pending')
-            case 'minutas':
+            case 'matters':
                 href = ['mat','all','']
                 title = gettext('Matters')
             case 'register':
@@ -63,21 +63,18 @@ class UserProp(object):
         dark = f'-dark' if session['theme'] == 'dark-mode' else ''
 
         if register == 'register':
-            #<a href="#" class="d-flex align-items-center justify-content-center link-light text-decoration-none py-1 py-lg-3 px-1" id="dropdownRegister" data-bs-toggle="dropdown" aria-expanded="false">
-            #a = ET.Element('a',attrib={'class':'text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
             a = ET.Element('a',attrib={'class':'text-decoration-none', 'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title,'hx-disinherit':'*'})
             a.attrib['id'] = "dropdownRegister"
             a.attrib['data-bs-toggle'] = "dropdown"
             a.attrib['aria-expanded'] = "false"
             a.attrib['role'] = "button"
         else:
-            a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','hx-get':f'/main_body?reg={href}','hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','hx-get':f'/main_body?reg={href}','hx-indicator':'#indicator-table','hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
             a.attrib['role'] = "button"
-            #a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','href':href,'data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
        
         if register == 'pendings' and self.has_pendings:
             dark += '-red'
-        elif register == 'minutas':
+        elif register == 'matters':
             mats = self.pending_matters
             if mats > 0:
                 sp = ET.Element('span',attrib={'class':'position-absolute top-0 start-50 translate-middle badge bg-danger','style':'font-size: 1vmin'})

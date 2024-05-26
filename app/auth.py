@@ -131,6 +131,7 @@ def main_users():
 def edit_user():
     user_id = request.args.get('user')
     user = db.session.scalars(select(User).where(User.id==user_id)).first()
+    is_ctr = request.args.get('ctr',False)
  
     form = UserForm(request.form,obj=user)
     
@@ -218,7 +219,7 @@ def edit_user():
     else:
         is_admin = False
 
-    return render_template('modals/modal_edit_user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin)
+    return render_template('modals/modal_edit_user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin, is_ctr=is_ctr)
 
 
 @bp.route('/language')

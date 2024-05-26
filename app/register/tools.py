@@ -149,7 +149,7 @@ def view_title(reg,note=None):
     elif rg[0] == 'all': # History note, also pendings has the same but we already check that before
         return ['static/icons/sake.svg',gettext(u"Notes history")]
     elif rg[0] == 'mat':
-        return [f'static/icons/00-minutas{dark}.svg',gettext('Matters')]
+        return [f'static/icons/00-matters{dark}.svg',gettext('Matters')]
     else:
         return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
 

@@ -33,52 +33,54 @@
           Active
           </br>
         </div>
+        {% if not is_ctr %}
         <div>
           {{ form.admin_active(class="form-check-input") }}
           Admin is active
-        </div> 
+        </div>
+        {% endif %}
       </div>
     {% endif %}
   </div>
 
-  {% if is_admin %}
-  <div class="col">
-    <ul class="">
-      {% for group in form.groups %}
-        {% if loop.index <= group1 %}
-        <li class="list-group-item">
-          {{ group(class="form-check-input chbox") }}
-          {{ group.label(class="form-check-label chbox_label") }}
-        </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  </div>
+  {% if is_admin and not is_ctr %}
+    <div class="col">
+      <ul class="">
+        {% for group in form.groups %}
+          {% if loop.index <= group1 %}
+          <li class="list-group-item">
+            {{ group(class="form-check-input chbox") }}
+            {{ group.label(class="form-check-label chbox_label") }}
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
 
-  <div class="col">
-    <ul class="">
-      {% for group in form.groups %}
-        {% if loop.index > group1 and loop.index <= group2 %}
-        <li class="list-group-item">
-          {{ group(class="form-check-input chbox") }}
-          {{ group.label(class="form-check-label chbox_label") }}
-        </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  </div>
+    <div class="col">
+      <ul class="">
+        {% for group in form.groups %}
+          {% if loop.index > group1 and loop.index <= group2 %}
+          <li class="list-group-item">
+            {{ group(class="form-check-input chbox") }}
+            {{ group.label(class="form-check-label chbox_label") }}
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
 
-  <div class="col">
-    <ul class="">
-      {% for group in form.groups %}
-        {% if loop.index > group2 %}
-        <li class="list-group-item">
-          {{ group(class="form-check-input chbox") }}
-          {{ group.label(class="form-check-label chbox_label") }}
-        </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
-  </div>
+    <div class="col">
+      <ul class="">
+        {% for group in form.groups %}
+          {% if loop.index > group2 %}
+          <li class="list-group-item">
+            {{ group(class="form-check-input chbox") }}
+            {{ group.label(class="form-check-label chbox_label") }}
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
   {% endif %}
 </div>

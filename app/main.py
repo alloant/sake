@@ -103,6 +103,10 @@ def register_filter(reg,filter = ""):
                     fn.append(Note.state<6)
             else:
                 fn.append(Note.flow==reg[1])
+                if reg[1] == 'in':
+                    fn.append(Note.state >= 5)
+                else:
+                    fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
                 #if not session['showAll'] and reg[1] == 'in':
                 #    fn.append(Note.state<6)
             
@@ -194,7 +198,7 @@ def get_title(reg):
         title['icon'] = f'static/icons/sake.svg' 
         title['text'] = gettext(u'Note history')
     elif reg[0] == 'mat':
-        title['icon'] = f'static/icons/00-minutas{dark}.svg' 
+        title['icon'] = f'static/icons/00-matters{dark}.svg' 
         title['text'] = gettext(u'Matters')
         title['filter'] = True
         title['showAll'] = True
@@ -344,12 +348,32 @@ def body_table_view(request):
 def main_body_view(request):
     reg = request.args.get('reg','')
 
+    if not 'showAll' in session:
+        session['showAll'] = False
+
     if reg:
         reg = ast.literal_eval(reg)
         session['reg'] = reg
     else:
-        reg = session['reg']
-    
+        if 'reg' in session:
+            reg = session['reg']
+        else:
+            if 'cr' in current_user.groups:
+                reg = ['all','pen','']
+            else:
+                registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+                reg = ''
+                for register in registers:
+                    for subregister in register.get_subregisters():
+                        reg = [register.alias,'in',subregister]
+                        session['reg'] = reg
+                        break
+                    if reg: break
+   
+    if reg[2]:
+        ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
+        session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
+
     title = get_title(reg) 
 
     if isinstance(reg[1],int):

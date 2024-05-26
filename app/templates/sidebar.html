@@ -1,13 +1,13 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" >
   {% if 'cr' in current_user.groups %}
     <span>
-      <span hx-get='/register_icon?reg=pendings' hx-trigger='read-updated from:body'>
+      <span hx-get="/register_icon?reg=pendings" hx-trigger='read-updated from:body'>
         {{ current_user.register_icon_html('pendings')|safe }}
       </span>
     </span>
     
-    <span hx-get='/register_icon?reg=pendings' hx-trigger='state-updated from:body'>
-      {{ current_user.register_icon_html('minutas')|safe }}
+    <span hx-get="/register_icon?reg=matters" hx-trigger='state-updated from:body'>
+      {{ current_user.register_icon_html('matters')|safe }}
     </span>
   {% endif %}
   
@@ -132,7 +132,7 @@
   {% endif %}
   
   <div class="">
-    <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Despacho')}}">
+    <a class="nav-link link-light py-1 py-lg-3 px-1" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
       {% if session['theme'] == 'light-mode' %}
         <img src="static/icons/00-question.svg" width="35vmin" height="35vmin">
       {% else %}
@@ -202,7 +202,17 @@
         
         {% for register in registers %}
           {% for subregister in register.get_subregisters(True) %}
-            <li><a class="dropdown-item" href="/edit_user?user={{subregister[0]}}">{{gettext('Profile')}} {{subregister[1]}}</a></li>
+            <li>
+              <a class="dropdown-item"
+                hx-get="/edit_user?user={{subregister[0]}}&ctr=True" 
+                hx-trigger="click"
+                hx-target="#modal-htmx"
+                data-bs-toggle="modal"
+                data-bs-target="#modal-htmx"
+                role="button">
+                {{gettext('Profile')}} {{subregister[1]}} 
+              </a>
+            </li>
           {% endfor %}
         {% endfor %}
 
