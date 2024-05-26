@@ -122,7 +122,7 @@ def read_eml(file_eml,emails = None):
                     exists = True
               
             if exists:
-                flash(f"The file {file['filename']} is already in the database")
+                flash(f"The file {file['filename']} is already in the database",'warning')
                 efiles.append(True)
         
         for i,file in enumerate(attachments):
@@ -145,7 +145,7 @@ def read_eml(file_eml,emails = None):
 
             fl = File(path=path,permanent_link=link,subject=subject,sender=sender.lower(),date=date.date())
             db.session.add(fl)
-            flash(f"{fl} has been added to the database")
+            flash(f"{fl} has been added to the database",'success')
 
         db.session.commit()
                 

@@ -1,0 +1,13 @@
+<div class="container mt-4">
+  <ul class="list-group">
+    {% for user in users %}
+      <li><a  hx-get="/edit_user?user={{user.id}}" 
+          hx-trigger="click"
+          hx-target="#modal-htmx"
+          data-bs-toggle="modal"
+          data-bs-target="#modal-htmx"
+          role="button">
+          {{user.alias}} {{user.name}}</a></li>
+    {% endfor %}
+  </ul>
+</div>

@@ -5,12 +5,13 @@ import ast
 import re
 from xml.etree import ElementTree as ET
 
-from flask import render_template, session, url_for
+from flask import render_template, session, url_for, flash, make_response
 from flask_login import current_user
 
 from flask_babel import gettext
 
 from sqlalchemy import select, and_, or_, func
+from sqlalchemy.sql import text
 from sqlalchemy.orm import aliased
 
 from app import db
@@ -24,6 +25,33 @@ from app.register.state_note import note_row_view
 from app.syneml import read_eml
 
 from app.forms.note import NoteForm
+
+def get_history(note):
+    nt = db.session.scalar(select(Note).where(Note.id==note))
+    refs = [note]
+    for ref in nt.ref:
+        refs.append(ref.id)
+
+    notes = ",".join([str(r) for r in refs])
+    
+    sql = text(
+            f"with recursive R as ( \
+            select note_id as n, ref_id as r from note_ref where note_id in ({notes}) or ref_id in ({notes}) \
+            UNION \
+            select note_ref.note_id,note_ref.ref_id from R,note_ref where note_ref.note_id = R.r or note_ref.ref_id in (R.n,R.r) or note_ref.note_id in (R.n,R.r)\
+            ) \
+            select n,r from R"
+        )
+
+    d_nids = db.session.execute(sql).all()
+
+    nids = [note]
+    for nid in d_nids:
+        nids += nid
+
+    nids = list(set(nids))
+
+    return db.session.scalars(select(Note).where(Note.id.in_(nids))).all()
 
 def register_filter(reg,filter = ""):
     fn = []
@@ -256,11 +284,13 @@ def action_note_view(request):
             extract_form_note(reg,form,note)
             
             return note_row_view(request)
+    
+    res = make_response(body_table_view(request))
+    res.headers['HX-Trigger'] = 'update-flash'
 
-    return body_table_view(request)
+    return res
 
 def action_inbox_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
     action = request.args.get('action')
      
     match action:
@@ -282,8 +312,11 @@ def action_inbox_view(request):
             file = request.args.get('file')
             remove_file(file)
 
+    res = make_response(inbox_body_view(request))
+    res.headers['HX-Trigger'] = 'update-flash'
 
-    return inbox_body_view(request)
+    return res
+
 
 def dashboard_view(request):
     registers = db.session.scalars(select(Register).where(Register.active==1)).all()
@@ -310,6 +343,7 @@ def body_table_view(request):
 
 def main_body_view(request):
     reg = request.args.get('reg','')
+
     if reg:
         reg = ast.literal_eval(reg)
         session['reg'] = reg
@@ -317,7 +351,11 @@ def main_body_view(request):
         reg = session['reg']
     
     title = get_title(reg) 
-    notes = get_notes(reg)
+
+    if isinstance(reg[1],int):
+        notes = get_history(reg[1])
+    else:
+        notes = get_notes(reg)
     
     return render_template('notes/main.html',title=title, notes=notes, reg=reg)
 

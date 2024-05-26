@@ -52,6 +52,7 @@ class NoteHtml(object):
             update_folder = ET.Element('a')
             update_folder.attrib['hx-get'] = f"update_files?note={self.id}&reg={reg}"
             update_folder.attrib['hx-target'] = f"#filesRow-{self.id}" 
+            update_folder.attrib['hx-target-error'] = "#flash-errors" 
             update_folder.attrib['hx-trigger'] = "click"
             update_folder.attrib['hx-indicator'] = f"#filesIndRow-{self.id}"
             update_folder.attrib['class'] = "ms-1"
@@ -104,9 +105,9 @@ class NoteHtml(object):
     @property
     def fullkey_link_html(self):
         if self.register.alias == 'mat':
-            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.received_by})
+            a = ET.Element('a',attrib={'class':'link','hx-get':f"/main_body?reg=['all',{self.id},'']",'hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','title':self.received_by,'role':'button'})
         else:
-            a = ET.Element('a',attrib={'href':f'?reg=all_all_&h_note={self.id}','target':'_blank','data-bs-toggle':'tooltip','title':self.receivers})
+            a = ET.Element('a',attrib={'class':'link','hx-get':f"/main_body?reg=['all',{self.id},'']",'hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','title':self.receivers,'role':'button'})
         if self.num == 0 and self.ref:
             a.text = f"ref {self.ref[0].fullkey}"
         else:
@@ -317,7 +318,6 @@ class NoteHtml(object):
         return False
     
     def status_html(self,reg):
-        print(self,self.register)
         if self.register.alias == 'mat':
             return self.status_mat_html(reg)
 

@@ -13,6 +13,11 @@ from app.main import main_body_view, body_table_view, dashboard_view, action_not
 
 bp = Blueprint('register', __name__)
 
+@bp.route('/flash')
+@login_required
+def flash():
+    return render_template('flash.html')
+
 @bp.route('/',methods=['POST','GET'])
 #@mobile_template("register/{mobile/}main.html")
 @mobile_template("main.html")
@@ -117,11 +122,11 @@ def inbox_scr():
 
 from werkzeug.exceptions import HTTPException
 
-#@bp.errorhandler(Exception)
-#def handle_exception(e):
+@bp.errorhandler(Exception)
+def handle_exception(e):
     # pass through HTTP errors
-#    if isinstance(e, HTTPException):
-#        return e
+    if isinstance(e, HTTPException):
+        return e
 
     # now you're handling non-HTTP exceptions only
-#    return render_template("error.html", e=e), 500
+    return render_template("error.html", e=e), 500

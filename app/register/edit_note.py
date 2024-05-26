@@ -3,7 +3,7 @@
 import re
 import ast
 
-from flask import render_template, render_template_string, redirect, session, flash, url_for, Response
+from flask import render_template, render_template_string, redirect, session, flash, url_for, Response, make_response
 from flask_login import current_user
 
 from sqlalchemy import select, and_
@@ -130,10 +130,10 @@ def extract_form_note(reg,form,note):
                         if not nt in note.ref:
                             note.ref.append(nt)
                     else:
-                        flash(f"Note {ref} cannot be add")
+                        flash(f"Note {ref} cannot be add",'danger')
                         error = True
                 else:
-                    flash(f"Note {ref} doesn't exist")
+                    flash(f"Note {ref} doesn't exist",'warning')
                     error = True
 
         # Now I remove the notes not in current
@@ -173,12 +173,16 @@ def files_view(request):
 
 def update_files_view(request):
     reg = ast.literal_eval(request.args.get('reg'))
-    
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateFiles()
+    
+    res = make_response(note.files_html(reg))
+    res.headers['HX-Trigger'] = 'update-flash'
 
-    return note.files_html()
+    return res
+
+    return note.files_html(reg)
 
 def reply_note_view(request):
     reg = ast.literal_eval(request.args.get('reg'))

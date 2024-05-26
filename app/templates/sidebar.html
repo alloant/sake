@@ -6,11 +6,9 @@
       </span>
     </span>
     
-    {% if current_user.alias in ['antonio','sake','despacho','jb','dms'] %}
-      <span hx-get='/register_icon?reg=pendings' hx-trigger='state-updated from:body'>
-        {{ current_user.register_icon_html('minutas')|safe }}
-      </span>
-    {% endif %}
+    <span hx-get='/register_icon?reg=pendings' hx-trigger='state-updated from:body'>
+      {{ current_user.register_icon_html('minutas')|safe }}
+    </span>
   {% endif %}
   
   {% if current_user.is_authenticated%}
@@ -194,7 +192,7 @@
 
         {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
         <li><a class="dropdown-item" 
-            hx-get="/users" 
+            hx-get="/main_users" 
             hx-trigger="click"
             hx-target="#main-body"
             role="button">

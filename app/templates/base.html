@@ -71,16 +71,9 @@
           </div>
           <!-- Your page content -->
           <div class="col-sm min-vh-100">
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                {% for message in messages %}
-                  <div class="alert alert-danger alert-dismissible fade show p-1" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
+            <div hx-get="/flash" hx-trigger="update-flash from:body">
+              {% include 'flash.html' %}
+            </div>
             
             {% block content %}{% endblock %}
           </div>

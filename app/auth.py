@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from cryptography.fernet import Fernet
 
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, or_
 
 from app import db
 from .forms.login import LoginForm, RegistrationForm, UserForm
@@ -23,7 +23,7 @@ def login():
         user = db.session.scalar(select(User).where(User.alias==form.alias.data))
 
         if not user or not check_password_hash(user.password,form.password.data):
-            flash('User or password is not correct')
+            flash('User or password is not correct','danger')
             return render_template('auth/auth.html',login=True, form=form)
 
         login_user(user)
@@ -54,7 +54,7 @@ def signup():
         
         if user:
             if user.password != '':  
-                flash('Name user already exists')
+                flash('Name user already exists','warning')
                 return render_template('auth/auth.html', login=False, form=form)
             
             user.name = form.name.data
@@ -69,7 +69,7 @@ def signup():
                 if alias[0] in ['d','sd','sd1','sd2','scl','sacd','of']:
                     ctr = User.query.filter_by(User.alias==alias[1],User.groups.contains('ctr')).first()
                     if not ctr or alias[0] == 'of':
-                        flash('User is not in Synology')
+                        flash('User is not in Synology','warning')
                         return render_template('auth/auth.html', login=False, form=form)
             
                 groups = 'Aes-of' if alias[0] == 'of' else alias[1]
@@ -100,15 +100,30 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-@bp.route('/users')
+@bp.route('/users', methods=['GET', 'POST'])
 @login_required
 def list_users():
+    if not ('admin' in current_user.groups or 'scr' in current_user.groups):
+        return redirect(request.referrer)
+    output = request.form.to_dict()
+
+    if 'search' in output:
+        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.u_groups.regexp_match(r'\bsake\b'))).order_by(User.alias))
+    else:
+        users = db.session.scalars(select(User).where(User.u_groups.regexp_match(r'\bsake\b')).order_by(User.alias))
+
+    return render_template('users/list_users.html', users=users)
+
+
+@bp.route('/main_users')
+@login_required
+def main_users():
     if not ('admin' in current_user.groups or 'scr' in current_user.groups):
         return redirect(request.referrer)
 
     users = db.session.scalars(select(User).where(User.u_groups.regexp_match(r'\bsake\b')).order_by(User.alias))
 
-    return render_template('auth/list_users.html', users=users)
+    return render_template('users/main.html', users=users)
 
 
 @bp.route('/edit_user', methods=['GET', 'POST'])
@@ -216,11 +231,11 @@ def set_language(language=None):
 
 from werkzeug.exceptions import HTTPException
 
-#@bp.errorhandler(Exception)
-#def handle_exception(e):
+@bp.errorhandler(Exception)
+def handle_exception(e):
     # pass through HTTP errors
-#    if isinstance(e, HTTPException):
-#        return e
+    if isinstance(e, HTTPException):
+        return e
 
     # now you're handling non-HTTP exceptions only
-#    return render_template("error.html", e=e), 500
+    return render_template("error.html", e=e), 500

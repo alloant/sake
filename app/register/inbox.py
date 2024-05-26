@@ -75,7 +75,6 @@ def import_ctr():
 def generate_notes(output):
     files = db.session.scalars(select(File).where(File.note_id==None))
     involved_notes = []
-    print(output)
     for file in files:
         prot = output[f"number_{file.id}"].lower()
         prots = re.findall(r'\w+',prot)
@@ -247,9 +246,9 @@ def inbox_view(request):
                     if not exists:
                         fl = File(path=path,permanent_link=link,sender="asr",date=date.today())
                         db.session.add(fl)
-                        flash(f"File {filename} has been added to database")
+                        flash(f"File {filename} has been added to database",'success')
                     else:
-                        flash(f"File {filename} is already in the database. The copy file in Mail/IN")
+                        flash(f"File {filename} is already in the database. The copy file in Mail/IN",'warning')
                     
 
             db.session.commit()
@@ -266,7 +265,7 @@ def inbox_view(request):
                 note.state = 3
                 note.n_date = date.today()
             else:
-                flash(f"Could not move note {note} to its destination")
+                flash(f"Could not move note {note} to its destination",'danger')
 
         db.session.commit()
 
@@ -328,13 +327,13 @@ def inbox_view(request):
                 rst = rnt.addFile(file)
                 if rst:
                     if not rnt in involved_notes: involved_notes.append(rnt)
-                    flash(f"{file} was added to {nt}")
+                    flash(f"{file} was added to {nt}",'success')
             elif nt and not ref:
                 #rst = file.move_to_note(f"{nt.folder_path}")
                 rst = nt.addFile(file)
                 if rst:
                     if not nt in involved_notes: involved_notes.append(nt)
-                    flash(f"{file} was added to {nt}")
+                    flash(f"{file} was added to {nt}",'success')
             else: # We need to create the note
                 if ref:
                     nref = nt
@@ -364,8 +363,8 @@ def inbox_view(request):
                 
                 if not nt in involved_notes: involved_notes.append(nt)
                 db.session.add(nt)
-                flash(f"{nt} was created")
-                flash(f"{file} was added to {nt}")
+                flash(f"{nt} was created",'success')
+                flash(f"{file} was added to {nt}",'success')
         
                 refs = file.guess_ref
 
@@ -373,7 +372,7 @@ def inbox_view(request):
                     nt.ref.append(ref)
             
                 if len(refs) != len(nt.ref): # I didn't get all refs
-                    flash(f"There was a problem with {file.subject}. Not all references are in place")
+                    flash(f"There was a problem with {file.subject}. Not all references are in place",'danger')
         
             db.session.commit()
 
@@ -401,7 +400,7 @@ def inbox_view(request):
             IN_files = 0
 
         if IN_db != IN_files:
-            flash(f"The number of files in the database is not the same as in Mail/IN ({IN_db}/{IN_files})")
+            flash(f"The number of files in the database is not the same as in Mail/IN ({IN_db}/{IN_files})",'danger')
 
     #flash(f'There are {IN_files} in Mail/IN, {ctr_notes} waiting from ctrs and {asr_files} in Inbox asr')
     ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))

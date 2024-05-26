@@ -1,0 +1,20 @@
+<div class="container mt-4">
+  {% for user in users %}
+
+  <div class="card">
+    <div class="card-body">
+          <h5 class="card-title">
+            <i class="bi bi-person-circle"></i>
+            <a  hx-get="/edit_user?user={{user.id}}" 
+                hx-trigger="click"
+                hx-target="#modal-htmx"
+                data-bs-toggle="modal"
+                data-bs-target="#modal-htmx"
+                role="button">
+                {{user.alias}} - {{user.name}}
+            </a>
+          </h5>
+    </div>
+  </div>
+  {% endfor %}
+</div>

@@ -27,14 +27,13 @@ def wrap_error(func, *args):
         https = True
         with SynologyDrive(USER,PASSWD,current_app.config['SYNOLOGY_SERVER'],dsm_version='7',https=https) as synd:
             return func(synd,*args)
-        flash('The connection to Synology fail. If this keeps happening maybe your username or password is not the same as in Synology')
+        flash('The connection to Synology fail. If this keeps happening maybe your username or password is not the same as in Synology','danger')
         return None
     except Exception as err:
         if type(err).__name__ == 'SynologyException':
             message = f"Synology error: {err.message} in {func.__name__} with parameters {args}"
         else:
             message = f"{err} in {func.__name__} with parameters {args}"
-        
         
         logging.warning(message)
         #if current_app.config['DEBUG']:
