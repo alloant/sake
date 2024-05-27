@@ -9,6 +9,8 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from app import db
 from app.mail import send_email
 
+from app.models.nas.nas import toggle_share_permissions
+
 class NoteProp(object):
     #@hybrid_property
     #def date(self):
@@ -298,13 +300,18 @@ class NoteProp(object):
                 if cancel:
                     self.state = 0
                     self.read_by = ''
+                elif self.received_by == '' and self.state == 0:
+                    self.state = 6
+                    toggle_share_permissions(self.folder_path,'viewer')
                 elif self.state == 0:
                     self.state = 1
                 elif self.state == 1:
                     self.state = 0
                 elif self.state == 5:
                     self.state = 6
+                    toggle_share_permissions(self.folder_path,'viewer')
                 elif self.state == 6:
+                    toggle_share_permissions(self.folder_path,'editor')
                     self.state = 5
             else: # Here is other user
                 if cancel:

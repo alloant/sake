@@ -3,7 +3,11 @@
     {% if rec.checked %} 
       <li class="list-group-item p-1">
         <span class="my-handle" aria-hidden="true">
-          <i class="bi bi-list" style="color: white"></i>
+          {% if session['theme'] == 'light-mode' %}
+            <i class="bi bi-list" style="color: black;"></i>
+          {% else %}
+            <i class="bi bi-list" style="color: white;"></i>
+          {% endif %}
           {{ rec(class="form-check-input chbox") }}
           {{ rec.label(class="form-check-label chbox_label") }}
         </span>
@@ -14,7 +18,11 @@
     {% if not rec.checked %} 
       <li class="list-group-item p-1">
         <span class="my-handle" aria-hidden="true">
-          <i class="bi bi-list" style="color: white"></i>
+          {% if session['theme'] == 'light-mode' %}
+            <i class="bi bi-list" style="color: black;"></i>
+          {% else %}
+            <i class="bi bi-list" style="color: white;"></i>
+          {% endif %}
           {{ rec(class="glyphicon glyphicon-move my-handle form-check-input chbox") }}
           {{ rec.label(class="form-check-label chbox_label") }}
         </span>

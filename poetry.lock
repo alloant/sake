@@ -1207,8 +1207,8 @@ simplejson = "^3.17.0"
 [package.source]
 type = "git"
 url = "https://github.com/alloant/synology-drive-api.git"
-reference = "v0.1.6"
-resolved_reference = "c6136722d62f4c0527c1c5c8c94ffe464db2c39d"
+reference = "v0.1.9"
+resolved_reference = "d3bd95bb4c6a8187f3a066ae39d99198d21d7fb2"
 
 [[package]]
 name = "typing-extensions"
@@ -1305,4 +1305,4 @@ WTForms = ">=3.1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b97f6606b8fbdc7b1dbdc29cc9fcc837e99ea6e295ed5d4f98ffb6baa005b9c4"
+content-hash = "6ed29581ca1536750ec8798f4ea367bf714b1830bbf64b4049394b638b374187"

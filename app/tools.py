@@ -11,6 +11,13 @@ from app.models.nas.nas import files_path, copy_path, create_folder
 
 from cryptography.fernet import Fernet
 
+
+
+def test_share(path):
+    pass
+    #print('----',files_path(path))
+    #print('::',share_info(path))
+
 def check_folders_synology():
     create_folder(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/",current_user.alias)
     create_folder(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Minutas/{current_user.alias}","Notes")

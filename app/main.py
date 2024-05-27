@@ -98,7 +98,12 @@ def register_filter(reg,filter = ""):
             fn.append(or_(*fmt))
         else:
             if reg[1] == 'pen':
-                fn.append(Note.receiver.any(User.id==current_user.id))
+                fmt = []
+                fmt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
+                fmt.append(Note.contains_read(current_user.alias))
+                fmt.append(Note.sender.has(User.id==current_user.id))
+                fn.append(or_(and_(Note.receiver.any(User.id==current_user.id),Note.reg != 'mat'),and_(Note.reg == 'mat',or_(*fmt))))
+
                 if not session['showAll']:
                     fn.append(Note.state<6)
             else:
@@ -387,7 +392,7 @@ def main_body_view(request):
 def inbox_main_view(request):
     session['reg'] = ['box','in','']
     dark = '-dark' if session['theme'] == 'dark-mode' else ''
-    
+
     title = {}
     title['icon'] = f'static/icons/00-inbox{dark}.svg' 
     title['text'] = gettext(u'Inbox cr')

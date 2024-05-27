@@ -19,15 +19,29 @@
         </style>
         
         <style>
-          .sake-row {
-            visibility: visible;
-          }
+	        .table-danger-dark:nth-child(odd) td, .table-danger-dark:nth-child(odd) th  {
+  	        background-color:#700707;
+	        }
         </style>
+
         <style>
-          .sake-row:hover {
-            visibility: hidden;
-          }
+	        .table-danger-dark:nth-child(even) td, .table-danger-dark:nth-child(even) th {
+  	        background-color:#5c0101;
+	        }
         </style>
+        
+        <style>
+	        .table-plain-dark:nth-child(odd) td, .table-plain-dark:nth-child(odd) th  {
+  	        background-color:#212529;
+	        }
+        </style>
+
+        <style>
+	        .table-plain-dark:nth-child(even) td, .table-plain-dark:nth-child(even) th {
+  	        background-color:#2C3034;
+	        }
+        </style>
+
         
         {% block styles %}
             <!-- Bootstrap CSS -->

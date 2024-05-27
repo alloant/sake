@@ -186,7 +186,8 @@ def inbox_view(request):
     do_check = False
     rm_file = args.get('remove_file')
 
-    #from app.tools import find_files, import_dates, change_file_dates,get_pass_nas
+    #from app.tools import share_info
+    #print('::',share_info('/team-folders/Mail antonio/Matters/2024/antonio_0004'))
     #get_pass_nas()
     #change_file_dates()
     #import_dates()

@@ -42,6 +42,8 @@ def wrap_error(func, *args):
 
 
 # Wrapped functions
+def toggle_share_permissions(path:str,role):
+    return wrap_error(_toggle_share_permissions,path,role)
 
 def files_path(path:str):
     return wrap_error(_files_path,path)
@@ -83,6 +85,9 @@ def create_task(cal_id:str,summary:str):
     return wrap_error(_create_task,cal_id,summary)
 
 # Original functions
+
+def _toggle_share_permissions(synd,path,role):
+    return synd.toggle_share_permissions(path,role)
 
 def _files_path(synd,path):
     if path == "/team-folders":
