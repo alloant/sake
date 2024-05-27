@@ -8,7 +8,6 @@ from flask_mobility.decorators import mobile_template
 from .state_note import state_note_view, read_note_view, note_row_view, register_icon_view
 from .edit_note import edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
 from .download import download_view
-from .inbox import inbox_view
 from app.main import main_body_view, body_table_view, dashboard_view, action_note_view, inbox_body_view, inbox_main_view, action_inbox_view
 
 bp = Blueprint('register', __name__)

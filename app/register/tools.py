@@ -133,23 +133,3 @@ def sendmail():
 
         db.session.commit()
 
-
-def view_title(reg,note=None):
-    rg = reg.split('_')
-    dark = '-dark' if session['theme'] == 'dark-mode' else ''
-    
-    if rg[0] == 'des': # Despacho
-        return [f'static/icons/00-despacho{dark}.svg',gettext(u'Despacho')]
-    elif rg[2] == 'pending': # For my notes list
-        return [f'static/icons/00-pendings{dark}.svg',gettext(u'Pending')]
-    elif rg[0] == 'box' and rg[1] == 'out': # Outbox
-        return [f'static/icons/00-outbox{dark}.svg',gettext(u'Outbox cr')] 
-    elif rg[2] != '': # All the suregisters for the centers
-        return [f"static/icons/ctr/{rg[2]}-{rg[1]}.svg",f"{gettext('Notes from')} {rg[2]} {gettext('to cr')}" if rg[1] == 'out' else f"{gettext('Notes from cr to')} {rg[2]}"]
-    elif rg[0] == 'all': # History note, also pendings has the same but we already check that before
-        return ['static/icons/sake.svg',gettext(u"Notes history")]
-    elif rg[0] == 'mat':
-        return [f'static/icons/00-matters{dark}.svg',gettext('Matters')]
-    else:
-        return [f'static/icons/ctr/{rg[0]}-{rg[1]}.svg',f"{rg[0]} {rg[1]}"]
-
