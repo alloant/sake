@@ -1,12 +1,12 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" >
   {% if 'cr' in current_user.groups %}
     <span>
-      <span hx-get="/register_icon?reg=pendings" hx-trigger='read-updated from:body'>
+      <span hx-get="/register_icon?reg=pendings" hx-trigger='read-updated from:body' hx-disinherit="*">
         {{ current_user.register_icon_html('pendings')|safe }}
       </span>
     </span>
     
-    <span hx-get="/register_icon?reg=matters" hx-trigger='state-updated from:body'>
+    <span hx-get="/register_icon?reg=matters" hx-trigger='state-updated from:body' hx-disinherit="*">
       {{ current_user.register_icon_html('matters')|safe }}
     </span>
   {% endif %}

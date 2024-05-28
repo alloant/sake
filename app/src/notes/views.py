@@ -354,6 +354,7 @@ def action_note_view(request):
     return res
 
 def note_row_view(request):
+    
     reg = ast.literal_eval(request.args.get('reg'))
      
     note_id = request.args.get('note')

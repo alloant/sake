@@ -173,8 +173,8 @@ class NoteProp(object):
     @matters_order.expression
     def matters_order(cls):
         return case (
+            (and_(cls.state==5,cls.sender==current_user),1),
             (and_(cls.state==1,cls.sender!=current_user),1),
-            (and_(cls.state==5,cls.sender==current_user),2),
             (cls.state==0,3),
             (and_(cls.state==1,cls.sender==current_user),4),
             (cls.state==1,5),

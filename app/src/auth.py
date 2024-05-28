@@ -230,11 +230,11 @@ def set_language(language=None):
 
 from werkzeug.exceptions import HTTPException
 
-@bp.errorhandler(Exception)
-def handle_exception(e):
+#@bp.errorhandler(Exception)
+#def handle_exception(e):
     # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+#    if isinstance(e, HTTPException):
+#        return e
 
     # now you're handling non-HTTP exceptions only
-    return render_template("error.html", e=e), 500
+#    return render_template("error.html", e=e), 500

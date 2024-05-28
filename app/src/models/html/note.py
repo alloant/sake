@@ -281,7 +281,7 @@ class NoteHtml(object):
     
     def content_html(self,reg):
         text = self.content_jp if 'jp' in current_user.groups else self.content
-
+        
         if reg[2] and self.flow == 'in' or not reg[2] and self.flow == 'out':
             ct = ET.Element('span',attrib={'class':f''})
             ct.attrib['data-toggle'] = 'tooltip'
@@ -289,7 +289,7 @@ class NoteHtml(object):
             ct.text = text
         else:
             ct = ET.Element('span')
-            ct = ET.Element('span',attrib={'hx-post':f'/read_note?note={self.id}&reg={reg}','role':'button'})
+            ct = ET.Element('span',attrib={'hx-post':f'/read_note?note={self.id}&reg={reg}','role':'button','hx-disinherit':'*'})
             #ct.attrib['hx-get'] = f"/read_note?note={self.id}&reg={reg}"
             
             if self.is_read(current_user):

@@ -18,15 +18,15 @@
     {% for note in notes %}
       {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
         {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="" hx-disinherit="*">
+          <tr id="row_{{note.id}}" class="table-danger" data-bs-theme="light">
         {% else %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger-dark" data-bs-theme="light" hx-trigger="" hx-disinherit="*">
+          <tr id="row_{{note.id}}" class="table-danger-dark" data-bs-theme="light">
         {% endif %}
       {% else %}
         {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="" hx-trigger="" hx-disinherit="*">
+          <tr id="row_{{note.id}}" class="">
         {% else %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-plain-dark" hx-trigger="" hx-disinherit="*">
+          <tr id="row_{{note.id}}" class="table-plain-dark">
         {% endif %}
       {% endif%}
       {% if reg[2]%}

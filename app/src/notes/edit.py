@@ -406,11 +406,12 @@ def read_note_view(request):
     
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-   
-    note.updateRead(current_user)
     
+    note.updateRead(current_user)
+
     res = make_response(note.content_html(reg))
     res.headers['HX-Trigger'] = 'read-updated'
+    
     return res
 
 
