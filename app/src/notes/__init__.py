@@ -5,10 +5,11 @@ from flask import Blueprint, request, render_template, current_app
 from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
-from .state_note import state_note_view, read_note_view, note_row_view, register_icon_view
-from .edit_note import edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
-from .download import download_view
-from app.main import main_body_view, body_table_view, dashboard_view, action_note_view, inbox_body_view, inbox_main_view, action_inbox_view
+from app.src.notes.views import main_body_view, body_table_view, note_row_view, register_icon_view, action_note_view
+from app.src.notes.edit import state_note_view, read_note_view, edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
+from app.src.tools.download import download_view
+from app.src.main import  dashboard_view
+from app.src.inbox.inbox import inbox_body_view, inbox_main_view, action_inbox_view
 
 bp = Blueprint('register', __name__)
 
@@ -121,11 +122,11 @@ def inbox_scr():
 
 from werkzeug.exceptions import HTTPException
 
-@bp.errorhandler(Exception)
-def handle_exception(e):
+#@bp.errorhandler(Exception)
+#def handle_exception(e):
     # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+#    if isinstance(e, HTTPException):
+#        return e
 
     # now you're handling non-HTTP exceptions only
-    return render_template("error.html", e=e), 500
+#    return render_template("error.html", e=e), 500

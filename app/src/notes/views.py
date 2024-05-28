@@ -3,28 +3,81 @@
 
 import ast
 import re
-from xml.etree import ElementTree as ET
 
-from flask import render_template, session, url_for, flash, make_response
+from flask import render_template, session, make_response
 from flask_login import current_user
-
-from flask_babel import gettext
 
 from sqlalchemy import select, and_, or_, func
 from sqlalchemy.sql import text
 from sqlalchemy.orm import aliased
 
+from flask_babel import gettext
+
 from app import db
-from app.models import Note, User, Register, File
+from app.src.models import Note, User, Register, File
+from app.src.forms.note import NoteForm
+from app.src.notes.edit import fill_form_note, extract_form_note
 
-from app.register.edit_note import fill_form_note, extract_form_note
-from app.register.tools import newNote, sendmail, delete_note
-from app.register.inbox import import_asr, import_ctr, generate_notes, remove_file
-from app.register.state_note import note_row_view
+from app.src.tools.tools import newNote, sendmail, delete_note
 
-from app.syneml import read_eml
+def body_table_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
+    showAll = request.args.get('showAll','')
+    output = request.form.to_dict()
+    page = request.args.get('page', 1, type=int)
 
-from app.forms.note import NoteForm
+    if showAll == 'toggle':
+        session['showAll'] = not session['showAll']
+    
+    if not 'page' in request.args:
+        if 'search' in output:
+            session['filter_notes'] = output['search']
+        else:
+            session['filter_notes'] = ''
+
+    notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
+
+    return render_template('notes/table.html', notes=notes, page=page, reg=reg)
+
+def main_body_view(request):
+    reg = request.args.get('reg','')
+
+    if not 'showAll' in session:
+        session['showAll'] = False
+
+    if reg:
+        reg = ast.literal_eval(reg)
+        session['reg'] = reg
+    else:
+        if 'reg' in session:
+            reg = session['reg']
+        else:
+            if 'cr' in current_user.groups:
+                reg = ['all','pen','']
+            else:
+                registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+                reg = ''
+                for register in registers:
+                    for subregister in register.get_subregisters():
+                        reg = [register.alias,'in',subregister]
+                        session['reg'] = reg
+                        break
+                    if reg: break
+   
+    if reg[2]:
+        ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
+        session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
+
+    title = get_title(reg) 
+
+    if isinstance(reg[1],int):
+        notes = get_history(reg[1])
+    else:
+        notes = get_notes(reg)
+    
+    return render_template('notes/main.html',title=title, notes=notes, reg=reg)
+
+
 
 def get_history(note):
     nt = db.session.scalar(select(Note).where(Note.id==note))
@@ -300,116 +353,20 @@ def action_note_view(request):
 
     return res
 
-def action_inbox_view(request):
-    action = request.args.get('action')
-     
-    match action:
-        case 'import_eml':
-            return render_template('inbox/modal_import_eml.html')
-        case 'eml_imported':
-            files = request.files.getlist('files')
-            for file in files:
-                read_eml(file.read())
-        case 'import_asr':
-            import_asr()
-        case 'import_ctr':
-            import_ctr()
-            return inbox_main_view(request)
-        case 'generate_notes':
-            output = request.form.to_dict()
-            generate_notes(output)
-        case 'remove_file':
-            file = request.args.get('file')
-            remove_file(file)
-
-    res = make_response(inbox_body_view(request))
-    res.headers['HX-Trigger'] = 'update-flash'
-
-    return res
-
-
-def dashboard_view(request):
-    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    return render_template('main.html', registers=registers)
-
-def body_table_view(request):
+def note_row_view(request):
     reg = ast.literal_eval(request.args.get('reg'))
-    showAll = request.args.get('showAll','')
-    output = request.form.to_dict()
-    page = request.args.get('page', 1, type=int)
-
-    if showAll == 'toggle':
-        session['showAll'] = not session['showAll']
+     
+    note_id = request.args.get('note')
     
-    if not 'page' in request.args:
-        if 'search' in output:
-            session['filter_notes'] = output['search']
-        else:
-            session['filter_notes'] = ''
-
-    notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
-
-    return render_template('notes/table.html', notes=notes, page=page, reg=reg)
-
-def main_body_view(request):
-    reg = request.args.get('reg','')
-
-    if not 'showAll' in session:
-        session['showAll'] = False
-
-    if reg:
-        reg = ast.literal_eval(reg)
-        session['reg'] = reg
-    else:
-        if 'reg' in session:
-            reg = session['reg']
-        else:
-            if 'cr' in current_user.groups:
-                reg = ['all','pen','']
-            else:
-                registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-                reg = ''
-                for register in registers:
-                    for subregister in register.get_subregisters():
-                        reg = [register.alias,'in',subregister]
-                        session['reg'] = reg
-                        break
-                    if reg: break
-   
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    
     if reg[2]:
-        ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
-        session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
-
-    title = get_title(reg) 
-
-    if isinstance(reg[1],int):
-        notes = get_history(reg[1])
+        return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)
     else:
-        notes = get_notes(reg)
-    
-    return render_template('notes/main.html',title=title, notes=notes, reg=reg)
+        return render_template('notes/table_row.html',note=note, reg=reg, user=current_user)
 
 
-def inbox_main_view(request):
-    session['reg'] = ['box','in','']
-    dark = '-dark' if session['theme'] == 'dark-mode' else ''
-
-    title = {}
-    title['icon'] = f'static/icons/00-inbox{dark}.svg' 
-    title['text'] = gettext(u'Inbox cr')
-
-
-    sql = select(File).where(File.note_id == None)
-    files = db.paginate(sql, per_page=22)
-    
-    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
-    
-    return render_template('inbox/main.html',title=title, files=files, ctr_notes=ctr_notes)
-
-def inbox_body_view(request):
-    sql = select(File).where(File.note_id == None)
-    files = db.paginate(sql, per_page=22)
-    
-    return render_template('inbox/table.html', files=files)
-
-
+   
+def register_icon_view (request):
+    register = request.args.get('reg')
+    return current_user.register_icon_html(register)

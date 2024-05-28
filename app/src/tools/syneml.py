@@ -17,8 +17,8 @@ from email.mime.text import MIMEText
 from pathlib import Path
 
 from app import db
-from .models.nas.nas import upload_path, convert_office, move_path, download_path
-from .models import File
+from app.src.models.nas.nas import upload_path, convert_office, move_path, download_path
+from app.src.models import File
 #import libsynomail.connection as con
 
 INV_EXT = {'osheet':'xlsx','odoc':'docx'}

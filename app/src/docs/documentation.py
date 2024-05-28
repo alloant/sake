@@ -6,7 +6,7 @@ from flask import render_template
 from sqlalchemy import select
 
 from app import db
-from app.models import Register
+from app.src.models import Register
 
 def documentation_view(args):
     topic = args.get('topic')

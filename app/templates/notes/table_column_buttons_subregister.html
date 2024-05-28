@@ -22,13 +22,11 @@
       <i class="bi bi-trash3-fill" style="color: red;" data-bs-toggle="tooltip" title="{{gettext('Delete note')}}"></i></a>
 {% endif %}
 
-
 <a  hx-get="reply_note?reg={{reg}}&note={{note.id}}" 
     hx-trigger="click"
     hx-indicator="#indicator-table"
     class=""
     role="button">
       <i class="bi bi-envelope-plus-fill" style="color: DarkOrange;" data-bs-toggle="tooltip" title="{{gettext('Create note with this ref')}}"></i></a>
-
 
 

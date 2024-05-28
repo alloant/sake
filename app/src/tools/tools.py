@@ -11,10 +11,10 @@ from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
-from app.models import User, Note, Register
+from app.src.models import User, Note, Register
 
 
-from app.mail import send_email
+from app.src.tools.mail import send_email
 
 def nextNumReg(rg):
     # Get new number for the note. Here getting the las number in that register

@@ -3,18 +3,17 @@
 import re
 import ast
 
-from flask import render_template, render_template_string, redirect, session, flash, url_for, Response, make_response
+from flask import render_template, session, flash, Response, make_response
 from flask_login import current_user
 
 from sqlalchemy import select, and_
-from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, Comment, File, Register, get_note_fullkey
-from app.forms.note import NoteForm, ReceiverForm, TagForm
-from app.register.tools import newNote
+from app.src.models import Note, User, Comment, File, get_note_fullkey
+from app.src.forms.note import ReceiverForm, TagForm
+from app.src.tools.tools import newNote
 
-from app.models.nas.nas import files_path, copy_path, copy_office_path
+from app.src.models.nas.nas import files_path, copy_path, copy_office_path
 
 def sortable_view(request):
     form = ReceiverForm(request.form)
@@ -400,4 +399,41 @@ def edit_receivers_view(request):
     session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
     return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
+
+
+def read_note_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
+    
+    note_id = request.args.get('note')
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+   
+    note.updateRead(current_user)
+    
+    res = make_response(note.content_html(reg))
+    res.headers['HX-Trigger'] = 'read-updated'
+    return res
+
+
+
+def state_note_view(request):
+    reg = ast.literal_eval(request.args.get('reg'))
+    note_id = request.args.get('note')
+    
+    cancel = request.args.get('cancel',False)
+    
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    note.updateState(reg,current_user,cancel)
+    
+    if reg[2]:
+        return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)
+    else:
+        res = make_response(render_template('notes/table_row.html',note=note, reg=reg, user=current_user))
+        res.headers['HX-Trigger'] = f'state-updated'
+        return res
+    
+    res = make_response(note.status_html(reg))
+    #res.headers['HX-Trigger'] = f'update-row-{note.id}'
+    res.headers['HX-Trigger'] = f'update-row-{note.id}, state-updated'
+
+    return res
 

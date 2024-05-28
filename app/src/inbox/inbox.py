@@ -5,17 +5,71 @@ import re
 
 from datetime import date
 
-from flask import render_template, flash, current_app, session
+from flask import render_template, flash, current_app, session, make_response
 from flask_login import current_user
+from flask_babel import gettext
 
 from sqlalchemy import select, and_, func, delete, or_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, File, User, Register, get_note_fullkey
+from app.src.models import Note, File, User, Register, get_note_fullkey
 
-from app.models.nas.nas import files_path, move_path, delete_path, convert_office
-from app.syneml import read_eml
+from app.src.models.nas.nas import files_path, move_path, delete_path, convert_office
+from app.src.tools.syneml import read_eml
+
+
+def action_inbox_view(request):
+    action = request.args.get('action')
+     
+    match action:
+        case 'import_eml':
+            return render_template('inbox/modal_import_eml.html')
+        case 'eml_imported':
+            files = request.files.getlist('files')
+            for file in files:
+                read_eml(file.read())
+        case 'import_asr':
+            import_asr()
+        case 'import_ctr':
+            import_ctr()
+            return inbox_main_view(request)
+        case 'generate_notes':
+            output = request.form.to_dict()
+            generate_notes(output)
+        case 'remove_file':
+            file = request.args.get('file')
+            remove_file(file)
+
+    res = make_response(inbox_body_view(request))
+    res.headers['HX-Trigger'] = 'update-flash'
+
+    return res
+
+
+
+def inbox_main_view(request):
+    session['reg'] = ['box','in','']
+    dark = '-dark' if session['theme'] == 'dark-mode' else ''
+
+    title = {}
+    title['icon'] = f'static/icons/00-inbox{dark}.svg' 
+    title['text'] = gettext(u'Inbox cr')
+
+
+    sql = select(File).where(File.note_id == None)
+    files = db.paginate(sql, per_page=22)
+    
+    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
+    
+    return render_template('inbox/main.html',title=title, files=files, ctr_notes=ctr_notes)
+
+def inbox_body_view(request):
+    sql = select(File).where(File.note_id == None)
+    files = db.paginate(sql, per_page=22)
+    
+    return render_template('inbox/table.html', files=files)
+
 
 
 def remove_file(file_id):

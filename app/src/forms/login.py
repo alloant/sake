@@ -1,6 +1,6 @@
 # forms.py
 
-from app.models import User
+from app.src.models import User
 from flask_babel import gettext
 
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, SubmitField, IntegerField, SelectMultipleField

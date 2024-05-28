@@ -325,7 +325,7 @@ class NoteHtml(object):
         if self.register.alias == 'mat':
             return self.status_mat_html(reg)
 
-        sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','role':'button'})
+        sp = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#row_{self.id}','role':'button'})
         if reg[0] == 'des':
             if self.is_read(f"des_{current_user.alias}"):
                 if self.state == 5:
@@ -402,8 +402,8 @@ class NoteHtml(object):
 
 
     def status_mat_html(self,reg):
-        #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#noteRow-{self.id}','role':'button'})
-        sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','hx-disinherit':'*','hx-indicator':'#indicator-table','role':'button'})
+        #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'.status-people-{self.id}','hx-disinherit':'*','hx-indicator':'#indicator-table','role':'button'})
+        sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#row_{self.id}','hx-disinherit':'*','hx-indicator':'#indicator-table','role':'button'})
         if self.sender == current_user: # Owner of matter. Two buttons. Capacity to re-start
             if self.state == 0 and self.received_by == '':
                 icon = "bi-x-circle-fill"
@@ -430,7 +430,8 @@ class NoteHtml(object):
             sp1.append(i1)
 
             if self.state in [0,5]:
-                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
+                #sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#row_{self.id}','role':'button'})
                 i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to restart the matter')})
                 sp2.append(i2)
                 sp = ET.Element('span')
@@ -446,7 +447,8 @@ class NoteHtml(object):
 
         else: # One of the persons circulating the note
             if self.state == 1 and not self.is_read(current_user):
-                sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
+                #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
+                sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#row_{self.id}','role':'button'})
                 icon = "bi-send-fill"
                 color = "red"
                 text = gettext(f'Click to pass the note to the next one ({self.read_by})')
@@ -470,7 +472,8 @@ class NoteHtml(object):
             sp1.append(i1)
 
             if self.state == 1 and not self.is_read(current_user):
-                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
+                #sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#status_mat-{self.id}','role':'button'})
+                sp2 = ET.Element('span',attrib={'class':'ms-1','hx-post':f'/state_note?note={self.id}&reg={reg}&cancel=true','hx-target':f'#row_{self.id}','role':'button'})
                 i2 = ET.Element('i',attrib={f'class':f'bi bi-skip-start-circle','style':f'color: red;','data-toggle':'tooltip','title':gettext('Click here to send matter back to owner')})
                 sp2.append(i2)
                 sp = ET.Element('span')

@@ -7,9 +7,9 @@ from sqlalchemy import case, and_, or_, not_, select, type_coerce, literal_colum
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
-from app.mail import send_email
+from app.src.tools.mail import send_email
 
-from app.models.nas.nas import toggle_share_permissions
+from app.src.models.nas.nas import toggle_share_permissions
 
 class NoteProp(object):
     #@hybrid_property
@@ -105,8 +105,6 @@ class NoteProp(object):
 
 
     def can_edit(self,reg):
-        reg = session['reg']
-
         if current_user.admin:
             return True
         elif reg[0] in ['box','des']:

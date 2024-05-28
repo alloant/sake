@@ -4,7 +4,7 @@
   <td><a href="https://nas.prome.sg:5001/oo/r/{{file.permanent_link}}" target="_blank">{{ file.path.split('/')[-1] }}</a></td>
   <td><input type="text" name="register_{{file.id}}" value="{{ file.register }}"></td>
   <td>{{ file.sender }}</td>
-  <td><a hx-get="/action_inbox?action=remove_file&file={{file.id}}" hx-trigger="click" hx-target="#inbox-table" hx-indicator="#indicator-table" data-bs-toggle="tooltip" title="{{gettext('Remove file')}}">
+  <td><a hx-get="/action_inbox?action=remove_file&file={{file.id}}" hx-trigger="click" hx-target="#inbox-table" hx-confirm="Are you sure you want to delete {{file.path}}?" hx-indicator="#indicator-table" data-bs-toggle="tooltip" title="{{gettext('Remove file')}}">
     <i class="bi bi-trash3-fill" style="color: red;"></i></a></td>
   <td><input type="text" name="number_{{file.id}}" placeholder="nnn/yy" value="{{ file.guess_number }}"></td>
   <td>

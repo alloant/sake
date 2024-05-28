@@ -10,8 +10,8 @@ from cryptography.fernet import Fernet
 from sqlalchemy import select, and_, or_
 
 from app import db
-from .forms.login import LoginForm, RegistrationForm, UserForm
-from .models import User, Register
+from app.src.forms.login import LoginForm, RegistrationForm, UserForm
+from app.src.models import User, Register
 
 bp = Blueprint('auth', __name__)
 

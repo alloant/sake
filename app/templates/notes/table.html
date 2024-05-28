@@ -18,15 +18,15 @@
     {% for note in notes %}
       {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
         {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger" data-bs-theme="light" hx-trigger="" hx-disinherit="*">
         {% else %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger-dark" data-bs-theme="light" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-danger-dark" data-bs-theme="light" hx-trigger="" hx-disinherit="*">
         {% endif %}
       {% else %}
         {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="" hx-trigger="" hx-disinherit="*">
         {% else %}
-          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-plain-dark" hx-trigger="update-row-{{note.id}} from:body" hx-disinherit="*">
+          <tr id="row_{{note.id}}" hx-get="/note_row?reg={{reg}}&note={{note.id}}" hx-swap="innerHTML" class="table-plain-dark" hx-trigger="" hx-disinherit="*">
         {% endif %}
       {% endif%}
       {% if reg[2]%}

@@ -41,7 +41,7 @@ def create_app(config_class=Config):
     #admin = Admin(app, name='sake', template_mode='bootstrap3')
     # Add administrative views here    
     
-    from .models import User
+    from app.src.models import User
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -49,13 +49,13 @@ def create_app(config_class=Config):
         return User.query.get(int(user_id))
 
     # blueprint for auth routes in our app
-    from .auth import bp as auth_blueprint
+    from app.src.auth import bp as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
-    from .register import bp as register_blueprint
-    app.register_blueprint(register_blueprint)
+    from app.src.notes import bp as notes_blueprint
+    app.register_blueprint(notes_blueprint)
     
-    from .docs import bp as documentation_blueprint
+    from app.src.docs import bp as documentation_blueprint
     app.register_blueprint(documentation_blueprint)
     
     return app

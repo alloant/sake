@@ -9,7 +9,7 @@ from wtforms_sqlalchemy.orm import QuerySelectField, QuerySelectMultipleField
 from sqlalchemy import select
 
 from app import db
-from app.models import Note,User
+from app.src.models import Note,User
 
 class MultiCheckboxField(SelectMultipleField):
     widget = ListWidget(prefix_label=False)

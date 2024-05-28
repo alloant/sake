@@ -8,10 +8,10 @@ from sqlalchemy import select, and_
 from sqlalchemy.orm import aliased
 
 from app import db
-from app.models import Note, User, Comment
-from app.forms.note import NoteForm
+from app.src.models import Note, User, Comment
+from app.src.forms.note import NoteForm
 
-from app.syneml import write_eml
+from app.src.tools.syneml import write_eml
 
 def download_view(request):
     note_id = request.args.get('note')

@@ -4,7 +4,7 @@
 from flask import Blueprint, request
 from flask_login import login_required, current_user
 
-from app.docs.documentation import documentation_view
+from app.src.docs.documentation import documentation_view
 
 bp = Blueprint('docs', __name__)
 
