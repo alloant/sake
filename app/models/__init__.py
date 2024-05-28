@@ -396,6 +396,7 @@ class Register(RegisterHtml,db.Model):
             return 'notallowed'
          
         rst = rst.group().split('_')
+        
         if rst[0] == 'e':
             return 'editor'
         elif rst[0] == 'v':

@@ -13,14 +13,18 @@ class NoteHtml(object):
     def refs_html(self,reg):
         html = []
         for ref in self.ref:
-            if not reg[2] == '':
+            
+            if reg[2]:
                 if ref.sender.alias == reg[2] or reg[2] in [r.alias for r in ref.receiver]:
                     html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
             elif ref.register.permissions != 'notallowed':
                 if reg[0] == 'des':
-                    html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>({ref.dep_html})')
+                    html.append(f'<span data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</span>({ref.dep_html})')
                 else:
-                    html.append(f'<a href"#" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</a>')
+                    if ref.register.alias == 'mat':
+                        html.append(f'<span class="small fst-italic" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</span>')
+                    else:
+                        html.append(f'<span clas="small" data-bs-toggle="tooltip" data-bs-original-title="{ref.content}">{ref.fullkey}</span>')
 
         return ','.join([h for h in html if h])
 

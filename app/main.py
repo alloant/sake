@@ -51,7 +51,7 @@ def get_history(note):
 
     nids = list(set(nids))
 
-    return db.session.scalars(select(Note).where(Note.id.in_(nids))).all()
+    return db.session.scalars( select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()) ).all()
 
 def register_filter(reg,filter = ""):
     fn = []
@@ -223,7 +223,8 @@ def get_notes(reg,filter = ""):
     sql = select(Note).join(Note.sender.of_type(sender))
     
     fn = register_filter(reg,filter)
-    if reg[2] == "" and reg[1] == "out":
+    
+    if not reg[2] and reg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
     elif reg[0] == "mat":
         sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
