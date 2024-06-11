@@ -1,17 +1,25 @@
   <div class="dropdown position-relative">
       {{ current_user.register_icon_html('register')|safe }}
-      <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
-        {{current_user.unread}}
-      </span>
+      {% with unread = current_user.unread %}
+        {% if unread > 0 %}
+        <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+          {{unread}}
+        </span>
+        {% endif %}
+      {% endwith %}
     <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
       <li class="d-inline-flex">
         {% for register in registers %}
           {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
             <span class="position-relative">
               {{ register.link_icon_html('in')|safe }}
-              <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
-                {{register.unread()}}
-              </span>
+              {% with unread = register.unread() %}
+                {% if unread > 0 %}
+                  <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+                    {{unread}}
+                  </span>
+                {% endif %}
+              {% endwith %}
             </span>
           {% endif %}
         {% endfor %}
@@ -21,9 +29,13 @@
           {% for subregister in register.get_subregisters() %}
             <span class="position-relative">
               {{ register.link_icon_html('in',subregister)|safe }}
-              <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
-                {{register.unread(subregister)}}
-              </span>
+              {% with unread = register.unread(subregister) %}
+                {% if unread > 0 %}
+                  <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+                    {{unread}}
+                  </span>
+                {% endif %}
+              {% endwith %}
             </span>
             {% endfor %}
         {% endfor %}
