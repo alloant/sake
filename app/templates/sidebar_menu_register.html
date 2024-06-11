@@ -1,0 +1,49 @@
+  <div class="dropdown position-relative">
+      {{ current_user.register_icon_html('register')|safe }}
+      <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+        {{current_user.unread}}
+      </span>
+    <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
+      <li class="d-inline-flex">
+        {% for register in registers %}
+          {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+            <span class="position-relative">
+              {{ register.link_icon_html('in')|safe }}
+              <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+                {{register.unread()}}
+              </span>
+            </span>
+          {% endif %}
+        {% endfor %}
+        
+        <!-- cl registers-->
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters() %}
+            <span class="position-relative">
+              {{ register.link_icon_html('in',subregister)|safe }}
+              <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger">
+                {{register.unread(subregister)}}
+              </span>
+            </span>
+            {% endfor %}
+        {% endfor %}
+        <!-- End cl registers-->
+
+      </li>
+      <li class="d-inline-flex">
+        {% for register in registers %}
+          {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+            {{ register.link_icon_html('out')|safe }}
+          {% endif %}
+        {% endfor %}
+        
+        <!-- cl registers-->
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters() %}
+            {{ register.link_icon_html('out',subregister)|safe }}
+          {% endfor %}
+        {% endfor %}
+        <!-- End cl registers-->
+      </li>
+    </ul>
+  </div>

@@ -358,6 +358,22 @@ class User(UserProp,UserMixin, db.Model):
         return False
  
     @property
+    def unread(self):
+        cont = 0
+        registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions=='allowed'))).all()
+        
+        for register in registers:
+            for sb in register.get_subregisters():
+                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.is_read(current_user)))))
+
+        if 'permanent' in current_user.groups:
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.is_read(current_user)))))
+        else:
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.is_read(current_user)))))
+        
+        return cont
+
+    @property
     def pending_matters(self):
         return db.session.scalar(select(func.count(Note.id)).where(and_(Note.register.has(Register.alias=='mat'),Note.receiver.any(User.id==current_user.id),Note.state==1,Note.next_in_matters(current_user))))
 
@@ -437,4 +453,13 @@ class Register(RegisterHtml,db.Model):
     @property
     def get_num_contacts(self):
         return len(db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all())
+
+    def unread(self,sb=""):
+        if sb:
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.is_read(current_user)))))
+        else:
+            if 'permanent' in current_user.groups:
+                return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='in',not_(Note.is_read(current_user)))))
+        
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id==self.id,Note.flow=='in',not_(Note.is_read(current_user)))))
 

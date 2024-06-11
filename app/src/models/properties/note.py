@@ -226,6 +226,7 @@ class NoteProp(object):
     def folder_path(self):
         return f"{self.folder_parent}/{self.folder_name}"
 
+    @hybrid_method
     def is_read(self,user):
         if isinstance(user,str): # This is a ctr or des
             alias = user if user[:4] == 'des_' else user.split('_')[2]
@@ -235,6 +236,13 @@ class NoteProp(object):
             return not user.alias in self.read_by.split(",")
         else:
             return user.alias in self.read_by.split(",")
+
+    @is_read.expression
+    def is_read(cls,user):
+        return case (
+            (user.date > cls.n_date,not_(cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )) ),
+        else_=cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )
+        )
 
 
     def rel_flow(self,reg):

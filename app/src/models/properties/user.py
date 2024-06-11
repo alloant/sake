@@ -39,6 +39,7 @@ class UserProp(object):
     def contains_group(cls,group):
         return cls.u_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
 
+
     def register_icon_html(self,register, size=35):
         match register:
             case 'pendings':

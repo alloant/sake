@@ -13,43 +13,9 @@
   
   {% if current_user.is_authenticated%}
     {% if current_user.severalCalendars %}
-    <div class=" dropdown">
-      {{ current_user.register_icon_html('register')|safe }}
-      
-      <ul class="dropdown-menu shadow" aria-labelledby="dropdownRegister">
-        <li class="d-inline-flex">
-          {% for register in registers %}
-            {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
-              {{ register.link_icon_html('in')|safe }}
-            {% endif %}
-          {% endfor %}
-          
-          <!-- cl registers-->
-          {% for register in registers %}
-            {% for subregister in register.get_subregisters() %}
-              {{ register.link_icon_html('in',subregister)|safe }}
-            {% endfor %}
-          {% endfor %}
-          <!-- End cl registers-->
-
-        </li>
-        <li class="d-inline-flex">
-          {% for register in registers %}
-            {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
-              {{ register.link_icon_html('out')|safe }}
-            {% endif %}
-          {% endfor %}
-          
-          <!-- cl registers-->
-          {% for register in registers %}
-            {% for subregister in register.get_subregisters() %}
-              {{ register.link_icon_html('out',subregister)|safe }}
-            {% endfor %}
-          {% endfor %}
-          <!-- End cl registers-->
-        </li>
-      </ul>
-    </div>
+      <div hx-get="/register_icon?reg=menu_register" hx-trigger='read-updated from:body, file-opened from:body' hx-disinherit="*">
+      {% include 'sidebar_menu_register.html' %}
+      </div>
     {% endif %}
 
  
