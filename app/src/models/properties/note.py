@@ -270,7 +270,11 @@ class NoteProp(object):
                         self.state = 6
                         for rec in self.receiver:
                             if rec.email:
-                                send_email(f"New mail for {rec.alias}. {self.comments}","",rec.email)
+                                print('--',rec,rec.email)
+                                try:
+                                    send_email(f"New mail for {rec.alias}. {self.fullkey}","",rec.email)
+                                except:
+                                    flash(f"Could not send to {rec}")
 
             # Here we move to Archive and if the move is succesful we put state 2
             #self.state = 2

@@ -27,7 +27,7 @@ def body_table_view(request):
     page = request.args.get('page', 1, type=int)
 
     if showAll == 'toggle':
-        session['showAll'] = not session['showAll']
+        session['showAll'] = not session['showAll'] if 'showAll' in session else False
     
     if not 'page' in request.args:
         if 'search' in output:
@@ -153,9 +153,9 @@ def register_filter(reg,filter = ""):
             if reg[1] == 'pen':
                 fmt = []
                 fmt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
-                fmt.append(Note.contains_read(current_user.alias))
+                #fmt.append(Note.contains_read(current_user.alias))
                 fmt.append(Note.sender.has(User.id==current_user.id))
-                fn.append(or_(and_(Note.receiver.any(User.id==current_user.id),Note.reg != 'mat'),and_(Note.reg == 'mat',or_(*fmt))))
+                fn.append(or_(and_(or_(Note.sender_id==current_user.id,Note.receiver.any(User.id==current_user.id)),Note.reg != 'mat'),and_(Note.reg == 'mat',or_(*fmt))))
 
                 if not session['showAll']:
                     fn.append(Note.state<6)
@@ -302,12 +302,13 @@ def visibility_note_form(reg,note):
     else: # Everything else
         if current_user.admin:
             dnone['admin'] = ''
+        
+        if note.register.alias == 'mat' and note.sender_id == current_user.id:
+            dnone['proc'] = ''
 
         if note.sender_id == current_user.id or 'despacho' in current_user.groups: # My note, I can change everything
             dnone['permanent'] = ''
             dnone['date'] = ''
-            if note.register.alias == 'alias':
-                dnone['proc'] = ''
             dnone['content'] = ''
             dnone['content_jp'] = ''
             dnone['comments'] = ''

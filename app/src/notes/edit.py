@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import re
 import ast
+import webbrowser
 
-from flask import render_template, session, flash, Response, make_response
+from flask import render_template, session, flash, Response, make_response, redirect
 from flask_login import current_user
 
 from sqlalchemy import select, and_
@@ -27,8 +28,7 @@ def fill_form_note(reg,form,note, filter = ""):
     else:
         form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
 
-    form.proc.choices = ['Ord','Not Ord','Consultivo','Deliberativo']
-
+    form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 
     if note.reg == 'mat':
         form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
@@ -57,13 +57,14 @@ def fill_form_note(reg,form,note, filter = ""):
     
     return form
 
+
 def extract_form_note(reg,form,note):
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
         form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
 
-    form.proc.choices = ['Ord','Not Ord','Consultivo','Deliberativo']
+    form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 
     filter = ''
 
@@ -297,13 +298,14 @@ def edit_receivers_files_view(request):
             session['fopt_checkbox'] = form.receiver.choices
         else:
             session['frst_checkbox'] = form.receiver.data
+    
         
         if save:
             file.subject = ",".join([c for c in session['frst_checkbox'] if c])
             db.session.commit()
-            return file.subject_html
+            return file.subject_html()
 
-        return render_template("register/receivers_list.html", form=form)
+        return render_template("modals/modal_receivers_list.html", form=form)
     else:
         for rec in file.subject.split(","):
             form.receiver.data.append(rec)
@@ -403,17 +405,42 @@ def edit_receivers_view(request):
 
 def read_note_view(request):
     reg = ast.literal_eval(request.args.get('reg'))
+    only_content = request.args.get('only_content',False)
+    file_clicked = int(request.args.get('file_clicked',-1))
     
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     
-    note.updateRead(current_user)
+    if not only_content and not (file_clicked > 0 and note.is_read(current_user)):
+        note.updateRead(current_user)
 
     res = make_response(note.content_html(reg))
-    res.headers['HX-Trigger'] = 'read-updated'
+    if file_clicked > 0:
+        res.headers['HX-Trigger'] = f'read-updated,content_{note.id},open_file_{file_clicked}'
+    else:
+        res.headers['HX-Trigger'] = 'read-updated'
     
     return res
 
+def open_file_view(request):
+    #reg = ast.literal_eval(request.args.get('reg'))
+    link = request.args.get('link')
+    
+    #note_id = request.args.get('note')
+    #note = db.session.scalar(select(Note).where(Note.id==note_id))
+   
+    #if reg[1] != 'out' and not reg[0] in ['des','box'] and note.register.alias != 'mat' and not note.is_read(current_user):
+    #    note.updateRead(current_user)
+    
+    #res = make_response(redirect(link))
+    #res = Response()
+    #res.headers["hx-redirect"] = link
+    #response["HX-Redirect"] = "http://example.com/page_to_redirect_to"
+    #res.headers['HX-Trigger'] = f'file-opened, content_{note.id}'
+    webbrowser.open(link)
+    return ""
+    return webbrowser.open_new_tab(link)
+    #return res
 
 
 def state_note_view(request):

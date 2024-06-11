@@ -137,7 +137,7 @@
 
 <!-- Link to folder, button to updateFiles and files in folder -->
 <div class="flex p-4 border">
-  <h1 id="filesRow-{{note.id}}">{{note.files_html(reg,copy=False)|safe}}</h1>
+  <span id="filesRow-{{note.id}}">{{note.files_html(reg,copy=False,form=True)|safe}}</span>
 
   {% if session['theme'] == 'light-mode' %}
     <img id="filesIndRow-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
@@ -148,3 +148,5 @@
 
 
 </fieldset>
+
+

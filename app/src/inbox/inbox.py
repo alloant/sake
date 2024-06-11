@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import io
 import os
 import re
 
-from datetime import date
+from datetime import date, datetime
 
 from flask import render_template, flash, current_app, session, make_response
 from flask_login import current_user
@@ -15,14 +16,36 @@ from sqlalchemy.orm import aliased
 from app import db
 from app.src.models import Note, File, User, Register, get_note_fullkey
 
-from app.src.models.nas.nas import files_path, move_path, delete_path, convert_office
+from app.src.models.nas.nas import files_path, move_path, delete_path, convert_office, upload_path
 from app.src.tools.syneml import read_eml
+
+EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 
 
 def action_inbox_view(request):
     action = request.args.get('action')
      
     match action:
+        case 'update_file':
+            return render_template('inbox/modal_update_file.html')
+        case 'updated_file':
+            files = request.files.getlist('files')
+            dest = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN"
+            for file in files:
+                b_file = io.BytesIO(file.read())
+                b_file.name = file.filename
+                rst = upload_path(b_file,dest)
+                if rst:
+                    if file.filename.split(".")[-1] in EXT.keys():
+                        print(rst)
+                        path,fid,link = convert_office(rst['data']['display_path'])
+                        move_path(rst['data']['display_path'],f"{dest}/Originals")
+                    
+                    fl = File(path=path,permanent_link=link,date=datetime.now().date())
+                    db.session.add(fl)
+                    flash(f"{fl} has been added to the database",'success')
+            db.session.commit()
+
         case 'import_eml':
             return render_template('inbox/modal_import_eml.html')
         case 'eml_imported':
@@ -131,13 +154,14 @@ def generate_notes(output):
         prot = output[f"number_{file.id}"].lower()
         prots = re.findall(r'\w+',prot)
         register_field = output[f"register_{file.id}"].lower()
-        
+        sender_field = output[f"sender_{file.id}"].lower()
+
         ref = False
 
-        if "@" in file.sender:
-            sender = db.session.scalar(select(User).where(User.email==file.sender))
+        if "@" in sender_field:
+            sender = db.session.scalar(select(User).where(User.email==sender_field))
         else:
-            sender = db.session.scalar(select(User).where(User.alias==file.sender))
+            sender = db.session.scalar(select(User).where(User.alias==sender_field))
 
         if len(prots) > 2:
             if len(prots) == 3:

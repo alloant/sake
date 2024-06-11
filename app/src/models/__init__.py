@@ -193,6 +193,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             self.path = f"/team-folders/Mail {self.register.alias}/Register/{self.year}/{self.register.alias} {flow}"
         elif 'matters' in self.register.groups: # Is matters
             self.path = f"/team-folders/Mail {alias}/Matters/{self.year}"
+            self.proc = "Ordinario"
         elif 'ctr' in self.sender.groups: # A note to cr created in a ctr. The sender is a ctr.
             self.path = f"/team-folders/Mailbox {alias}/{alias} to cr"
         elif flow == 'out': # a dr from cr writing a note out

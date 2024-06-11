@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
 from app.src.notes.views import main_body_view, body_table_view, note_row_view, register_icon_view, action_note_view
-from app.src.notes.edit import state_note_view, read_note_view, edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view
+from app.src.notes.edit import state_note_view, read_note_view, edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view, open_file_view
 from app.src.tools.download import download_view
 from app.src.main import  dashboard_view
 from app.src.inbox.inbox import inbox_body_view, inbox_main_view, action_inbox_view
@@ -109,6 +109,11 @@ def state_note():
 @login_required
 def read_note():
     return read_note_view(request)
+
+@bp.route('/open_file', methods=['GET','POST'])
+@login_required
+def open_file():
+    return open_file_view(request)
 
 @bp.route('/download', methods=['GET','POST'])
 @login_required

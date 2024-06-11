@@ -28,8 +28,12 @@ class NoteHtml(object):
 
         return ','.join([h for h in html if h])
 
-    def files_html(self,reg, copy = True):
-        span = ET.Element('span')
+    def files_html(self,reg, copy = True, form = False):
+        if form:
+            span = ET.Element('div',attrib={'class':'d-inline-flex'})
+        else:
+            span = ET.Element('span')
+
         dots = False 
         if self.can_edit(reg):
             if self.permanent_link and copy:
@@ -75,7 +79,12 @@ class NoteHtml(object):
             update_folder_icon.attrib['data-toggle'] = 'tooltip'
 
             update_folder.append(update_folder_icon)
-            span.append(update_folder)
+            if form:
+                utitle = ET.Element('h1')
+                utitle.append(update_folder)
+                span.append(utitle)
+            else:
+                span.append(update_folder)
  
 
         if self.permanent_link and (not reg[2] and (self.register.permissions in ['editor','viewer'] or self.sender == current_user or current_user in self.receiver and self.register.alias != 'mat') or reg[2] and self.flow == 'in'):
@@ -83,25 +92,67 @@ class NoteHtml(object):
             folder_link = ET.Element('a',attrib={'href':f'https://nas.prome.sg:5001/d/f/{self.permanent_link}','data-toggle':'tooltip','title':gettext('Folder'),'target':'_blank'})
             folder_icon = ET.Element('i',attrib={'class':'bi bi-folder-fill ms-1','style':'color: orange;'})                         
             folder_link.append(folder_icon)
-            span.append(folder_link)
+            if form:
+                ftitle = ET.Element('h1')
+                ftitle.append(folder_link)
+                span.append(ftitle)
+            else:
+                span.append(folder_link)
 
         if dots:
             separator = ET.Element('span',attrib={'class':'ms-1 me-1'})
             separator.text = ":"
-            span.append(separator)
+            if form:
+                stitle = ET.Element('h1')
+                stitle.append(separator)
+                span.append(stitle)
+            else:
+                span.append(separator)
 
         for file in self.files:
+            #link = ET.Element('span',attrib={'class':'d-none','hx-on:htmx':'alert("Making alert")','hx-trigger':f'open_file_{file.id} from:body','hx-swap':'none'})
+            #link = ET.Element('span',attrib={'class':'d-none','hx-get':f'/open_file?link=https://nas.prome.sg:5001/{file.chain_link}/{file.permanent_link}','hx-trigger':f'open_file_{file.id} from:body','hx-swap':'none'})
+            #link.text = 'a'
+            #span.append(link)
             if reg[2]: # We are in a cl register
                 if file.subject == '' or reg[2] in file.subject.split(','):
-                    span.append(file.icon_html_raw)
+                    span.append(file.icon_html_read_raw(reg))
             else: # For everything else
                 if self.register.alias == 'mat': # Are the files of a mmatter
                     if current_user.alias in self.received_by.split(',') or self.sender == current_user:
-                        span.append(file.icon_html_raw)
-                elif current_user in self.receiver or self.sender == current_user:
-                    span.append(file.icon_html_raw)
-                elif self.register.permissions in ['editor','viewer']:
-                    span.append(file.icon_html_raw)
+                        span.append(file.icon_html_read_raw(reg))
+                elif current_user in self.receiver or self.sender == current_user or self.register.permissions in ['editor','viewer']:
+                    if form:
+                        ftitle = ET.Element('h1')
+                        ftitle.append(file.icon_html_read_raw(reg))
+
+                        ftspan = ET.Element('span')
+                        ftspan.attrib['data-bs-toggle'] = "tooltip"
+                        ftspan.attrib['title'] = file.name
+                        
+                                               
+                        aftspan = ET.Element('a')
+                        aftspan.attrib['hx-get'] = f"/edit_receivers_files?file={file.id}"
+                        aftspan.attrib['hx-target'] = "#modals-files" 
+                        aftspan.attrib['hx-trigger'] = "click" 
+                        aftspan.attrib['data-bs-toggle'] = "modal"
+                        aftspan.attrib['data-bs-target'] = "#modals-files"
+                        aftspan.attrib['role'] = "button"
+                       
+                        fsubject = file.subject_html(form=True)
+
+                        if fsubject != '':
+                            aftspan.append(fsubject)
+
+                        fspan = ET.Element('span',attrib={'class':'text-center me-2'})
+                        fspan.append(ftitle)
+                        fspan.append(ftspan)
+                        fspan.append(aftspan)
+
+                        span.append(fspan)
+                    else:
+                        span.append(file.icon_html_read_raw(reg))
+                    
 
     
         return ET.tostring(span,encoding='unicode',method='html')
@@ -288,7 +339,6 @@ class NoteHtml(object):
             ct.attrib['title'] = ""
             ct.text = text
         else:
-            ct = ET.Element('span')
             ct = ET.Element('span',attrib={'hx-post':f'/read_note?note={self.id}&reg={reg}','role':'button','hx-disinherit':'*'})
             #ct.attrib['hx-get'] = f"/read_note?note={self.id}&reg={reg}"
             

@@ -131,7 +131,6 @@ def read_eml(file_eml,emails = None):
 
             b_file = io.BytesIO(base64.b64decode(file['raw']))
             b_file.name = f"{file['filename']}"
-            
             rst = upload_path(b_file,dest)
             if not rst:
                 continue

@@ -1,7 +1,7 @@
 <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top" >
   {% if 'cr' in current_user.groups %}
     <span>
-      <span hx-get="/register_icon?reg=pendings" hx-trigger='read-updated from:body' hx-disinherit="*">
+      <span hx-get="/register_icon?reg=pendings" hx-trigger='read-updated from:body, file-opened from:body' hx-disinherit="*">
         {{ current_user.register_icon_html('pendings')|safe }}
       </span>
     </span>

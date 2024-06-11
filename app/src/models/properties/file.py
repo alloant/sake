@@ -54,6 +54,7 @@ class FileProp(object):
         link_text = text if text else self.name
         return f'<https://nas.prome.sg:5001/{self.chain_link}/{self.permanent_link}|{link_text}>'
 
+
     @property
     def guess_number(self):
         if ";" in self.subject:

@@ -38,7 +38,7 @@ def wrap_error(func, *args):
         logging.warning(message)
         #if current_app.config['DEBUG']:
         #flash(message)
-        #raise   
+        raise   
 
 
 # Wrapped functions
@@ -161,6 +161,7 @@ def _convert_office(synd,path,delete):
 
     path = ".".join(path+[EXT[ext]])
     
+    print(path,'///')
     new_file = synd.get_file_or_folder_info(path)
     new_file_id = new_file['data']['file_id']
     new_permanent_link = new_file['data']['permanent_link']

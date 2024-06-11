@@ -27,8 +27,18 @@
             class="btn btn-primary"
             role="button">
             {{gettext('Import eml')}}</button>
-         
-          <span> {{gettext('1. Import EML files from Cardumen')}}</span>
+          
+          <button 
+            hx-get="/action_inbox?action=update_file" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            class="btn btn-primary"
+            role="button">
+            {{gettext('Upload files')}}</button>
+ 
+          <span> {{gettext('1. Get files')}}</span>
         </li>
         
         <li class="p-2 list-group-item">

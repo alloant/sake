@@ -2,7 +2,9 @@
   <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text" style="color: OrangeRed;"></i></span>
 {% endif %}
 
-{{ note.content_html(reg)|safe }}
+<span hx-post="/read_note?note={{note.id}}&reg={{reg}}&only_content=True" hx-trigger="content_{{note.id}} from:body">
+  {{ note.content_html(reg)|safe }}
+</span>
 
 <span class="">
   {{ note.people_matter_html|safe }}
