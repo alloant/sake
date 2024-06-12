@@ -411,7 +411,7 @@ def read_note_view(request):
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     
-    if not only_content and not (file_clicked > 0 and note.is_read(current_user)):
+    if not only_content and not (file_clicked > 0 and note.is_read(current_user)) and note.register.alias != 'mat' and reg[1] != 'out' and not reg[0] in ['des','box']:
         note.updateRead(current_user)
 
     res = make_response(note.content_html(reg))

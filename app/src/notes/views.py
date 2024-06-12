@@ -303,10 +303,10 @@ def visibility_note_form(reg,note):
         if current_user.admin:
             dnone['admin'] = ''
         
-        if note.register.alias == 'mat' and note.sender_id == current_user.id:
+        if note.register.alias == 'mat' and (note.sender_id == current_user.id or current_user.admin):
             dnone['proc'] = ''
 
-        if note.sender_id == current_user.id or 'despacho' in current_user.groups: # My note, I can change everything
+        if note.sender_id == current_user.id or 'despacho' in current_user.groups or current_user.admin: # My note, I can change everything
             dnone['permanent'] = ''
             dnone['date'] = ''
             dnone['content'] = ''

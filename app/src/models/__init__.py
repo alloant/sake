@@ -248,7 +248,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
         if self.register.alias == 'mat':
             fn.append(User.contains_group('cr'))
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all()]
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all() if user.alias != current_user.alias]
             firsts = []
             for pot in possibles:
                 for rc in recs:
