@@ -322,7 +322,10 @@ class NoteProp(object):
                     toggle_share_permissions(self.folder_path,'viewer')
                 elif self.state == 6:
                     toggle_share_permissions(self.folder_path,'editor')
-                    self.state = 5
+                    if self.received_by == '':
+                        self.state = 0
+                    else:
+                        self.state = 5
             else: # Here is other user
                 if cancel:
                     self.state = 0

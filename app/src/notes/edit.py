@@ -109,6 +109,13 @@ def extract_form_note(reg,form,note):
             rd += [us for us in form.receiver.data if not us in rd]
             form.receiver.data = rd
             note.received_by = ",".join([r for r in form.receiver.data if r])
+
+            if note.read_by != '':
+                new_read_by = []
+                for rc in form.receiver.data:
+                    if rc != '' and rc in note.read_by.split(','):
+                        new_read_by.append(rc)
+                note.read_by = ",".join([r for r in new_read_by if r])
     
          
         for n,user in enumerate(reversed(note.receiver)):
