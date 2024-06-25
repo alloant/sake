@@ -38,7 +38,7 @@ def wrap_error(func, *args):
         logging.warning(message)
         #if current_app.config['DEBUG']:
         #flash(message)
-        raise   
+        #raise   
 
 
 # Wrapped functions
@@ -145,7 +145,6 @@ def _copy_path(synd,path,dest):
     return rst
 
 def _convert_office(synd,path,delete):
-    print(path,':::path')
     rst = synd.convert_to_online_office(path,delete_original_file=delete)
     task_id = rst['data']['async_task_id']
     
@@ -161,7 +160,6 @@ def _convert_office(synd,path,delete):
 
     path = ".".join(path+[EXT[ext]])
     
-    print(path,'///')
     new_file = synd.get_file_or_folder_info(path)
     new_file_id = new_file['data']['file_id']
     new_permanent_link = new_file['data']['permanent_link']

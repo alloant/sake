@@ -83,7 +83,10 @@ def newNote(user, reg, ref = None):
 
     if ref:
         if type(ref) == Note:
-            nt.content = f"Re: {ref.content}"
+            if nt.register.alias == 'mat':
+                nt.content = f"{ref.content}"
+            else:
+                nt.content = f"Re: {ref.content}"
             nt.n_tags = ref.n_tags
             
             if nt.register.alias == 'mat':

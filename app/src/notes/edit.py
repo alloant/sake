@@ -333,7 +333,7 @@ def edit_tags_view(request):
     filter = output['search'] if 'search' in output else ''
     
     
-    form.tag.choices = [(tag,tag) for tag in ['aop','ar','df','dg','dest','desr','stgr','str','sccr','ocsr','minors','vcr','vcsr','sm','sg','sr','Ind','Aso','Asmo','J'] if filter in tag]
+    form.tag.choices = [(tag,tag) for tag in ['aop','ar','df','dg','dest','desr','stgr','str','sccr','ocsr','minors','vcr','vcsr','sm','sg','sr','sss+','Ind','Aso','Asmo','J'] if filter in tag]
 
     if request.method == 'POST':
         if 'rst_tags' in session:
