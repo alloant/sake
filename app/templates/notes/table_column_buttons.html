@@ -2,7 +2,7 @@
 <img id="send-{{note.id}}" class="htmx-indicator" width="20" src="static/icons/bars.svg">
 {{ note.status_html(reg)|safe }}
 
-{% if current_user.admin or note.sender_id == current_user.id and note.state < 1 and note.register.alias != 'mat' or note.sender_id == current_user.id and note.state < 6 and note.register.alias == 'mat' or 'scr' in current_user.groups and note.state == 1 and note.flow == 'out' or 'despacho' in current_user.groups and note.state < 5 and note.flow == 'in' %}
+{% if current_user.admin or note.sender_id == current_user.id and note.state < 1 and note.register.alias != 'mat' or note.sender_id == current_user.id and note.state < 6 and note.register.alias == 'mat' or 'scr' in current_user.groups and note.state == 1 and note.flow == 'out' or 'despacho' in current_user.groups and note.state < 5 and note.flow == 'in' or note.register.permissions == 'editor' and note.state < 6 %}
 <a  hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
     hx-trigger="click"
     hx-target="#modal-htmx"

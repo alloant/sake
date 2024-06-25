@@ -368,6 +368,8 @@ class NoteHtml(object):
             return True
         elif self.register.alias == 'mat' and self.sender == current_user:
             return True
+        elif self.register.permissions == 'editor' and self.state < 6:
+            return True
 
         return False
     
