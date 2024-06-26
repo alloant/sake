@@ -117,8 +117,8 @@ def newNote(user, reg, ref = None):
     rst = db.session.commit()
 
 def sendmail():
-    tosendnotes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1))
-        
+    tosendnotes = db.session.scalars(select(Note).where(and_(Note.flow=='out',Note.state==1,Note.reg!='mat')))
+    
     for nt in tosendnotes:
         if not 'personal' in nt.register.groups: # Only for not personal calendars
             if not nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out"):
@@ -132,7 +132,7 @@ def sendmail():
             nt.state = 6
             for rec in nt.receiver:
                 if rec.email:
-                    send_email(f"New mail for {rec.alias}. {nt.comments}","",rec.email)
+                    send_email(f"New mail for {rec.alias} ({nt.fullkey})","",rec.email)
 
         db.session.commit()
 

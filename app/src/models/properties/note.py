@@ -278,9 +278,8 @@ class NoteProp(object):
                         self.state = 6
                         for rec in self.receiver:
                             if rec.email:
-                                print('--',rec,rec.email)
                                 try:
-                                    send_email(f"New mail for {rec.alias}. {self.fullkey}","",rec.email)
+                                    send_email(f"New mail for {rec.alias} ({self.fullkey})","",rec.email)
                                 except:
                                     flash(f"Could not send to {rec}")
 
