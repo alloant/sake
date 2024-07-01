@@ -20,9 +20,9 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 
 
-
 def create_app(config_class=Config):
     app = Flask(__name__)
+
     Mobility(app)
     bootstrap = Bootstrap5(app)
     babel = Babel(app, locale_selector=get_locale)

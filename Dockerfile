@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM python:3.12.1-alpine3.19 AS builder
+FROM python:3.12.4-alpine3.20 AS builder
 
 RUN pip install --upgrade pip
 RUN apk add git
@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
 COPY . /app
-CMD ["waitress-serve", "--url-scheme=https", "--threads=6", "--port=8000", "--call", "app:create_app"]
+CMD ["gunicorn", "-w 5","--threads 2", "-b 100.97.32.113:8000", "'app:create_app()'"]
 
 FROM builder as dev-envs
 

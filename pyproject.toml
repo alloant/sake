@@ -27,6 +27,8 @@ setuptools = "^69.5.1"
 synology-drive-api = {git = "https://github.com/alloant/synology-drive-api.git", rev = "v0.1.10"}
 bootstrap-flask = "^2.4.0"
 flask-mobility = "^2.0.1"
+flask-sock = "^0.7.0"
+gunicorn = "^22.0.0"
 
 
 [build-system]

@@ -107,9 +107,11 @@ def import_asr():
     asr_files = files_path(f"/team-folders/Mail asr/Mail from asr")
     if asr_files:
         for file in asr_files:
+            filename = file['display_path'].split("/")[-1]
+            flash(f"Found file {filename}",'info')
             rst = move_path(file['display_path'],f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN")
             if rst:
-                filename = file['display_path'].split("/")[-1]
+                flash(f"Moved file {filename}",'info')
                 path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}"
                 link = file['permanent_link']
                 if filename.split(".")[-1] in ['xls','xlsx','docx','rtf']:
@@ -126,9 +128,12 @@ def import_asr():
                 if not exists:
                     fl = File(path=path,permanent_link=link,sender="asr",date=date.today())
                     db.session.add(fl)
-                    flash(f"File {filename} has been added to database")
+                    flash(f"File {filename} has been added to database",'success')
                 else:
-                    flash(f"File {filename} is already in the database. The copy file in Mail/IN")
+                    flash(f"File {filename} is already in the database. The copy file in Mail/IN",'warning')
+
+            else:
+                flash(f"Could not move file {filename}",'danger')
                 
 
         db.session.commit()

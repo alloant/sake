@@ -290,6 +290,7 @@ class NoteProp(object):
                 self.state = 5
             else:
                 self.state += self.updateRead(f"des_{user.alias}")
+                self.updateRead(user)
         elif reg[2]:
             if self.flow == 'out': # Note from cr to the ctr
                 rst = self.received_by.split(",")

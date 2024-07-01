@@ -16,6 +16,7 @@ from app.src.tools.tools import newNote
 
 from app.src.models.nas.nas import files_path, copy_path, copy_office_path
 
+
 def sortable_view(request):
     form = ReceiverForm(request.form)
     order = request.form.keys()
@@ -426,7 +427,8 @@ def read_note_view(request):
         res.headers['HX-Trigger'] = f'read-updated,content_{note.id},open_file_{file_clicked}'
     else:
         res.headers['HX-Trigger'] = 'read-updated'
-    
+
+
     return res
 
 def open_file_view(request):

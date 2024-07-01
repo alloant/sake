@@ -302,7 +302,7 @@ class NoteHtml(object):
         return ET.tostring(span,encoding='unicode',method='html')
 
     @property
-    def dep_html(self):
+    def dep_html_old(self):
         if self.flow == 'in':
             if len(self.receiver) <= 3:
                 dep = ET.Element('span',attrib={'class':'small'})
@@ -325,6 +325,37 @@ class NoteHtml(object):
         else:
             dep = ET.Element('span',attrib={'class':'small badge bg-primary'})
             dep.text = self.sender.alias
+        
+        return ET.tostring(dep,encoding='unicode',method='html')
+
+    @property
+    def dep_html(self):
+        dep = ET.Element('span',attrib={'class':'small'})
+        if self.flow == 'in':
+            if not self.receiver:
+                dp = ET.Element('span',attrib={'class':'badge bg-danger'})
+                dp.text = "+"
+                dep.append(dp)
+            elif len(self.receiver) <= 3:
+                for rec in self.receiver:
+                    dp = ET.Element('span',attrib={'class':'badge bg-danger'})
+                    dp.attrib['data-bs-toggle'] = 'tooltip'
+                    dp.attrib['title'] = rec.name
+                    dp.text = rec.alias
+                    dep.append(dp) 
+            else:
+                dp = ET.Element('span',attrib={'class':'badge bg-danger'})
+                if len(self.receiver) > 3:
+                    dp.attrib['data-bs-toggle'] = 'tooltip'
+                    dp.attrib['title'] = self.receivers
+                    dp.text = "(...)"
+                elif self.receivers:
+                    dp.text = self.receivers
+                dep.append(dp)
+        else:
+            dp = ET.Element('span',attrib={'class':'small badge bg-primary'})
+            dp.text = self.sender.alias
+            dep.append(dp)
         
         return ET.tostring(dep,encoding='unicode',method='html')
 
@@ -425,7 +456,11 @@ class NoteHtml(object):
                     if reg[2]:
                         text = gettext('Send note to cr')
                     else:
-                        text = gettext('Send note to sccr')
+                        if self.register.alias in ['ctr','r'] and not self.receiver:
+                            sp = ET.Element('span')
+                            text = f"{gettext('You need to select some')} {self.register.alias}"
+                        else:
+                            text = gettext('Send note to sccr')
                 case 1:
                     icon = "bi-send-check-fill"
                     color = "gray"

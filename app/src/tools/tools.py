@@ -14,7 +14,7 @@ from app import db
 from app.src.models import User, Note, Register
 
 
-from app.src.tools.mail import send_email
+from app.src.tools.mail import send_email, send_emails
 
 def nextNumReg(rg):
     # Get new number for the note. Here getting the las number in that register
@@ -130,9 +130,11 @@ def sendmail():
         
         if 'sake' in nt.register.groups: # note for a ctr (internal sake system). We just change the state.
             nt.state = 6
-            for rec in nt.receiver:
-                if rec.email:
-                    send_email(f"New mail for {rec.alias} ({nt.fullkey})","",rec.email)
+            send_emails(nt)
+            #for rec in nt.receiver:
+            #    if rec.email:
+            #        print(f"New mail for {rec.alias} ({nt.fullkey})","",rec.email)
+            #        send_email(f"New mail for {rec.alias} ({nt.fullkey})","",rec.email)
 
         db.session.commit()
 

@@ -15,3 +15,15 @@ def send_email(subject, body, recipients):
        smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
        smtp_server.sendmail(Config.EMAIL_ADDRESS, recipients, msg.as_string())
 
+def send_emails(nt):
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
+        smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
+        for rec in nt.receiver:
+            if rec.email:
+                msg = MIMEText("")
+                msg['Subject'] = f"New mail for {rec.alias} ({nt.fullkey})"
+                msg['From'] = Config.EMAIL_ADDRESS
+                msg['To'] = rec.email
+       
+                smtp_server.sendmail(Config.EMAIL_ADDRESS, rec.email, msg.as_string())
+

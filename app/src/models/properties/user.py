@@ -45,21 +45,27 @@ class UserProp(object):
             case 'pendings':
                 href = ['all','pen','']
                 title = gettext('Pending')
+                id = "pending_icon"
             case 'matters':
                 href = ['mat','all','']
                 title = gettext('Matters')
+                id = "matters_icon"
             case 'register':
                 href = '#'
                 title = gettext('Register')
+                id = "dropdownRegister"
             case 'despacho':
                 href = ['des','in','']
                 title = gettext('Despacho')
+                id = "despacho_icon"
             case 'inbox':
                 href = ['box','in','']
                 title = gettext('Inbox')
+                id = "inbox_icon"
             case 'outbox':
                 href = ['box','out','']
                 title = gettext('Outbox')
+                id = "outbox_icon"
 
         dark = f'-dark' if session['theme'] == 'dark-mode' else ''
 
@@ -71,6 +77,7 @@ class UserProp(object):
             a.attrib['role'] = "button"
         else:
             a = ET.Element('a',attrib={'class':'position-relative text-decoration-none','hx-get':f'/main_body?reg={href}','hx-indicator':'#indicator-table','hx-trigger':'click','hx-target':'#main-body','data-bs-toggle':'tooltip','data-bs-placement':'right','data-bs-original-title':title})
+            a.attrib['id'] = id
             a.attrib['role'] = "button"
        
         if register == 'pendings' and self.has_pendings:

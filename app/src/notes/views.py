@@ -155,7 +155,7 @@ def register_filter(reg,filter = ""):
                 fmt.append(and_(Note.state == 1,Note.next_in_matters(current_user)))
                 #fmt.append(Note.contains_read(current_user.alias))
                 fmt.append(Note.sender.has(User.id==current_user.id))
-                fn.append(or_(and_(or_(Note.sender_id==current_user.id,Note.receiver.any(User.id==current_user.id)),Note.reg != 'mat'),and_(Note.reg == 'mat',or_(*fmt))))
+                fn.append(or_(and_(Note.state >= 5,or_(Note.sender_id==current_user.id,Note.receiver.any(User.id==current_user.id)),Note.reg != 'mat'),and_(Note.reg == 'mat',or_(*fmt))))
 
                 if not session['showAll']:
                     fn.append(Note.state<6)
@@ -339,7 +339,9 @@ def action_note_view(request):
             form = NoteForm(request.form,obj=note)
             form = fill_form_note(reg,form,note,filter)
 
-            return render_template('modals/modal_edit_note.html',note=note,form=form, reg=reg, dnone=visibility_note_form(reg,note))
+            despacho = True if reg[0] == 'des' else False
+
+            return render_template('modals/modal_edit_note.html',note=note,form=form, reg=reg, dnone=visibility_note_form(reg,note), despacho=despacho)
         case 'edited':
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))

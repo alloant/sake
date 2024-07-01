@@ -1,4 +1,4 @@
-  <div class="dropdown position-relative">
+  <div id="register_menu" class="dropdown position-relative">
       {{ current_user.register_icon_html('register')|safe }}
       {% with unread = current_user.unread %}
         {% if unread > 0 %}

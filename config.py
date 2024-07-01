@@ -13,3 +13,4 @@ class Config:
         or 'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LANGUAGES = ['en','ja','es']
+    SOCK_SERVER_OPTIONS = {'ping_interval': 25}
