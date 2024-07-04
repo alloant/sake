@@ -374,7 +374,6 @@ def note_row_view(request):
 def register_icon_view (request):
     register = request.args.get('reg')
     if register == 'menu_register':
-        registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-        return render_template('sidebar_menu_register.html',registers=registers)
+        return render_template('sidebar_menu_register.html')
     else:
         return current_user.register_icon_html(register)

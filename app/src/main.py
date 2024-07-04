@@ -10,8 +10,7 @@ from app.src.models import Register
 
 
 def dashboard_view(request):
-    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
-    return render_template('main.html', registers=registers)
+    return render_template('main.html')
 
 
 

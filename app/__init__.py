@@ -1,10 +1,11 @@
 # init.py
 
-from flask import Flask, session, request
+from flask import Flask, session, request, render_template
 from flask_babel import Babel
-from flask_login import LoginManager 
+from flask_login import LoginManager, current_user
 from flask_bootstrap import Bootstrap5
 from flask_mobility import Mobility
+from flask_sock import Sock
 #from flask_admin import Admin
 
 from config import Config
@@ -18,11 +19,22 @@ class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+sock = Sock()
+sock_clients = {}
 
+@sock.route('/update_sidebar')
+def update_sidebar(ws):
+    sock_clients[current_user.alias] = ws
+    
+    while True:
+        data = ws.receive()
+        print('data',data)
+        ws.send(data)
 
 def create_app(config_class=Config):
     app = Flask(__name__)
 
+    sock.init_app(app)
     Mobility(app)
     bootstrap = Bootstrap5(app)
     babel = Babel(app, locale_selector=get_locale)

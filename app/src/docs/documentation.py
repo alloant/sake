@@ -11,16 +11,15 @@ from app.src.models import Register
 def documentation_view(args):
     topic = args.get('topic')
 
-    registers = db.session.scalars(select(Register).where(Register.active==1)).all()
     match topic:
         case 'cr':
-            return render_template('docs/cr.html', registers=registers)
+            return render_template('docs/cr.html')
         case 'cl_in':
-            return render_template('docs/cl_inbox.html', registers=registers)
+            return render_template('docs/cl_inbox.html')
         case 'cl_out':
-            return render_template('docs/cl_outbox.html', registers=registers)
+            return render_template('docs/cl_outbox.html')
         case 'config':
-            return render_template('docs/registration.html', registers=registers)
+            return render_template('docs/registration.html')
         case _:
-            return render_template('docs/main.html', registers=registers)
+            return render_template('docs/main.html')
 

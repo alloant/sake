@@ -539,7 +539,7 @@ class NoteHtml(object):
                 icon = "bi-send-fill"
                 color = "red"
                 text = gettext(f'Click to pass the note to the next one ({self.read_by})')
-            elif self.state == 1 and self.is_read(current_user):
+            elif self.state <= 1 and self.is_read(current_user):
                 sp1 = ET.Element('span',attrib={})
                 icon = "bi-hourglass-bottom"
                 color = "gray"

@@ -9,19 +9,27 @@ from flask_login import current_user
 
 from sqlalchemy import select, and_
 
-from app import db
+from app import db, sock_clients
 from app.src.models import Note, User, Comment, File, get_note_fullkey
 from app.src.forms.note import ReceiverForm, TagForm
 from app.src.tools.tools import newNote
 
 from app.src.models.nas.nas import files_path, copy_path, copy_office_path
 
-
 def sortable_view(request):
     form = ReceiverForm(request.form)
     order = request.form.keys()
     return ("",204)
 
+def updateSocks(users=False):
+    global sock_clients
+    for key,ws in sock_clients.items():
+        if current_user.alias != key:
+            if not users or key in users: 
+                try:
+                    ws.send('<div id="sock_id"><span hx-get="/load_socket" hx-trigger="load" hx-swap="outerHTML"></div>')
+                except:
+                    pass
 
 def fill_form_note(reg,form,note, filter = ""):
     if reg[2] or note.flow == 'in':
@@ -418,10 +426,11 @@ def read_note_view(request):
     
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    
+   
     if not only_content and not (file_clicked > 0 and note.is_read(current_user)) and note.register.alias != 'mat' and reg[1] != 'out' and not reg[0] in ['des','box']:
         note.updateRead(current_user)
-
+        
+        
     res = make_response(note.content_html(reg))
     if file_clicked > 0:
         res.headers['HX-Trigger'] = f'read-updated,content_{note.id},open_file_{file_clicked}'
@@ -430,6 +439,13 @@ def read_note_view(request):
 
 
     return res
+
+def load_socket_view(request):
+    res = make_response('<span></span>')
+    res.headers['HX-Trigger'] = 'socket-updated'
+
+    return res
+
 
 def open_file_view(request):
     #reg = ast.literal_eval(request.args.get('reg'))
@@ -460,6 +476,9 @@ def state_note_view(request):
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateState(reg,current_user,cancel)
+
+    if note.register.alias == 'mat':
+        updateSocks(note.received_by.split(',') + [note.sender.alias])
     
     if reg[2]:
         return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)

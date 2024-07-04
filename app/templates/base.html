@@ -64,6 +64,12 @@
         {% endblock %}
     </head>
     <body id="whole-body">
+      {% if current_user.is_authenticated %}
+      <div hx-ext="ws" ws-connect="/update_sidebar">
+        <div id="sock_id"></div>
+      </div>
+      {% endif %}
+      
       {% include 'links.html' %}
       {% include 'links_cl.html' %}
 
@@ -91,9 +97,7 @@
       
       <div class="container-fluid">
         <div class="row">
-          <div class="col-sm-auto sticky-top border p-1" style="background-color: light;">
-            {% include "sidebar.html" %}
-          </div>
+          {% include "sidebar.html" %}
           <!-- Your page content -->
           <div class="col-sm min-vh-100">
             <div hx-get="/flash" hx-trigger="update-flash from:body">
@@ -113,6 +117,14 @@
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
               return new bootstrap.Tooltip(tooltipTriggerEl)
             })
+          </script>
+
+          <script>
+            // example reconnect delay that you shouldn't use because
+            // it's not as good as the algorithm that's already in place
+            htmx.config.wsReconnectDelay = function (retryCount) {
+              return retryCount * 1000 // return value in milliseconds
+            }
           </script>
       {% endblock %}
     </body>

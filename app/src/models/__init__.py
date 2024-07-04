@@ -347,7 +347,17 @@ class User(UserProp,UserMixin, db.Model):
                 rst.append(register)
 
         return rst
-    
+   
+    @property
+    def all_registers_and_sub(self):
+        rst = []
+        registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+        for register in registers:
+            if register.permissions != 'notallowed' or 'subregister' in register.groups:
+                rst.append(register)
+
+        return rst
+ 
     @property
     def has_pendings(self):
         pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4)))

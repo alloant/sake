@@ -1,3 +1,4 @@
+  {% with registers = current_user.all_registers_and_sub %}
   <div id="register_menu" class="dropdown position-relative">
       {{ current_user.register_icon_html('register')|safe }}
       {% with unread = current_user.unread %}
@@ -59,3 +60,4 @@
       </li>
     </ul>
   </div>
+  {% endwith %}

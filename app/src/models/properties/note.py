@@ -79,7 +79,11 @@ class NoteProp(object):
             if pattern == '' and folder: # Only for cg, because the short version is none we use the other
                 pattern = self.register.in_pattern.split('|')[0].strip(' ^$')
         else:
-            if len(self.receiver) == 0 and self.register.alias != 'mat' and not folder:
+            if 'only_cg' in self.register.groups:
+                alias = 'cg'
+                #pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
+                pattern = self.register.alias
+            elif len(self.receiver) == 0 and self.register.alias != 'mat' and not folder:
                 alias = "EMPTY"
                 pattern = self.register.out_pattern.split('|')[0].strip(' ^$')
             elif len(self.receiver) == 1 and long_key:
