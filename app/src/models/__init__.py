@@ -35,6 +35,7 @@ def get_register(prot):
             alias = ""
 
             senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
+            
             if len(senders) == 1:
                 sender = senders[0]
             else:
@@ -53,17 +54,19 @@ def get_register(prot):
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
-     
+    
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
-        fn.append(Note.flow==reg['flow'])
+        if reg['reg'].alias != 'mat':
+            fn.append(Note.flow==reg['flow'])
+
         if 'sender' in reg:
             fn.append(Note.sender==reg['sender'])
 
         fn.append(Note.num==int(nums[0]))
         fn.append(Note.year==2000+int(nums[1]))
-
+        
         return and_(*fn)
     
     return None

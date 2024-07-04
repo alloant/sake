@@ -182,8 +182,13 @@ def files_view(request):
     else:
         files = []
 
+    path_files = files_path(path)
 
-    files += files_path(path)
+    for file in path_files:
+        if file['display_path'][0] != '/':
+            file['display_path'] = f"{path}/{file['display_path']}"
+
+    files += path_files
     
     return render_template("modals/modal_files_list_synology.html",files=files)
 

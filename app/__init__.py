@@ -28,7 +28,6 @@ def update_sidebar(ws):
     
     while True:
         data = ws.receive()
-        print('data',data)
         ws.send(data)
 
 def create_app(config_class=Config):
