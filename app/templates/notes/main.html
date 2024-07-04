@@ -2,14 +2,6 @@
   <h1 class="title text-center display-4">
     <img src="{{title['icon']}}" width="70vmin" height="70vmin">
     {{title['text']}}
-    
-    {% if session['theme'] == 'light-mode' %}
-      <img id="indicator-table" class="htmx-indicator" width="20" src="static/icons/bars.svg">
-    {% else %}
-      <img id="indicator-table" class="htmx-indicator" width="20" src="static/icons/bars-dark.svg">
-    {% endif %}
-
-
   </h1>
 
   <div class="d-flex flex-row mb-4">

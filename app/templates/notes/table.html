@@ -45,12 +45,12 @@
     <ul class="pagination justify-content-center">
       {% if notes.has_prev %}
       <li class="page-item">
-        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.prev_num}}" hx-trigger="click" hx-target="#notes-table" role="button">{{gettext('Previous')}}</a>
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.prev_num}}" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" role="button">{{gettext('Previous')}}</a>
       </li>
       {% endif %}
       {% if notes.has_next %}
       <li class="page-item">
-        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.next_num}}" hx-trigger="click" hx-target="#notes-table" role="button">{{gettext('Next')}}</a>
+        <a class="page-link" hx-get="/body_table?reg={{reg}}&page={{notes.next_num}}" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" role="button">{{gettext('Next')}}</a>
       </li>
       {% endif%}
     </ul>

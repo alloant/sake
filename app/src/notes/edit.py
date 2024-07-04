@@ -21,8 +21,10 @@ def sortable_view(request):
     order = request.form.keys()
     return ("",204)
 
+
 def updateSocks(users=False):
     global sock_clients
+    
     for key,ws in sock_clients.items():
         if current_user.alias != key:
             if not users or key in users: 

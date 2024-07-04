@@ -62,7 +62,7 @@ class NoteHtml(object):
             update_folder.attrib['hx-target'] = f"#filesRow-{self.id}" 
             update_folder.attrib['hx-target-error'] = "#flash-errors" 
             update_folder.attrib['hx-trigger'] = "click"
-            update_folder.attrib['hx-indicator'] = f"#filesIndRow-{self.id}"
+            update_folder.attrib['hx-indicator'] = f"#indicator-table"
             update_folder.attrib['class'] = "ms-1"
             update_folder.attrib['role'] = "button"
             
@@ -467,7 +467,8 @@ class NoteHtml(object):
                     if reg[2]:
                         text = gettext('Waiting for cr to get the note (click to take note back from cr inbox)')
                     else:
-                        sp.attrib['hx-indicator'] = f"#send-{self.id}"
+                        #sp.attrib['hx-indicator'] = f"#send-{self.id}"
+                        sp.attrib['hx-indicator'] = f"#indicator-table"
                         text = gettext('Click to send note')
                 case _:
                     sp = ET.Element('span')
