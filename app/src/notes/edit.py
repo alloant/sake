@@ -24,7 +24,6 @@ def sortable_view(request):
 
 def updateSocks(users=False):
     global sock_clients
-    
     for key,ws in sock_clients.items():
         if current_user.alias != key:
             if not users or key in users: 
@@ -483,9 +482,11 @@ def state_note_view(request):
     
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateState(reg,current_user,cancel)
-
+    
     if note.register.alias == 'mat':
         updateSocks(note.received_by.split(',') + [note.sender.alias])
+    elif reg[0] == 'des':
+        updateSocks([rc.alias for rc in note.receiver])
     
     if reg[2]:
         return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)

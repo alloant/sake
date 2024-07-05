@@ -14,29 +14,12 @@
         <th scope="col">{{gettext('References')}}</th>
       </tr>
     </thead>
+    {% if not page or page == 1 %}
+    <tbody hx-get='table_body' hx-trigger='socket-updated from:body'>
+    {% else %}
     <tbody>
-    {% for note in notes %}
-      {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
-        {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" class="table-danger" data-bs-theme="light">
-        {% else %}
-          <tr id="row_{{note.id}}" class="table-danger-dark" data-bs-theme="light">
-        {% endif %}
-      {% else %}
-        {% if session['theme'] == 'light-mode' %}
-          <tr id="row_{{note.id}}" class="">
-        {% else %}
-          <tr id="row_{{note.id}}" class="table-plain-dark">
-        {% endif %}
-      {% endif%}
-      {% if reg[2]%}
-        {% include 'notes/table_row_subregister.html' %}
-      {% else %}
-        {% include 'notes/table_row.html' %}
-      {% endif %}
-      </tr>
-    {% endfor %}
-
+    {% endif %}
+      {% include 'notes/table_body.html' %}
     </tbody>
   </table>
 </div>

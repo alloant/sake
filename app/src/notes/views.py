@@ -25,6 +25,7 @@ def body_table_view(request):
     showAll = request.args.get('showAll','')
     output = request.form.to_dict()
     page = request.args.get('page', 1, type=int)
+    session['page'] = page
 
     if showAll == 'toggle':
         session['showAll'] = not session['showAll'] if 'showAll' in session else False
@@ -38,6 +39,19 @@ def body_table_view(request):
     notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
 
     return render_template('notes/table.html', notes=notes, page=page, reg=reg)
+
+def table_body_view(request):
+    if 'reg' in session:
+        page = 1 if not 'page' in session else session['page']
+        
+        if isinstance(session['reg'][1],int):
+            notes = get_history(session['reg'][1])
+        else:
+            notes = get_notes(session['reg'],filter = session['filter_notes'] if 'filter_notes' in session else '')
+    
+        return render_template('notes/table_body.html', notes=notes, page=page, reg=session['reg'])
+
+    return ""
 
 def main_body_view(request):
     reg = request.args.get('reg','')

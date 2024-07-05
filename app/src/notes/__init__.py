@@ -5,7 +5,7 @@ from flask import Blueprint, request, render_template, current_app
 from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
-from app.src.notes.views import main_body_view, body_table_view, note_row_view, register_icon_view, action_note_view
+from app.src.notes.views import main_body_view, body_table_view, note_row_view, register_icon_view, action_note_view, table_body_view
 from app.src.notes.edit import state_note_view, read_note_view, edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, browse_files_view, files_view, update_files_view, reply_note_view, get_files_view, open_file_view, load_socket_view
 from app.src.tools.download import download_view
 from app.src.main import  dashboard_view
@@ -24,6 +24,11 @@ def flash():
 @login_required
 def register(template):
     return dashboard_view(request)
+
+@bp.route('/table_body')
+@login_required
+def table_body():
+    return table_body_view(request)
 
 @bp.route('/action_note',methods=['GET','POST'])
 @login_required
