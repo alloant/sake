@@ -63,7 +63,7 @@
         
         {% endblock %}
     </head>
-    <body id="whole-body">
+    <body id="whole-body" onload="requestPermission()">
       {% if current_user.is_authenticated %}
       <div hx-ext="ws" ws-connect="/update_sidebar">
         <div id="sock_id"></div>
@@ -72,7 +72,7 @@
       
       {% include 'links.html' %}
       {% include 'links_cl.html' %}
-
+      
       <div id="modal-htmx"
         class="modal modal-blur fade"
         data-bs-backdrop="static"
@@ -126,6 +126,32 @@
               return retryCount * 1000 // return value in milliseconds
             }
           </script>
+          
+          <script>
+            function requestPermission(){
+              // Check if notifications are supported
+              if(typeof(Notification) == "undefined"){
+                  console.error("Notification not supported");
+                  return;
+              }
+              // We request the permission, which opens a dialog box asking
+              // for notifications.
+              var promise = Notification.requestPermission();
+              // The function returns a promise (which tells in the future the result
+              // of the notification
+              promise.then((permission) => {
+                  // promise.then is only called when the user has clicked 'Allow'
+                  // or 'Block'
+                  if(permission !="granted"){
+                      // If permission is not granted, error
+                      console.error("Notification permission denied!")
+                      return;
+                  }
+                  // If permission is granted, log that to the console.
+                  console.log("Permission granted")
+              })
+            }
+            </script>
       {% endblock %}
     </body>
 </html>

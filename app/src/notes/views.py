@@ -26,15 +26,16 @@ def body_table_view(request):
     output = request.form.to_dict()
     page = request.args.get('page', 1, type=int)
     session['page'] = page
-
+    session['reg'] = reg
+   
     if showAll == 'toggle':
         session['showAll'] = not session['showAll'] if 'showAll' in session else False
-    
-    if not 'page' in request.args:
-        if 'search' in output:
-            session['filter_notes'] = output['search']
-        else:
-            session['filter_notes'] = ''
+    else: 
+        if not 'page' in request.args:
+            if 'search' in output:
+                session['filter_notes'] = output['search']
+            else:
+                session['filter_notes'] = ''
 
     notes = get_notes(reg,filter = session['filter_notes'] if 'filter_notes' in session else '')
 
@@ -43,7 +44,6 @@ def body_table_view(request):
 def table_body_view(request):
     if 'reg' in session:
         page = 1 if not 'page' in session else session['page']
-        
         if isinstance(session['reg'][1],int):
             notes = get_history(session['reg'][1])
         else:
@@ -55,9 +55,10 @@ def table_body_view(request):
 
 def main_body_view(request):
     reg = request.args.get('reg','')
-
+    
     if not 'showAll' in session:
         session['showAll'] = False
+    session['filter_notes'] = ''
 
     if reg:
         reg = ast.literal_eval(reg)
@@ -77,6 +78,8 @@ def main_body_view(request):
                         session['reg'] = reg
                         break
                     if reg: break
+                
+            session['reg'] = reg
    
     if reg[2]:
         ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
@@ -202,7 +205,10 @@ def register_filter(reg,filter = ""):
 
         for sender in senders:
             alias = sender.replace('@','').strip()
-            sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver.any(User.alias==alias)) )
+            if reg[0] == 'mat':
+                sfn.append( Note.sender.has(User.alias==alias) )
+            else:
+                sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver.any(User.alias==alias)) )
  
         ofn = []
         if ft != "":

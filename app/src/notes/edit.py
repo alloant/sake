@@ -22,13 +22,13 @@ def sortable_view(request):
     return ("",204)
 
 
-def updateSocks(users=False):
+def updateSocks(users=False,msg=''):
     global sock_clients
     for key,ws in sock_clients.items():
         if current_user.alias != key:
             if not users or key in users: 
                 try:
-                    ws.send('<div id="sock_id"><span hx-get="/load_socket" hx-trigger="load" hx-swap="outerHTML"></div>')
+                    ws.send(f'<div id="sock_id"><span hx-get="/load_socket?msg={msg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
                 except:
                     pass
 
@@ -447,9 +447,11 @@ def read_note_view(request):
     return res
 
 def load_socket_view(request):
-    res = make_response('<span></span>')
+    msg = request.args.get('msg',False)
+    msg = f"'{msg}'"
+    res = make_response(f'<span hx-on:htmx:load="sendNotification({msg})" hx-trigger="load"></span>')
     res.headers['HX-Trigger'] = 'socket-updated'
-
+    
     return res
 
 
@@ -484,9 +486,9 @@ def state_note_view(request):
     note.updateState(reg,current_user,cancel)
     
     if note.register.alias == 'mat':
-        updateSocks(note.received_by.split(',') + [note.sender.alias])
+        updateSocks(note.received_by.split(',') + [note.sender.alias],msg='There is something new in your Matters')
     elif reg[0] == 'des':
-        updateSocks([rc.alias for rc in note.receiver])
+        updateSocks([rc.alias for rc in note.receiver],msg='You have a new pending')
     
     if reg[2]:
         return render_template('notes/table_row_subregister.html',note=note, reg=reg, user=current_user)
