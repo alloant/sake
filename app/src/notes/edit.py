@@ -24,13 +24,14 @@ def sortable_view(request):
 
 def updateSocks(users=False,msg=''):
     global sock_clients
-    for key,ws in sock_clients.items():
-        if current_user.alias != key:
-            if not users or key in users: 
-                try:
-                    ws.send(f'<div id="sock_id"><span hx-get="/load_socket?msg={msg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
-                except:
-                    pass
+    
+    for i,user in enumerate(users):
+        if user in sock_clients:
+            umsg = msg if isinstance(msg,str) else msg[i]
+            try:
+                sock_clients[user].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
+            except:
+                pass
 
 def fill_form_note(reg,form,note, filter = ""):
     if reg[2] or note.flow == 'in':
@@ -448,8 +449,12 @@ def read_note_view(request):
 
 def load_socket_view(request):
     msg = request.args.get('msg',False)
-    msg = f"'{msg}'"
-    res = make_response(f'<span hx-on:htmx:load="sendNotification({msg})" hx-trigger="load"></span>')
+
+    if msg:
+        msg = f"'{msg}'"
+        res = make_response(f'<span hx-on:htmx:load="sendNotification({msg})" hx-trigger="load"></span>')
+    else:
+        res = make_response(f'<span></span>')
     res.headers['HX-Trigger'] = 'socket-updated'
     
     return res
@@ -481,12 +486,29 @@ def state_note_view(request):
     note_id = request.args.get('note')
     
     cancel = request.args.get('cancel',False)
-    
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.updateState(reg,current_user,cancel)
     
     if note.register.alias == 'mat':
-        updateSocks(note.received_by.split(',') + [note.sender.alias],msg='There is something new in your Matters')
+        # This is not right because I have to send msg to one of the users and here I cannot distinguish. msg shoudl be also a []
+        msg = []
+        users = note.received_by.split(',')
+
+        if note.state == 5:
+            users += [note.sender.alias]
+            msg =  ['' for u in note.received_by.split(',')] + [f'The circulation of {note.fullkey} ({note.content}) is completed']
+        elif note.state == 1:
+            next = False
+            for user in note.received_by.split(','):
+                if not next and not user in note.read_by.split(','):
+                    next = True
+                    msg.append(f'Please review {note.fullkey} ({note.content}) in Matters')
+                else:
+                    msg.append('')
+        else:
+            msg = ''
+
+        updateSocks(users,msg=msg)
     elif reg[0] == 'des':
         updateSocks([rc.alias for rc in note.receiver],msg='You have a new pending')
     
