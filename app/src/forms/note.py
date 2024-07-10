@@ -2,14 +2,16 @@
 
 from flask_wtf import FlaskForm
 from flask_babel import gettext
-from wtforms import StringField, BooleanField, SelectField,DateField,IntegerField, RadioField, SubmitField, SelectMultipleField, TextAreaField
+from wtforms import StringField, BooleanField, SelectField, DateField, IntegerField, RadioField, SubmitField, SelectMultipleField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms_sqlalchemy.orm import QuerySelectField, QuerySelectMultipleField
+
 from sqlalchemy import select
 
 from app import db
 from app.src.models import Note,User
+
 
 class MultiCheckboxField(SelectMultipleField):
     widget = ListWidget(prefix_label=False)

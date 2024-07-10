@@ -205,7 +205,7 @@ def register_filter(reg,filter = ""):
 
         for sender in senders:
             alias = sender.replace('@','').strip()
-            if reg[0] == 'mat':
+            if reg[0] == 'mat' and alias == current_user.alias:
                 sfn.append( Note.sender.has(User.alias==alias) )
             else:
                 sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver.any(User.alias==alias)) )

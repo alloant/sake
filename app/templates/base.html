@@ -117,17 +117,13 @@
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
               return new bootstrap.Tooltip(tooltipTriggerEl)
             })
-          </script>
 
-          <script>
             // example reconnect delay that you shouldn't use because
             // it's not as good as the algorithm that's already in place
             htmx.config.wsReconnectDelay = function (retryCount) {
               return retryCount * 1000 // return value in milliseconds
             }
-          </script>
           
-          <script>
             function requestPermission(){
               // Check if notifications are supported
               if(typeof(Notification) == "undefined"){
@@ -151,7 +147,8 @@
                   console.log("Permission granted")
               })
             }
-            </script>
+
+          </script>
       {% endblock %}
     </body>
 </html>

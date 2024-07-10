@@ -4,7 +4,7 @@
     {{title['text']}}
   </h1>
 
-  <div class="d-flex flex-row mb-4">
+  <div class="d-flex flex-row align-items-center mb-4">
     {% if title['new'] %}
     <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=new" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('New')}}</button>
     {% endif %}
@@ -24,8 +24,14 @@
         hx-post="/body_table?reg={{reg}}" 
         hx-trigger="input changed delay:500ms, search" 
         hx-target="#notes-table"> 
+      <div class="p-2">
+        <span class="big" data-toggle="tooltip" data-html="true" title="Click the switch All not to filter what is already done&#013To filter using tags use #tag.&#013To filter by person use @alias">
+          <i class="bi bi-info-circle"></i>
+        </span>
+      </div>
     {% endif %}
   </div>
+
 
   {% if title['sendmail'] %}
   <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#notes-table" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
