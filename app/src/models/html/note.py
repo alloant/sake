@@ -213,7 +213,7 @@ class NoteHtml(object):
         max_people = 4
         people = [p for p in self.received_by.split(',') if p]
         people_read = [p for p in self.read_by.split(',') if p]
-
+    
         num_people = len(people)
         num_read = len(people_read)
         count_people = 0
@@ -228,24 +228,25 @@ class NoteHtml(object):
                 count_people += 1
             else:
                 over_people += 1
-
+        
         for p in people[:num_read]:
             if len(rst) < max_people:
                 rst = [p] + rst
                 count_read += 1
             else:
                 over_read += 1
-
-        if count_read < num_read:
-            #rst = ['<'] + rst
-            if over_read > 0:
+        
+        if count_read < num_read: # Count read people in the line is less than the ones who read, I need to put ...
+            if count_read > 0:
                 rst[0] = '<'
+            else:
+                rst = ['<'] + rst
 
         if count_people < num_people:
             #rst.append('>')
             if over_people > 0:
                 rst[-1] = '>'
-
+        
         span = ET.Element('span',attrib={'class':'small ms-1'})
         for rec in rst:
             if rec == '<':
@@ -277,56 +278,8 @@ class NoteHtml(object):
 
             span.append(t)
 
-        
-        """
-        span = ET.Element('span',attrib={'class':'small ms-1'})
-        for rec in self.received_by.split(","):
-            if rec in self.read_by.split(','): # Was read
-                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: Maroon; color: gray'})
-                t.attrib['data-bs-toggle'] = 'tooltip'
-                t.attrib['title'] = f"{rec} has already signed"
-            elif re.search(fr'^{self.read_by},*{rec}',self.received_by) and self.state > 0:
-                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SaddleBrown; color: white'})
-                t.attrib['data-bs-toggle'] = 'tooltip'
-                t.attrib['title'] = f"{rec} is studying the matter"
-            else:
-                t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SandyBrown; color: black'})
-                t.attrib['data-bs-toggle'] = 'tooltip'
-                t.attrib['title'] = f"{rec} has not seen yet the matter"
-
-            t.text = rec
-
-            span.append(t)
-        """
-        
         return ET.tostring(span,encoding='unicode',method='html')
 
-    @property
-    def dep_html_old(self):
-        if self.flow == 'in':
-            if len(self.receiver) <= 3:
-                dep = ET.Element('span',attrib={'class':'small'})
-                for rec in self.receiver:
-                    dp = ET.Element('span',attrib={'class':'badge bg-danger'})
-                    dp.attrib['data-bs-toggle'] = 'tooltip'
-                    dp.attrib['title'] = rec.name
-                    dp.text = rec.alias
-                    dep.append(dp) 
-            else:
-                dep = ET.Element('span',attrib={'class':'small badge bg-danger'})
-                if len(self.receiver) > 3:
-                    dep.attrib['data-bs-toggle'] = 'tooltip'
-                    dep.attrib['title'] = self.receivers
-                    dep.text = "(...)"
-                elif self.receivers:
-                    dep.text = self.receivers
-                else:
-                    dep.text = "+"
-        else:
-            dep = ET.Element('span',attrib={'class':'small badge bg-primary'})
-            dep.text = self.sender.alias
-        
-        return ET.tostring(dep,encoding='unicode',method='html')
 
     @property
     def dep_html(self):
