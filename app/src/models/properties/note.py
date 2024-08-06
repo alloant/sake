@@ -1,4 +1,5 @@
 from datetime import date
+import re
 
 from flask import flash, session, current_app
 from flask_login import current_user
@@ -30,6 +31,19 @@ class NoteProp(object):
 
     @hybrid_method
     def next_in_matters(cls,user):
+        return case(
+            (and_(cls.received_by.contains('|'),not_(cls.read_by.contains('|'))),and_(not_(cls.contains_read(user.alias)),cls.contains_received_by_part(user.alias))),
+            else_ = cls.received_by.regexp_match(func.concat('^',cls.read_by,fr',*{user.alias}.*'))
+        )
+    
+    def working_matter(self,alias):
+        if '|' in self.received_by and not '|' in self.read_by: # There are some people who read at the same time
+            return re.search(fr'\b{alias}\b',self.received_by.split('|')[0]) and not re.search(fr'\b{alias}\b',self.read_by)
+        else: #Normal circulation
+            return re.search(fr'^{self.read_by.replace("|","\|")},*{alias}',self.received_by)
+
+    @hybrid_method
+    def next_in_matters_old(cls,user):
         return cls.received_by.regexp_match(func.concat('^',cls.read_by,fr',*{user.alias}.*') )
 
     @hybrid_method
@@ -38,7 +52,11 @@ class NoteProp(object):
     
     @hybrid_method
     def contains_received_by(cls,alias):
-        return cls.read_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
+        return cls.received_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
+    
+    @hybrid_method
+    def contains_received_by_part(cls,alias):
+        return cls.received_by.regexp_match(fr'\b{alias}\b(?=.*\|)')
 
     @hybrid_method
     def contains_tag(cls,tag):
@@ -262,11 +280,29 @@ class NoteProp(object):
         if alias in rb:
             rb.remove(alias)
             inc = -1
+            self.read_by = ",".join([r for r in rb if r])
         else:
-            rb.append(alias)
+            if self.reg == 'mat' and '|' in self.received_by:
+                if not '|' in self.read_by:
+                    rec_by = self.received_by.split('|')[0].split(',')
+                    rst = []
+                    rb.append(alias)
+                    for rec in rec_by:
+                        print(rec)
+                        if rec in rb:
+                            rst.append(rec)
+                    self.read_by = ",".join([r for r in rst if r])
+                    if len(rec_by) == len(rst):
+                        self.read_by += '|'
+                else:
+                    if not self.read_by[-1] == '|':
+                        self.read_by += ','
+                    self.read_by += alias
+            else:
+                rb.append(alias)
+                self.read_by = ",".join([r for r in rb if r])
             inc = 1
         
-        self.read_by = ",".join([r for r in rb if r])
         db.session.commit()
         return inc
 

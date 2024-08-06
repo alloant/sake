@@ -211,8 +211,8 @@ class NoteHtml(object):
             return ""
        
         max_people = 4
-        people = [p for p in self.received_by.split(',') if p]
-        people_read = [p for p in self.read_by.split(',') if p]
+        people = [p for p in self.received_by.replace('|',',').split(',') if p]
+        people_read = [p for p in self.read_by.replace('|',',').split(',') if p]
     
         num_people = len(people)
         num_read = len(people_read)
@@ -259,12 +259,12 @@ class NoteHtml(object):
                 t.attrib['data-bs-toggle'] = 'tooltip'
                 t.attrib['title'] = ",".join([p for p in people if not p in rst and p not in people_read])
                 t.text = '...'
-            elif rec in self.read_by.split(','): # Was read
+            elif rec in self.read_by.replace('|',',').split(','): # Was read
                 t = ET.Element('span',attrib={'class':f'badge','style':'background-color: Maroon; color: gray'})
                 t.attrib['data-bs-toggle'] = 'tooltip'
                 t.attrib['title'] = f"{rec} has already signed"
                 t.text = rec
-            elif re.search(fr'^{self.read_by},*{rec}',self.received_by) and self.state > 0:
+            elif self.working_matter(rec) and self.state > 0:
                 t = ET.Element('span',attrib={'class':f'badge','style':'background-color: SaddleBrown; color: white'})
                 t.attrib['data-bs-toggle'] = 'tooltip'
                 t.attrib['title'] = f"{rec} is studying the matter"
@@ -487,7 +487,7 @@ class NoteHtml(object):
                 return ET.tostring(sp1,encoding='unicode',method='html')
 
         else: # One of the persons circulating the note
-            if self.state == 1 and not self.is_read(current_user):
+            if self.state == 1 and self.working_matter(current_user):
                 #sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#status_mat-{self.id}','role':'button'})
                 sp1 = ET.Element('span',attrib={'hx-post':f'/state_note?note={self.id}&reg={reg}','hx-target':f'#row_{self.id}','role':'button'})
                 icon = "bi-send-fill"
@@ -508,6 +508,10 @@ class NoteHtml(object):
                 icon = "bi-check-circle"
                 color = "green"
                 text = gettext('Matter was mark as done')
+            else:
+                icon = ""
+                color = ""
+                text = ""
 
             i1 = ET.Element('i',attrib={f'class':f'bi {icon}','style':f'color: {color};','data-toggle':'tooltip','title':text})
             sp1.append(i1)

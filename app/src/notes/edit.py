@@ -4,6 +4,8 @@ import re
 import ast
 import webbrowser
 
+import asyncio
+
 from flask import render_template, session, flash, Response, make_response, redirect
 from flask_login import current_user
 
@@ -13,6 +15,7 @@ from app import db, sock_clients
 from app.src.models import Note, User, Comment, File, get_note_fullkey
 from app.src.forms.note import ReceiverForm, TagForm
 from app.src.tools.tools import newNote
+from app.src.tools.websocket import send_message
 
 from app.src.models.nas.nas import files_path, copy_path, copy_office_path
 
@@ -23,7 +26,9 @@ def sortable_view(request):
 
 
 def updateSocks(users=False,msg=''):
+    #asyncio.run(send_message({'users':users,'message':msg}))
     global sock_clients
+
     
     for i,user in enumerate(users):
         if user in sock_clients:
@@ -32,6 +37,7 @@ def updateSocks(users=False,msg=''):
                 sock_clients[user].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
             except:
                 pass
+    
 
 def fill_form_note(reg,form,note, filter = ""):
     if reg[2] or note.flow == 'in':
@@ -42,14 +48,14 @@ def fill_form_note(reg,form,note, filter = ""):
     form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 
     if note.reg == 'mat':
-        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
+        form.receiver.choices = [('---','--- All above at the same time ---')] + note.potential_receivers(filter,note.received_by.split(","))
     else:
         form.receiver.choices = note.potential_receivers(filter)
-
-    form.ref.data = ",".join([r.fullkey for r in note.ref]) if note.ref else "" 
+    
+    form.ref.data = ",".join([r.fullkey for r in note.ref]) if note.ref else ""
     
     if note.reg == 'mat':
-        form.receiver.data = note.received_by
+        form.receiver.data = "---," + note.received_by
     else:
         for rec in note.receiver:
             form.receiver.data.append(rec.alias)
@@ -65,6 +71,8 @@ def fill_form_note(reg,form,note, filter = ""):
 
     session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
+
+    print('fill data',form.receiver.data)
     
     return form
 
@@ -80,7 +88,7 @@ def extract_form_note(reg,form,note):
     filter = ''
 
     if note.reg == 'mat':
-        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
+        form.receiver.choices = [('---','--- All above at the same time ---')] + note.potential_receivers(filter,note.received_by.split(","))
     else:
         form.receiver.choices = note.potential_receivers(filter)
 
@@ -119,7 +127,9 @@ def extract_form_note(reg,form,note):
             rd = note.read_by.split(',')
             rd += [us for us in form.receiver.data if not us in rd]
             form.receiver.data = rd
+            print('rd data',rd)
             note.received_by = ",".join([r for r in form.receiver.data if r])
+            note.received_by.replace(',---,','|')
 
             if note.read_by != '':
                 new_read_by = []
@@ -127,6 +137,7 @@ def extract_form_note(reg,form,note):
                     if rc != '' and rc in note.read_by.split(','):
                         new_read_by.append(rc)
                 note.read_by = ",".join([r for r in new_read_by if r])
+                note.read_by.replace(',---,','|')
     
          
         for n,user in enumerate(reversed(note.receiver)):
@@ -134,6 +145,8 @@ def extract_form_note(reg,form,note):
                 note.receiver.remove(user)
         
         for user in session['rst_checkbox']:
+            if user == '---':
+                continue
             rec = db.session.scalars(select(User).where(User.alias==user)).first()
             if not rec in note.receiver:
                 note.receiver.append(rec)
@@ -158,7 +171,7 @@ def extract_form_note(reg,form,note):
         for ref in reversed(note.ref):
             if not ref.fullkey in current_refs:
                 note.ref.remove(ref)
-    
+    print('before commit') 
     db.session.commit()
 
     
@@ -449,7 +462,7 @@ def read_note_view(request):
 
 def load_socket_view(request):
     msg = request.args.get('msg',False)
-
+    
     if msg:
         msg = f"'{msg}'"
         res = make_response(f'<span hx-on:htmx:load="sendNotification({msg})" hx-trigger="load"></span>')

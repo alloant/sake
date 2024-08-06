@@ -20,14 +20,14 @@ from app.src.notes.edit import fill_form_note, extract_form_note
 
 from app.src.tools.tools import newNote, sendmail, delete_note
 
-def body_table_view(request):
+def body_table_view(request): 
     reg = ast.literal_eval(request.args.get('reg'))
     showAll = request.args.get('showAll','')
     output = request.form.to_dict()
     page = request.args.get('page', 1, type=int)
     session['page'] = page
     session['reg'] = reg
-   
+
     if showAll == 'toggle':
         session['showAll'] = not session['showAll'] if 'showAll' in session else False
     else: 

@@ -22,6 +22,7 @@ db = SQLAlchemy(model_class=Base)
 sock = Sock()
 sock_clients = {}
 
+
 @sock.route('/update_sidebar')
 def update_sidebar(ws):
     sock_clients[current_user.alias] = ws

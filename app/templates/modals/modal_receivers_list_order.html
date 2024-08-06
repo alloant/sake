@@ -8,7 +8,11 @@
           {% else %}
             <i class="bi bi-list" style="color: white;"></i>
           {% endif %}
-          {{ rec(class="form-check-input chbox") }}
+          {% if rec.data == '---' %}
+            {{ rec(class="d-none form-check-input chbox") }}
+          {% else %}
+            {{ rec(class="form-check-input chbox") }}
+          {% endif %}
           {{ rec.label(class="form-check-label chbox_label") }}
         </span>
       </li>
@@ -23,7 +27,9 @@
           {% else %}
             <i class="bi bi-list" style="color: white;"></i>
           {% endif %}
-          {{ rec(class="glyphicon glyphicon-move my-handle form-check-input chbox") }}
+          {% if rec.data != '---' %} 
+            {{ rec(class="glyphicon glyphicon-move my-handle form-check-input chbox") }}
+          {% endif %}
           {{ rec.label(class="form-check-label chbox_label") }}
         </span>
       </li>

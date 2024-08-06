@@ -14,4 +14,4 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = {'pool_size': 20}
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LANGUAGES = ['en','ja','es']
-    SOCK_SERVER_OPTIONS = {'ping_interval': 25}
+    SOCK_SERVER = os.environ.get('SOCK_SERVER')

@@ -4,8 +4,6 @@ FROM python:3.12.4-alpine3.20 AS builder
 RUN pip install --upgrade pip
 RUN apk add git
 
-EXPOSE 8000
-
 WORKDIR /app
 
 COPY requirements.txt /app
@@ -13,7 +11,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
 COPY . /app
-CMD ["gunicorn", "-w 5","--threads 2", "-b 100.97.32.113:8000", "'app:create_app()'"]
+CMD ["/bin/bash","-c","python websocket_server.py; gunicorn -w 5 --threads 100 -b :8000 'app:create_app()'"]
 
 FROM builder as dev-envs
 
