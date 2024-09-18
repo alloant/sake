@@ -1,0 +1,28 @@
+<span class="dropdown dropdown-center position-static">
+  <button type="button" class="btn btn-sm mx-2 p-0 my-0" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-three-dots-vertical"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-center">
+    {% if note.reg == 'mat' %}
+      {% include 'notes/table/2_actions/all_in.html' %}
+      {% include 'notes/table/2_actions/proposals.html' %}
+    {% else %}
+      {% if note.flow == 'in' %}
+        {% include 'notes/table/2_actions/all_in.html' %}
+      {% else %}
+        {% include 'notes/table/2_actions/all_out.html' %}
+      {% endif %}
+    
+      {% if 'scr' in current_user.groups %}
+        {% include 'notes/table/2_actions/scr.html' %}
+      {% endif %}
+
+      {% if reg[0] == 'des' %}
+        {% include 'notes/table/2_actions/despacho.html' %}
+      {% endif %}
+    {% endif %}
+
+    {% include 'notes/table/2_actions/all_all.html' %}
+
+  </ul>
+</span>

@@ -1,0 +1,110 @@
+{% if note.flow == 'out' %}
+    {% if note.is_read(current_user) %}
+        <a class="text-decoration-none"
+          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-target="#row_{{note.id}}"
+          data-bs-toggle="tooltip"
+          title="{{gettext('Mark as unread')}}"
+          role="button">
+          <i class="bi bi-envelope-exclamation-fill"></i>
+        </a>
+    {% else %}
+        <a class="text-decoration-none"
+          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-target="#row_{{note.id}}"
+          data-bs-toggle="tooltip"
+          title="{{gettext('Mark as read')}}"
+          role="button">
+          <i class="bi bi-envelope-open-fill"></i>
+        </a>
+    {% endif %}
+{% elif note.state < 6 %}
+    {% if note.state == 0 %}
+        <a  class="text-decoration-none"
+            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-disinherit="*"
+            hx-indicator="#indicator-table"
+            data-bs-toggle="tooltip"
+            title="{{gettext('Send to sccr')}}"
+            role="button">
+          <i class="bi bi-send text-warning"></i>
+        </a>
+    {% elif note.state == 1 %}
+        <a  class="text-decoration-none"
+            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-disinherit="*"
+            hx-indicator="#indicator-table"
+            data-bs-toggle="tooltip"
+            title="{{gettext('Retreive from sccr')}}"
+            role="button">
+          <i class="bi bi-backspace-fill text-muted"></i>
+        </a>
+    {% endif %}
+
+{% endif %}
+
+{% if note.flow == 'out' and note.state >= 5 %}
+    {% if note.is_done(session['ctr']) %}
+          <a  class="text-decoration-none"
+            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-disinherit="*"
+            hx-indicator="#indicator-table"
+            data-bs-toggle="tooltip"
+            title="{{gettext('Restore')}}"
+            role="button">
+          <i class="bi bi-box-arrow-up text-secondary"></i>
+        </a>
+    {% else %}
+          <a  class="text-decoration-none"
+            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-disinherit="*"
+            hx-indicator="#indicator-table"
+            data-bs-toggle="tooltip"
+            title="{{gettext('Archive')}}"
+            role="button">
+          <i class="bi bi-box-arrow-in-down text-secondary"></i>
+        </a>
+    {% endif %}
+{% endif %}
+
+{% if current_user.admin or note.state == 0 %}
+  <a  class="text-decoration-none"
+      hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
+      hx-trigger="click"
+      hx-target="#modal-htmx"
+      data-bs-toggle="modal"
+      data-bs-target="#modal-htmx"
+      role="button">
+      <i class="bi bi-pencil-fill text-primary" data-bs-toggle="tooltip" title="{{gettext("Edit note")}}"></i>
+  </a>
+  <a  class="text-decoration-none text-danger"
+      hx-get="/action_note?reg={{reg}}&action=delete_note&note={{note.id}}" 
+      hx-trigger="click"
+      hx-target="#main-body"
+      hx-indicator="#indicator-table"
+      hx-confirm="Are you sure you want to delete {{note.fullkey}}?"
+      data-bs-toggle="tooltip"
+      title="{{gettext("Delete note")}}"
+      role="button">
+      <i class="bi bi-trash3-fill"></i>
+  </a>
+{% endif %}
+
+<a  class="text-decoration-none"
+    hx-get="reply_note?reg={{reg}}&note={{note.id}}" 
+    hx-trigger="click" 
+    hx-indicator="#indicator-table"
+    data-bs-toggle="tooltip"
+    title="{{gettext('New document with ref')}}"
+    role="button">
+  <i class="bi bi-envelope-plus-fill text-warning"></i>
+</a>
+

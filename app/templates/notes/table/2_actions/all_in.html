@@ -1,0 +1,57 @@
+{% if not reg[0] in ['box','des'] and note.permissions('can_read') %}
+  {% if note.is_read(current_user) %}
+    <li>
+      <a class="dropdown-item"
+        hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+        hx-target="#row_{{note.id}}"
+        role="button">
+        <i class="bi bi-envelope-exclamation-fill"></i> {{gettext('Mark as unread')}}
+      </a>
+    </li>
+  {% else %}
+    <li>
+      <a class="dropdown-item"
+        hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+        hx-target="#row_{{note.id}}"
+        role="button">
+        <i class="bi bi-envelope-open-fill"></i> {{gettext('Mark as read')}}
+      </a>
+    </li>
+  {% endif %}
+{% endif %}
+  
+{% if not reg[0] in ['des','box'] and note.permissions('can_archive') %}
+  {% if note.state == 5 or note.reg == 'mat' and note.receiver|length == 0 and note.state < 6 %}
+    <li>
+      <a class="dropdown-item"
+        <a  class="dropdown-item"
+          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+        <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
+      </a>
+    </li>
+  {% else %}
+    <li>
+      <a class="dropdown-item"
+        <a  class="dropdown-item"
+          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+        <i class="bi bi-box-arrow-up"></i> {{gettext('Restore')}}
+      </a>
+    </li>
+  {% endif %}
+{% endif %}
+
+{% if (not reg[0] in ['box','des'] and note.permissions('can_read')) or (not reg[0] in ['des','box'] and note.permissions('can_archive')) %}
+  <li><hr class="dropdown-divider"></li>
+{% endif %}
+
+

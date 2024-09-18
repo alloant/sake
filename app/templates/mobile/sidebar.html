@@ -1,0 +1,251 @@
+<nav class="navbar navbar-expand-lg sticky-top bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <span hx-get="/notes?get=title" hx-trigger="update-main from:body">{% include 'mobile/title.html' %}</span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavbarSake" aria-controls="mobileNavbarSake" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mobileNavbarSake">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% with registers = current_user.all_registers_and_sub %}
+          {% if 'cr' in current_user.groups %}
+            <li class="nav-item">
+              <a class="nav-link"
+                  hx-get="/main_title_body?reg=['all','pen','']"
+                  hx-indicator="#indicator-table"
+                  hx-trigger="click"
+                  hx-target="#main-body"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#mobileNavbarSake"
+                  role="button">
+                <i class="bi bi-app-indicator"></i> {{gettext('Pending notes and proposals')}}
+                {% with unread = 0 %}
+                  {% if unread > 0 %}
+                    <span class="badge rounded-pill bg-danger"
+                          hx-get="/register_icon?reg=pendings"
+                          hx-trigger='read-updated from:body, file-opened from:body, socket-updated from:body'
+                          hx-disinherit="*">
+                      {{unread}}
+                    </span>
+                  {% endif %}
+                {% endwith %}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link"
+                  hx-get="/main_title_body?reg=['mat','in','']"
+                  hx-indicator="#indicator-table"
+                  hx-trigger="click"
+                  hx-target="#main-body"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#mobileNavbarSake"
+                  role="button">
+                <i class="bi bi-file-earmark-richtext"></i> {{gettext('Proposals')}}
+                {% with unread = 0 %}
+                  {% if unread > 0 %}
+                    <span class="badge rounded-pill bg-danger"
+                          hx-get="/register_icon?reg=matters"
+                          hx-trigger='state-updated from:body, socket-updated from:body'
+                          hx-disinherit="*">
+                      {{unread}}
+                    </span>
+                  {% endif %}
+                {% endwith %}
+              </a>
+            </li>
+          {% endif %}
+
+          {% if current_user.is_authenticated%}
+            {% if current_user.severalCalendars %}
+              {% include 'mobile/sidebar_menu_register.html' %}
+            {% endif %}
+   
+            {% if 'despacho' in current_user.groups %}
+              <li class="nav-item">
+                <a  class="nav-link"
+                    hx-get="/main_title_body?reg=['des','in','']"
+                    hx-trigger="click"
+                    hx-target="#main-body"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mobileNavbarSake"
+                    role="button">
+                  <i class="bi bi-briefcase"></i> {{gettext('Despacho')}}
+                </a>
+              </li>
+            {% endif %}
+
+            {% if 'scr' in current_user.groups %}
+              <li class="nav-item">
+                <a  class="nav-link"
+                    hx-get="/inbox_body?reg=['box','in','']"
+                    hx-trigger="click"
+                    hx-target="#main-body"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mobileNavbarSake"
+                   role="button">
+                  <i class="bi bi-box-arrow-in-left"></i> {{gettext('Inbox')}}
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a  class="nav-link"
+                    hx-get="/main_title_body?reg=['box','out','']"
+                    hx-trigger="click"
+                    hx-target="#main-body"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mobileNavbarSake"
+                   role="button">
+                  <i class="bi bi-box-arrow-left"></i> {{gettext('Outbox')}}
+                </a>
+              </li>
+            {% endif %}
+
+            {% if not current_user.severalCalendars %}
+              <!-- cl registers-->
+              <li class="nav-item">
+              {% for register in registers %}
+                {% for subregister in register.get_subregisters() %}
+                  {{ register.link_icon_html('in',subregister,45)|safe }}
+                {% endfor %}
+              {% endfor %}
+              </li>
+              <li class="nav-item">
+              {% for register in registers %}
+                {% for subregister in register.get_subregisters() %}
+                  {{ register.link_icon_html('out',subregister,45)|safe }}
+                {% endfor %}
+              {% endfor %}
+              </li>
+              <!-- End cl registers-->
+            {% endif %}
+        
+            {% if 'cr' in current_user.groups %}
+              <li class="nav-item">
+                <a class="nav-link" type="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
+                  <i class="bi bi-link"></i> {{gettext('Links')}}
+                </a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" type="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks_cl">
+                  <i class="bi bi-link"></i> {{gettext('Links')}}
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+    
+          <li class="nav-item">
+            <a class="nav-link"
+                hx-get="/documentation"
+                hx-trigger="click"
+                hx-target="#main-body"
+                data-bs-toggle="collapse"
+                data-bs-target="#mobileNavbarSake"
+                role="button">
+              <i class="bi bi-question-circle"></i> {{gettext('Help')}}
+            </a>
+          </li>
+
+          <li id="settings_menu" class="nav-item">
+            <a id="dropdownSettings" class="nav-link" data-bs-toggle="dropdown">
+              <i class="bi bi-archive"></i> {{gettext('Settings')}}
+            </a>
+            <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownSettings">
+              <li class="">
+                {% if session['theme'] == 'dark-mode' %}
+                  <a href="/theme" class="dropdown-item">
+                    <i class="bi bi-brightness-high-fill"></i> {{gettext('Change to light mode')}}
+                  </a>
+                {% else %}
+                  <a href="/theme" class="dropdown-item">
+                    <i class="bi bi-moon-fill"></i> {{gettext('Change to dark mode')}}
+                  </a>
+                {% endif %}
+              </li>
+              
+              <li class="">
+                {% if session['version'] == 'old' %}
+                  <a href="/theme?version=new" class="dropdown-item">
+                    <i class="bi bi-stars"></i> {{gettext('Change to use new version')}}
+                  </a>
+                {% else %}
+                  <a href="/theme?version=old" class="dropdown-item">
+                    <i class="bi bi-bandaid"></i> {{gettext('Change to use old version')}}
+                  </a>
+                {% endif %}
+              </li>
+
+              <li class="">
+                {% if session['language'] == 'en' %}
+                  <a href="/language?lang=ja" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Japanese')}}">
+                    <span class="border border-2 p-1 rounded">JA</span> 言語を日本語に変更
+                  </a>
+                {% else %}
+                  <a href="/language?lang=en" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('English')}}">
+                    <span class="border border-2 p-1 rounded">EN</span> Change to English
+                  </a>
+                {% endif %}
+              </li>
+            </ul>
+      
+          <li id="login_menu" class="nav-item">
+            <a id="dropdownLogin" class="nav-link" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> {{gettext('Profile')}}
+            </a>
+            <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownLogin">
+            {% if current_user.is_authenticated%}
+              <li class="">
+                <a class="dropdown-item"
+                  hx-get="/edit_user?user={{current_user.id}}" 
+                  hx-trigger="click"
+                  hx-target="#modal-htmx"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modal-htmx"
+                  role="button">
+                  <i class="bi bi-person"></i> {{gettext('Profile')}} {{current_user.alias}}</a></li>
+
+              {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
+              <li class=""><a class="dropdown-item" 
+                  hx-get="/main_users" 
+                  hx-trigger="click"
+                  hx-target="#main-body"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#mobileNavbarSake"
+                  role="button">
+                  <i class="bi bi-people"></i> {{gettext('List users')}}</a></li>
+              {% endif %}
+              
+              {% for register in registers %}
+                {% for subregister in register.get_subregisters(True) %}
+                  <li class="">
+                    <a class="dropdown-item"
+                      hx-get="/edit_user?user={{subregister[0]}}&ctr=True" 
+                      hx-trigger="click"
+                      hx-target="#modal-htmx"
+                      data-bs-toggle="modal"
+                      data-bs-target="#modal-htmx"
+                      role="button">
+                      <span class="border border-2 p-1 rounded">{{subregister[1]}}</span> {{gettext('Profile')}} {{subregister[1]}} 
+                    </a>
+                  </li>
+                {% endfor %}
+              {% endfor %}
+              <li class="dropdown-divider"></li>
+              <li class=""><a class="dropdown-item" href="{{url_for('auth.logout')}}">{{gettext('Log out')}}</a></li>
+            {% else %}
+              <li class="dropdown-divider"></li>
+              <li class=""><a class="dropdown-item" href="{{url_for('auth.login')}}">{{gettext('Log in')}}</a></li>
+              <li class=""><a class="dropdown-item" href="{{url_for('auth.signup')}}">{{gettext('Sign up')}}</a></li>
+            {% endif %}
+            </ul>
+
+          {% endwith %}
+        </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
+

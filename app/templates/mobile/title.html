@@ -1,0 +1,25 @@
+{% with reg = session['reg'] %}
+  {% if reg[1] == 'pen' %}
+    <span><i class="bi bi-app-indicator"></i> {{gettext('Pending')}}</span>
+  {% elif reg[0] == 'des' %}
+    <span><i class="bi bi-briefcase"></i> {{gettext('Despacho')}}</span>
+  {% elif reg[0] == 'box' and reg[1] == 'out' %}
+    <span><i class="bi bi-box-arrow-left"></i> {{gettext('Outbox')}}</span>
+  {% elif reg[0] == 'box' and reg[1] == 'in' %}
+    <span><i class="bi bi-box-arrow-in-left"></i> {{gettext('Inbox')}}</span>
+  {% elif reg[2] and reg[1] == 'in' %}
+@login_required
+     <span class="border border-2 p-1 rounded">{{reg[2]}} in</span> <span> {{gettext('Notes from cr')}}</span>
+  {% elif reg[2] and reg[1] == 'out' %}
+     <span class="border border-2 p-1 rounded">{{reg[2]}} out</span> <span> {{gettext('Notes to cr')}}</span>
+  {% elif reg[0] == 'all' %}
+    <span><i class="bi bi-diagram-2"></i> {{gettext('Note history')}}</span>
+  {% elif reg[0] == 'mat' %}
+    <span><i class="bi bi-file-earmark-richtext"></i> {{gettext('Proposals')}}</span>
+  {% elif reg[1] == 'in' %}
+    <span class="border border-2 p-1 rounded">{{reg[0]}} in</span><span> {{gettext('Notes from')}} {{reg[0]}}</span>
+  {% elif reg[1] == 'out' %}
+    <span class="border border-2 p-1 rounded">{{reg[0]}} out</span><span> {{gettext('Notes to')}} {{reg[0]}}</span>
+  {% endif %}
+{% endwith %}
+

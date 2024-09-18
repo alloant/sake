@@ -1,0 +1,21 @@
+<div class="modal-dialog modal-xl modal-dialog-centered">
+  <form class="modal-content">
+    <div class="modal-header justify-content-between">
+        <h3 class="modal-title">Edit {{user.alias}}</h3>
+        <div>
+          {% if user.id == current_user.id %}
+            <button type="button" class="btn btn-primary" hx-post="/edit_user?user={{user.id}}" hx-target="#main-body" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          {% else %}
+            <button type="button" class="btn btn-primary" hx-post="/edit_user?user={{user.id}}" hx-swap="none" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          {% endif %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-body">
+      {% include 'users/form_edit_user.html' %}      
+    </div>
+  </form>
+</div>
+
+

@@ -1,0 +1,49 @@
+{% if reg[2] or not reg[2] and note.flow == 'in' %}
+  <ul class="list-group list-group-flush">
+  {% for user in rst %}
+    {% if user['read'] %}
+      <li class="list-group-item me-4"><span class="text-muted text-nowrap">{{user['alias']}}: {{gettext('Yes')}}</span>
+    {% else %}
+      <li class="list-group-item me-4"><span class="fw-bold text-nowrap">{{user['alias']}}: {{gettext('No')}}</span>
+    {% endif %}
+    </li>
+  {% endfor %}
+  {% if not reg[2] and note.flow == 'in' and props|length > 0 %}
+    <li>-----------</li>
+    {% for prop in props %}
+      <li class="list-group-item me-4">{{prop.fullkey}}: {{prop.content}}</li>
+    {% endfor %}
+  {% endif %}
+  </ul>
+{% else %}
+    {% for ctr,rst in rst.items() %}
+      <ul class="list-group list-group-horizontal list-group-flush">
+        {% if not rst['archived'] %}
+          <li class="list-group-item py-0"><span class="fw-bold"><i class="bi bi-patch-exclamation"></i> {{ctr}}:</span></li>
+          {% for user in rst['rst'] %}
+            {% if user['read'] %}
+              <li class="list-group-item py-0"><span class="text-muted">{{user['alias']}} ({{gettext('Yes')}})</span>
+            {% else %}
+              <li class="list-group-item py-0"><span class="fw-bold">{{user['alias']}} ({{gettext('No')}})</span>
+            {% endif %}
+            </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    {% endfor %}
+    {% for ctr,rst in rst.items() %}
+      <ul class="list-group list-group-horizontal list-group-flush">
+        {% if rst['archived'] %}
+          <li class="list-group-item py-0"><span class="text-muted"><i class="bi bi-patch-check text-muted"></i> {{ctr}}:</span></li>
+          {% for user in rst['rst'] %}
+            {% if user['read'] %}
+              <li class="list-group-item py-0"><span class="text-muted">{{user['alias']}}: {{gettext('Yes')}}</span>
+            {% else %}
+              <li class="list-group-item py-0"><span class="fw-bold">{{user['alias']}}: {{gettext('No')}}</span>
+            {% endif %}
+            </li>
+          {% endfor %}
+        {% endif %}
+      </ul>
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,28 @@
+<li>
+  <a class="dropdown-item"
+    hx-post="/state_note?reg={{reg}}&note={{note.id}}"
+    hx-target="#row_{{note.id}}"
+    hx-disinherit="*"
+    hx-indicator="#indicator-table"
+    role="button">
+    {% if note.result('is_sign_despacho') %}
+      <i class="bi bi-backspace-fill"></i> {{gettext('Unsign despacho')}}
+    {% else %}
+      <i class="bi bi-vector-pen"></i> {{gettext('Sign despacho')}}
+    {% endif %}
+  </a>
+</li>
+<li><hr class="dropdown-divider"></li>
+
+
+{% if not reg[0] in ['box','des'] and note.permissions('can_check_info') %}
+<li>
+  <a class="dropdown-item" hx-trigger="mouseenter once" hx-get="action_note?reg={{reg}}&note={{note.id}}&action=info" hx-target="#row_{{note.id}}_info">
+    <i class="bi bi-info-circle-fill"></i> {{gettext('Check info about the note')}} &raquo;
+  </a>
+   <ul class="dropdown-menu dropdown-submenu dropdown-submenu-left">
+    <div id="row_{{note.id}}_info"></div>
+  </ul>
+</li>
+<li><hr class="dropdown-divider"></li>
+{% endif %}

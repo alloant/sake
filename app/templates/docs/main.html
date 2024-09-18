@@ -1,0 +1,29 @@
+<!-- templates/profile.html -->
+
+<div id="main-body">
+
+  <h1 class="title text-center display-4">
+    {{gettext('Documentation')}}
+  </h1>
+
+  <p class="title text-center display-6">
+    <a class="btn btn-primary" hx-get="/documentation?topic=config" hx-trigger="click" hx-target="#main-body">{{gettext('1. Registration and configuration')}}</a>
+  </p>
+
+  {% if 'cl_' in current_user.u_groups or 'cr' in current_user.u_groups %}
+      <p class="title text-center display-6">
+      <a class="btn btn-primary" hx-get="/documentation?topic=cl_in" hx-trigger="click" hx-target="#main-body">{{gettext('2. Mail from cr')}}</a>
+    </p>
+    <p class="title text-center display-6">
+      <a class="btn btn-primary" hx-get="/documentation?topic=cl_out" hx-trigger="click" hx-target="#main-body">{{gettext('3. Mail to cr')}}</a>
+    </p>
+  {% endif %}
+
+  {% if 'cr' in current_user.groups %}
+    <p class="title text-center display-6">
+    <a class="btn btn-primary" hx-get="/documentation?topic=cr" hx-trigger="click" hx-target="#main-body">{{gettext('For cr')}}</a>
+    </p>
+  {% endif %}
+
+  </div>
+

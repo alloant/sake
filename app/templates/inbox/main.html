@@ -1,0 +1,63 @@
+<form class="" id="inboxscr" method="POST">
+  <div class="d-flex justify-content-between my-4">
+    <div class="d-inline-flex align-items-center">
+        <img src="static/icons/sake.svg" width="45vmin" height="45vmin">
+        <span class="display-6 mx-2">Sake</span>
+    </div>
+      
+    <div class="btn-group" role="group">
+      <button type="button" 
+        class="btn btn-file dropdown-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"><i class="h4 bi bi-download" data-bs-toggle="tooltip" title="Import files"></i></button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=update_file" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"     
+            role="button">
+          Import any files</a></li>
+        <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=import_eml" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button">
+          Import eml</a></li>
+        <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=import_asr"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+          Check mail from asr</a></li>
+          {% if current_user.alias == 'antonio' %}
+          <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=transfer"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+          Transfer data</a></li>
+          {% endif %}
+      </ul>
+      <button class="btn btn-file"
+          hx-post="/action_inbox?action=generate_notes"
+          hx-trigger="click"
+          hx-target="#inbox-table"
+          hx-include="#inboxscr"
+          hx-indicator="#indicator-table"
+          data-bs-toggle="tooltip"
+          title="Generate notes"><i class="h3 bi bi-stack-overflow"></i></button>
+    </div> <!-- end btn-group -->
+  </div> <!-- end -->
+  <div id="inbox-table" class="mt-3">
+    {% include 'inbox/table.html' %}
+  </div>
+
+</form>
+
+

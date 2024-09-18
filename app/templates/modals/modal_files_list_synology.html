@@ -1,0 +1,22 @@
+<ul id="files" name="file" class="list-group" style="max-height: 70vmin; overflow: auto;">
+  {% for file in files %}
+
+  <li class="list-group-item d-flex justify-content-left">
+		<input class="form-checkbox" type="checkbox" name="files_to_copy" value="{{file['display_path']}}">
+
+		<div class="d-flex flex-row ms-4">
+      {% include 'notes/file_icon.html' %}
+		  <div class="ml-2 ms-2">
+		    {% if file['type'] == 'dir' %}
+		  	  <a class="mb-0 text-decoration-none" hx-get="/files?path_folder={{file['display_path']}}" hx-indicator="#formFiles" hx-target="#files" role="button">{{file['name']}}</a>
+		  	{% else %}
+		  	  <h6 class="mb-0">{{file['name']}}</h6>
+		  	{% endif %}
+		  </div>
+		</div>
+		
+	</li>
+
+  {% endfor %}
+</ul>
+

@@ -1,0 +1,93 @@
+  <li>
+    <a  class="dropdown-item"
+        hx-get="main_title_body?reg=['all',{{note.id}},'']"
+        hx-target="#main-title-body"
+        role="button">
+      <i class="bi bi-diagram-2"></i> {{gettext('See everything related to this entry')}}
+    </a>
+  </li>
+  <li>
+    <a  class="dropdown-item"
+        hx-get="reply_note?reg={{reg}}&note={{note.id}}" 
+        hx-target="#modal-htmx" 
+        hx-trigger="click" 
+        data-bs-toggle="modal" 
+        data-bs-target="#modal-htmx"
+        role="button">
+      <i class="bi bi-node-plus-fill"></i> {{gettext('New document with ref')}}
+    </a>
+  </li>
+
+  {% if reg[0] == 'box' or note.permissions('can_edit_files') %}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a  class="dropdown-item ms-1"
+          hx-get="browse_files?reg={{reg}}&note={{note.id}}" 
+          hx-target="#modal-htmx" 
+          hx-trigger="click" 
+          data-bs-toggle="modal" 
+          data-bs-target="#modal-htmx"
+          role="button">
+        <i class="bi bi-folder-symlink-fill"></i> {{gettext('Copy files from other locations')}}
+      </a>
+    </li>
+    <li>
+      <a  class="dropdown-item ms-1"
+          hx-get="action_note?reg={{reg}}&note={{note.id}}&action=update_files" 
+          hx-target="#row_{{note.id}}_files"
+          hx-target-error="#flash-errors"
+          hx-trigger="click" 
+          hx-indicator="#indicator-table"
+          role="button">
+        {% if note.permanent_link == '' %}
+          <i class="bi bi-folder-plus"></i> {{gettext('Create folder')}}
+        {% else %}
+          <i class="bi bi-arrow-repeat"></i> {{gettext('Register files in note')}}
+        {% endif %}
+      </a>
+    </li>
+  {% endif %}
+
+  
+  {% if reg[0] in ['box','des'] or note.permissions('can_edit') %}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a  class="dropdown-item"
+          hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
+          hx-trigger="click"
+          hx-target="#modal-htmx"
+          data-bs-toggle="modal"
+          data-bs-target="#modal-htmx"
+          role="button">
+          <i class="bi bi-pencil-fill"></i> {{gettext("Edit note")}}
+      </a>
+    </li>
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a  class="dropdown-item text-danger"
+          hx-get="action_note?reg={{reg}}&action=delete_note&note={{note.id}}" 
+          hx-trigger="click"
+          hx-target="#main-body"
+          hx-indicator="#indicator-table"
+          hx-confirm="Are you sure you want to delete {{note.fullkey}}?"
+          role="button">
+          <i class="bi bi-trash3-fill"></i> {{gettext("Delete note")}}
+      </a>
+    </li>
+  {% endif %}
+
+ {% if note.permissions('can_assign_permissions') %}
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item" 
+        hx-get="/edit_receivers?note={{note.id}}&type=permissions" 
+        hx-target="#modal-htmx" 
+        hx-trigger="click" 
+        data-bs-toggle="modal"
+        data-bs-target="#modal-htmx"
+        role="button">
+        <i class="bi bi-person-fill-lock"></i> {{gettext('Special permissions officials')}}
+      </a>
+    </li>
+  {% endif %}
+

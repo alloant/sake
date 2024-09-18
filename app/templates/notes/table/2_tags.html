@@ -1,0 +1,20 @@
+<!-- Tags-->
+{% if current_user.admin or reg[0] in ['box','des'] or note.register.permissions == 'editor'
+    or note.sender_id == current_user.id and note.state < 1 and note.register.alias != 'mat' 
+    or note.sender_id == current_user.id  and note.state < 6 and note.register.alias == 'mat' 
+    or 'scr' in current_user.groups and note.state == 1 and note.flow == 'out' 
+    or 'despacho' in current_user.groups and note.state < 5 and note.flow == 'in' %}
+  <a 
+    hx-get="/edit_tags?note={{note.id}}" 
+    hx-target="#modal-htmx" 
+    hx-trigger="click" 
+    data-bs-toggle="modal"
+    data-bs-target="#modal-htmx"
+    class=""
+    role="button">
+    <span id="tagRow-{{note.id}}">{{ note.tag_html(True)|safe }}</span></a>
+{% else %}
+  {{ note.tag_html()|safe }}
+{% endif %}
+<!-- End of tags-->
+

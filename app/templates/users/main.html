@@ -1,0 +1,23 @@
+<div id="main-body">
+  <div id="users-title">
+    <h1 class="title text-center display-4">
+      {% if session['theme'] == 'light-mode' %}
+        <img src="static/icons/00-profile.svg" width="70vmin" height="70vmin">
+      {% else %}
+        <img src="static/icons/00-profile-dark.svg" width="70vmin" height="70vmin">
+      {% endif %}
+      Users
+    </h1>
+
+
+    <input class="form-control flex-grow-1" type="search" 
+        name="search" placeholder="Search..." id="search_text"
+        hx-post="/users" 
+        hx-trigger="input changed delay:500ms, search" 
+        hx-target="#users-table"> 
+  </div>
+
+  <div id="users-table">
+    {% include 'users/list_users.html' %}
+  </div>
+</div>

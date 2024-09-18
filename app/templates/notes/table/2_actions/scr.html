@@ -1,0 +1,73 @@
+{% if reg[0] == 'box' %}
+  {% if reg[1] == 'in' %}
+    <li>
+      <a class="dropdown-item"
+        hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}"
+        hx-target="#row_{{note.id}}"
+        role="button">
+        <i class="bi bi-send-fill"></i> {{gettext('Send to despacho')}}
+      </a>
+    </li>
+    <li>
+      <a  class="dropdown-item"
+        hx-post="/action_note?action=inbox_despacho&reg={{reg}}&note={{note.id}}&back=true" 
+        hx-target="#row_{{note.id}}" 
+        hx-trigger="click"
+        hx-disinherit="*"
+        hx-indicator="#indicator-table"
+        role="button">
+        <i class="bi bi-backspace-fill text-danger"></i> {{gettext('Send note back to ctr')}}
+      </a>
+    </li>
+  {% else %}
+    {% if note.reg in ['asr','ctr'] %}
+      <li>
+        <a  class="dropdown-item"
+          hx-post="/action_note?action=outbox_target&reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+          <i class="bi bi-send"></i> {{gettext('Send note')}}
+        </a>
+      </li>
+    {% elif not note.reg in ['mat'] %}
+      <li>
+        <a  class="dropdown-item"
+          hx-post="/action_note?action=mark_as_sent&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+          <i class="bi bi-check2-circle"></i> {{gettext('Mark note as sent')}}
+        </a>
+      </li>
+    {% endif %}
+
+    <li>
+      <a  class="dropdown-item"
+        hx-post="/action_note?action=outbox_target&reg={{reg}}&note={{note.id}}&back=true" 
+        hx-target="#row_{{note.id}}" 
+        hx-trigger="click"
+        hx-disinherit="*"
+        hx-indicator="#indicator-table"
+        role="button">
+        <i class="bi bi-backspace-fill text-danger"></i> {{gettext('Send note back to dr')}}
+      </a>
+    </li>
+  {% endif %}
+{% endif %}
+
+{% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' %}
+  <li>
+    <a  class="dropdown-item"
+      href="/action_note?action=download_eml&note={{note.id}}"
+      role="button">
+      <i class="bi bi-envelope-arrow-down-fill"></i> {{gettext('Download')}} eml
+    </a>
+  </li>
+  <li><hr class="dropdown-divider"></li>
+{% endif %}
+

@@ -1,0 +1,27 @@
+<div class="table-responsive">  
+  <table class="table table-sm table-striped">
+    <thead class="">
+      <tr class="bg-dark">
+        <th>{{gettext('Date')}}</th>
+        <th>{{gettext('Subject')}}</th>
+        <th>{{gettext('Name')}}</th>
+        <th>{{gettext('Register')}}</th>
+        <th>{{gettext('Sender')}}</th>
+        <th></th>
+        <th>No</th>
+        <th>Ref</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+          {% include 'inbox/table_row.html' %}
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+

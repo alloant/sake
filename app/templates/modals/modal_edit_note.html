@@ -1,0 +1,25 @@
+{% if dnone['rec'] == '' %}
+<div class="modal-dialog modal-xl modal-dialog-centered">
+{% else %}
+<div class="modal-dialog modal-lg modal-dialog-centered">
+{% endif %}
+  <form class="modal-content">
+    <div class="modal-header justify-content-between">
+      {% if note.register.alias == 'mat' %}
+      <h3 class="modal-title">{{gettext('Edit matter')}} {{note.fullkey}}</h3>
+      {% else %}
+      <h3 class="modal-title">{{gettext('Edit note')}} {{note.fullkey}}</h3>
+      {% endif %}
+        <div>
+          <button type="button" class="btn btn-primary" hx-post="/action_note?reg={{reg}}&action=edited&note={{note.id}}" hx-target="#row_{{note.id}}" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-body">
+      {% include 'notes/form_edit_note.html' %}      
+    </div>
+  </form>
+</div>
+
+

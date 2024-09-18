@@ -1,0 +1,29 @@
+<div class="card-header d-flex justify-content-between bg-secondary">
+  <span>
+    {% if reg[2] == '' %}
+      {{ note.fullkey_link_html|safe }}
+    {% else %}
+      {{ note.fullkey_short }}
+    {% endif %}
+    {% include 'notes/table/2_actions.html' %}
+  </span>
+  
+  <span>
+    <span class="fw-light d-md-none d-lg-block"><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+
+    {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}
+      {% include 'notes/table/2_files.html' %}
+    {% endif %}
+  </span>
+</div> <!-- End card-header -->
+
+<div class="card-body text-center p-1">
+  <div class="row">
+    {% include 'notes/table/2_content.html' %}
+  </div>
+  
+  <div class="d-flex justify-content-between">
+    {% include 'notes/table/2_tags.html' %}
+    {% include 'notes/table/2_involved.html' %}
+  </div>
+</div> <!-- End card body -->

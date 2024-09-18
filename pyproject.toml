@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "sake"
+version = "0.9.9"
+description = ""
+authors = ["Antonio Alonso"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^3.0.2"
+flask-migrate = "^4.0.7"
+flask-sqlalchemy = "^3.1.1"
+cryptography = "^42.0.5"
+flask-wtf = "^1.2.1"
+synochat = "^1.0.4"
+docx-hitalent = "^0.8.51"
+wtforms-sqlalchemy = "^0.4.1"
+eml-parser = "^1.17.5"
+flask-login = "^0.6.3"
+pymysql = "^1.1.0"
+flask-babel = "^4.0.0"
+jinja2 = "^3.1.3"
+babel = "^2.14.0"
+setuptools = "^69.5.1"
+synology-drive-api = {git = "https://github.com/alloant/synology-drive-api.git", rev = "v0.1.10"}
+bootstrap-flask = "^2.4.0"
+flask-mobility = "^2.0.1"
+flask-sock = "^0.7.0"
+gunicorn = "^22.0.0"
+websockets = "^12.0"
+flask-admin = {extras = ["export", "sqlalchemy-with-utils", "translation"], version = "^1.6.1"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,12 @@
+  {% if file['type'] == 'dir' %}
+    <a href="{{session['link']}}/d/f/{{file['permanent_link']}}" class="" target="_blank" data-bs-toggle="tooltip" title="{{file['name']}}"><i class="bi bi-folder-fill" style="color: orange;"></i></a>
+  {% elif file['name'].split('.')[-1] == 'osheet' %}
+    <a href="{{session['link']}}/oo/r/{{file['permanent_link']}}" class="" target="_blank" data-bs-toggle="tooltip" title="{{file['name']}}"><i class="bi bi-file-earmark-excel-fill" style="color: green;"></i></a>
+  {% elif file['name'].split('.')[-1] == 'odoc' %}
+    <a href="{{session['link']}}/oo/r/{{file['permanent_link']}}" class="" target="_blank" data-bs-toggle="tooltip" title="{{file['name']}}"><i class="bi bi-file-earmark-word-fill" style="color: blue;"></i></a>
+  {% elif file['name'].split('.')[-1] == 'pdf' %}
+    <a href="{{session['link']}}/d/f/{{file['permanent_link']}}" class="" target="_blank" data-bs-toggle="tooltip" title="{{file['name']}}"><i class="bi bi-file-earmark-pdf-fill" style="color: red;"></i></a>
+  {% else %}
+    <a href="{{session['link']}}/d/f/{{file['permanent_link']}}" class="" target="_blank" data-bs-toggle="tooltip" title="{{file['name']}}"><i class="bi bi-file-earmark"></i></a>
+  {% endif %}
+

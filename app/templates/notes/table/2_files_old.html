@@ -1,0 +1,54 @@
+<span id="row_{{note.id}}_files">
+{% if note.flow == 'in'  and note.state == 0 %}  
+  <a  class="text-decoration-none ms-1"
+      hx-get="browse_files?reg={{reg}}&note={{note.id}}" 
+      hx-target="#modal-htmx" 
+      hx-trigger="click" 
+      data-bs-toggle="modal" 
+      data-bs-target="#modal-htmx"
+      role="button">
+    <i class="bi bi-folder-symlink-fill text-warning" data-bs-toggle="tootlip" title="{{gettext('Copy files from other locations')}}"></i>
+  </a>
+  <a  class="text-decoration-none ms-1"
+      hx-get="action_note?reg={{reg}}&note={{note.id}}&action=update_files" 
+      hx-target="#row_{{note.id}}_files"
+      hx-target-error="#flash-errors"
+      hx-trigger="click" 
+      hx-indicator="#indicator-table"
+      role="button">
+    {% if note.permanent_link == '' %}
+      <i class="bi bi-folder-plus text-warning" data-bs-toggle="tootlip" title="{{gettext('Create folder')}}"></i>
+    {% else %}
+      <i class="bi bi-arrow-repeat text-primary" data-bs-toggle="tootlip" title="{{gettext('Register files in note')}}"></i>
+    {% endif %}
+  </a>
+  <span class="fw-bold"> : </span>
+  {% if note.permanent_link %}
+    <a  class="text-decoration-none small" 
+        href="{{note.link}}"
+        target="_blank"
+        data-bs-toggle="tooltip"
+        title="{{note.fullkey}}"
+        role="button">
+        <i class="bi bi-folder-fill text-warning"></i>
+    </a>
+  {% else %}
+    <i class="bi bi-folder-x text-warning}"></i>
+  {% endif %}
+{% endif %}
+
+
+    {% for file in note.files %}
+      {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
+        <a    class="text-decoration-none small fw-light" 
+              hx-get="/read_note?note={{note.id}}&reg={{reg}}&file_clicked={{file.id}}"
+              hx-swap="none"
+              hx-on:htmx:after-request="window.open('{{file.link}}')"
+              data-bs-toggle="tooltip"
+              title="{{file.name}}"
+              role="button">
+            <i class="bi {{file.bi_icon}}"></i>
+          </a>
+      {% endif %}
+    {% endfor %}
+</span>

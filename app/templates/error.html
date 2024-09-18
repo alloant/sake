@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <h1 class="display-1 p-4 text-center">
+    <img src="static/icons/error.svg" width="200vmin" height="200vmin">
+    {{gettext('There was an error')}}
+  </h1>
+</div>
+
+<h2>{{gettext('Please try again as sometimes there are problems with the connexion and may work if you try again.')}}</h2>
+<h2>{{gettext('If the error persist contact the administrator')}}</h2>
+
+
+{% endblock %}

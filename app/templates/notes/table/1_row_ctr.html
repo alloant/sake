@@ -1,0 +1,37 @@
+<!-- Protocol number with link -->
+<td id="row_{{note.id}}_protocol" scope="row" style="white-space: nowrap;">
+  <span class="mx-1">
+    {% include 'notes/table/2_state_ctr.html' %}
+  </span>
+  {{ note.fullkey_short }}
+</td>
+
+<!-- State note and actions -->
+{% if session['version'] == 'old' %}
+<td id="row_{{note.id}}_state" style="white-space: nowrap;">
+  {% include 'notes/table/2_actions_ctr_old.html' %}
+</td>
+{% endif %}
+
+<!-- Comments and content with jp version if needed -->
+<td class="">
+  <div>{% include 'notes/table/2_content.html' %}</div>
+</td>
+
+<td class="">
+  {% if session['version'] == 'new' %}
+    {% include 'notes/table/2_actions_ctr.html' %}
+          
+    <span id="row_{{note.id}}_files">
+      {% include 'notes/table/2_files.html' %}
+    </span>
+  {% else %}
+    <div>{% include 'notes/table/2_files_old.html' %}</div>
+  {% endif %}
+</td>
+
+<!-- Date -->
+<td id="row_{{note.id}}_date" style="white-space: nowrap;" class="text-end">
+  <span class="d-md-none d-lg-block fw-light"><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+</td>
+

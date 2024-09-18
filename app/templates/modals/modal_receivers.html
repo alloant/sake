@@ -1,0 +1,71 @@
+<div class="modal-dialog modal-lg modal-dialog-centered">
+  <form  class="modal-content">
+
+    <div class="modal-header">
+      <h5 class="modal-title">{{gettext('Recepient')}}</h5>
+      <div>
+        {% if 'recFiles' in hxtarget %}
+          <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modal-htmx">
+        {% elif hxtarget == '' %}
+          <button hx-post="{{hxpost}}&save=2" hx-swap="none" type="button" class="btn btn-primary" data-bs-dismiss="modal">
+        {% else %}
+          <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal">
+        {% endif %}
+          {{gettext('Save')}}
+          </button>
+        {% if 'recFiles' in hxtarget %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modal-htmx">{{gettext('Close')}}</button>
+        {% else %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{gettext('Close')}}</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="modal-body">
+    <!-- Form -->
+    
+      <div class="d-flex d-flex-wrap">
+        <button type="button" class="btn btn-primary mt-0 mb-2 me-1" checked onclick="tickCheckBox()"><i class="bi bi-check-lg"></i></button>
+        <button type="button" class="btn btn-secondary mt-0 mb-2 me-2" checked onclick="minusCheckBox()"><i class="bi bi-dash-lg"></i></button>
+        <input class="form-control mb-2" type="search" 
+          name="search" placeholder="Begin Typing To Search Users..." 
+          hx-post="{{hxpost}}" 
+          hx-trigger="input changed delay:200ms, search" 
+          hx-target="#search-results-modal"
+          hx-indicator=".htmx-indicator">
+      </div>
+
+      <ul class="list-group" id="search-results-modal">
+        {% include 'modals/modal_receivers_list.html' %}
+      </ul>
+     
+      <script>
+        function tickCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
+
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = 1;
+          } 
+        }
+      </script>
+     
+      <script>
+        function minusCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
+
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = 0;
+          } 
+        }
+      </script> 
+    <!-- End form -->
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+  </form>
+</div>
+

@@ -1,0 +1,72 @@
+:root {
+    --btn-file-bg-color: #ffffff; /* Light mode button background */
+    --btn-file-text-color: #000000; /* Light mode button text color */
+    --btn-file-hover-text-color: #000000; /* Light mode button text color */
+    --form-border-color: #ddd;
+}
+
+.btn-file {
+    background-color: transparent; /* Transparent background */
+    color: #var(--btn-file-text-color); /* Text color */
+    transition: background-color 0.2s, color 0.2s; /* Smooth transition */
+}
+
+.btn-file:hover {
+    background-color: var(--btn-file-bg-color); /* Change background on hover */
+    color: var(--btn-file-hover-text-color); /* Keep text color the same or change it */
+}
+
+.form-selec,
+.form-control {
+  border-color: var(--form-border-color);
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--form-border-color);
+}
+/* Dark mode styles */
+[data-bs-theme="dark"] {
+    --btn-file-bg-color: #222222; /* Dark mode button background */
+    --btn-file-hover-text-color: #ffffff; /* Dark mode button text color */
+    --btn-file-text-color: #ffffff; /* Dark mode button text color */
+    --form-border-color: #555;
+}
+
+.table-danger-dark:nth-child(odd) td, .table-danger-dark:nth-child(odd) th  {
+  background-color:#583532;
+}
+
+.table-danger-dark:nth-child(even) td, .table-danger-dark:nth-child(even) th {
+  background-color:#3c2c2a;
+}
+
+.table-plain-dark:nth-child(odd) td, .table-plain-dark:nth-child(odd) th  {
+  background-color:#2C3034;
+}
+
+.table-plain-dark:nth-child(even) td, .table-plain-dark:nth-child(even) th {
+  background-color:#212529;
+}
+
+.dropdown-menu li {
+  position: relative;
+}
+    
+.dropdown-menu .dropdown-submenu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: -7px;
+}
+
+.dropdown-menu .dropdown-submenu-left {
+  right: 100%;
+  left: auto;
+}
+
+.dropdown-menu > li:hover > .dropdown-submenu {
+  display: block;
+}
+
+

@@ -1,0 +1,22 @@
+{% for note in notes %}
+    {% if note.register.alias == 'mat' and reg[0] != 'mat' %}
+      {% if session['theme'] == 'light-mode' %}
+        <tr id="row_{{note.id}}" class="table-danger {{note.light_row(reg)}}" data-bs-theme="light">
+      {% else %}
+        <tr id="row_{{note.id}}" class="table-danger-dark {{note.light_row(reg)}}" data-bs-theme="dark">
+      {% endif %}
+    {% else %}
+        {% if session['theme'] == 'light-mode' %}
+          <tr id="row_{{note.id}}" class="{{note.light_row(reg)}}">
+        {% else %}
+          <tr id="row_{{note.id}}" class="table-plain-dark {{note.light_row(reg)}}">
+        {% endif %}
+    {% endif%}
+    
+    {% if reg[2]%}
+      {% include 'notes/table/1_row_ctr.html' %}
+    {% else %}
+      {% include 'notes/table/1_row.html' %}
+    {% endif %}
+    </tr>
+{% endfor %}

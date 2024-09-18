@@ -1,0 +1,38 @@
+<!-- State note and actions -->
+{% if session['version'] == 'new' %}
+<td id="row_{{note.id}}_state" style="white-space: nowrap;">
+  {% include 'notes/table/2_actions_ctr.html' %}
+</td>
+{% endif %}
+
+<!-- Protocol number with link -->
+<td id="row_{{note.id}}_protocol" scope="row" style="white-space: nowrap;">
+  {% if session['version'] == 'old' %}
+    {% include 'notes/table/2_state_ctr.html' %}
+  {% endif %}
+  {{ note.fullkey_short }}
+  {% if session['version'] == 'new' %}
+    {% include 'notes/table/2_files.html' %}
+  {% endif %}
+</td>
+
+<!-- State note and actions -->
+{% if session['version'] == 'old' %}
+<td id="row_{{note.id}}_state" style="white-space: nowrap;">
+  {% include 'notes/table/2_actions_ctr_old.html' %}
+</td>
+{% endif %}
+
+<!-- Comments and content with jp version if needed -->
+<td class="d-flex justify-content-between">
+  <div>{% include 'notes/table/2_content.html' %}</div>
+  {% if session['version'] == 'old' %}
+    <div>{% include 'notes/table/2_files_old.html' %}</div>
+  {% endif %}
+</td>
+
+<!-- Date -->
+<td id="row_{{note.id}}_date" style="white-space: nowrap;" class="text-end">
+  <span class="d-md-none d-lg-block fw-light"><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+</td>
+

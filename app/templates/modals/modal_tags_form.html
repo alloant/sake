@@ -1,0 +1,50 @@
+<div class="modal-dialog modal-sm modal-dialog-centered">
+  <form  class="modal-content">
+
+    <div class="modal-header">
+      <h5 class="modal-title">{{gettext('Recepient')}}</h5>
+      <div>
+        <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          {{gettext('Save')}}
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{gettext('Close')}}</button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+    <!-- Form -->
+    
+      <div class="d-flex d-flex-wrap">
+        <input type="button" class="btn btn-primary mb-2 mr-2" id="selectall" name="selectall" autocomplete="off" checked onclick="tagCheckBox()" value="All">
+        <input class="form-control mb-2" type="search" 
+          name="search" placeholder="Filter..." 
+          hx-post="{{hxpost}}"
+          hx-trigger="input changed delay:200ms, search" 
+          hx-target="#search-tags-modal"
+          hx-indicator=".htmx-indicator">
+      </div>
+
+      <ul class="list-group" id="search-tags-modal">
+        {% include 'modals/modal_tags_list.html' %}
+      </ul>
+      
+      <script>
+        function tagCheckBox() {
+          let checkboxs = document.getElementsByClassName("chbox");
+          let labels = document.getElementsByClassName("chbox_label");
+
+          for(let i = 0; i < checkboxs.length ; i++) {
+            checkboxs[i].checked = !checkboxs[i].checked;
+          } 
+        }
+      </script>
+
+    <!-- End form -->
+    </div>
+
+    <div class="modal-footer">
+    </div>
+
+  </form>
+</div>
+

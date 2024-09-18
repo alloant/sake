@@ -1,0 +1,49 @@
+<!-- Comments from despacho -->
+{% if note.comments and note.is_involve(reg,current_user) %}
+  <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text" style="color: OrangeRed;"></i></span>
+{% endif %}
+
+<!-- Content note -->
+<span hx-post="/read_note?note={{note.id}}&reg={{reg}}&only_content=True" hx-trigger="content_{{note.id}} from:body" hx-target="#row_{{note.id}}">
+  {% with read = note.is_read() %}
+    {% if note.permissions('can_read') %}
+      <span id="row_{{note_id}}_content"
+          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          {% if read %}
+            data-bs-title="{{gettext('Mark as unread')}}"
+          {% else %}
+            data-bs-title="{{gettext('Mark as read')}}"
+            class="fw-bold"
+          {% endif %}
+          role="button">
+    {% else %}
+      {% if read %}  
+        <span>
+      {% else %}
+        <span class="fw-bold">
+      {% endif %}
+    {% endif %}
+    {{note.content}}</span>
+  {% endwith %}
+
+</span>
+
+<!-- Refs
+<span class="fw-light">
+  <small>{{ note.refs_html(reg)|safe }}</small>
+</span>
+-->
+
+{% if reg[2] and note.comments_ctr %}
+  {% for cm in note.comments_ctr %}
+    {% if cm.sender.alias == reg[2] %}
+      {% if cm.comment %}
+        <mark>
+          ({{cm.comment}})
+        </mark>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}

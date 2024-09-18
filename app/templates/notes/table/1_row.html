@@ -1,0 +1,35 @@
+<!-- Protocol number with link -->
+<td id="row_{{note.id}}_protocol" class="">
+  <span class="mx-1">
+  {% include 'notes/table/2_state.html' %}
+  </span>
+  {% if reg[2] == '' %}
+    {{ note.fullkey_link_html|safe }}
+  {% else %}
+    {{ note.fullkey_short }}
+  {% endif %}
+  {% include 'notes/table/2_tags.html' %}
+</td>
+
+<!-- Comments and content with jp version if needed -->
+<td class="">
+    {% include 'notes/table/2_content.html' %}
+    <span class="ms-2">{% include 'notes/table/2_involved.html' %}</span>
+</td>
+
+<td class="">
+  {% include 'notes/table/2_actions.html' %}
+
+  {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}
+    <span id="row_{{note.id}}_files">
+      {% include 'notes/table/2_files.html' %}
+    </span>
+  {% endif %}
+</td>
+
+<!-- Date -->
+<td id="row_{{note.id}}_date" style="white-space: nowrap;" class="text-end">
+  <span class="fw-light d-md-none d-lg-block"><small>{{ note.date.strftime('%y-%m-%d') }}</small></span>
+</td>
+
+

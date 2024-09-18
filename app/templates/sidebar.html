@@ -1,0 +1,295 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+<div id="sidebar" class="col-sm-auto sticky-top border p-1" style="background-color: light;">
+  {% with registers = current_user.all_registers_and_sub %}
+  <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
+    {% if 'cr' in current_user.groups %}
+      <a class="nav-link position-relative my-2"
+        hx-get="/main_title_body?reg=['all','pen','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#registers_collapse').collapse('hide');"
+        data-bs-toggle="tooltip"
+        data-bs-title="{{gettext('Pending notes and proposals')}}"
+        role="button">
+        <div class="container" hx-get="sidebar?element=pendings" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+        <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+            hx-get="/body_data?info=pending"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+      </a>
+
+      <a class="nav-link position-relative my-2"
+        hx-get="/main_title_body?reg=['all','all','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#registers_collapse').collapse('hide');"
+        data-bs-toggle="tooltip"
+        data-bs-title="{{gettext('Search')}}"
+        role="button">
+        <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+      </a>
+
+
+      <a class="nav-link position-relative my-2"
+        hx-get="/main_title_body?reg=['mat','in','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#registers_collapse').collapse('hide');"
+        data-bs-toggle="tooltip"
+        data-bs-title="{{gettext('Proposals')}}"
+        role="button">
+        <div class="container" hx-get="sidebar?element=matters" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+        <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+            hx-get="/body_data?info=proposals"
+            hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+      </a>
+      
+    {% endif %}
+    
+    {% if current_user.is_authenticated %}
+      {% if current_user.severalCalendars %}
+        <a class="nav-link position-relative my-2"
+          data-bs-toggle="collapse"
+          data-bs-target="#registers_collapse"
+          role="button">
+          <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+              hx-get="body_data?info=register"
+              hx-trigger="load, read-updated from:body, socket-updated from:body"></span>
+        </a>
+      {% endif %}
+
+      {% if 'despacho' in current_user.groups %}
+        <a class="nav-link position-relative my-2"
+          hx-get="/main_title_body?reg=['des','in','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('Despacho')}}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=despacho" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+              hx-get="body_data?info=despacho"
+              hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        </a>
+      {% endif %}
+
+      {% if 'scr' in current_user.groups %}
+        <a class="nav-link position-relative my-2"
+          hx-get="/inbox_body?reg=['import','in','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('Import files from eml or asr folder')}}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=import" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+        </a>
+        
+        <a class="nav-link position-relative my-2"
+          hx-get="/main_title_body?reg=['box','in','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('Inbox')}}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=inbox" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+              hx-get="/body_data?info=inbox"
+              hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        </a>
+        
+        <a class="nav-link position-relative my-2"
+          hx-get="/main_title_body?reg=['box','out','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('Outbox')}}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=outbox" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+              hx-get="/body_data?info=outbox"
+              hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        </a>
+      {% endif %}
+
+      {% if not current_user.severalCalendars %}
+        <!-- cl registers-->
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters() %}
+            <span class="nav-link my-2position-relative"
+              hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
+              hx-indicator="#indicator-table"
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              hx-disinherit="*"
+              role="button">
+              <div class="container" hx-get="sidebar?element={{register.alias}}_in_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+              <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
+                  hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
+                  hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+            </span>
+            <span class="nav-link my-2 position-relative"
+              hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
+              hx-indicator="#indicator-table"
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              hx-disinherit="*"
+              role="button">
+              <div class="container" hx-get="sidebar?element={{register.alias}}_out_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+            </span>
+          {% endfor %}
+        {% endfor %}   
+      <!-- End cl registers-->
+      {% endif %}
+      
+      {% if 'cr' in current_user.groups %}
+        <a class="nav-link my-2" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
+          <div class="row">
+            <img src="static/icons/00-links{{dark}}.svg" width="40vmin" height="40vmin">
+          </div>
+          <div class="row">
+            <small>Links</small>
+          </div>
+        </a>
+      {% else %}
+        <a class="nav-link" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks_cl">
+          <div class="row">
+            <img src="static/icons/00-links{{dark}}.svg" width="40vmin" height="40vmin">
+          </div>
+          <div class="row">
+            <small>Links</small>
+          </div>  
+        </a>
+        {% endif %}
+    {% endif %}
+   
+    {% if False %}
+    <a class="nav-link my-2" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
+      <div class="row">
+        <img src="static/icons/00-question{{dark}}.svg" width="40vmin" height="40vmin">
+      </div>
+      <div class="row">
+        <small>Help</small>
+      </div>
+    </a>
+    {% endif %}
+    
+
+    <div class="dropend position-static">
+        <a href="#" class="nav-link my-2 d-flex align-items-center justify-content-center dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="static/icons/00-profile{{dark}}.svg" width="40vmin" height="40vmin">
+        </a>
+      <div class="row">
+        <small>Settings</small>
+      </div>
+ 
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
+        {% if current_user.is_authenticated%}
+
+          <li><a class="dropdown-item"
+              hx-get="/edit_user?user={{current_user.id}}" 
+              hx-trigger="click"
+              hx-target="#modal-htmx"
+              hx-on:click="$('#registers_collapse').collapse('hide');"
+              data-bs-toggle="modal"
+              data-bs-target="#modal-htmx"
+              role="button">
+              <i class="bi bi-person-circle"></i> {{gettext('Profile')}} {{current_user.alias}}</a></li>
+
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            {% if session['version'] == 'old' %}
+              <a href="/theme?version=new" class="dropdown-item">
+                <i class="bi bi-stars"></i> {{gettext('Change to use new version')}}
+              </a>
+            {% else %}
+              <a href="/theme?version=old" class="dropdown-item">
+                <i class="bi bi-bandaid"></i> {{gettext('Change to use old version')}}
+              </a>
+            {% endif %}
+          </li>
+
+          <li class="">
+            {% if session['theme'] == 'dark-mode' %}
+              <a href="/theme" class="dropdown-item">
+                <i class="bi bi-brightness-high-fill"></i> {{gettext('Change to light mode')}}
+              </a>
+            {% else %}
+              <a href="/theme" class="dropdown-item">
+                <i class="bi bi-moon-fill"></i> {{gettext('Change to dark mode')}}
+              </a>
+            {% endif %}
+          </li>
+          
+          
+          <li class="">
+            {% if session['language'] == 'en' %}
+              <a href="/language?lang=ja" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Japanese')}}">
+                <small class="border border-2 rounded font-monospace">JA</small> 言語を日本語に変更
+              </a>
+            {% else %}
+              <a href="/language?lang=en" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('English')}}">
+                <small class="border border-2 rounded font-monospace">EN</small> Change to English
+              </a>
+            {% endif %}
+          </li>
+
+          <li><hr class="dropdown-divider"></li>
+
+          {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
+          <li><a class="dropdown-item" 
+              hx-get="/main_users" 
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              role="button">
+              <i class="bi bi-people"></i> {{gettext('List users')}}</a></li>
+          {% endif %}
+          <li><hr class="dropdown-divider"></li>
+          
+          {% for register in registers %}
+            {% for subregister in register.get_subregisters(True) %}
+              <li>
+                <a class="dropdown-item"
+                  hx-get="/edit_user?user={{subregister[0]}}&ctr=True" 
+                  hx-trigger="click"
+                  hx-target="#modal-htmx"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modal-htmx"
+                  role="button">
+                  <i class="bi bi-house"></i> {{gettext('Profile')}} {{subregister[1]}} 
+                </a>
+              </li>
+            {% endfor %}
+          {% endfor %}
+
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{{url_for('auth.logout')}}"><i class="bi bi-door-closed"></i> {{gettext('Log out')}}</a></li>
+          {% else %}
+          <li><a class="dropdown-item" href="{{url_for('auth.login')}}"><i class="bi bi-door-open"></i> {{gettext('Log in')}}</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{{url_for('auth.signup')}}"><i class="bi bi-person-bounding-box"></i> {{gettext('Sign up')}}</a></li>
+        {% endif %}
+      </ul>
+    
+    </div>
+  </div>
+  {% endwith %}
+</div>
+{% endwith %}

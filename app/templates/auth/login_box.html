@@ -1,0 +1,44 @@
+<div class="row">
+  <h1 class="display-1 p-4 text-center">
+    <img src="static/icons/sake.svg" width="200vmin" height="200vmin">
+    {{gettext('Sake')}}
+  </h1>
+</div>
+
+<div class="row p-2 rounded-3 border border-secondary" style="background-color: light;">
+  <form method="POST" action="/login">
+    {{ form.crsf_token }}
+    <div class="container">
+      <div class="mb-2 mt-4">
+        {{ form.alias(class="form-control", placeholder="Your username") }}
+      </div>
+      
+      <div class="mb-2">
+        {{ form.password(class="form-control", placeholder="Your password") }}
+      </div>
+     
+      {% if False %}
+      <div class="row mb-3 mx-auto">
+        <label class="checkbox">
+            <input type="checkbox">
+            {{gettext('Remember me')}}
+        </label>
+      </div>
+      {% endif %}
+
+    </div>
+
+      <div class = "d-inline-flex mt-4 justify-content-center">
+        <div class="">
+          <button class="btn btn-primary btn-lg me-2">{{gettext('Login')}}</button>
+        </div>
+      
+        <div class="align-self-center">
+          {{gettext('Are you not register? Register')}} <a href="{{ url_for('auth.signup') }}">{{gettext('here')}}</a>
+        </div>
+      </div>
+  
+  </form>
+
+</div>
+    

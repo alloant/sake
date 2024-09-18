@@ -1,0 +1,28 @@
+{% if note.permissions('can_send') and not reg[0] in ['box','des'] %}
+  {% if note.state == 0 %}
+    <li>
+      <a  class="dropdown-item"
+          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+        <i class="bi bi-send"></i> {{gettext('Send to sccr')}}
+      </a>
+    </li>
+  {% elif note.state == 1 %}
+    <li>
+      <a  class="dropdown-item"
+          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+        <i class="bi bi-backspace-fill"></i> {{gettext('Retreive from sccr')}}
+      </a>
+    </li>
+  {% endif %}
+  <li><hr class="dropdown-divider"></li>
+{% endif %}

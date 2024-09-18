@@ -1,0 +1,2 @@
+python websocket_server.py && gunicorn --certfile=/cert/server.crt --keyfile=/cert/server.key -w 5 --threads 100 -b :8041 'app:create_app()'
+

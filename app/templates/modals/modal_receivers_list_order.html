@@ -1,0 +1,55 @@
+<ul class="list-group sortable" hx-include="li" hx-trigger="end" hx-swap="none" id="recList">
+  {% for rec in form.receiver %}
+    {% if rec.checked %} 
+      <li class="list-group-item p-1">
+        <span class="my-handle" aria-hidden="true">
+          {% if session['theme'] == 'light-mode' %}
+            <i class="bi bi-list" style="color: black;"></i>
+          {% else %}
+            <i class="bi bi-list" style="color: white;"></i>
+          {% endif %}
+          {% if rec.data == '---' %}
+            {{ rec(class="d-none form-check-input chbox") }}
+          {% else %}
+            {{ rec(class="form-check-input chbox") }}
+          {% endif %}
+          {{ rec.label(class="form-check-label chbox_label") }}
+        </span>
+      </li>
+    {% endif %}
+  {% endfor %}
+  {% for rec in form.receiver %}
+    {% if not rec.checked %} 
+      <li class="list-group-item p-1">
+        <span class="my-handle" aria-hidden="true">
+          {% if session['theme'] == 'light-mode' %}
+            <i class="bi bi-list" style="color: black;"></i>
+          {% else %}
+            <i class="bi bi-list" style="color: white;"></i>
+          {% endif %}
+          {% if rec.data != '---' %} 
+            {{ rec(class="glyphicon glyphicon-move my-handle form-check-input chbox") }}
+          {% endif %}
+          {{ rec.label(class="form-check-label chbox_label") }}
+        </span>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>
+
+<script>
+  htmx.onLoad(function(content) {
+      var sortables = content.querySelectorAll(".sortable");
+      for (var i = 0; i < sortables.length; i++) {
+          var sortable = sortables[i];
+          new Sortable(sortable, {
+              animation: 150,
+              handle: '.my-handle',
+              ghostClass: 'blue-background-class'
+          });
+      }
+  })
+</script>
+
+
+

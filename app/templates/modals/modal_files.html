@@ -1,0 +1,51 @@
+<div class="modal-dialog modal-dialog-centered">
+  <form class="modal-content" id="copy_files_form">
+    <div class="modal-header justify-content-between">
+        <h5 class="modal-title">Copy files</h5>
+        <span id="modalFiles" class="spinner-wrapper htmx-indicator" style="pointer-events:none;">
+          <span class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></span>
+        </span>
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" hx-include="#copy_files_form" data-bs-dismiss="modal" hx-post="/browse_files?note={{note.id}}&copy=true&reg={{reg}}" hx-target="#row_{{note.id}}_files" hx-indicator="#indicator-table">Copy</button>
+        </div>
+    </div>
+
+    <div class="modal-body">
+
+      <div>
+        <select class="form-select form-select-lg mb-4" name="path_folder" hx-get="/files" hx-target="#files" hx-indicator="#modalFiles">
+          {% for ref in note.history_notes %}
+            {% if ref.id != note.id %}
+              {% if ref == note.ref[0] %}
+                <option selected value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
+              {% else %}
+                <option value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          
+          {% if note.ref %}
+            <option value="teams">Team folders</option>
+          {% else %}
+            <option selected value="teams">Team folders</option>
+          {% endif %}
+          
+          <option value="templates">New File</option>
+          <option value="mydrive">My Drive</option>
+
+          {% if not reg[2] %}
+            <option value="forms">Forms</option>
+          {% endif %}
+
+        </select>
+      </div>
+      
+      <div hx-get="/get_files?reg={{reg}}&note={{note.id}}" hx-trigger="load" hx-indicator="#modalFiles">
+      </div>
+
+
+    </div>
+
+  </form>
+</div>

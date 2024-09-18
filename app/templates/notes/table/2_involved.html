@@ -1,0 +1,19 @@
+<!-- Proposal order -->
+{{ note.people_matter_html|safe }}
+
+<!-- Deparments -->
+{% if not reg[2] and note.reg != 'mat' %}
+  {% if current_user.admin or reg[0] == 'des' or note.register.permissions == 'editor' %}
+    <span
+      hx-get="/edit_receivers?note={{note.id}}" 
+      hx-target="#modal-htmx" 
+      hx-trigger="click" 
+      data-bs-toggle="modal"
+      data-bs-target="#modal-htmx"
+      class=""
+      role="button">
+      <span id="recRow-{{note.id}}">{{ note.dep_html|safe }}</span></span>
+  {% else %}
+    {{ note.dep_html|safe }}
+  {% endif %}
+{% endif %}

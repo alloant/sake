@@ -1,0 +1,21 @@
+<div class="modal-dialog modal-sm modal-dialog-centered">
+  <div class="modal-content">
+    <div class="modal-header justify-content-between">
+      <h5 class="modal-title">{{gettext('Import eml')}}</h5>
+        <span id="formFiles" class="spinner-wrapper htmx-indicator" style="pointer-events:none;">
+          <span class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></span>
+        </span>
+    </div>
+
+    <div class="modal-body">
+        <input type="file" name="files" multiple="multiple" form="import_eml_form">
+    </div>
+
+    <form class="modal-footer" id="import_eml_form" hx-encoding="multipart/form-data" method="POST" hx-post="/action_inbox?action=eml_imported" hx-target="#inbox-table" hx-indicator="#indicator-table">
+      <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Upload</button>
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </form>
+  </div>
+</div>
+
+

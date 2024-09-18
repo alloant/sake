@@ -1,0 +1,156 @@
+<!doctype html>
+{% if session['theme'] == 'dark-mode' %}
+<html lang="en" data-bs-theme="dark">
+{% else %}
+<html lang="en">
+{% endif %}
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+        
+        <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>-->
+
+        <!-- Sortable -->
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+        
+        <title>{{gettext('Sake')}}</title>
+        <link rel="icon" href="static/icons/sake.svg"> 
+        
+        {% endblock %}
+    </head>
+    <body>
+      {% if current_user.is_authenticated %}
+        <!-- -->
+        <div hx-ext="ws" ws-connect="ws://{{sock_server}}:8765/{{current_user.alias}}">
+        <!-- -->
+        <div hx-ext="ws" ws-connect="/update_sidebar">
+          <div id="sock_id"></div>
+        </div>
+      {% endif %}
+
+      {% include 'links.html' %}
+      {% include 'links_cl.html' %}
+      
+        <div id="modal-htmx"
+        class="modal modal-blur fade"
+        data-bs-backdrop="static"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content"></div>
+        </div>
+      </div>
+      
+      <div id="modals-files"
+        class="modal modal-blur fade"
+        style="display: none"
+        aria-hidden="false"
+        tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+          <div class="modal-content"></div>
+        </div>
+      </div>
+
+      {% include "mobile/sidebar.html" %}
+          
+          <!-- Your page content -->
+      <div class="">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger alert-dismissible fade show p-1" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close p-2" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+            
+      <div class="container-fluid">
+        {% block content %}{% endblock %}
+      </div>
+
+      {% block scripts %}
+          <!-- Optional JavaScript -->
+          {{ bootstrap.load_js() }}
+          <script>
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+ 
+            // example reconnect delay that you shouldn't use because
+            // it's not as good as the algorithm that's already in place
+            htmx.config.wsReconnectDelay = function (retryCount) {
+              return retryCount * 1000 // return value in milliseconds
+            }
+          
+            function requestPermission(){
+              // Check if notifications are supported
+              if(typeof(Notification) == "undefined"){
+                  console.error("Notification not supported");
+                  return;
+              }
+              // We request the permission, which opens a dialog box asking
+              // for notifications.
+              var promise = Notification.requestPermission();
+              // The function returns a promise (which tells in the future the result
+              // of the notification
+              promise.then((permission) => {
+                  // promise.then is only called when the user has clicked 'Allow'
+                  // or 'Block'
+                  if(permission !="granted"){
+                      // If permission is not granted, error
+                      console.error("Notification permission denied!")
+                      return;
+                  }
+                  // If permission is granted, log that to the console.
+                  console.log("Permission granted")
+              })
+            }
+            
+            function connectSocket(){
+              alert('Vamos')
+              let socket = new WebSocket("ws://internal-mail-b.tail73633.ts.net:8765");
+
+              socket.onopen = function(e) {
+              alert("[open] Connection established");
+              alert("Sending to server");
+              socket.send("antonio");
+              };
+
+              socket.onmessage = function(event) {
+                alert(`[message] Data received from server: ${event.data}`);
+              };
+
+              socket.onclose = function(event) {
+                if (event.wasClean) {
+                  alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                } else {
+                  // e.g. server process killed or network down
+                  // event.code is usually 1006 in this case
+                  alert('[close] Connection died');
+                }
+              };
+
+              socket.onerror = function(error) {
+                alert(`[error]`);
+              };
+            }
+
+
+          </script>
+      {% endblock %}
+    </body>
+</html>
