@@ -29,7 +29,7 @@ def table_body_view(request,template):
             notes = get_history(session['reg'][1])
         else:
             notes = get_notes(session['reg'],filter = session['filter_notes'] if 'filter_notes' in session else '')
-    
+
         if template == 'mobile':
             return render_template('mobile/notes/cards.html', notes=notes, page=page, reg=session['reg'])
         else:

@@ -185,114 +185,77 @@ def import_ctr(id_note = None):
     db.session.commit()
 
 def generate_notes(output):
+    # All the files in import view. The ones without a note
     files = db.session.scalars(select(File).where(File.note_id==None))
     involved_notes = []
     for file in files:
+        # Get the prot and the rest from the form in inbox
         prot = output[f"number_{file.id}"].lower()
         prots = re.findall(r'\w+',prot)
         register_field = output[f"register_{file.id}"].lower()
         sender_field = output[f"sender_{file.id}"].lower()
 
-        ref = False
-
+        # Find here the sender in the database. Could be the alias or the email
         if "@" in sender_field:
             sender = db.session.scalar(select(User).where(User.email==sender_field))
         else:
             sender = db.session.scalar(select(User).where(User.alias==sender_field))
 
-        if len(prots) > 2:
-            if len(prots) == 3:
-                if prots[0] == 'ref':
-                    ref = True
-                    pt = "cg"
-                else:
-                    pt = prots[0]
-            elif len(prots) == 4:
-                ref = True
-                pt = prots[1]
-
-            gfk = f"{pt} {prots[-2]}/{prots[-1]}"
-        else:
-            if not sender:
-                continue
-            gfk = f"{sender.alias} {prot}"
-
-        nt = get_note_fullkey(gfk)
-        
-        if not gfk:
+        if not sender: # We cannot continue if there is no sender
             continue
 
-        content = "" 
-        if ";" in file.subject:
-            parts = file.subject.split(";")
-            if "/" in parts[0]:
-                content = parts[1]
+        register = db.session.scalar(select(Register).where(Register.alias==register_field))
 
-        sndr = aliased(User,name="sender_user")
-        #nt = db.session.scalar(select(Note).join(Note.sender.of_type(sender)).where(Note.fullkey==gfk))
-        
-        if ref and nt:
-            rnt = db.session.scalar(select(Note).join(Note.sender.of_type(sndr)).where(and_(Note.num==0,Note.ref.contains(nt))))
-        else:
-            rnt = None
+        if not register:
+            continue
 
-        if rnt:
-            #rst = file.move_to_note(f"{rnt.folder_path}")
-            rst = rnt.addFile(file)
+        fullkey = f"{sender.alias} {prot}" #before gfk
+
+        # Check if the note already exist in the database
+        note = get_note_fullkey(fullkey)
+
+        if note: # There is note already. Then this is a ref or a new version
+            rst = note.addFile(file)
             if rst:
-                if not rnt in involved_notes: involved_notes.append(rnt)
+                if not note in involved_notes:
+                    involved_notes.append(note)
+                note.state = 1   
                 flash(f"{file} was added to {nt}")
-        elif nt and not ref:
-            #rst = file.move_to_note(f"{nt.folder_path}")
-            rst = nt.addFile(file)
-            if rst:
-                if not nt in involved_notes: involved_notes.append(nt)
-                flash(f"{file} was added to {nt}")
-        else: # We need to create the note
-            if ref:
-                nref = nt
-                if not content:
-                    content = nref.content
-                    if nref.sender_id != sender.id and content[:3] != 'Re:':
-                        content = f'Re: {content}'
+        else: # We need to create a new note
+            # First get the content if possible, if not empty
+            content = "" 
+            if ";" in file.subject:
+                parts = file.subject.split(";")
+                if "/" in parts[0]:
+                    content = parts[1]
 
-            num = re.findall(r'\d+',gfk)[0]                
-            year = re.findall(r'\d+',gfk)[1]                
-            
-            
-            if not sender:
-                continue
-           
+            # Get number and year from fullkey
+            num = re.findall(r'\d+',fullkey)[0]
+            year = re.findall(r'\d+',fullkey)[1]
 
-            state = 1
-            if register_field in ['vc','vcr','dg','cc','desr']:
-                state = 5
-            
-            register = db.session.scalar(select(Register).where(Register.alias==register_field))
+            # The state is 1 because they all go to inbox
+            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=1,content=content)
 
-            
-            if ref:
-                nt = Note(num=0,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=state,content=content,ref=[nref])
-                #nt.ref.append(nref)
-            else:
-                nt = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=state,content=content)
-            
-            
-            nt.addFile(file)
-            
-            if not nt in involved_notes: involved_notes.append(nt)
-            db.session.add(nt)
-            flash(f"{nt} was created")
-            flash(f"{file} was added to {nt}")
-    
+            note.addFile(file)
+            # I put the date of the note
+            file.date = note.n_date
+
+            if not note in involved_notes:
+                involved_notes.append(note)
+
+            db.session.add(note)
+
+            flash(f"{note} was created")
+            flash(f"{file} was added to {note}")
+
             refs = file.guess_ref
 
             for ref in refs:
-                nt.ref.append(ref)
-        
-            if len(refs) != len(nt.ref): # I didn't get all refs
+                note.ref.append(ref)
+
+            if len(refs) != len(note.ref): # I didn't get all refs
                 flash(f"There was a problem with {file.subject}. Not all references are in place")
-    
+
         db.session.commit()
 
 

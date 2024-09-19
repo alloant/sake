@@ -180,7 +180,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     
     privileges: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
 
-    files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.path")
+    files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.files_order,File.path")
     comments_ctr: Mapped[list["Comment"]] = relationship(back_populates="note")
     
 

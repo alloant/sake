@@ -2,7 +2,7 @@ import re
 from datetime import date
 from flask import current_app
 
-from sqlalchemy import select
+from sqlalchemy import select, case, func
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
@@ -106,4 +106,20 @@ class FileProp(object):
         if temp:
             return f"{int(temp[0])}/{date.today().year-2000}"
 
-    
+    @hybrid_property
+    def files_order(self):
+        if self.path[:-len(self.ext)-1] == self.note.fullkey_folder:
+            return 1
+        elif self.ext != 'odoc':
+            return 2
+        else:
+            return 3
+
+    @files_order.expression
+    def files_order(cls):
+        return case (
+            #(cls.path.regexp_match(func.concat(cls.note.sender.alias,func.lpad(cls.note.num,4,'0'),r'\.\D*')),1),
+            (cls.path.regexp_match(r'\.odoc$'),2),
+            else_=3,
+        )
+   

@@ -5,7 +5,12 @@
         hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}"
         hx-target="#row_{{note.id}}"
         role="button">
-        <i class="bi bi-send-fill"></i> {{gettext('Send to despacho')}}
+        <i class="bi bi-send-fill"></i>
+        {% if note.register.contains_group('despacho') %}
+          {{ gettext('Send to despacho') }}
+        {% else %}
+          {{ gettext('Send to') }} {{ note.register.alias }}
+        {% endif %}
       </a>
     </li>
     <li>

@@ -1,3 +1,19 @@
+<div class="d-flex justify-content-end align-items-center py-1 text-secondary">
+  <span class="small">{{ (page - 1) * notes.per_page + 1 }}-{{ (page - 1) * notes.per_page + notes.items|length }} of {{notes.total}}</span>
+  <a  class="btn btn-sm btn-file"
+      hx-get="/main_body?reg={{reg}}&page={{notes.prev_num}}"
+      hx-trigger="click"
+      hx-target="#main-body"
+      hx-indicator="#indicator-table"
+      {{'' if notes.has_prev else 'disable' }}><i class="bi bi-chevron-left"></i></a>
+  <a  class="btn btn-sm btn-file"
+      hx-get="/main_body?reg={{reg}}&page={{notes.next_num}}"
+      hx-trigger="click"
+      hx-target="#main-body"
+      hx-indicator="#indicator-table"
+      {{'' if notes.has_next else 'disable' }}><i class="bi bi-chevron-right"></i></a>
+</div>
+
 <div class="table-responsive">
   {% if session['theme'] == 'light-mode' %}
   <table class="table table-sm table-striped table-hover">
@@ -25,20 +41,6 @@
   </table>
 </div>
 
-<nav aria-label="Page navigation example mt-5">
-    <ul class="pagination justify-content-center">
-      {% if notes.has_prev %}
-      <li class="page-item">
-        <a class="page-link" hx-get="/main_body?reg={{reg}}&page={{notes.prev_num}}" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table" role="button">{{gettext('Previous')}}</a>
-      </li>
-      {% endif %}
-      {% if notes.has_next %}
-      <li class="page-item">
-        <a class="page-link" hx-get="/main_body?reg={{reg}}&page={{notes.next_num}}" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table" role="button">{{gettext('Next')}}</a>
-      </li>
-      {% endif%}
-    </ul>
-  </nav>
 <!-- because we are using table rows here, we must enable template fragment parsing -->
 <script>
     htmx.config.useTemplateFragments = true;

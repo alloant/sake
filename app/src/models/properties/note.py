@@ -13,14 +13,6 @@ from app.src.tools.mail import send_email
 from app.src.models.nas.nas import toggle_share_permissions
 
 class NoteProp(object):
-    #@hybrid_property
-    #def date(self):
-    #    return self.n_date
-
-    #@date.expression
-    #def date(cls):
-    #    return cls.n_date
-
     def light_row(self,reg):
         if self.reg == 'mat':
             if self.sender_id == current_user.id:
@@ -163,7 +155,7 @@ class NoteProp(object):
    
     @hybrid_property
     def fullkey_folder(self):
-        return self.fullkey_ls(long_key=False,folder=True) 
+        return self.fullkey_ls(long_key=False,folder=True)
  
     #@hybrid_property
     @property

@@ -70,6 +70,16 @@ def toNewNotesStatus():
             else:
                 status.comment = comment.comment
 
+        # Change the date of files to the date of the note if all are the same
+        if note.register.alias != 'mat':
+            change_date_files = True
+            for file in note.files:
+                if file.date != note.files_date:
+                    change_date_files = False
+
+            if change_date_files:
+                for file in note.files:
+                    file.date = note.n_date
 
     proposals = db.session.scalars(select(Note).where(Note.reg=='mat')).all()
 

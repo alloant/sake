@@ -179,8 +179,10 @@ def inbox_to_despacho(note_id=None,back=False):
             note.state = 0
         elif note.register.alias == 'ctr':
             import_ctr(note.id)
-        else:
+        elif note.register.contains_group('despacho'):
             note.state = 3
+        else: # If it is not for despacho is a personal register and we send it to the final place
+            note.state = 5
     
     db.session.commit()
 

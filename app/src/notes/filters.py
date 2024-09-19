@@ -32,7 +32,7 @@ def get_history(note):
     notes = ",".join([str(r) for r in refs])
     
     sql = text(
-            f"wit  h recursive R as ( \
+            f"with recursive R as ( \
             select note_id as n, ref_id as r from note_ref where note_id in ({notes}) or ref_id in ({notes}) \
             UNION \
             select note_ref.note_id,note_ref.ref_id from R,note_ref where note_ref.note_id = R.r or note_ref.ref_id in (R.n,R.r) or note_ref.note_id in (R.n,R.r)\

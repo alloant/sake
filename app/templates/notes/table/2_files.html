@@ -35,6 +35,9 @@
               hx-on:htmx:after-request="window.open('{{file.link}}')"
               role="button">
             <i class="bi {{file.bi_icon}}"></i> {{file.name}}
+            {% if note.n_date < file.date and note.register.alias != 'mat' %}
+              ({{file.date}})
+            {% endif %}
           </a>
         </li>
       {% endif %}

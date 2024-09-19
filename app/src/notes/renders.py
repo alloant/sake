@@ -78,8 +78,8 @@ def render_main_title_body(request,template):
             notes = get_history(reg[1])
         else:
             notes = get_notes(reg)
-        
-        res = make_response(render_template(template,title=title, notes=notes, reg=reg))
+       
+        res = make_response(render_template(template,title=title, notes=notes, reg=reg, page=1))
     
     res.headers['HX-Trigger'] = 'update-main'
 
