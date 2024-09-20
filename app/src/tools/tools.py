@@ -79,7 +79,8 @@ def toNewNotesStatus():
 
             if change_date_files:
                 for file in note.files:
-                    file.date = note.n_date
+                    if not 'ref' in file.path.lower():
+                        file.date = note.n_date
 
     proposals = db.session.scalars(select(Note).where(Note.reg=='mat')).all()
 

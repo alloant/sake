@@ -49,7 +49,6 @@ def get_history(note):
     nids = list(set(nids))
 
     return db.paginate(select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()), per_page=22)
-    return db.session.scalars( select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()) ).all()
 
 def register_filter(reg,filter = ""):
     fn = []
