@@ -34,6 +34,12 @@
       <span><i class="bi bi-check-circle" data-toggle="tooltip" title="{{gettext('The proposal has been archived')}}"></i></span>
     {% endif %}
   {% endif %}
+{% elif reg[0] == 'box' and reg[1] == 'in' %}
+  {% if note.state < 2 %}
+      <span><i class="bi bi-patch-exclamation" data-toggle="tooltip" title="{{gettext('Note in inbox')}}"></i></span>
+  {% else %}
+      <span><i class="bi bi-check-circle text-muted" data-toggle="tooltip" title="{{gettext('Note sent')}}"></i></span>
+  {% endif %}
 {% else %}
   {% if note.flow == 'in' %}
     {% with fill = '-fill' if note.is_involve(reg,current_user) else '' %}

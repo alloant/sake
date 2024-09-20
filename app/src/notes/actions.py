@@ -42,12 +42,12 @@ def action_note_view(request,template):
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
             outbox_to_target(note_id,back)
-            triggers.append('state-updated')
+            trigger.append('state-updated')
         case 'inbox_despacho':
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
             inbox_to_despacho(note_id,back)
-            triggers.append('state-updated')
+            trigger.append('state-updated')
         case 'download_eml':
             note_id = request.args.get('note')
             return download_eml(note_id)
@@ -71,11 +71,11 @@ def action_note_view(request,template):
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
             sign_despacho(note_id,back)
-            triggers.append('state-updated')
+            trigger.append('state-updated')
         case 'mark_as_sent':
             note_id = request.args.get('note')
             mark_as_sent(note_id)
-            triggers.append('state-updated')
+            trigger.append('state-updated')
         case 'notes_from_cg':
             notes_page = request.args.get('notes_page')
             return notes_from_cg(notes_page)
@@ -123,7 +123,7 @@ def sign_despacho(note_id,back):
     db.session.commit()
 
 
-def outbox_to_target(self,note_id=None,back=False):
+def outbox_to_target(note_id=None,back=False):
     if note_id:
         notes = db.session.scalars(select(Note).where(Note.id==note_id)).all()
     else:
@@ -179,7 +179,7 @@ def inbox_to_despacho(note_id=None,back=False):
             note.state = 0
         elif note.register.alias == 'ctr':
             import_ctr(note.id)
-        elif note.register.contains_group('despacho'):
+        elif 'despacho' in note.register.r_groups.split(','):
             note.state = 3
         else: # If it is not for despacho is a personal register and we send it to the final place
             note.state = 5

@@ -6,6 +6,7 @@
       <i class="bi bi-diagram-2"></i> {{gettext('See everything related to this entry')}}
     </a>
   </li>
+  {% if note.state > 4 %}
   <li>
     <a  class="dropdown-item"
         hx-get="reply_note?reg={{reg}}&note={{note.id}}" 
@@ -17,7 +18,7 @@
       <i class="bi bi-node-plus-fill"></i> {{gettext('New document with ref')}}
     </a>
   </li>
-
+  {% endif %}
   {% if reg[0] == 'box' or note.permissions('can_edit_files') %}
     <li><hr class="dropdown-divider"></li>
     <li>

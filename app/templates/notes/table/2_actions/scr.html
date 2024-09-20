@@ -6,7 +6,7 @@
         hx-target="#row_{{note.id}}"
         role="button">
         <i class="bi bi-send-fill"></i>
-        {% if note.register.contains_group('despacho') %}
+        {% if 'despacho' in note.register.r_groups.split(',') %}
           {{ gettext('Send to despacho') }}
         {% else %}
           {{ gettext('Send to') }} {{ note.register.alias }}
@@ -64,6 +64,8 @@
     </li>
   {% endif %}
 {% endif %}
+
+<li><hr class="dropdown-divider"></li>
 
 {% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' %}
   <li>
