@@ -48,7 +48,7 @@ def get_history(note):
 
     nids = list(set(nids))
 
-    return db.paginate(select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()), per_page=22)
+    return db.paginate(select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()), per_page=25)
 
 def register_filter(reg,filter = ""):
     fn = []
@@ -291,7 +291,7 @@ def get_notes(reg,filter = ""):
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
   
-    notes = db.paginate(sql, per_page=22)
+    notes = db.paginate(sql, per_page=25)
 
     return notes
 

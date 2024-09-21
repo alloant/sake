@@ -13,6 +13,7 @@
         {% endif %}
       </a>
     </li>
+    {% if note.register.alias == 'ctr' %}
     <li>
       <a  class="dropdown-item"
         hx-post="/action_note?action=inbox_despacho&reg={{reg}}&note={{note.id}}&back=true" 
@@ -24,6 +25,7 @@
         <i class="bi bi-backspace-fill text-danger"></i> {{gettext('Send note back to ctr')}}
       </a>
     </li>
+    {% endif %}
   {% else %}
     {% if note.reg in ['asr','ctr'] %}
       <li>

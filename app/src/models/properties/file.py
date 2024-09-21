@@ -118,8 +118,8 @@ class FileProp(object):
     @files_order.expression
     def files_order(cls):
         return case (
-            #(cls.path.regexp_match(func.concat(cls.note.sender.alias,func.lpad(cls.note.num,4,'0'),r'\.\D*')),1),
+            (cls.path.regexp_match(func.concat(cls.num_note,r'\.\D*$')),1),
             (cls.path.regexp_match(r'\.odoc$'),2),
             else_=3,
         )
-   
+  

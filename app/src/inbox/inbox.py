@@ -102,7 +102,7 @@ def inbox_main_view(request):
 
 
     sql = select(File).where(File.note_id == None)
-    files = db.paginate(sql, per_page=22)
+    files = db.paginate(sql, per_page=25)
     
     ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
     
@@ -117,7 +117,7 @@ def inbox_main_view(request):
 
 def inbox_body_view(request):
     sql = select(File).where(File.note_id == None)
-    files = db.paginate(sql, per_page=22)
+    files = db.paginate(sql, per_page=25)
     
     return render_template('inbox/table.html', files=files)
 
@@ -220,7 +220,7 @@ def generate_notes(output):
                 if not note in involved_notes:
                     involved_notes.append(note)
                 note.state = 1   
-                flash(f"{file} was added to {nt}")
+                flash(f"{file} was added to {note}")
         else: # We need to create a new note
             # First get the content if possible, if not empty
             content = "" 
@@ -238,7 +238,7 @@ def generate_notes(output):
 
             note.addFile(file)
             # I put the date of the note
-            file.date = note.n_date
+            file.date = date.today()
 
             if not note in involved_notes:
                 involved_notes.append(note)

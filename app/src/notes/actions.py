@@ -54,6 +54,7 @@ def action_note_view(request,template):
         case 'delete_note':
             note_id = request.args.get('note')
             delete_note(note_id)
+            note_id = None
         case 'edit_note':
             note_id = request.args.get('note')
             output = request.form.to_dict()

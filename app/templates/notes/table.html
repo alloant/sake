@@ -1,4 +1,4 @@
-<div class="d-flex justify-content-end align-items-center py-1 text-secondary">
+<div class="d-flex justify-content-end align-items-center my-1 text-secondary">
   <span class="small">{{ (page - 1) * notes.per_page + 1 }}-{{ (page - 1) * notes.per_page + notes.items|length }} of {{notes.total}}</span>
   <a  class="btn btn-sm btn-file"
       hx-get="/main_body?reg={{reg}}&page={{notes.prev_num}}"

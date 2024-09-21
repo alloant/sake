@@ -1,3 +1,4 @@
+{% if reg[0] == 'des' %}
 <li>
   <a class="dropdown-item"
     hx-post="/state_note?reg={{reg}}&note={{note.id}}"
@@ -13,7 +14,7 @@
   </a>
 </li>
 <li><hr class="dropdown-divider"></li>
-
+{% endif %}
 
 {% if not reg[0] in ['box','des'] and note.permissions('can_check_info') %}
 <li>

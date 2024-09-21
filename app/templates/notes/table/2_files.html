@@ -1,5 +1,5 @@
 {% if note.files|length > 0 %}
-  <button  class="btn btn-sm btn-file px-1 py-0 border-0 rounded-pill" 
+  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
     hx-get="/read_note?note={{note.id}}&reg={{reg}}&file_clicked={{note.files[0].id}}"
     hx-swap="none"
     hx-on:htmx:after-request="window.open('{{note.files[0].link}}')"
@@ -10,8 +10,8 @@
 {% endif %}
 
 {% if True or note.files|length > 1 or note.ref|length > 0 %}
-<span class="dropdown dropdown-center position-static">
-  <button role="button" class="btn btn-small btn-file px-1 py-0 rounded-end-pill" data-bs-toggle="dropdown">
+<span class="dropdown dropdown-center position-static p-0 m-0">
+  <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill" data-bs-toggle="dropdown">
     {{ note.number_files|safe }}
     <i class="bi bi-chevron-down text-secondary small"></i>
   </button>
@@ -35,7 +35,7 @@
               hx-on:htmx:after-request="window.open('{{file.link}}')"
               role="button">
             <i class="bi {{file.bi_icon}}"></i> {{file.name}}
-            {% if note.n_date < file.date and note.register.alias != 'mat' %}
+            {% if note.date != file.date and note.register.alias != 'mat' %}
               ({{file.date}})
             {% endif %}
           </a>

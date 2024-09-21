@@ -116,6 +116,15 @@ class File(FileProp,FileNas,FileHtml,db.Model):
                         refs.append(tid)
         return refs
 
+    @hybrid_property
+    def num_note(self):
+        return self.note.num
+
+    @num_note.expression
+    def num_note(cls):
+        return ( select(Note.num).where(Note.id==cls.note_id).scalar_subquery() )
+
+
 
 class Comment(db.Model):
     __tablename__: 'comment'
