@@ -133,39 +133,39 @@ def outbox_to_target(note_id=None,back=False):
     for note in notes:
         if back:
             note.state = 0
-            continue
+        else:
+            if note.register.alias in ['cg','r'] and note_id or note.register.alias in ['asr','ctr']: #Here only when you choose one note
+                if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
+                    continue
 
-        if note.register.alias in ['cg','r'] and note_id or note.register.alias in ['asr','ctr']: #Here only when you choose one note
-            if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
-                continue
-
-        if note.register.alias in ['cg','r'] and note_id:
-            note.state = 6
-        elif note.register.alias == 'asr':
-            note.copy(f"/team-folders/Mail asr/Mail to asr")
-            note.state = 6
-        elif note.register.alias == 'ctr':
-            note.state = 6
+            if note.register.alias in ['cg','r'] and note_id:
+                note.state = 6
+            elif note.register.alias == 'asr':
+                note.copy(f"/team-folders/Mail asr/Mail to asr")
+                note.state = 6
+            elif note.register.alias == 'ctr':
+                note.state = 6
 
     db.session.commit()
 
 
 def download_eml(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    
-    if note.state < 6:
-        if note.reg in ['vc','vcr','dg','cc','desr']:
-            rst = note.move(f"/team-folders/Mail {note.reg}/Notes/{note.year}/{note.reg} out")
-        else:
-            rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out")
+
+    #if note.state < 6:
+    #    if note.reg in ['vc','vcr','dg','cc','desr']:
+    #        rst = note.move(f"/team-folders/Mail {note.reg}/Notes/{note.year}/{note.reg} out")
+    #    else:
+    #        rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out")
 
     if note.reg in ['cg','dg','cc','desr']:
         rec = "cg@cardumen.lan"
     else:
         rec = ",".join([rec.email for rec in note.receiver])
+    
     path = f"{current_user.local_path}/Outbox"
 
-    
+
     return write_eml(rec,note,path)
 
 
