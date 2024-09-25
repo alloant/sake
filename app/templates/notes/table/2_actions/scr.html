@@ -1,18 +1,30 @@
 {% if reg[0] == 'box' %}
   {% if reg[1] == 'in' %}
-    <li>
-      <a class="dropdown-item"
-        hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}"
-        hx-target="#row_{{note.id}}"
-        role="button">
-        <i class="bi bi-send-fill"></i>
-        {% if 'despacho' in note.register.r_groups.split(',') %}
-          {{ gettext('Send to despacho') }}
-        {% else %}
-          {{ gettext('Send to') }} {{ note.register.alias }}
-        {% endif %}
-      </a>
-    </li>
+    {% if note.state < 3 %}
+      <li>
+        <a class="dropdown-item"
+          hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}"
+          hx-target="#row_{{note.id}}"
+          role="button">
+          <i class="bi bi-send-fill"></i>
+          {% if 'despacho' in note.register.r_groups.split(',') %}
+            {{ gettext('Send to despacho') }}
+          {% else %}
+            {{ gettext('Send to') }} {{ note.register.alias }}
+          {% endif %}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a class="dropdown-item"
+          hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}&back=true"
+          hx-target="#row_{{note.id}}"
+          role="button">
+          <i class="bi bi-backspace-fill"></i>
+            {{ gettext('Take note back to inbox') }}
+        </a>
+      </li>
+    {% endif %}
     {% if note.register.alias == 'ctr' %}
     <li>
       <a  class="dropdown-item"

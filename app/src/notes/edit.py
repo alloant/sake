@@ -25,12 +25,11 @@ def sortable_view(request):
     return ("",204)
 
 
-def updateSocks(users=False,msg=''):
+def updateSocks(users,msg=''):
     #asyncio.run(send_message({'users':users,'message':msg}))
     global sock_clients
-
     for i,user in enumerate(users):
-        if user.alias in sock_clients:
+        if user.alias in sock_clients and user != current_user:
             umsg = msg if isinstance(msg,str) else msg[i]
             try:
                 sock_clients[user.alias].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')

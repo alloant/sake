@@ -173,7 +173,6 @@ def circulation_proposal(note_id,action):
             note.read_by = ''
     
     users = note.receiver + [note.sender]
-    users.remove(current_user)
     updateSocks(users,"")
 
     db.session.commit()
@@ -248,14 +247,26 @@ def mark_as_sent(note_id):
 def sign_despacho(note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     read_by = note.read_by.split(',')
-    note.state += note.updateRead(f"des_{user.alias}")
+    if f'des_{current_user.alias}' in read_by:
+        note.state -= 1
+        read_by.remove(f'des_{current_user.alias}')
+    else:
+        note.state += 1
+        read_by.append(f'des_{current_user.alias}')
+    
+    note.read_by = ','.join([alias for alias in read_by if alias])
     note.toggle_status_attr('sign_despacho')
     note.toggle_status_attr('read')
-    
-    users = db.session.scalars(select(User).where(User.contains_group('despacho')))
-    updateSocks(users,'')
 
     db.session.commit()
+
+    if note.state == 5:
+        users = db.session.scalars(select(User).where(User.contains_group('cr')))
+    else:
+        users = db.session.scalars(select(User).where(User.contains_group('despacho')))
+
+    updateSocks(users,'')
+
 
 
 def outbox_to_target(note_id=None,back=False):
