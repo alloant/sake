@@ -209,17 +209,18 @@ def toggle_archive(note_id,is_ctr=False):
 def toggle_read(note_id,file_id=None):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     if note:
-        note.toggle_status_attr('read')
-        read_by = note.read_by.split(',')
-        if current_user.alias in read_by:
-            if not file_id:
-                read_by.remove(current_user.alias)
-        else:
-            read_by.append(current_user.alias)
+        if note.register.alias != 'mat':
+            note.toggle_status_attr('read')
+            read_by = note.read_by.split(',')
+            if current_user.alias in read_by:
+                if not file_id:
+                    read_by.remove(current_user.alias)
+            else:
+                read_by.append(current_user.alias)
 
-        if read_by != note.read_by.split(','):
-            note.read_by = ','.join([alias for alias in read_by if alias])
-            db.session.commit()
+            if read_by != note.read_by.split(','):
+                note.read_by = ','.join([alias for alias in read_by if alias])
+                db.session.commit()
 
 def notes_from_cg(notes_page=None):
     month = date.today().replace(day=1)
