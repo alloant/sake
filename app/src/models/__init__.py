@@ -237,10 +237,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def current_status(self,user=current_user):
         return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user_id==user.id))
 
-    def toggle_status_attr(self,attr):
-        rst = self.current_status()
+    def toggle_status_attr(self,attr,user=current_user):
+        rst = self.current_status(user)
         if not rst:
-            status = NoteStatus(note_id=self.id,user_id=current_user.id)
+            status = NoteStatus(note_id=self.id,user_id=user.id)
             setattr(status,attr,True)
             db.session.add(status)
         else:

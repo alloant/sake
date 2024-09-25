@@ -2,7 +2,7 @@
   {% if note.state == 0 %}
     <li>
       <a  class="dropdown-item"
-          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-post="/action_note?action=send_to_box&reg={{reg}}&note={{note.id}}" 
           hx-target="#row_{{note.id}}" 
           hx-trigger="click"
           hx-disinherit="*"
@@ -14,7 +14,7 @@
   {% elif note.state == 1 %}
     <li>
       <a  class="dropdown-item"
-          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-post="/action_note?action=send_to_box&back=true&reg={{reg}}&note={{note.id}}" 
           hx-target="#row_{{note.id}}" 
           hx-trigger="click"
           hx-disinherit="*"

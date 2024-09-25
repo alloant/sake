@@ -47,7 +47,7 @@
     <body id="whole-body" onload="requestPermission()">
       {% if current_user.is_authenticated %}
         <!-- -->
-        <div hx-ext="ws" ws-connect="ws://{{sock_server}}:8765/{{current_user.alias}}">
+        <div hx-ext="ws" ws-connect="ws://{{sock_server}}:8765/{{current_user.alias}}"></div>
         <!-- -->
         <div hx-ext="ws" ws-connect="/update_sidebar">
           <div id="sock_id"></div>

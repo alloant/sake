@@ -1,7 +1,7 @@
 {% if note.flow == 'out' %}
     {% if note.is_read(current_user) %}
         <a class="text-decoration-none"
-          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
           hx-target="#row_{{note.id}}"
           data-bs-toggle="tooltip"
           title="{{gettext('Mark as unread')}}"
@@ -10,7 +10,7 @@
         </a>
     {% else %}
         <a class="text-decoration-none"
-          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
           hx-target="#row_{{note.id}}"
           data-bs-toggle="tooltip"
           title="{{gettext('Mark as read')}}"
@@ -21,7 +21,7 @@
 {% elif note.state < 6 %}
     {% if note.state == 0 %}
         <a  class="text-decoration-none"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=send_to_box&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -33,7 +33,7 @@
         </a>
     {% elif note.state == 1 %}
         <a  class="text-decoration-none"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=send_to_box&back=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -50,7 +50,7 @@
 {% if note.flow == 'out' and note.state >= 5 %}
     {% if note.is_done(session['ctr']) %}
           <a  class="text-decoration-none"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -62,7 +62,7 @@
         </a>
     {% else %}
           <a  class="text-decoration-none"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"

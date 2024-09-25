@@ -30,10 +30,10 @@ def updateSocks(users=False,msg=''):
     global sock_clients
 
     for i,user in enumerate(users):
-        if user in sock_clients:
+        if user.alias in sock_clients:
             umsg = msg if isinstance(msg,str) else msg[i]
             try:
-                sock_clients[user].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
+                sock_clients[user.alias].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
             except:
                 pass
     
@@ -424,34 +424,6 @@ def edit_receivers_view(request):
     else:
         return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
 
-
-def read_note_view(request,template):
-    reg = ast.literal_eval(request.args.get('reg'))
-    only_content = request.args.get('only_content',False)
-    file_clicked = int(request.args.get('file_clicked',-1))
-    
-    note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
-   
-    if not only_content and not (file_clicked > 0 and note.is_read(current_user)) and note.register.alias != 'mat' and reg[1] != 'out' and not reg[0] in ['des','box']:
-        note.updateRead(current_user)
-        note.toggle_status_attr('read')
-        
-    if template == 'mobile':
-        res = make_response(render_template('mobile/notes/card/card.html',note=note, reg=reg, user=current_user))
-    else:
-        if reg[2]:
-            res = make_response(render_template('notes/table/1_row_ctr.html',note=note, reg=reg, user=current_user))
-        else:
-            res = make_response(render_template('notes/table/1_row.html',note=note, reg=reg, user=current_user))
-
-    if file_clicked > 0:
-        res.headers['HX-Trigger'] = f'read-updated,content_{note.id}'
-    else:
-        res.headers['HX-Trigger'] = 'read-updated'
-
-    return res
-
 def load_socket_view(request):
     msg = request.args.get('msg',False)
     
@@ -463,62 +435,3 @@ def load_socket_view(request):
     res.headers['HX-Trigger'] = 'socket-updated'
     
     return res
-
-
-
-def state_note_view(request):
-    reg = ast.literal_eval(request.args.get('reg'))
-    note_id = request.args.get('note')
-    
-    cancel = request.args.get('cancel',False)
-    cancel = True if cancel == 'true' else False
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
-    previous_state = note.state
-    note.updateState(reg,current_user,cancel)
-    current_state = note.state
-    
-    if note.register.alias == 'mat':
-        # This is not right because I have to send msg to one of the users and here I cannot distinguish. msg shoudl be also a []
-        msg = []
-        users = note.received_by.split(',')
-
-        if note.state == 5:
-            users += [note.sender.alias]
-            msg =  ['' for u in note.received_by.split(',')] + [f'The circulation of {note.fullkey} ({note.content}) is completed']
-        elif note.state == 1:
-            next = False
-            for user in note.received_by.split(','):
-                if not next and not user in note.read_by.split(','):
-                    next = True
-                    msg.append(f'Please review {note.fullkey} ({note.content}) in Matters')
-                else:
-                    msg.append('')
-        else:
-            msg = ''
-
-        updateSocks(users,msg=msg)
-    elif reg[0] == 'des':
-        updateSocks([rc.alias for rc in note.receiver],msg='You have a new pending')
-
-    if reg[2]:
-        if previous_state == 0 and current_state == 1 or previous_state == 1 and current_state == 0: # Note has been sent to inbox
-            sccr = db.session.scalars(select(User.alias).where(User.contains_group('scr'))).all()
-            if current_state == 1:
-                updateSocks(sccr,msg=f'New note from {reg[2]} in Inbox')
-            else:
-                updateSocks(sccr,msg=f'{reg[2]} took back the note and it is not more in Inbox')
-        return render_template('notes/table/1_row_ctr.html',note=note, reg=reg, user=current_user)
-    else:
-        if note.flow == 'out' and previous_state == 0 and current_state == 1 or previous_state == 1 and current_state == 0:
-            sccr = db.session.scalars(select(User.alias).where(User.contains_group('scr'))).all()
-            if current_state == 1:
-                updateSocks(sccr,msg=f'New note in outbox from {current_user.alias} to {note.register.alias}')
-            else:
-                if reg[0] == 'box':
-                    updateSocks(sccr,msg=f'Sccr took back the note from {note.sender.alias} to {note.register.alias} and it is not more in Outbox')
-                else:
-                    updateSocks(sccr,msg=f'{current_user.alias} took back the note to {note.register.alias} and it is not more in Outbox')
-
-        res = make_response(render_template('notes/table/1_row.html',note=note, reg=reg, user=current_user))
-        res.headers['HX-Trigger'] = f'state-updated'
-        return res

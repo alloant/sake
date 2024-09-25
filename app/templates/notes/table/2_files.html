@@ -1,6 +1,6 @@
 {% if note.files|length > 0 %}
   <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
-    hx-get="/read_note?note={{note.id}}&reg={{reg}}&file_clicked={{note.files[0].id}}"
+    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked={{note.files[0].id}}"
     hx-swap="none"
     hx-on:htmx:after-request="window.open('{{note.files[0].link}}')"
     data-bs-tooltip="tooltip"
@@ -30,7 +30,7 @@
     {% for file in note.files %}
       {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
         <li><a  class="dropdown-item small fw-normal" 
-              hx-get="/read_note?note={{note.id}}&reg={{reg}}&file_clicked={{file.id}}"
+              hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked={{file.id}}"
               hx-swap="none"
               hx-on:htmx:after-request="window.open('{{file.link}}')"
               role="button">
@@ -63,7 +63,7 @@
           {% for file in ref.files %}
             {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
               <li><a  class="dropdown-item small fw-light" 
-                    hx-get="/read_note?note={{ref.id}}&reg={{reg}}&file_clicked={{file.id}}"
+                    hx-get="/action_note?action=read&note={{ref.id}}&reg={{reg}}&file_clicked={{file.id}}"
                     hx-swap="none"
                     hx-on:htmx:after-request="window.open('{{file.link}}')"
                     role="button">

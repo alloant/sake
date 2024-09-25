@@ -1,0 +1,19 @@
+{% if (reg[2] and note.flow == 'in' or note.reg!='mat' and not reg[2] or note.reg=='mat' and note.sender_id==current_user.id) and note.permanent_link %}
+  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
+    href="{{session['link']}}/d/f/{{note.permanent_link}}"
+    role="button">
+    <i class="bi bi-folder-fill text-warning"></i><small class="fw-normal ms-1">{{note.fullkey_folder}}</small></button>
+{% endif %}
+
+{% for file in note.files %}
+  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
+    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked={{file.id}}"
+    hx-swap="none"
+    hx-on:htmx:after-request="window.open('{{file.link}}')"
+    data-bs-tooltip="tooltip"
+    title={{file.name}}
+    role="button">
+    <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.short_name}}</small></button>
+{% endfor %}
+
+

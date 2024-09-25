@@ -28,7 +28,7 @@ sock_clients = {}
 @sock.route('/update_sidebar')
 def update_sidebar(ws):
     sock_clients[current_user.alias] = ws
-
+    print('socks:',sock_clients)
     while True:
         data = ws.receive()
         ws.send(data)

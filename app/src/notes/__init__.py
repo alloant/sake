@@ -8,7 +8,7 @@ from flask_mobility.decorators import mobile_template
 from app.src.notes.actions import action_note_view
 from app.src.notes.renders import render_main_title_body, render_main_body, get_body_data, render_sidebar
 from app.src.notes.views import table_body_view, browse_files_modal
-from app.src.notes.edit import state_note_view, read_note_view, edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, files_view, reply_note_view, get_files_view, load_socket_view
+from app.src.notes.edit import edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, files_view, reply_note_view, get_files_view, load_socket_view
 from app.src.main import dashboard_view
 from app.src.inbox.inbox import inbox_body_view, inbox_main_view, action_inbox_view
 
@@ -143,17 +143,6 @@ def edit_receivers():
 @login_required
 def reply_note():
     return reply_note_view(request)
-
-@bp.route('/state_note', methods=['GET','POST'])
-@login_required
-def state_note():
-    return state_note_view(request)
-
-@bp.route('/read_note', methods=['GET','POST'])
-@mobile_template("{mobile}")
-@login_required
-def read_note(template):
-    return read_note_view(request,template)
 
 @bp.route('/download_report', methods=['GET','POST'])
 @login_required

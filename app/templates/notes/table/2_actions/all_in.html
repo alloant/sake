@@ -3,7 +3,7 @@
     <li>
       <a class="dropdown-item"
         <a  class="dropdown-item"
-          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
           hx-target="#row_{{note.id}}" 
           hx-trigger="click"
           hx-disinherit="*"
@@ -16,7 +16,7 @@
     <li>
       <a class="dropdown-item"
         <a  class="dropdown-item"
-          hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+          hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
           hx-target="#row_{{note.id}}" 
           hx-trigger="click"
           hx-disinherit="*"
@@ -32,7 +32,7 @@
   {% if note.is_read(current_user) %}
     <li>
       <a class="dropdown-item"
-        hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+        hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
         hx-target="#row_{{note.id}}"
         role="button">
         <i class="bi bi-envelope-exclamation-fill"></i> {{gettext('Mark as unread')}}
@@ -41,7 +41,7 @@
   {% else %}
     <li>
       <a class="dropdown-item"
-        hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+        hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
         hx-target="#row_{{note.id}}"
         role="button">
         <i class="bi bi-envelope-open-fill"></i> {{gettext('Mark as read')}}

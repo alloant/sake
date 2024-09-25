@@ -1,7 +1,7 @@
 {% if reg[0] == 'des' %}
 <li>
   <a class="dropdown-item"
-    hx-post="/state_note?reg={{reg}}&note={{note.id}}"
+    hx-post="/action_note?action=sign_despacho&reg={{reg}}&note={{note.id}}"
     hx-target="#row_{{note.id}}"
     hx-disinherit="*"
     hx-indicator="#indicator-table"

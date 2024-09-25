@@ -18,12 +18,13 @@ from flask_babel import gettext
 from app import db
 from app.src.models import Note, User, Register, File
 from app.src.forms.note import NoteForm
-from app.src.notes.edit import fill_form_note, extract_form_note
+from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
 
 from app.src.tools.tools import newNote, sendmail, delete_note
 from app.src.tools.syneml import write_eml
 
+from app.src.models.nas.nas import toggle_share_permissions
 
 def action_note_view(request,template):
     reg = request.args.get('reg')
@@ -36,8 +37,42 @@ def action_note_view(request,template):
     action = request.args.get('action')
     trigger = ['update-flash']
     match action:
+        case 'read':
+            file_id = request.args.get('file_clicked',None)
+            note_id = request.args.get('note')
+            if file_id:
+                trigger.append(f'content_{note_id}')
+            else:
+                toggle_read(note_id,file_id)
+                trigger.append('read-updated')
+        case 'archive':
+            note_id = request.args.get('note')
+            ctr = True if request.args.get('ctr','false') == 'true' else False
+            toggle_archive(note_id,ctr)
+            trigger.append('status-updated')
+        case 'start_circulation':
+            note_id = request.args.get('note')
+            circulation_proposal(note_id,'start')
+        case 'stop_circulation':
+            note_id = request.args.get('note')
+            circulation_proposal(note_id,'stop')
+        case 'restart_circulation':
+            note_id = request.args.get('note')
+            circulation_proposal(note_id,'restart')
+        case 'sign_proposal':
+            note_id = request.args.get('note')
+            act = 'back' if request.args.get('back','false') == 'true' else 'forward'
+            circulation_proposal(note_id,act)
+        case 'reset_proposal':
+            note_id = request.args.get('note')
+            circulation_proposal(note_id,'reset')
         case 'new':
             newNote(current_user,reg)
+        case 'send_to_box':
+            note_id = request.args.get('note')
+            back = True if request.args.get('back','false') == 'true' else False
+            send_to_box(note_id,back)
+            trigger.append('socket-updated')
         case 'outbox_target':
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
@@ -91,6 +126,101 @@ def action_note_view(request,template):
 
     return res
 
+
+def send_to_box(note_id,back):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    users = db.session.scalars(select(User).where(User.contains_group('scr')))
+    if back:
+        note.state = 0
+        updateSocks(users,"")
+    else:
+        note.state = 1
+        updateSocks(users,f"There is new mail in {note.flow}box")
+
+    db.session.commit()
+
+def circulation_proposal(note_id,action):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    match action:
+        case 'start':
+            note.state = 1
+        case 'stop':
+            note.state = 0
+        case 'restart':
+            note.state = 1
+            note.read_by = ''
+        case 'forward':
+            if '|' in note.received_by and not '|' in note.read_by: # When there is not | or all the people together had read the note
+                together,sequence = note.received_by.split('|')
+                together = together.split(',')
+                read = note.read_by.split(',')
+                rst = []
+                for alias in together:
+                    if alias in read:
+                        rst.append(alias)
+                note.read_by = ','.join([alias for alias in rst if alias])
+                if rst == together:
+                    note.read_by += '|'
+            else:
+                note.read_by += f',current_user.alias' if note.read_by and note.read_by[-1] != '|' else current_user.alias
+
+            if note.read_by == note.received_by:
+                note.state = 5
+        case 'back':
+            note.state = 0
+        case 'reset':
+            note.state = 0
+            note.read_by = ''
+    
+    users = note.receiver + [note.sender]
+    users.remove(current_user)
+    updateSocks(users,"")
+
+    db.session.commit()
+
+
+def toggle_archive(note_id,is_ctr=False):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    if note:
+        if is_ctr:
+            ctr = db.session.scalar(select(User).where(User.alias==session['ctr']['alias']))
+            if ctr:
+                note.toggle_status_attr('target_acted',ctr)
+                ctr_acted = note.received_by.split(',')
+                if ctr.alias in ctr_acted:
+                    ctr_acted.remove(ctr.alias)
+                else:
+                    ctr_acted.append(ctr.alias)
+                note.received_by = ','.join([alias for alias in ctr_acted if alias])
+        else:
+            note.toggle_status_attr('target_acted')
+            if note.state == 6:
+                if note.register.alias == 'mat':
+                    toggle_share_permissions(note.folder_path,'editor')
+                note.state = 5
+            else:
+                if note.register.alias == 'mat':
+                    toggle_share_permissions(note.folder_path,'viewer')
+                note.state = 6
+        
+        db.session.commit()
+
+
+def toggle_read(note_id,file_id=None):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    if note:
+        note.toggle_status_attr('read')
+        read_by = note.read_by.split(',')
+        if current_user.alias in read_by:
+            if not file_id:
+                read_by.remove(current_user.alias)
+        else:
+            read_by.append(current_user.alias)
+
+        if read_by != note.read_by.split(','):
+            note.read_by = ','.join([alias for alias in read_by if alias])
+            db.session.commit()
+
 def notes_from_cg(notes_page=None):
     month = date.today().replace(day=1)
     if notes_page:
@@ -120,6 +250,9 @@ def sign_despacho(note_id,back):
     note.state += note.updateRead(f"des_{user.alias}")
     note.toggle_status_attr('sign_despacho')
     note.toggle_status_attr('read')
+    
+    users = db.session.scalars(select(User).where(User.contains_group('despacho')))
+    updateSocks(users,'')
 
     db.session.commit()
 
@@ -145,6 +278,9 @@ def outbox_to_target(note_id=None,back=False):
                 note.state = 6
             elif note.register.alias == 'ctr':
                 note.state = 6
+    
+    users = db.session.scalars(select(User).where(User.contains_group('scr')))
+    updateSocks(users,'')
 
     db.session.commit()
 
@@ -184,7 +320,10 @@ def inbox_to_despacho(note_id=None,back=False):
             note.state = 3
         else: # If it is not for despacho is a personal register and we send it to the final place
             note.state = 5
-    
+
+    users = db.session.scalars(select(User).where(or_(User.contains_group('scr'),User.contains_group('despacho'))))
+    updateSocks(users,'')
+
     db.session.commit()
 
 
@@ -281,6 +420,7 @@ def visibility_note_form(reg,note):
             dnone['rec'] = ''
 
     return dnone
+
 def import_ctr(id_note = None):
     # Searching for notes sent by the ctr. reg = ctr, flow = in and state = 1
     sender = aliased(User,name="sender_user")

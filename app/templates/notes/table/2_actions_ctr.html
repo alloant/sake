@@ -16,7 +16,7 @@
     {% if note.is_read(current_user) %}
       <li>
         <a class="dropdown-item"
-          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
           hx-target="#row_{{note.id}}"
           role="button">
           <i class="bi bi-envelope-exclamation-fill"></i> {{gettext('Mark as unread')}}
@@ -25,7 +25,7 @@
     {% else %}
       <li>
         <a class="dropdown-item"
-          hx-post="/read_note?note={{note.id}}&reg={{reg}}"
+          hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
           hx-target="#row_{{note.id}}"
           role="button">
           <i class="bi bi-envelope-open-fill"></i> {{gettext('Mark as read')}}
@@ -66,7 +66,7 @@
 
       <li>
         <a  class="dropdown-item"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=send_to_box&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -79,7 +79,7 @@
       <li><hr class="dropdown-divider"></li>
       <li>
         <a  class="dropdown-item"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=send_to_box&back=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -98,26 +98,26 @@
       <li>
         <a class="dropdown-item"
           <a  class="dropdown-item"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
-            hx-target="#row_{{note.id}}" 
-            hx-trigger="click"
-            hx-disinherit="*"
-            hx-indicator="#indicator-table"
-            role="button">
-          <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
-        </a>
-      </li>
-    {% else %}
-      <li>
-        <a class="dropdown-item"
-          <a  class="dropdown-item"
-            hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=archive&ctr=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
             hx-indicator="#indicator-table"
             role="button">
           <i class="bi bi-box-arrow-up"></i> {{gettext('Restore')}}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a class="dropdown-item"
+          <a  class="dropdown-item"
+            hx-post="/action_note?action=archive&ctr=true&reg={{reg}}&note={{note.id}}" 
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-disinherit="*"
+            hx-indicator="#indicator-table"
+            role="button">
+          <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
         </a>
       </li>
     {% endif %}

@@ -2,7 +2,7 @@
   {%if note.state == 0 %}
     <li>
       <a class="dropdown-item"
-      hx-post="/state_note?reg={{reg}}&note={{note.id}}"
+      hx-post="/action_note?action=start_circulation&reg={{reg}}&note={{note.id}}"
       hx-target="#row_{{note.id}}"
       hx-disinherit="*"
       hx-indicator="#indicator-table"
@@ -13,7 +13,7 @@
     {% if note.read_by != "" %}
       <li>
         <a class="dropdown-item text-danger"
-        hx-post="/state_note?reg={{reg}}&note={{note.id}}&cancel=true"
+        hx-post="/action_note?action=reset_proposal&reg={{reg}}&note={{note.id}}"
         hx-target="#row_{{note.id}}"
         hx-disinherit="*"
         hx-indicator="#indicator-table"
@@ -25,7 +25,7 @@
   {% elif note.state == 1 %}
     <li>
       <a class="dropdown-item"
-      hx-post="/state_note?reg={{reg}}&note={{note.id}}"
+      hx-post="/action_note?action=stop_circulation&reg={{reg}}&note={{note.id}}"
       hx-target="#row_{{note.id}}"
       hx-disinherit="*"
       hx-indicator="#indicator-table"
@@ -36,12 +36,12 @@
   {% else %}
     <li>
       <a class="dropdown-item"
-      hx-post="/state_note?reg={{reg}}&note={{note.id}}&cancel=true"
+      hx-post="/action_note?action=restart_circulation&reg={{reg}}&note={{note.id}}"
       hx-target="#row_{{note.id}}"
       hx-disinherit="*"
       hx-indicator="#indicator-table"
       role="button">
-      <i class="bi bi-eraser-fill"></i> {{gettext('Restart proposal')}}
+      <i class="bi bi-eraser-fill"></i> {{gettext('Restart circulation proposal')}}
       </a>
     </li>
   {% endif %}
@@ -50,7 +50,7 @@
   <li><hr class="dropdown-divider"></li>
   <li>
     <a  class="dropdown-item"
-        hx-post="/state_note?reg={{reg}}&note={{note.id}}" 
+        hx-post="/action_note?action=sign_proposal&reg={{reg}}&note={{note.id}}" 
         hx-target="#row_{{note.id}}" 
         hx-trigger="click"
         hx-disinherit="*"
@@ -62,7 +62,7 @@
   {% if note.permissions('can_return_matter') %}
   <li>
     <a  class="dropdown-item"
-        hx-post="/state_note?reg={{reg}}&note={{note.id}}&cancel=true" 
+        hx-post="/action_note?action=sign_proposal&back=true&reg={{reg}}&note={{note.id}}" 
         hx-target="#row_{{note.id}}" 
         hx-trigger="click"
         hx-disinherit="*"
