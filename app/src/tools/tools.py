@@ -154,6 +154,8 @@ def delete_note(note_id):
     for rec in note.receiver:
         note.receiver.remove(rec)
 
+    for status in note.status:
+        db.session.delete(status)
     
     note.delete_folder()
 

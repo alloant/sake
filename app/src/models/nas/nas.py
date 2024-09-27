@@ -23,6 +23,7 @@ def wrap_error(func, *args):
         cipher = Fernet(current_app.config['SECRET_KEY'])
         #print("!@#!@#!@#",cipher.decrypt(""))
         PASSWD = cipher.decrypt(current_user.password_nas)
+
         
         if current_app.config['DEBUG'] == 'True':
             server = current_app.config['SYNOLOGY_SERVER']

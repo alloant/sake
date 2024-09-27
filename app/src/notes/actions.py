@@ -162,7 +162,7 @@ def circulation_proposal(note_id,action):
                 if rst == together:
                     note.read_by += '|'
             else:
-                note.read_by += f',current_user.alias' if note.read_by and note.read_by[-1] != '|' else current_user.alias
+                note.read_by += f',{current_user.alias}' if note.read_by and note.read_by[-1] != '|' else current_user.alias
 
             if note.read_by == note.received_by:
                 note.state = 5
