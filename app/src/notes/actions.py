@@ -38,12 +38,14 @@ def action_note_view(request,template):
     trigger = ['update-flash']
     match action:
         case 'read':
-            file_id = request.args.get('file_clicked',None)
+            file_clicked = True if request.args.get('file_clicked','false') == 'true' else False
             note_id = request.args.get('note')
-            if file_id:
-                trigger.append(f'content_{note_id}')
+            if file_clicked:
+                note = db.session.scalar(select(Note).where(Note.id==note_id))
+                if not note.result('is_read'):
+                    trigger.append(f'content_{note_id}')
             else:
-                toggle_read(note_id,file_id)
+                toggle_read(note_id,file_clicked)
                 trigger.append('read-updated')
         case 'archive':
             note_id = request.args.get('note')
@@ -205,14 +207,14 @@ def toggle_archive(note_id,is_ctr=False):
         db.session.commit()
 
 
-def toggle_read(note_id,file_id=None):
+def toggle_read(note_id,file_clicked=False):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     if note:
         if note.register.alias != 'mat':
             note.toggle_status_attr('read')
             read_by = note.read_by.split(',')
             if current_user.alias in read_by:
-                if not file_id:
+                if not file_clicked:
                     read_by.remove(current_user.alias)
             else:
                 read_by.append(current_user.alias)

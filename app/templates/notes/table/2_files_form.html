@@ -7,7 +7,7 @@
 
 {% for file in note.files %}
   <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
-    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked={{file.id}}"
+    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
     hx-swap="none"
     hx-on:htmx:after-request="window.open('{{file.link}}')"
     data-bs-tooltip="tooltip"
