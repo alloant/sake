@@ -5,8 +5,9 @@
 {% endif %}
   <form class="modal-content">
     <div class="modal-header justify-content-between">
+      <h3><i class="bi bi-pencil-fill text-primary"></i></h3>
       {% if note.register.alias == 'mat' %}
-      <h3 class="modal-title">{{gettext('Edit matter')}} {{note.fullkey}}</h3>
+        <h3 class="modal-title">{{gettext('Edit proposal')}} <span class="fw-bold">{{note.fullkey}}</span></h3>
       {% else %}
       <h3 class="modal-title">{{gettext('Edit note')}} {{note.fullkey}}</h3>
       {% endif %}

@@ -186,8 +186,8 @@ def newNote(user, reg, ref = None):
                 nt.content = f"{ref.content}"
                 nt.content_jp = f"{ref.content_jp}"
             else:
-                nt.content = f"Re: {ref.content}"
-                nt.content_jp = f"件名: {ref.content_jp}"
+                nt.content = f"Re: {ref.content}" if ref.content else ''
+                nt.content_jp = f"件名: {ref.content_jp}" if ref.content_jp else ''
             nt.n_tags = ref.n_tags
             
             if nt.register.alias == 'mat':

@@ -136,7 +136,7 @@
   {% endif %}
 
 
-  {% if current_user.admin or note.state == 0 %}
+  {% if current_user.admin or note.state == 0 or reg[1] == 'in' %}
     <li><hr class="dropdown-divider"></li>
     <li>
       <a  class="dropdown-item"

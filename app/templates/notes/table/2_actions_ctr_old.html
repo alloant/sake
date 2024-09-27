@@ -75,7 +75,7 @@
     {% endif %}
 {% endif %}
 
-{% if current_user.admin or note.state == 0 %}
+{% if current_user.admin or note.state == 0 or reg[1] == 'in' %}
   <a  class="text-decoration-none"
       hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
       hx-trigger="click"

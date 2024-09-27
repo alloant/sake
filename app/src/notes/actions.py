@@ -55,19 +55,29 @@ def action_note_view(request,template):
         case 'start_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'start')
+            trigger.append('state-updated')
+            trigger.append('socket-updated')
         case 'stop_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'stop')
+            trigger.append('state-updated')
+            trigger.append('socket-updated')
         case 'restart_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'restart')
+            trigger.append('state-updated')
+            trigger.append('socket-updated')
         case 'sign_proposal':
             note_id = request.args.get('note')
             act = 'back' if request.args.get('back','false') == 'true' else 'forward'
             circulation_proposal(note_id,act)
+            trigger.append('state-updated')
+            trigger.append('socket-updated')
         case 'reset_proposal':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'reset')
+            trigger.append('state-updated')
+            trigger.append('socket-updated')
         case 'new':
             newNote(current_user,reg)
         case 'send_to_box':
@@ -347,6 +357,7 @@ def edit_note(note_id,output,request,reg):
     filter = output['search'] if 'search' in output else ''
 
     form = NoteForm(request.form,obj=note)
+    form.set_disabled(current_user,note)
     form = fill_form_note(reg,form,note,filter)
 
     despacho = True if reg[0] == 'des' else False

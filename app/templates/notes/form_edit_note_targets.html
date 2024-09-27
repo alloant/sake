@@ -1,0 +1,61 @@
+  <div class="flex-fill p-2">
+    {% if note.register.alias == 'mat' %}
+      <div class="d-flex d-flex-wrap mb-2">
+        <button type="button" class="btn btn-primary" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+        <button type="button" class="btn btn-secondary ms-1" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+        <input class="form-control ms-2" id="recInput" type="text" placeholder="Search..">
+      </div>
+    {% else%}
+      <div class="d-flex d-flex-wrap">
+        <button type="button" class="btn btn-primary mb-2 mr-4" checked onclick="tickCheckBox()"><i class="bi-check-square"></i></button>
+        <button type="button" class="btn btn-secondary mb-2 mr-4" checked onclick="minusCheckBox()"><i class="bi-dash-square"></i></button>
+        <input class="form-control mb-2" type="search" 
+          name="search" placeholder="Begin Typing To Search Users..." 
+          hx-post="/edit_receivers?note={{note.id}}" 
+          hx-trigger="input changed delay:200ms, search" 
+          hx-target="#search-results"
+          hx-indicator=".htmx-indicator">
+      </div>
+    {% endif %}
+    
+    {% if note.register.alias == 'mat' %}
+      {% include 'modals/modal_receivers_list_order.html' %}
+    {% else %}
+      <ul class="list-group" id="search-results" style="max-height:40em; overflow-y: auto;">
+      {% include 'modals/modal_receivers_list.html' %}
+      </ul>
+    {% endif %}
+  </div>
+
+  <script>
+    function tickCheckBox() {
+      let checkboxs = document.getElementsByClassName("chbox");
+      let labels = document.getElementsByClassName("chbox_label");
+
+      for(let i = 0; i < checkboxs.length ; i++) {
+        checkboxs[i].checked = 1;
+      } 
+    }
+  </script>
+ 
+  <script>
+    function minusCheckBox() {
+      let checkboxs = document.getElementsByClassName("chbox");
+      let labels = document.getElementsByClassName("chbox_label");
+
+      for(let i = 0; i < checkboxs.length ; i++) {
+        checkboxs[i].checked = 0;
+      } 
+    }
+  </script> 
+  
+  <script>
+  $(document).ready(function(){
+    $("#recInput").on("keyup", function() {
+      var value = $(this).val().toLowerCase();
+      $("#recList li").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
+    });
+  });
+  </script>

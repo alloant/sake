@@ -27,22 +27,32 @@ class TagForm(FlaskForm):
 
 class NoteForm(FlaskForm):
     #num = IntegerField('Num',validators=[DataRequired()])
-    num = IntegerField(gettext('Number'))
-    year = IntegerField(gettext('Year'),validators=[DataRequired()])
-    sender = SelectField(gettext('Sender'), validators=[DataRequired()])
+    num = IntegerField(gettext('Number'), render_kw={"disabled": True})
+    year = IntegerField(gettext('Year'),validators=[DataRequired()], render_kw={"disabled": True})
+    sender = SelectField(gettext('Sender'), validators=[DataRequired()], render_kw={"disabled": True})
 
     receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
     #receiver = SelectMultipleField('Receiver', validators=[DataRequired()])
     n_groups = StringField(gettext('Groups'), validators=[])
-    n_date = DateField(gettext('Date'), validators=[DataRequired()])
-    content = StringField(gettext('Subject'), validators=[DataRequired()])
-    content_jp = StringField(gettext('Subject Japanese'), validators=[])
-    comments = TextAreaField(gettext('Comments'), validators=[])
+    n_date = DateField(gettext('Date'), validators=[DataRequired()], render_kw={"disabled": True})
+    content = StringField(gettext('Subject'), validators=[DataRequired()], render_kw={"disabled": True})
+    content_jp = StringField(gettext('Subject Japanese'), validators=[], render_kw={"disabled": True})
+    comments = TextAreaField(gettext('Comments'), validators=[], render_kw={"disabled": True})
     comments_ctr = StringField(gettext('Comments ctr'), validators=[])
-    proc = SelectField(gettext('Procedure'), validators=[])
+    proc = SelectField(gettext('Procedure'), validators=[], render_kw={"disabled": True})
     #proc = StringField('Procedure', validators=[])
     ref = StringField(gettext('References'), validators=[])
 
-    permanent = BooleanField(gettext('Only permanent'))
+    permanent = BooleanField(gettext('Only permanent'), render_kw={"disabled": True})
 
     submit = SubmitField(gettext("Save"))
+
+    def set_disabled(self,user,note):
+        if user.admin or note.state == 0 or note.permissions('can_edit'):
+            self.n_date.render_kw = {"disabled": False}
+            self.content.render_kw = {"disabled": False}
+            self.content_jp.render_kw = {"disabled": False}
+            self.comments.render_kw = {"disabled": False}
+            self.proc.render_kw = {"disabled": False}
+            self.permanent.render_kw = {"disabled": False}
+
