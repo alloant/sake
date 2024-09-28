@@ -90,7 +90,9 @@ class NoteProp(object):
             case 'can_edit':
                 if current_user.admin:
                     return True
-                elif self.sender_id == current_user.id or self.register.permissions == 'editor':
+                elif self.register.permissions == 'editor':
+                    return True
+                elif self.sender_id == current_user.id:
                     if self.register.alias == 'mat' and self.state in [0,5]:
                         return True
                     elif self.state < 6:

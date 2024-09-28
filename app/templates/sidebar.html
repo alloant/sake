@@ -192,7 +192,7 @@
     {% endif %}
     
 
-    <div class="dropend position-static">
+    <div class="dropend">
         <a href="#" class="nav-link my-2 d-flex align-items-center justify-content-center dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
           <img src="static/icons/00-profile{{dark}}.svg" width="40vmin" height="40vmin">
         </a>
@@ -200,7 +200,7 @@
         <small>Settings</small>
       </div>
  
-      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
+      <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3" style="z-index: 1050;">
         {% if current_user.is_authenticated%}
 
           <li><a class="dropdown-item"

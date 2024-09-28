@@ -3,7 +3,7 @@
 
 <!-- Deparments -->
 {% if not reg[2] and note.reg != 'mat' %}
-  {% if current_user.admin or reg[0] == 'des' or note.register.permissions == 'editor' %}
+  {% if (current_user.admin or reg[0] == 'des' or note.register.permissions == 'editor') and note.flow == 'in' %}
     <span
       hx-get="/edit_receivers?note={{note.id}}" 
       hx-target="#modal-htmx" 

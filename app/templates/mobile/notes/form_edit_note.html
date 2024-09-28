@@ -91,7 +91,7 @@
       {% if note.register.alias == 'mat' %}
         {% include 'modals/modal_receivers_list_order.html' %}
       {% else %}
-        <ul class="list-group" id="search-results">
+        <ul class="list-group" id="search-results" style="max-height:45em; overflow-y: auto;">
         {% include 'modals/modal_receivers_list.html' %}
         </ul>
       {% endif %}

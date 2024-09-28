@@ -45,7 +45,7 @@
 
   {% if is_admin and not is_ctr %}
     <div class="col">
-      <ul class="">
+      <ul class="" style="max-height:45em; overflow-y: auto;">
         {% for group in form.groups %}
           {% if loop.index <= group1 %}
           <li class="list-group-item">
@@ -58,7 +58,7 @@
     </div>
 
     <div class="col">
-      <ul class="">
+      <ul class="" style="max-height:45em; overflow-y: auto;">
         {% for group in form.groups %}
           {% if loop.index > group1 and loop.index <= group2 %}
           <li class="list-group-item">
@@ -71,7 +71,7 @@
     </div>
 
     <div class="col">
-      <ul class="">
+      <ul class="" style="max-height:45em; overflow-y: auto;">
         {% for group in form.groups %}
           {% if loop.index > group2 %}
           <li class="list-group-item">

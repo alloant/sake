@@ -357,7 +357,7 @@ def edit_note(note_id,output,request,reg):
     filter = output['search'] if 'search' in output else ''
 
     form = NoteForm(request.form,obj=note)
-    form.set_disabled(current_user,note)
+    form.set_disabled(current_user,note,reg)
     form = fill_form_note(reg,form,note,filter)
 
     despacho = True if reg[0] == 'des' else False

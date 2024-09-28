@@ -5,13 +5,14 @@
     {% else %}
       {{ note.fullkey_short }}
     {% endif %}
-    {% include 'notes/table/2_actions.html' %}
+    <span class="fw-light d-md-none d-lg-block" style="font-size:0.7em;">{{ note.date.strftime('%y-%m-%d') }}</span>
   </span>
   
   <span>
     {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}
       {% include 'notes/table/2_files.html' %}
     {% endif %}
+    {% include 'notes/table/2_actions.html' %}
   </span>
 </div> <!-- End card-header -->
 
@@ -21,10 +22,7 @@
   </div>
   
   <div class="d-flex justify-content-between">
-    <span>
-      <span class="fw-light d-md-none d-lg-block" style="font-size:0.7em;">{{ note.date.strftime('%y-%m-%d') }}</span>
-      {% include 'notes/table/2_tags.html' %}
-    </span>
+    {% include 'notes/table/2_tags.html' %}
     {% include 'notes/table/2_involved.html' %}
   </div>
 </div> <!-- End card body -->

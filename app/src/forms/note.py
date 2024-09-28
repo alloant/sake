@@ -47,8 +47,8 @@ class NoteForm(FlaskForm):
 
     submit = SubmitField(gettext("Save"))
 
-    def set_disabled(self,user,note):
-        if user.admin or note.state == 0 or note.permissions('can_edit'):
+    def set_disabled(self,user,note,reg):
+        if user.admin or note.state == 0 or note.permissions('can_edit') or reg[0] in ['box','des']:
             self.n_date.render_kw = {"disabled": False}
             self.content.render_kw = {"disabled": False}
             self.content_jp.render_kw = {"disabled": False}

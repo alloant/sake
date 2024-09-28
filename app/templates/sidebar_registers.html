@@ -5,7 +5,7 @@
 {% endif %}
 {% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
   {% with registers = current_user.all_registers_and_sub %}
-  <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
+  <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center justify-content-center" >
     {% for register in registers %}
       {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
       <span class="mb-3">
