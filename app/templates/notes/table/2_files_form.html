@@ -1,19 +1,30 @@
 {% if (reg[2] and note.flow == 'in' or note.reg!='mat' and not reg[2] or note.reg=='mat' and note.sender_id==current_user.id) and note.permanent_link %}
-  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
+  <button  class="btn btn-file border p-1 m-1" 
     href="{{session['link']}}/d/f/{{note.permanent_link}}"
     role="button">
     <i class="bi bi-folder-fill text-warning"></i><small class="fw-normal ms-1">{{note.fullkey_folder}}</small></button>
 {% endif %}
-
 {% for file in note.files %}
-  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
-    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
-    hx-swap="none"
-    hx-on:htmx:after-request="window.open('{{file.link}}')"
-    data-bs-tooltip="tooltip"
-    title={{file.name}}
-    role="button">
-    <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.short_name}}</small></button>
+  <div class="btn-group m-1 p-0 border">
+    <button  class="btn btn-file p-1" 
+      hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
+      hx-swap="none"
+      hx-on:htmx:after-request="window.open('{{file.link}}')"
+      data-bs-tooltip="tooltip"
+      title={{file.name}}
+      role="button">
+      <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.short_name}}</small></button>
+    {% if note.reg == 'ctr' and note.flow == 'out' and (current_user.admin or current_user in note.receiver or current_user == note.sender or note.register.permissions in ['editor','viewer']) %}
+      <button class="btn btn-file p-1 bg-secondary text-light"
+        hx-get="/edit_receivers_files?file={{file.id}}"
+        hx-target="#modals-files" 
+        hx-trigger="click" 
+        data-bs-toggle="modal"
+        data-bs-target="#modals-files">
+        <small>{{file.subject_html()|safe}}</small>
+      </button>
+    {% endif %}
+  </div>
 {% endfor %}
 
 

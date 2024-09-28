@@ -17,7 +17,7 @@
     </div> <!-- end row -->
   {% else %}
     {% include 'notes/form_edit_note_fields.html' %}
-    <div class="flex flex-wrap border mt-2">
+    <div class="flex flex-wrap border mt-2" style="max-height:5em; overflow-y: auto;">
       {% include 'notes/table/2_files_form.html' %}
     </div>
   {% endif %}

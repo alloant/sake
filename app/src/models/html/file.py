@@ -13,6 +13,7 @@ class FileHtml(object):
             else:
                 sp = ET.Element('span',attrib={'id':f'recFiles-{self.id}'})
                 sp.text = f"({self.subject})"
+            
             if form:
                 return sp
             else:
