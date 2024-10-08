@@ -6,7 +6,7 @@ from sqlalchemy import and_, select, func, case
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from app import db
-from .nas import create_folder, get_info, files_path, move_path, copy_path, delete_path
+from .nas import create_folder, get_info, files_path, move_path, copy_path, delete_path, preview
 #from app.models.file import File
 
 class NoteNas(object): 
@@ -23,7 +23,11 @@ class NoteNas(object):
         message +=  f"\nRegistry date: {self.date}"
 
         return message
-    
+
+    @property
+    def preview(self):
+        return preview(self.permanent_link)
+
     def addFile(self,file):
         rst = True
         if '/' in file.path:

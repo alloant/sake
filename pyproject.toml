@@ -29,6 +29,7 @@ flask-sock = "^0.7.0"
 gunicorn = "^22.0.0"
 websockets = "^12.0"
 flask-admin = {extras = ["export", "sqlalchemy-with-utils", "translation"], version = "^1.6.1"}
+websocket-client = "^1.8.0"
 
 
 [build-system]

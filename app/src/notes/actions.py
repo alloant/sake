@@ -79,11 +79,16 @@ def action_note_view(request,template):
             trigger.append('state-updated')
             trigger.append('socket-updated')
         case 'new':
-            newNote(current_user,reg)
+            if reg[0] == 'box':
+                return new_note(reg)
+            else:
+                newNote(current_user,reg)
+        case 'create_note':
+            created(reg,request)
         case 'send_to_box':
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
-            send_to_box(note_id,back)
+            send_to_box(reg,note_id,back)
             trigger.append('socket-updated')
         case 'outbox_target':
             note_id = request.args.get('note')
@@ -139,7 +144,7 @@ def action_note_view(request,template):
     return res
 
 
-def send_to_box(note_id,back):
+def send_to_box(reg,note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     users = db.session.scalars(select(User).where(User.contains_group('scr')))
     if back:
@@ -147,6 +152,7 @@ def send_to_box(note_id,back):
         updateSocks(users,"")
     else:
         note.state = 1
+        update_files(reg,note_id)
         updateSocks(users,f"There is new mail in {note.flow}box")
 
     db.session.commit()
@@ -161,7 +167,10 @@ def circulation_proposal(note_id,action):
         case 'restart':
             note.state = 1
             note.read_by = ''
+            for status in note.status:
+                status.target_acted = False
         case 'forward':
+            note.toggle_status_attr('target_acted')
             if '|' in note.received_by and not '|' in note.read_by: # When there is not | or all the people together had read the note
                 together,sequence = note.received_by.split('|')
                 together = together.split(',')
@@ -183,7 +192,9 @@ def circulation_proposal(note_id,action):
         case 'reset':
             note.state = 0
             note.read_by = ''
-    
+            for status in note.status:
+                status.target_acted = False
+ 
     users = note.receiver + [note.sender]
     updateSocks(users,"")
 
@@ -219,6 +230,7 @@ def toggle_archive(note_id,is_ctr=False):
 
 def toggle_read(note_id,file_clicked=False):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+    #print('preview:',note.preview)
     if note:
         if note.register.alias != 'mat':
             note.toggle_status_attr('read')
@@ -350,6 +362,25 @@ def inbox_to_despacho(note_id=None,back=False):
 
     db.session.commit()
 
+def new_note(reg):
+    form = NoteForm()
+    form.set_disabled(current_user,None,reg)
+    dnone = {}
+    dnone['rec'] = 'd-none'
+    choices = []
+    for group in ['cr','ct_cg','ct_asr','ct_ctr','ct_r']:
+        rg = group if group == 'cr' else group[3:]
+        choices += [f"{rg} - {user.alias}" for user in db.session.scalars(select(User).where(User.active==1,User.contains_group(group)).order_by(User.alias)).all()]
+    form.sender.choices = choices
+    form.reg.choices = ['cg','asr','ctr','r']
+    return render_template('modals/modal_edit_note.html',note=None,dnone=dnone,form=form, reg=reg)
+
+def created(reg,request):
+    form = NoteForm(request.form)
+    sender_alias = form.sender.data.split(' - ')[-1]
+    sender = db.session.scalar(select(User).where(User.alias==sender_alias))
+    #nt = Note(num=num,sender_id=ctr.id,reg=reg[0],register=register)
+    print(form.content.data,form.sender.data)
 
 def edit_note(note_id,output,request,reg):
     note = db.session.scalar(select(Note).where(Note.id==note_id))

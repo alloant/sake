@@ -1,8 +1,18 @@
 <div class="p-2 {{'d-none' if reg[2] else ''}}">
   {{ form.permanent(class="form-check-input") }} <span class="ms1">Only permanent can see it</span>
+  {% if note == None %}
+    {{ form.is_ref(class="form-check-input ms-4") }} <span class="ms1">It is ref</span>
+  {% endif %}
 </div>
 
 <div class="d-flex flex-wrap border justify-content-between">
+  {% if note == None %}
+  <div class="p-2">
+    {{ form.reg.label(class="form-label") }}
+    {{ form.reg(class="form-control",style="width:6em;") }}
+  </div>
+  {% endif %}
+
   <div class="p-2">
     {{ form.num.label(class="form-label") }}
     {{ form.num(class="form-control",style="width:6em;") }}

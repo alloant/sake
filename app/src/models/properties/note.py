@@ -195,8 +195,10 @@ class NoteProp(object):
 
     @hybrid_property
     def matters_order(self):
-        if self.reg != 'mat':
+        if self.reg != 'mat' and not self.result('is_read'):
             return 1
+        elif self.reg != 'mat':
+            return 2
         elif self.sender_id == current_user.id and self.state in [0,5]: #My proposal and I have to do something because is new or reviewed
             return 2
         elif self.sender_id != current_user.id and self.working_matter(current_user): #My turn to review
@@ -207,6 +209,7 @@ class NoteProp(object):
     @matters_order.expression
     def matters_order(cls):
         return case (
+            #(and_(cls.reg!='mat',cls.result('is_read')),2),
             (cls.reg!='mat',1),
             (and_(or_(cls.state==0,cls.state==5),cls.sender==current_user),2),
             (and_(cls.next_in_matters(current_user.alias),cls.sender!=current_user),1),
@@ -237,14 +240,14 @@ class NoteProp(object):
 
     @property
     def folder_name(self):
+        folder = ''
         if self.num == 0: # Es una ref
             if self.ref:
                 if self.ref[0]:
                     folder = self.ref[0].fullkey_folder.split("/")[0]
-            return None
         else: 
             folder = self.fullkey_folder.split("/")[0]
-        
+       
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
         

@@ -6,19 +6,31 @@
   <form class="modal-content">
     <div class="modal-header justify-content-between">
       <h3><i class="bi bi-pencil-fill text-primary"></i></h3>
-      {% if note.register.alias == 'mat' %}
-        <h3 class="modal-title">{{gettext('Edit proposal')}} <span class="fw-bold">{{note.fullkey}}</span></h3>
+      {% if note != None %}
+        {% if note.register.alias == 'mat' %}
+          <h3 class="modal-title">{{gettext('Edit proposal')}} <span class="fw-bold">{{note.fullkey}}</span></h3>
+        {% else %}
+        <h3 class="modal-title">{{gettext('Edit note')}} {{note.fullkey}}</h3>
+        {% endif %}
       {% else %}
-      <h3 class="modal-title">{{gettext('Edit note')}} {{note.fullkey}}</h3>
+        <h3 class="modal-title">{{gettext('New note')}}</h3>
       {% endif %}
         <div>
-          <button type="button" class="btn btn-primary" hx-post="/action_note?reg={{reg}}&action=edited&note={{note.id}}" hx-target="#row_{{note.id}}" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          {% if note != None %}
+            <button type="button" class="btn btn-primary" hx-post="/action_note?reg={{reg}}&action=edited&note={{note.id}}" hx-target="#row_{{note.id}}" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          {% else %}
+            <button type="button" class="btn btn-primary" hx-post="/action_note?reg={{reg}}&action=create_note" hx-target="#main-body" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+          {% endif %}
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
     </div>
 
     <div class="modal-body">
-      {% include 'notes/form_edit_note.html' %}      
+      {% if note == None %}
+        {% include 'notes/form_new_note.html' %}
+      {% else %}
+        {% include 'notes/form_edit_note.html' %}
+      {% endif %}
     </div>
   </form>
 </div>

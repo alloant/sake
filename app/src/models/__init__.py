@@ -288,16 +288,16 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def result(cls,demand,user=current_user):
         match demand:
             case 'is_sign_despacho':
-                return cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho)
+                return cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho)
             case 'is_target':
-                return cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==user.id,NoteStatus.target)
+                return cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target)
             case 'is_read':
                 return case(
-                    (cls.n_date < user.date,not_(cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==user.id,NoteStatus.read))),
-                    else_=cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==user.id,NoteStatus.read)
+                    (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read)))),
+                    else_=cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read))
                 )
             case 'num_sign_despacho':
-                return func.count(cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
+                return func.count(cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
 
 
     @hybrid_method
@@ -316,10 +316,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     @is_read_new.expression
     def is_read_new(cls,user=current_user):
         return case(
-            (cls.n_date < current_user.date,not_(cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read))),
-            else_=cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
+            (cls.n_date < current_user.date,not_(cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read))),
+            else_=cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
         )
-        return cls.status.any(NotesStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
+        return cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
 
     #NEW
     @hybrid_method

@@ -286,7 +286,7 @@ def get_notes(reg,filter = ""):
      
     if not reg[2] and reg[1] == "out":
         sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
-    elif reg[0] == 'mat' or reg[1] == 'pen':
+    elif reg[0] == 'mat' or reg[1] == 'pen' and session['filter_option'] == 'hide_archived':
         sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())

@@ -30,6 +30,7 @@ class NoteForm(FlaskForm):
     num = IntegerField(gettext('Number'), render_kw={"disabled": True})
     year = IntegerField(gettext('Year'),validators=[DataRequired()], render_kw={"disabled": True})
     sender = SelectField(gettext('Sender'), validators=[DataRequired()], render_kw={"disabled": True})
+    reg = SelectField(gettext('Register'), validators=[])
 
     receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
     #receiver = SelectMultipleField('Receiver', validators=[DataRequired()])
@@ -43,12 +44,23 @@ class NoteForm(FlaskForm):
     #proc = StringField('Procedure', validators=[])
     ref = StringField(gettext('References'), validators=[])
 
+    is_ref = BooleanField(gettext('It is a reference'), render_kw={"disabled": True})
     permanent = BooleanField(gettext('Only permanent'), render_kw={"disabled": True})
 
     submit = SubmitField(gettext("Save"))
 
     def set_disabled(self,user,note,reg):
-        if user.admin or note.state == 0 or note.permissions('can_edit') or reg[0] in ['box','des']:
+        if note == None:
+            self.is_ref.render_kw = {"disabled": False}
+            self.n_date.render_kw = {"disabled": False}
+            self.year.render_kw = {"disabled": False}
+            self.sender.render_kw = {"disabled": False}
+            self.content.render_kw = {"disabled": False}
+            self.content_jp.render_kw = {"disabled": False}
+            self.comments.render_kw = {"disabled": False}
+            self.proc.render_kw = {"disabled": False}
+            self.permanent.render_kw = {"disabled": False}
+        elif user.admin or note.state == 0 or note.permissions('can_edit') or reg[0] in ['box','des']:
             self.n_date.render_kw = {"disabled": False}
             self.content.render_kw = {"disabled": False}
             self.content_jp.render_kw = {"disabled": False}

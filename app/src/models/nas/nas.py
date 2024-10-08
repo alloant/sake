@@ -47,6 +47,9 @@ def wrap_error(func, *args):
 
 
 # Wrapped functions
+def preview(link):
+    return wrap_error(_preview,link)
+
 def toggle_share_permissions(path:str,role):
     return wrap_error(_toggle_share_permissions,path,role)
 
@@ -90,6 +93,9 @@ def create_task(cal_id:str,summary:str):
     return wrap_error(_create_task,cal_id,summary)
 
 # Original functions
+
+def _preview(synd,link):
+    return synd.preview(link)
 
 def _toggle_share_permissions(synd,path,role):
     return synd.toggle_share_permissions(path,role)

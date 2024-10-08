@@ -15,6 +15,12 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          {% if 'personal' in register.groups %}
+            data-bs-title="{{gettext('Mail for')}} {{register.alias}}"
+          {% else %}
+            data-bs-title="{{gettext('Mail from')}} {{register.alias}}"
+          {% endif %}
           role="button">
           <span class="container" hx-get="sidebar?element={{register.alias}}_in_" hx-trigger="update-main from:body" hx-swap="outerHTML"></span>
           <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -27,6 +33,12 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          {% if 'personal' in register.groups %}
+            data-bs-title="{{gettext('Mail from')}} {{register.alias}}"
+          {% else %}
+            data-bs-title="{{gettext('Mail to')}} {{register.alias}}"
+          {% endif %}
           role="button">
           <div class="container" hx-get="sidebar?element={{register.alias}}_out_" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
         </span>
@@ -43,6 +55,8 @@
             hx-trigger="click"
             hx-target="#main-title-body"
             hx-disinherit="*"
+            data-bs-toggle="tooltip"
+            data-bs-title="{{gettext('Mail from cg to')}} {{subregister}}"
             role="button">
             <div class="container" hx-get="sidebar?element={{register.alias}}_in_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
             <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -55,6 +69,8 @@
             hx-trigger="click"
             hx-target="#main-title-body"
             hx-disinherit="*"
+            data-bs-toggle="tooltip"
+            data-bs-title="{{gettext('Mail to cg from')}} {{subregister}}"
             role="button">
             <div class="container" hx-get="sidebar?element={{register.alias}}_out_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           </span>

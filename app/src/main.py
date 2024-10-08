@@ -10,6 +10,7 @@ from app.src.notes.renders import get_title
 from app.src.models import Register
 from app import db
 
+
 def dashboard_view(template):
     if session.get('theme') is None:
         session.permanent = True

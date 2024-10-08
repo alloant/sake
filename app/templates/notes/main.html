@@ -53,7 +53,15 @@
                 hx-indicator="#indicator-table"
                 hx-disinherit="*"
                 data-bs-toggle="tooltip"
-                title="{{gettext('New')}}"><i class="h4 bi bi-plus-circle"></i></button>
+                title="{{gettext('New')}}"><i class="h4 bi bi-file-earmark-plus"></i></button>
+        {% elif reg[0] == 'box' and current_user.alias == 'antonio' %}
+          <a class="btn btn-file rounded-circle border-none"
+            hx-get="/action_note?action=new&reg={{reg}}" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button"><i class="h4 bi bi-file-earmark-plus" data-bs-toggle="tooltip" title="See notes from cg"></i></a>
         {% endif %} <!-- End title['New'] -->
 
         {% if title['mail_to_despacho'] %}

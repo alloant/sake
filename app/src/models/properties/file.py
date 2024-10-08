@@ -58,7 +58,7 @@ class FileProp(object):
         if self.type == 'folder':
             return ""
         else:
-            return self.name.split(".")[-1]
+            return self.name.split(".")[-1].lower()
     
     @property
     def chain_link(self):

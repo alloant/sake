@@ -91,6 +91,7 @@ def fill_form_note(reg,form,note, filter = ""):
 
 
 def extract_form_note(reg,form,note):
+    print('Extract form note')
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
@@ -159,6 +160,7 @@ def extract_form_note(reg,form,note):
         for n,user in enumerate(reversed(note.receiver)):
             if not user.alias in form.receiver.data:
                 note.receiver.remove(user)
+                note.toggle_status_attr('target',user=user)
        
         for user in session['rst_checkbox']:
             if user == '---':
@@ -166,6 +168,15 @@ def extract_form_note(reg,form,note):
             rec = db.session.scalars(select(User).where(User.alias==user)).first()
             if not rec in note.receiver:
                 note.receiver.append(rec)
+                note.toggle_status_attr('target',user=rec)
+
+        dash_position = session['rst_checkbox'].index('---')
+        for status in note.status:
+            pos = session['rst_checkbox'].index(status.user.alias) if status.user.alias in session['rst_checkbox'] else -1
+            if pos == -1:
+                status.target = False
+            else:
+                status.target_order = pos if pos > dash_position else dash_position
 
         current_refs = []
         if form.ref.data != "" and not isinstance(form.ref.data,list):
@@ -394,11 +405,13 @@ def edit_receivers_view(request):
             for n,user in enumerate(reversed(note.receiver)):
                 if not user.alias in form.receiver.data:
                     note.receiver.remove(user)
-            
+                    note.toggle_status_attr('target',user=user)
+
             for user in session['rst_checkbox']:
                 rec = db.session.scalars(select(User).where(User.alias==user)).first()
                 if not rec in note.receiver:
                     note.receiver.append(rec)
+                    note.toggle_status_attr('target',user=rec)
 
             db.session.commit()
             return note.dep_html
@@ -414,10 +427,11 @@ def edit_receivers_view(request):
         else:
             for rec in note.receiver:
                 form.receiver.data.append(rec.alias)
-        
-    
+
+
     session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
+
     if type_save == 'permissions':
         return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget="", form=form)
     else:

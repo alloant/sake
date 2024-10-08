@@ -25,6 +25,7 @@
         </a>
       </li>
     {% endif %}
+
     {% if note.register.alias == 'ctr' %}
     <li>
       <a  class="dropdown-item"
@@ -38,7 +39,8 @@
       </a>
     </li>
     {% endif %}
-  {% else %}
+    <li><hr class="dropdown-divider"></li>
+  {% else %} <!-- else if in -->
     {% if note.reg in ['asr','ctr'] %}
       <li>
         <a  class="dropdown-item"
@@ -76,10 +78,10 @@
         <i class="bi bi-backspace-fill text-danger"></i> {{gettext('Send note back to dr')}}
       </a>
     </li>
-  {% endif %}
-{% endif %}
+    <li><hr class="dropdown-divider"></li>
+  {% endif %} <!-- end else for if in -->
+{% endif %} <!-- end box -->
 
-<li><hr class="dropdown-divider"></li>
 
 {% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' %}
   <li>

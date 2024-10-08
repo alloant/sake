@@ -2,6 +2,7 @@
   <td>{{ file.date }}</td>
   <td>{{ file.subject }}</td>
   <td><a href="{{session['link']}}/oo/r/{{file.permanent_link}}" target="_blank">{{ file.path.split('/')[-1] }}</a></td>
+  <td><input type="checkbox" name="isref_{{file.id}}"></td>
   <td><input type="text" name="register_{{file.id}}" value="{{ file.register }}"></td>
   <td><input type="text" name="sender_{{file.id}}" value="{{ file.sender }}"></td>
   <td><a hx-get="/action_inbox?action=remove_file&file={{file.id}}" hx-trigger="click" hx-target="#inbox-table" hx-confirm="Are you sure you want to delete {{file.path}}?" hx-indicator="#indicator-table" data-bs-toggle="tooltip" title="{{gettext('Remove file')}}">

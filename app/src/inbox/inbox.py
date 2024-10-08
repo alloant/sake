@@ -40,6 +40,9 @@ def action_inbox_view(request):
                         print(rst)
                         path,fid,link = convert_office(rst['data']['display_path'])
                         move_path(rst['data']['display_path'],f"{dest}/Originals")
+                    else:
+                        path = rst['data']['display_path']
+                        link = rst['data']['permament_link']
                     
                     fl = File(path=path,permanent_link=link,date=datetime.now().date())
                     db.session.add(fl)
@@ -194,6 +197,10 @@ def generate_notes(output):
         prots = re.findall(r'\w+',prot)
         register_field = output[f"register_{file.id}"].lower()
         sender_field = output[f"sender_{file.id}"].lower()
+        if f'isref_{file.id}' in output:
+            isref_field = output[f"isref_{file.id}"]
+        else:
+            isref_field = False
 
         # Find here the sender in the database. Could be the alias or the email
         if "@" in sender_field:
@@ -213,8 +220,8 @@ def generate_notes(output):
 
         # Check if the note already exist in the database
         note = get_note_fullkey(fullkey)
-
-        if note: # There is note already. Then this is a ref or a new version
+        print('note',note)
+        if isref_field == 'on' and note and note.flow == 'in':
             rst = note.addFile(file)
             if rst:
                 if not note in involved_notes:
@@ -223,18 +230,29 @@ def generate_notes(output):
                 flash(f"{file} was added to {note}")
         else: # We need to create a new note
             # First get the content if possible, if not empty
+            print('here')
             content = "" 
             if ";" in file.subject:
                 parts = file.subject.split(";")
                 if "/" in parts[0]:
                     content = parts[1]
 
-            # Get number and year from fullkey
-            num = re.findall(r'\d+',fullkey)[0]
-            year = re.findall(r'\d+',fullkey)[1]
+            if isref_field == 'on':
+                if note:
+                    ref = note
+                else:
+                    flash(f'There is not ref in {prot}')
+                    continue
+                num = 0
+                year = date.today().year
+                is_ref = True
+            else: # Get number and year from fullkey
+                num = re.findall(r'\d+',fullkey)[0]
+                year = re.findall(r'\d+',fullkey)[1]
+                is_ref = False
 
             # The state is 1 because they all go to inbox
-            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=1,content=content)
+            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=1,content=content,is_ref=is_ref)
 
             note.addFile(file)
             # I put the date of the note
@@ -248,10 +266,13 @@ def generate_notes(output):
             flash(f"{note} was created")
             flash(f"{file} was added to {note}")
 
-            refs = file.guess_ref
-
-            for ref in refs:
+            if isref_field == 'on':
                 note.ref.append(ref)
+            else:
+                refs = file.guess_ref
+
+                for ref in refs:
+                    note.ref.append(ref)
 
             if len(refs) != len(note.ref): # I didn't get all refs
                 flash(f"There was a problem with {file.subject}. Not all references are in place")
