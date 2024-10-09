@@ -49,6 +49,9 @@ class NoteNas(object):
                 return ''
 
     def getPermanentLink(self): # Gets the link and creates the folder if needed
+        if self.permanent_link:
+            return True
+
         rst = create_folder(self.path,self.folder_name)
 
         if rst:
@@ -88,7 +91,8 @@ class NoteNas(object):
     def move(self,dest):
         if self.path == dest:
             return True
-        rst = move_path(self.folder_path,dest)
+        #rst = move_path(self.folder_path,dest)
+        rst = move_path(f'link:{self.permanent_link}',dest)
         if rst:
             self.path = dest
             db.session.commit()
@@ -96,7 +100,7 @@ class NoteNas(object):
         return False
 
     def copy(self,dest):
-        return copy_path(self.folder_path,f"{dest}/{self.folder_name}")
+        return copy_path(f'link:{self.permanent_link}',f"{dest}/{self.folder_name}")
 
     def updateFiles(self):
         if not self.permanent_link: # There is no permanent_link, I should get it first
@@ -108,34 +112,13 @@ class NoteNas(object):
             flash("Could not update files. Try again")
             return False
 
-        files = files_path(self.folder_path)
+        #files = files_path(self.folder_path)
+        files = files_path(f'link:{self.permanent_link}')
         self.deleteFiles([f.id for f in self.files])
 
         for file in files:
             kargs = {'path':file['name'],'permanent_link':file['permanent_link']} 
             self.addFileArgs(**kargs)
-        
-        """
-        # Just checking the files that are already assigned to the note and fixing the path of the file in the case it has not been yet 
-        ntfiles = []
-        for file in self.files:
-            if "/" in file.path:
-                if self.path != "/".join(file.path.split("/")[:-1]):
-                    file.move_to_note(self.folder_path)
-            ntfiles.append(file.path.split("/")[-1])
-        
-        extfiles = []
-        if files:
-            for file in files:
-                if not file['name'] in ntfiles:
-                    kargs = {'path':file['name'],'permanent_link':file['permanent_link']} 
-                    self.addFileArgs(**kargs)
-                
-                extfiles.append(file['name'])
-                
-        rmfiles = [f.id for f in self.files if not f.path.split("/")[-1] in extfiles]
-        self.deleteFiles(rmfiles)
-        """ 
-    
+
         db.session.commit()
 

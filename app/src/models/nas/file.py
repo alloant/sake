@@ -5,15 +5,18 @@ from .nas import get_info,rename_path, move_path, copy_path, convert_office, dow
 
 class FileNas(object):
     def move_to_note(self,dest):
-        rst = move_path(self.path,dest)
+        #rst = move_path(self.path,dest)
+        rst = move_path(f'link:{self.permanent_link}',dest)
         if rst:
             self.path = self.path.split('/')[-1]
 
     def move(self,dest,dest_original = None):
-        return move_path(self.path,f"{dest}")
+        return move_path(f'link:{self.permanent_link}',f"{dest}")
+        #return move_path(self.path,f"{dest}")
 
     def copy(self,dest):
-        return copy_path(f"{self.path}/{self.name}",f"{dest}/{self.name}")
+        return copy_path(f'link:{self.permanent_link}',f"{dest}/{self.name}")
+        #return copy_path(f"{self.path}/{self.name}",f"{dest}/{self.name}")
 
     def convert(self):
         self.original_name = self.name

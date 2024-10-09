@@ -170,7 +170,7 @@ def extract_form_note(reg,form,note):
                 note.receiver.append(rec)
                 note.toggle_status_attr('target',user=rec)
 
-        dash_position = session['rst_checkbox'].index('---')
+        dash_position = session['rst_checkbox'].index('---') if '---' in session['rst_checkbox'] else -1
         for status in note.status:
             pos = session['rst_checkbox'].index(status.user.alias) if status.user.alias in session['rst_checkbox'] else -1
             if pos == -1:
