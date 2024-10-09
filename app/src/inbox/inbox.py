@@ -220,8 +220,8 @@ def generate_notes(output):
 
         # Check if the note already exist in the database
         note = get_note_fullkey(fullkey)
-        print('note',note)
-        if isref_field == 'on' and note and note.flow == 'in':
+        
+        if note and not (isref_field == 'on' and note.flow == 'out'):
             rst = note.addFile(file)
             if rst:
                 if not note in involved_notes:

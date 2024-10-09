@@ -83,8 +83,6 @@ class NoteProp(object):
     def is_target(self,user=current_user):
         return user in self.receiver
 
-    
-
     def permissions(self,demand):
         match demand:
             case 'can_edit':
