@@ -200,7 +200,8 @@ def newNote(user, reg, ref = None):
                 if ref.ref:
                     nt.ref = ref.ref + [ref]
                     if ref.ref[0].register == register:
-                        nt.receiver.append(ref.ref[0].sender)
+                        if f'ct_{register.alias}' in ref.ref[0].sender.groups:
+                            nt.receiver.append(ref.ref[0].sender)
                 else:
                     nt.ref.append(ref)
             else:
