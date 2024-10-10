@@ -17,7 +17,7 @@
     <span class="ms-2">{% include 'notes/table/2_involved.html' %}</span>
 </td>
 
-<td class="">
+<td class="" style="white-space: nowrap;">
   {% include 'notes/table/2_actions.html' %}
 
   {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}

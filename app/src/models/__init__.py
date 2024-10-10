@@ -720,7 +720,7 @@ class Register(RegisterHtml,db.Model):
         return sbs
 
     def get_contacts(self):
-        return db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bcr\b'))).all()
+        return db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all()
  
     @property
     def get_num_contacts(self):
