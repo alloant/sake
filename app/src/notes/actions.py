@@ -165,7 +165,7 @@ def circulation_proposal(note_id,action):
         case 'stop':
             note.state = 0
         case 'restart':
-            note.state = 1
+            note.state = 0
             note.read_by = ''
             for status in note.status:
                 status.target_acted = False
