@@ -42,6 +42,13 @@
             hx-indicator="#indicator-table"
             role="button">
           Transfer data</a></li>
+          <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=notes_in_folder"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+          Check notes are in right folder</a></li>
           {% endif %}
       </ul>
       <button class="btn btn-file"

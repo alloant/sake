@@ -25,6 +25,10 @@ class NoteNas(object):
         return message
 
     @property
+    def get_info(self):
+        return get_info(f'link:{self.permanent_link}')
+
+    @property
     def preview(self):
         return preview(self.permanent_link)
 

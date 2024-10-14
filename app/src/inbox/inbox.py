@@ -10,7 +10,7 @@ from flask import render_template, flash, current_app, session, make_response
 from flask_login import current_user
 from flask_babel import gettext
 
-from sqlalchemy import select, and_, func, delete, or_
+from sqlalchemy import select, and_, func, delete, or_, not_
 from sqlalchemy.orm import aliased
 
 from app import db
@@ -87,6 +87,17 @@ def action_inbox_view(request):
         case 'transfer':
             from app.src.tools.tools import toNewNotesStatus
             toNewNotesStatus()
+        case 'notes_in_folder':
+            notes = db.session.scalars(select(Note).where(Note.state>=5,Note.reg.in_(['cg','asr','ctr','r']),not_(Note.path.contains('team-folders/Data'))))
+            for note in notes:
+                print(note,note.state,note.path,note.reg,note.flow,f'/team-folders/Data/Notes/{note.year}/{note.reg} {note.flow}')
+                #rst = note.move(f'/team-folders/Data/Notes/{note.year}/{note.reg} {note.flow}')
+                #print(rst)
+                rst = note.get_info
+                if rst:
+                    print(rst['data']['display_path'])
+                    note.path = rst['data']['display_path']
+            db.session.commit()
 
     res = make_response(inbox_body_view(request))
     res.headers['HX-Trigger'] = 'update-flash'
