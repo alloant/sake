@@ -17,9 +17,10 @@
     <span class="ms-2">{% include 'notes/table/2_involved.html' %}</span>
 </td>
 
-<td class="" style="white-space: nowrap;">
-  {% include 'notes/table/2_actions.html' %}
-
+<td class="">
+  <span hx-get="/body_element?reg={{reg}}&note={{note.id}}&element=actions" hx-trigger="update-actions from:body" style="white-space: nowrap;">
+    {% include 'notes/table/2_actions.html' %}
+  </span>
   {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}
     <span id="row_{{note.id}}_files">
       {% include 'notes/table/2_files.html' %}

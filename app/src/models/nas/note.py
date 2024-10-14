@@ -87,6 +87,7 @@ class NoteNas(object):
         if rst:
             if 'permanent_link' in rst:
                 self.permanent_link = rst['permanent_link']
+                db.session.commit()
 
     def move(self,dest):
         if self.path == dest:

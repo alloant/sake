@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import ast
 
 from flask import Blueprint, request, render_template, current_app, session
 from flask_login import login_required, current_user
@@ -11,6 +12,7 @@ from app.src.notes.views import table_body_view, browse_files_modal
 from app.src.notes.edit import edit_receivers_view, edit_receivers_files_view, sortable_view, edit_tags_view, files_view, reply_note_view, get_files_view, load_socket_view
 from app.src.main import dashboard_view
 from app.src.inbox.inbox import inbox_body_view, inbox_main_view, action_inbox_view
+from app.src.notes.renders import render_body_element
 
 from app.src.tools.syneml import read_eml, write_report_eml
 

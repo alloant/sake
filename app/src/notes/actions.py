@@ -502,7 +502,7 @@ def update_files(reg,note_id):
         res = make_response(render_template("notes/table/2_files_old.html",note=note, reg=reg))
     else:
         res = make_response(render_template("notes/table/2_files.html",note=note, reg=reg))
-    res.headers['HX-Trigger'] = 'update-flash'
+    res.headers['HX-Trigger'] = 'update-flash,update-actions'
 
     return res
 
