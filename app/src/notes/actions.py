@@ -233,15 +233,14 @@ def toggle_read(note_id,file_clicked=False):
     #print('preview:',note.preview)
     if note:
         if note.register.alias != 'mat':
-            note.toggle_status_attr('read')
-            read_by = note.read_by.split(',')
-            if current_user.alias in read_by:
-                if not file_clicked:
+            if not file_clicked or not note.result('is_read'):
+                note.toggle_status_attr('read')
+                read_by = note.read_by.split(',')
+                if current_user.alias in read_by:
                     read_by.remove(current_user.alias)
-            else:
-                read_by.append(current_user.alias)
+                else:
+                    read_by.append(current_user.alias)
 
-            if read_by != note.read_by.split(','):
                 note.read_by = ','.join([alias for alias in read_by if alias])
                 db.session.commit()
 

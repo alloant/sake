@@ -9,6 +9,19 @@ from xml.etree import ElementTree as ET
 from app import db
 from sqlalchemy import select
 
+def replace_urls_with_links(text):
+    # Regular expression pattern to find URLs
+    url_pattern = r'(https?://[^\s]+)'
+    
+    # Function to replace the found URL with an HTML link
+    def replace_with_link(match):
+        url = match.group(0)
+        return f'<a href="{url}" target="_blank">(link)</a>'
+    
+    # Use re.sub to replace all occurrences of the URL pattern
+    result = re.sub(url_pattern, replace_with_link, text)
+    return result
+
 class NoteHtml(object): 
     @property
     def fullkey_link_html(self):
@@ -27,6 +40,10 @@ class NoteHtml(object):
 
 
         return ET.tostring(a,encoding='unicode',method='html')
+
+    @property
+    def content_url(self):
+        return replace_urls_with_links(self.content)
 
     def tag_html(self,show_something=False):
         max_tags = 6

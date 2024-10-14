@@ -47,7 +47,6 @@
   {% endif %}
   <li><hr class="dropdown-divider"></li>
 {% elif note.permissions('can_sign_matter') %}
-  <li><hr class="dropdown-divider"></li>
   <li>
     <a  class="dropdown-item"
         hx-post="/action_note?action=sign_proposal&reg={{reg}}&note={{note.id}}" 
