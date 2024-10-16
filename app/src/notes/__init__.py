@@ -84,13 +84,14 @@ def notes():
     if get == 'title':
         return render_template('mobile/title.html')
 
-@bp.route('/body_element')
+@bp.route('/body_element', methods=['GET','POST'])
 @mobile_template("{mobile}")
 @login_required
 def body_element(template):
     reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
     element = request.args.get('element')
+    print('here',note_id)
     return render_body_element(reg,note_id,element,template)
 
 @bp.route('/register_icon')

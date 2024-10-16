@@ -3,7 +3,7 @@
 {% else %}
 <div class="modal-dialog modal-lg modal-dialog-centered">
 {% endif %}
-  <form class="modal-content">
+  <form method="POST" class="modal-content">
     <div class="modal-header justify-content-between">
       <h3><i class="bi bi-pencil-fill text-primary"></i></h3>
       {% if note != None %}
@@ -25,14 +25,17 @@
         </div>
     </div>
 
-    <div class="modal-body">
+    <div class="modal-body" id="modal-fields">
       {% if note == None %}
         {% include 'notes/form_new_note.html' %}
       {% else %}
         {% include 'notes/form_edit_note.html' %}
       {% endif %}
     </div>
+
   </form>
+
+
 </div>
 
 

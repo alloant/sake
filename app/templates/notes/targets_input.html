@@ -1,0 +1,15 @@
+{% for status in note.status %}
+  {% if status.target %}
+    <div class="d-inline-flex border rounded-pill px-2 py-1 m-1" role="button">
+      <i class="bi bi-person-circle text-info"></i>
+      <span class="mx-1">{{status.user.alias}}</span>
+      <span class="">x</span>
+    </div>
+  {% endif %}
+{% endfor %}
+
+<div class="flex-grow-1 nosotable">
+  <input class="form-control border-0 shadow-none m-1" type="text">
+</div>
+
+

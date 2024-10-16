@@ -1,3 +1,39 @@
+{% if current_user.alias == 'antonio' %}
+<form class="sortable form-group d-inline-flex flex-wrap">
+    {% for status in note.status %}
+      {% if status.target %}
+        <div class="d-inline-flex border rounded-pill px-2 py-1 m-1" role="button">
+          <i class="bi bi-person-circle text-info"></i>
+          <span class="mx-1">{{status.user.alias}}</span>
+          <span class="">x</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+</form>  
+  <div class="">
+    <input class="form-control" type="text">
+  </div>
+
+
+<script>
+  htmx.onLoad(function(content) {
+      var sortables = content.querySelectorAll(".sortable");
+      for (var i = 0; i < sortables.length; i++) {
+          var sortable = sortables[i];
+          new Sortable(sortable, {
+              animation: 150,
+              ghostClass: 'blue-background-class',
+          });
+      }
+  })
+</script>
+
+{% endif %}
+
+
+
+
   <div class="flex-fill p-2">
     {% if note.register.alias == 'mat' %}
       <div class="d-flex d-flex-wrap mb-2">

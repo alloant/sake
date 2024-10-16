@@ -157,6 +157,8 @@ def delete_note(note_id):
     for status in note.status:
         db.session.delete(status)
     
+    db.session.commit()
+
     note.delete_folder()
 
     db.session.delete(note)

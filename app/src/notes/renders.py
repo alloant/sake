@@ -94,7 +94,11 @@ def render_body_element(reg,note_id,element,template):
     elif element == 'actions_ctr':
         note = db.session.scalar(select(Note).where(Note.id==note_id))
         return render_template('notes/table/2_actions_ctr.html',reg=reg,note=note)
- 
+    elif element == 'targets_input':
+        print('targets_input')
+        note = db.session.scalar(select(Note).where(Note.id==note_id))
+        return render_template('notes/targets_input.html',reg=reg,note=note)
+
 
 def get_body_data(info):
     return current_user.data(info,True)

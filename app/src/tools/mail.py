@@ -25,5 +25,6 @@ def send_emails(nt):
                 msg['From'] = Config.EMAIL_ADDRESS
                 msg['To'] = rec.email
        
-                smtp_server.sendmail(Config.EMAIL_ADDRESS, rec.email, msg.as_string())
+                for mail in rec.email.replace(' ','').split(','):
+                    smtp_server.sendmail(Config.EMAIL_ADDRESS, mail, msg.as_string())
 
