@@ -54,6 +54,18 @@
                 hx-disinherit="*"
                 data-bs-toggle="tooltip"
                 title="{{gettext('New')}}"><i class="h4 bi bi-file-earmark-plus"></i></button>
+              {% if reg[0] == 'vc' %}
+              <button class="border-none btn btn-file rounded-circle"
+                  style="background-color: transparent;"
+                  hx-get="/action_note?reg={{reg}}&action=new&target=asr"
+                  hx-trigger="click"
+                  hx-target="#main-body"
+                  hx-indicator="#indicator-table"
+                  hx-disinherit="*"
+                  data-bs-toggle="tooltip"
+                  title="{{gettext('New note to asr')}}"><i class="h4 bi bi-patch-plus"></i></button>
+            {% endif %}
+
         {% elif reg[0] == 'box' and current_user.alias == 'antonio' %}
           <a class="btn btn-file rounded-circle border-none"
             hx-get="/action_note?action=new&reg={{reg}}" 

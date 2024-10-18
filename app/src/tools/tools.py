@@ -113,11 +113,13 @@ def toNewNotesStatus():
     db.session.commit()
 
 
-def nextNumReg(rg):
+def nextNumReg(rg,target=None):
     # Get new number for the note. Here getting the las number in that register
     sender = aliased(User,name="sender_user")
     if rg[0] == 'mat':
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='mat',Note.year==datetime.today().year,Note.sender.has(User.id==current_user.id)))) )
+    elif rg[0] == 'vc' and target == 'asr':
+        num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(Note.num>250,Note.reg==rg[0],Note.year==datetime.today().year,Note.flow=='out')) )
     elif not rg[2] in ['','pending']:
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.year==datetime.today().year,literal_column(f"sender_user.alias = '{rg[2]}'"),Note.flow=='in'))) )
     else:
@@ -128,7 +130,7 @@ def nextNumReg(rg):
         num += 1
     elif rg[0] == 'cg':
         num = 1
-    elif rg[0] == 'asr':
+    elif rg[0] == 'asr' or rg[0] == 'vc' and target == 'asr':
         num = 250
     elif rg[0] == 'ctr':
         num = 1000
@@ -165,8 +167,8 @@ def delete_note(note_id):
     db.session.commit()
 
 
-def newNote(user, reg, ref = None):
-    num = nextNumReg(reg)
+def newNote(user, reg, ref = None, target = None):
+    num = nextNumReg(reg,target)
     
     register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
 
@@ -176,7 +178,10 @@ def newNote(user, reg, ref = None):
         nt = Note(num=num,sender_id=ctr.id,reg=reg[0],register=register)
     else: # Note created by a cr dr
         nt = Note(num=num,sender_id=user.id,reg=reg[0],register=register)
-    
+   
+    if reg[0] == 'vc' and target == 'asr':
+        asr = db.session.scalar(select(User).where(User.alias==target))
+        nt.receiver.append(asr)
     
     contacts = register.get_contacts()
     if len(contacts) == 1: # There is only one possibility I add it from the beginning

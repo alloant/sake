@@ -82,7 +82,8 @@ def action_note_view(request,template):
             if reg[0] == 'box':
                 return new_note(reg)
             else:
-                newNote(current_user,reg)
+                target = request.args.get('target')
+                newNote(current_user,reg,target=target)
         case 'create_note':
             created(reg,request)
         case 'send_to_box':
