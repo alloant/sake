@@ -21,7 +21,7 @@ from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
 
-from app.src.tools.tools import newNote, sendmail, delete_note
+from app.src.tools.tools import newNote, send_emails, delete_note
 from app.src.tools.syneml import write_eml
 
 from app.src.models.nas.nas import toggle_share_permissions
@@ -313,6 +313,7 @@ def outbox_to_target(note_id=None,back=False):
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
                 note.state = 6
             elif note.register.alias == 'ctr':
+                send_emails(note)
                 note.state = 6
     
     users = db.session.scalars(select(User).where(User.contains_group('scr')))

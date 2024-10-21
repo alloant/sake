@@ -120,7 +120,7 @@ def nextNumReg(rg,target=None):
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='mat',Note.year==datetime.today().year,Note.sender.has(User.id==current_user.id)))) )
     elif rg[0] == 'vc' and target == 'asr':
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(Note.num>250,Note.reg==rg[0],Note.year==datetime.today().year,Note.flow=='out')) )
-    elif not rg[2] in ['','pending']:
+    elif rg[2]:
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.year==datetime.today().year,literal_column(f"sender_user.alias = '{rg[2]}'"),Note.flow=='in'))) )
     else:
         num = db.session.scalar( select(func.max(literal_column("num"))).select_from(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg==rg[0],Note.year==datetime.today().year,Note.flow=='out'))) )
@@ -128,6 +128,8 @@ def nextNumReg(rg,target=None):
     # Now adding +1 to num or start numeration of the year
     if num:
         num += 1
+    elif rg[2]:
+        num = 1
     elif rg[0] == 'cg':
         num = 1
     elif rg[0] == 'asr' or rg[0] == 'vc' and target == 'asr':

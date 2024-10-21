@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#flask db init
+
+#flask db migrate -m "Init"
+
+#flask db upgrade
+
+# Start your application (e.g., using Gunicorn or another server)
+gunicorn -w 1 --threads 100 -b :8041 'app:create_app()'

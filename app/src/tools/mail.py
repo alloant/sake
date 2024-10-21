@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from config import Config
 
 def send_email(subject, body, recipients):
+    print('send_email')
     msg = MIMEText(body)
     msg['Subject'] = subject
     msg['From'] = Config.EMAIL_ADDRESS
@@ -24,6 +25,7 @@ def send_emails(nt):
                 msg['Subject'] = f"New mail for {rec.alias} ({nt.fullkey})"
                 msg['From'] = Config.EMAIL_ADDRESS
                 msg['To'] = rec.email
+                
        
                 for mail in rec.email.replace(' ','').split(','):
                     smtp_server.sendmail(Config.EMAIL_ADDRESS, mail, msg.as_string())
