@@ -137,7 +137,7 @@ def main_users():
 def edit_user():
     user_id = request.args.get('user')
     user = db.session.scalars(select(User).where(User.id==user_id)).first()
-    is_ctr = request.args.get('ctr',False)
+    is_ctr = request.args.get('is_ctr',False)
  
     form = UserForm(request.form,obj=user)
     
@@ -176,25 +176,26 @@ def edit_user():
        
             user.active = form.active.data
             user.admin_active = form.admin_active.data
-
-            if 'of' in form.groups.data:
-                rst = ['o_cg','o_asr','o_ctr','o_r','o_mat','ct_mat']
-            elif 'cr' in form.groups.data:
-                rst = ['v_cg','v_asr','v_ctr','v_r','o_mat','ct_mat']
-            else:
-                rst = []
             
-            for group in form.groups.data:
-                if group in groups_choices[:group1]:
-                    rst.append(group)
+            if not is_ctr:
+                if 'of' in form.groups.data:
+                    rst = ['o_cg','o_asr','o_ctr','o_r','o_mat','ct_mat']
+                elif 'cr' in form.groups.data:
+                    rst = ['v_cg','v_asr','v_ctr','v_r','o_mat','ct_mat']
+                else:
+                    rst = []
+                
+                for group in form.groups.data:
+                    if group in groups_choices[:group1]:
+                        rst.append(group)
 
-                if group in groups_choices[group1:group2]:
-                    rst.append(f"e_{group}")
+                    if group in groups_choices[group1:group2]:
+                        rst.append(f"e_{group}")
 
-                if group in groups_choices[group2:]:
-                    rst.append(f"v_ctr_{group}")
-            
-            user.u_groups = ",".join([g for g in rst if g])
+                    if group in groups_choices[group2:]:
+                        rst.append(f"v_ctr_{group}")
+
+                user.u_groups = ",".join([g for g in rst if g])
 
         db.session.commit()
 

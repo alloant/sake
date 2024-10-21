@@ -6,7 +6,7 @@
           {% if user.id == current_user.id %}
             <button type="button" class="btn btn-primary" hx-post="/edit_user?user={{user.id}}" hx-target="#main-body" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
           {% else %}
-            <button type="button" class="btn btn-primary" hx-post="/edit_user?user={{user.id}}" hx-swap="none" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
+            <button type="button" class="btn btn-primary" hx-post="/edit_user?user={{user.id}}&is_ctr={{is_ctr}}" hx-swap="none" hx-disinherit="*" data-bs-dismiss="modal">Save</button>
           {% endif %}
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>

@@ -269,7 +269,7 @@
             {% for subregister in register.get_subregisters(True) %}
               <li>
                 <a class="dropdown-item"
-                  hx-get="/edit_user?user={{subregister[0]}}&ctr=True" 
+                  hx-get="/edit_user?user={{subregister[0]}}&is_ctr=True" 
                   hx-trigger="click"
                   hx-target="#modal-htmx"
                   data-bs-toggle="modal"
