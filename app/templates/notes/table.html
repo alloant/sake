@@ -1,17 +1,17 @@
 <div class="d-flex justify-content-end align-items-center my-1 text-secondary">
   <span class="small">{{ (page - 1) * notes.per_page + 1 }}-{{ (page - 1) * notes.per_page + notes.items|length }} of {{notes.total}}</span>
-  <a  class="btn btn-sm btn-file"
+  <button  class="btn btn-sm btn-file border-0"
       hx-get="/main_body?reg={{reg}}&page={{notes.prev_num}}"
       hx-trigger="click"
       hx-target="#main-body"
       hx-indicator="#indicator-table"
-      {{'' if notes.has_prev else 'disable' }}><i class="bi bi-chevron-left"></i></a>
-  <a  class="btn btn-sm btn-file"
+      {{'' if notes.has_prev else 'disabled' }}><i class="bi bi-chevron-left"></i></button>
+  <button  class="btn btn-sm btn-file border-0"
       hx-get="/main_body?reg={{reg}}&page={{notes.next_num}}"
       hx-trigger="click"
       hx-target="#main-body"
       hx-indicator="#indicator-table"
-      {{'' if notes.has_next else 'disable' }}><i class="bi bi-chevron-right"></i></a>
+      {{'' if notes.has_next else 'disabled' }}><i class="bi bi-chevron-right"></i></button>
 </div>
 
 <div class="table-responsive">
