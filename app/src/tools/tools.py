@@ -202,7 +202,7 @@ def newNote(user, reg, ref = None, target = None):
             if nt.register.alias == 'mat':
                 rb = []
                 for rec in ref.receiver:
-                    if rec != current_user:
+                    if rec != current_user and 'sake' in rec.groups:
                         rb.append(rec.alias)
                 nt.received_by = ','.join([r for r in rb if r])
             if ref.register.alias == 'mat':
