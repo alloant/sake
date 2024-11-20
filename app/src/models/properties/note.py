@@ -80,6 +80,18 @@ class NoteProp(object):
     def contains_in(cls,attr,value):
         return getattr(cls,attr).regexp_match(fr'(^|[^-])\b{value}\b($|[^-])')
 
+    def first_file(self,ctr=None):
+        if not self.files:
+            return None
+
+        if ctr:
+            for file in self.files:
+                if file.subject == '' or ctr in file.subject.split(','):
+                    break
+            return file
+
+        return self.files[0]
+
     def is_target(self,user=current_user):
         return user in self.receiver
 

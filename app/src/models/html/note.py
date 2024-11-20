@@ -76,9 +76,16 @@ class NoteHtml(object):
 
         return ET.tostring(span,encoding='unicode',method='html')
 
-    @property
-    def number_files(self):
-        num = str(len(self.files))
+    def number_files(self,ctr=None):
+        if ctr:
+            num = 0
+            for file in self.files:
+                if file.subject == '' or ctr in file.subject.split(','):
+                    num += 1
+        else:
+            num = len(self.files)
+        
+        num = str(num)
         rst = ''
         for n in num:
             rst += f'<i class="bi bi-{n}-square"></i>'

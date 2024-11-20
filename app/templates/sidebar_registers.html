@@ -56,7 +56,7 @@
             hx-target="#main-title-body"
             hx-disinherit="*"
             data-bs-toggle="tooltip"
-            data-bs-title="{{gettext('Mail from cg to')}} {{subregister}}"
+            data-bs-title="{{gettext('Mail from cr to')}} {{subregister}}"
             role="button">
             <div class="container" hx-get="sidebar?element={{register.alias}}_in_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
             <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -70,7 +70,7 @@
             hx-target="#main-title-body"
             hx-disinherit="*"
             data-bs-toggle="tooltip"
-            data-bs-title="{{gettext('Mail to cg from')}} {{subregister}}"
+            data-bs-title="{{gettext('Mail to cr from')}} {{subregister}}"
             role="button">
             <div class="container" hx-get="sidebar?element={{register.alias}}_out_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           </span>

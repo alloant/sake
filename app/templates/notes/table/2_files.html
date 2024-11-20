@@ -1,17 +1,19 @@
-{% if note.files|length > 0 %}
+{% if note.files|length > 0 %}  
+  {% with file = note.first_file(reg[2]) %}
   <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill" 
     hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
     hx-swap="none"
-    hx-on:htmx:after-request="window.open('{{note.files[0].link}}')"
+    hx-on:htmx:after-request="window.open('{{file.link}}')"
     data-bs-tooltip="tooltip"
-    title={{note.files[0].name}}
+    title={{file.name}}
     role="button">
-    <i class="bi {{note.files[0].bi_icon}}"></i><small class="fw-normal ms-1">{{note.files[0].short_name}}</small></button>
+    <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.short_name}}</small></button>
+  {% endwith %}
 {% endif %}
 
 <span class="dropdown dropdown-center position-static p-0 m-0">
   <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill" data-bs-toggle="dropdown">
-    {{ note.number_files|safe }}
+    {{ note.number_files(reg[2])|safe }}
     <i class="bi bi-chevron-down text-light small"></i>
   </button>
 
@@ -50,7 +52,7 @@
                 hx-on:click="navigator.clipboard.writeText('{{ref.content}}')"
                 role=button>
               <h5 class="dropdown-header text-decoration-underline fw-bold mt-2">{{ref.fullkey}}: {{ref.content}}
-                ({% with note = ref %}{% include 'notes/table/2_involved.html' %}{% endwith %})
+                {% with note = ref %}{% include 'notes/table/2_involved.html' %}{% endwith %}
               </h5>
             </a>
           {% else %}

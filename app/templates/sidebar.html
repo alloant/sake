@@ -3,7 +3,7 @@
   {% with registers = current_user.all_registers_and_sub %}
   <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
     {% if 'cr' in current_user.groups %}
-      <a class="nav-link position-relative my-2"
+      <a class="nav-link position-relative my-1"
         hx-get="/main_title_body?reg=['all','pen','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
@@ -11,7 +11,7 @@
         hx-disinherit="*"
         hx-on:click="$('#registers_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('Pending notes and proposals')}}"
+        data-bs-title="{{gettext('Shows only my notes and proposals')}}"
         role="button">
         <div class="container" hx-get="sidebar?element=pendings" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
         <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -19,7 +19,7 @@
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
       </a>
 
-      <a class="nav-link position-relative my-2"
+      <a class="nav-link position-relative my-1"
         hx-get="/main_title_body?reg=['all','all','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
@@ -27,13 +27,13 @@
         hx-disinherit="*"
         hx-on:click="$('#registers_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('Search')}}"
+        data-bs-title="{{gettext('Global search among all notes and proposals')}}"
         role="button">
         <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
       </a>
 
 
-      <a class="nav-link position-relative my-2"
+      <a class="nav-link position-relative my-1"
         hx-get="/main_title_body?reg=['mat','in','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
@@ -41,7 +41,7 @@
         hx-disinherit="*"
         hx-on:click="$('#registers_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('Proposals')}}"
+        data-bs-title="{{gettext('All the proposals I am involved in')}}"
         role="button">
         <div class="container" hx-get="sidebar?element=matters" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
         <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -53,7 +53,7 @@
     
     {% if current_user.is_authenticated %}
       {% if current_user.severalCalendars %}
-        <a class="nav-link position-relative my-2"
+        <a class="nav-link position-relative my-1"
           data-bs-toggle="collapse"
           data-bs-target="#registers_collapse"
           role="button">
@@ -65,15 +65,13 @@
       {% endif %}
 
       {% if 'despacho' in current_user.groups %}
-        <a class="nav-link position-relative my-2"
+        <a class="nav-link position-relative my-1"
           hx-get="/main_title_body?reg=['des','in','']"
           hx-indicator="#indicator-table"
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
           hx-on:click="$('#registers_collapse').collapse('hide');"
-          data-bs-toggle="tooltip"
-          data-bs-title="{{gettext('Despacho')}}"
           role="button">
           <div class="container" hx-get="sidebar?element=despacho" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -83,7 +81,7 @@
       {% endif %}
 
       {% if 'scr' in current_user.groups %}
-        <a class="nav-link position-relative my-2"
+        <a class="nav-link position-relative my-1"
           hx-get="/inbox_body?reg=['import','in','']"
           hx-indicator="#indicator-table"
           hx-trigger="click"
@@ -91,12 +89,12 @@
           hx-disinherit="*"
           hx-on:click="$('#registers_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
-          data-bs-title="{{gettext('Import files from eml or asr folder')}}"
+          data-bs-title="{{gettext('Imported files from eml or asr folder')}}"
           role="button">
           <div class="container" hx-get="sidebar?element=import" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
         </a>
         
-        <a class="nav-link position-relative my-2"
+        <a class="nav-link position-relative my-1"
           hx-get="/main_title_body?reg=['box','in','']"
           hx-indicator="#indicator-table"
           hx-trigger="click"
@@ -104,7 +102,7 @@
           hx-disinherit="*"
           hx-on:click="$('#registers_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
-          data-bs-title="{{gettext('Inbox')}}"
+          data-bs-title="{{gettext('All notes the sccr has to prepare for despacho')}}"
           role="button">
           <div class="container" hx-get="sidebar?element=inbox" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -112,7 +110,7 @@
               hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
         </a>
         
-        <a class="nav-link position-relative my-2"
+        <a class="nav-link position-relative my-1"
           hx-get="/main_title_body?reg=['box','out','']"
           hx-indicator="#indicator-table"
           hx-trigger="click"
@@ -120,7 +118,7 @@
           hx-disinherit="*"
           hx-on:click="$('#registers_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
-          data-bs-title="{{gettext('Outbox')}}"
+          data-bs-title="{{gettext('All the notes the sccr has to send')}}"
           role="button">
           <div class="container" hx-get="sidebar?element=outbox" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute top-0 start-50 badge rounded-pill bg-danger"
@@ -133,7 +131,7 @@
         <!-- cl registers-->
         {% for register in registers %}
           {% for subregister in register.get_subregisters() %}
-            <span class="nav-link my-2position-relative"
+            <span class="nav-link my-1 position-relative"
               hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
               hx-indicator="#indicator-table"
               hx-trigger="click"
@@ -145,7 +143,7 @@
                   hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
                   hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
             </span>
-            <span class="nav-link my-2 position-relative"
+            <span class="nav-link my-1 position-relative"
               hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
               hx-indicator="#indicator-table"
               hx-trigger="click"
@@ -160,9 +158,9 @@
       {% endif %}
       
       {% if 'cr' in current_user.groups %}
-        <a class="nav-link my-2" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
+        <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
           <div class="row">
-            <img src="static/icons/00-links{{dark}}.svg" width="40vmin" height="40vmin">
+            <img src="static/icons/00-links{{dark}}.svg" width="35rem" height="35rem">
           </div>
           <div class="row">
             <small>Links</small>
@@ -171,7 +169,7 @@
       {% else %}
         <a class="nav-link" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks_cl">
           <div class="row">
-            <img src="static/icons/00-links{{dark}}.svg" width="40vmin" height="40vmin">
+            <img src="static/icons/00-links{{dark}}.svg" width="35rem" height="35rem">
           </div>
           <div class="row">
             <small>Links</small>
@@ -181,9 +179,9 @@
     {% endif %}
    
     {% if False %}
-    <a class="nav-link my-2" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
+    <a class="nav-link my-1" hx-get="/documentation" hx-trigger="click" hx-target="#main-body" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Documentation')}}">
       <div class="row">
-        <img src="static/icons/00-question{{dark}}.svg" width="40vmin" height="40vmin">
+        <img src="static/icons/00-question{{dark}}.svg" width="35rem" height="35rem">
       </div>
       <div class="row">
         <small>Help</small>
@@ -193,8 +191,8 @@
     
 
     <div class="dropend">
-        <a href="#" class="nav-link my-2 d-flex align-items-center justify-content-center dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="static/icons/00-profile{{dark}}.svg" width="40vmin" height="40vmin">
+        <a href="#" class="nav-link my-1 d-flex align-items-center justify-content-center dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="static/icons/00-profile{{dark}}.svg" width="35rem" height="35rem">
         </a>
       <div class="row">
         <small>Settings</small>

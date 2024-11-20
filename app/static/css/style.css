@@ -5,6 +5,7 @@
     --form-border-color: #ddd;
 }
 
+
 .btn-file {
     background-color: transparent; /* Transparent background */
     color: #var(--btn-file-text-color); /* Text color */
