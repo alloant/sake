@@ -41,7 +41,7 @@
     {% endif %}
     <li><hr class="dropdown-divider"></li>
   {% else %} <!-- else if in -->
-    {% if note.reg in ['asr','ctr'] %}
+    {% if note.reg in ['asr','ctr'] or note.reg in ['vc','vcr'] and 'asr' in note.fullkey %}
       <li>
         <a  class="dropdown-item"
           hx-post="/action_note?action=outbox_target&reg={{reg}}&note={{note.id}}" 
@@ -83,7 +83,7 @@
 {% endif %} <!-- end box -->
 
 
-{% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' %}
+{% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' and not 'asr' in note.fullkey %}
   <li>
     <a  class="dropdown-item"
       href="/action_note?action=download_eml&note={{note.id}}"

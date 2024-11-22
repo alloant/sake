@@ -57,7 +57,8 @@ def fill_form_note(reg,form,note, filter = ""):
                     break
             rst.append(rc)
         if rst == form.receiver.choices:
-            rst = [('---','--- All above at the same time ---')] + rst
+            #rst = [('---','--- All above at the same time ---')] + rst
+            rst = rst
         else:
             rst += form.receiver.choices[i:]
         form.receiver.choices = rst
@@ -102,7 +103,8 @@ def extract_form_note(reg,form,note):
     filter = ''
 
     if note.reg == 'mat':
-        form.receiver.choices = [('---','--- All above at the same time ---')] + note.potential_receivers(filter,note.received_by.split(","))
+        #form.receiver.choices = [('---','--- All above at the same time ---')] + note.potential_receivers(filter,note.received_by.split(","))
+        form.receiver.choices = note.potential_receivers(filter,note.received_by.split(","))
     else:
         form.receiver.choices = note.potential_receivers(filter)
 
