@@ -43,7 +43,7 @@
         {% if note.permanent_link == '' %}
           <i class="bi bi-folder-plus"></i> {{gettext('Create folder')}}
         {% else %}
-          <i class="bi bi-arrow-repeat"></i> {{gettext('Register files in note')}}
+          <i class="bi bi-arrow-repeat"></i> {% if note.reg == 'mat' %} {{gettext("Register files in proposal")}} {% else %} {{gettext("Register files in note")}} {% endif %}
         {% endif %}
       </a>
     </li>
@@ -60,7 +60,7 @@
           data-bs-toggle="modal"
           data-bs-target="#modal-htmx"
           role="button">
-          <i class="bi bi-pencil-fill"></i> {{gettext("Edit note")}}
+        <i class="bi bi-pencil-fill"></i> {% if note.reg == 'mat' %} {{gettext("Edit proposal")}} {% else %} {{gettext("Edit note")}} {% endif %}
       </a>
     </li>
     <li><hr class="dropdown-divider"></li>
@@ -72,7 +72,7 @@
           hx-indicator="#indicator-table"
           hx-confirm="Are you sure you want to delete {{note.fullkey}}?"
           role="button">
-          <i class="bi bi-trash3-fill"></i> {{gettext("Delete note")}}
+          <i class="bi bi-trash3-fill"></i> {% if note.reg == 'mat' %} {{gettext("Delete proposal")}} {% else %} {{gettext("Delete note")}} {% endif %}
       </a>
     </li>
   {% endif %}

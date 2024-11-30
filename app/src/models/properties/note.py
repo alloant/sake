@@ -255,9 +255,11 @@ class NoteProp(object):
             if self.ref:
                 if self.ref[0]:
                     folder = self.ref[0].fullkey_folder.split("/")[0]
+            else:
+                folder = "not defined"
         else: 
             folder = self.fullkey_folder.split("/")[0]
-       
+        
         name,num = folder.split(" ")
         num = f"0000{num}"[-4:]
         
