@@ -10,18 +10,18 @@
       <i class="bi bi-send"></i> {{gettext('Start circulation proposal')}}
       </a>
     </li>
-    {% if note.read_by != "" %}
-      <li>
-        <a class="dropdown-item text-danger"
-        hx-post="/action_note?action=reset_proposal&reg={{reg}}&note={{note.id}}"
-        hx-target="#row_{{note.id}}"
-        hx-disinherit="*"
-        hx-indicator="#indicator-table"
-        role="button">
-        <i class="bi bi-x-octagon"></i> {{gettext('Reset proposal')}}
-        </a>
-      </li>
-    {% endif %}
+
+    <li>
+      <a class="dropdown-item text-danger"
+      hx-post="/action_note?action=reset_proposal&reg={{reg}}&note={{note.id}}"
+      hx-target="#row_{{note.id}}"
+      hx-disinherit="*"
+      hx-indicator="#indicator-table"
+      role="button">
+      <i class="bi bi-x-octagon"></i> {{gettext('Reset proposal')}}
+      </a>
+    </li>
+  
   {% elif note.state == 1 %}
     <li>
       <a class="dropdown-item"

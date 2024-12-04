@@ -1,6 +1,7 @@
 {% if reg[0] == 'des' %}
+  {{note.result('num_sign_despacho')}}
   {% if note.result('num_sign_despacho') == 0 %}
-      <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Nobody has signed')}}"></i></span>
+    <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Nobody has signed')}}"></i></span>
   {% elif note.result('num_sign_despacho') == 1 %}
       {% if note.result('is_sign_despacho') %}
         <span><i class="bi bi-patch-check text-muted" data-toggle="tooltip" title="{{gettext('You have already signed')}}"></i></span>
@@ -23,7 +24,7 @@
     {% endif %}
   {% else %}
     {% if note.state < 5 %}
-      {% if note.working_matter(current_user) %}
+      {% if note.result('is_current_target') %}
         <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Is your turn to study the proposal')}}"></i></span>
       {% else %}
         <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>

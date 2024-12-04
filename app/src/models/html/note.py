@@ -97,68 +97,68 @@ class NoteHtml(object):
     def people_matter_html(self):
         if self.register.alias != 'mat':
             return ""
-
-        max_people = 3
-        people = [p for p in self.received_by.replace('|',',').split(',') if p]
-        people_read = [p for p in self.read_by.replace('|',',').split(',') if p]
-
-        if not people:
-            return ""
-
-        rst = []
-        states = []
-
-        for alias in people:
-            if self.working_matter(alias) and self.state == 1:
-                rst.append(alias)
-                states.append(1)
-
-        cont = 0
-        while len(rst) < max_people and cont < len(people):
-            if not people[cont] in rst + people_read:
-                rst.append(people[cont])
-                states.append(2)
-            cont += 1
-
-        cont = len(people_read) - 1
-        while len(rst) < max_people and cont >= 0:
-            if not people_read[cont] in rst:
-                rst = [people[cont]] + rst
-                states = [0] + states
-            cont -= 1
-
-        for p in people_read:
-            if not p in rst:
-                rst = ['...'] + rst
-                states = [0] + states
-                break
-        for p in people:
-            if not p in rst + people_read:
-                rst.append('...')
-                states.append(2)
-                break
         
+        done = []
+        working = []
+        waiting = []
+
+        for user in self.status:
+            if user.target:
+                if user.target_acted:
+                    done.append(user.user.alias)
+                elif user.target_order == self.current_target_order and self.state > 0:
+                    working.append(user.user.alias)
+                else:
+                    waiting.append(user.user.alias)
+
+        max_people = 5
+        max_waiting = max_people - len(working) if max_people > len(working) else 0
+        max_done = max_people - len(working + waiting) if max_people > len(working + waiting) else 0
+      
         span = ET.Element('span',attrib={'class':'small ms-1'})
-        color = 'dark' if session['theme'] == 'light-mode' else 'light'
-        for i,rec in enumerate(rst):
-            if states[i] == 0:
-                t = ET.Element('span',attrib={'class':f'badge border text-secondary border-secondary fw-normal'})
-                t.text = rec
-                if rec == '...':
-                    t.attrib['data-bs-toggle'] = 'tooltip'
-                    t.attrib['title'] = ",".join([p for p in people_read if not p in rst])
-            elif states[i] == 2:
-                t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-normal'})
-                t.text = rec
-                if rec == '...':
-                    t.attrib['data-bs-toggle'] = 'tooltip'
-                    t.attrib['title'] = ",".join([p for p in people if not p in rst + people_read])
-            elif states[i] == 1:
-                t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-bold'})
-                t.attrib['data-bs-toggle'] = 'tooltip'
-                t.attrib['title'] = f"{rec} is studying the matter"
-                t.text = rec
+        if session['theme'] == 'light-mode':
+            color = 'dark'
+            text = 'light'
+        else:
+            color = 'light'
+            text = 'dark'
+
+        if len(done) > max_done:
+            start = len(done) - max_done
+            t = ET.Element('span',attrib={'class':f'badge border text-secondary border-secondary fw-normal'})
+            t.text = '...'
+            t.attrib['data-bs-toggle'] = 'tooltip'
+            t.attrib['title'] = ','.join(done[:start])
+            span.append(t)
+        else:
+            start = 0
+
+        for alias in done[start:]:
+            t = ET.Element('span',attrib={'class':f'badge border text-secondary border-secondary fw-normal'})
+            t.text = alias
+            span.append(t)
             
+        for alias in working:
+            t = ET.Element('span',attrib={'class':f'badge border bg-{color} text-{text} fw-bold'})
+            t.attrib['data-bs-toggle'] = 'tooltip'
+            t.attrib['title'] = f"{alias} is studying the matter"
+            t.text = alias
+
+            span.append(t)
+
+        if len(waiting) > max_waiting:
+            start = len(done) - max_waiting
+            t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-normal'})
+            t.text = '...'
+            t.attrib['data-bs-toggle'] = 'tooltip'
+            t.attrib['title'] = ','.join(waiting[:start])
+            span.append(t)
+        else:
+            start = 0
+
+        for alias in waiting[start:]:
+            t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-normal'})
+            t.text = alias
             span.append(t)
 
         return ET.tostring(span,encoding='unicode',method='html')

@@ -45,35 +45,35 @@ def fill_form_note(reg,form,note, filter = ""):
 
     form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 
-    if note.reg == 'mat':
-        rec_dash = note.received_by.replace('|',',---,')
-        form.receiver.choices = note.potential_receivers(filter,rec_dash.replace(',---,',',').split(","))
-        rec_dash = rec_dash.split(',')
-        rst = []
-        for i,rc in enumerate(form.receiver.choices):
-            if i < len(rec_dash):
-                if rec_dash[i] == '---':
-                    rst.append(('---','--- All above at the same time ---'))
-                    break
-            rst.append(rc)
-        if rst == form.receiver.choices:
-            rst = [('---','--- All above at the same time ---')] + rst
-        else:
-            rst += form.receiver.choices[i:]
-        form.receiver.choices = rst
-    else:
+    if note.reg != 'mat':
         form.receiver.choices = note.potential_receivers(filter)
-    
+
     form.ref.data = ",".join([r.fullkey for r in note.ref]) if note.ref else ""
     
+    
+    previous_order = -1
+    bar_put = False
+    bar_needed = False
+    
+    for i,status in enumerate(note.status):
+        if status.target:
+            if note.reg == 'mat' and previous_order != -1 and previous_order == status.target_order: # Two with same order, then is needed
+                bar_needed = True
+
+            if bar_needed and not bar_put and note.reg == 'mat' and previous_order != -1 and status.target_order != previous_order:
+                form.receiver.data.append('---')
+                bar_put = True
+
+            form.receiver.data.append(status.user.alias)
+
+            previous_order = status.target_order
+   
+    if note.reg == 'mat' and bar_needed and not bar_put:
+        form.receiver.data = ['---'] + form.receiver.data
+
     if note.reg == 'mat':
-        if '|' in note.received_by:
-            form.receiver.data = note.received_by.replace('|',',---,')
-        else:
-            form.receiver.data = "---," + note.received_by
-    else:
-        for rec in note.receiver:
-            form.receiver.data.append(rec.alias)
+        form.receiver.choices = note.potential_receivers(filter,form.receiver.data)
+
 
     form.permanent.data = note.permanent
 
@@ -102,7 +102,7 @@ def extract_form_note(reg,form,note):
     filter = ''
 
     if note.reg == 'mat':
-        form.receiver.choices = [('---','--- All above at the same time ---')] + note.potential_receivers(filter,note.received_by.split(","))
+        form.receiver.choices = note.potential_receivers(filter,form.receiver.data)
     else:
         form.receiver.choices = note.potential_receivers(filter)
 
@@ -123,8 +123,6 @@ def extract_form_note(reg,form,note):
         note.comments = form.comments.data
         note.proc = form.proc.data
         note.permanent = form.permanent.data
-        #print(form.sender.data)
-        #note.sender_id = form.sender.data
 
         if 'rst_checkbox' in session and note.reg != 'mat':
             for ch in session['opt_checkbox']:
@@ -137,26 +135,6 @@ def extract_form_note(reg,form,note):
         else:
             session['rst_checkbox'] = form.receiver.data
 
-        if note.reg == 'mat':
-            #rd = note.read_by.split(',')
-            #rd += [us for us in form.receiver.data if not us in rd]
-            #form.receiver.data = rd
-            
-            note.received_by = ",".join([r for r in form.receiver.data if r])
-            note.received_by = note.received_by.replace(',---,','|')
-            if note.received_by[:3] == '---':
-                note.received_by = note.received_by[4:]
-
-            if note.read_by != '':
-                new_read_by = []
-                for rc in form.receiver.data:
-                    if rc != '' and rc in note.read_by.split(','):
-                        new_read_by.append(rc)
-                
-                note.read_by = ",".join([r for r in new_read_by if r])
-                note.read_by.replace(',---,','|')
-    
-         
         for n,user in enumerate(reversed(note.receiver)):
             if not user.alias in form.receiver.data:
                 note.receiver.remove(user)
@@ -177,6 +155,12 @@ def extract_form_note(reg,form,note):
                 status.target = False
             else:
                 status.target_order = pos if pos > dash_position else dash_position
+
+        if note.reg == 'mat' and note.state == 5:
+            for state in note.status:
+                if not state.target_acted:
+                    note.state = 1
+                    break
 
         current_refs = []
         if form.ref.data != "" and not isinstance(form.ref.data,list):

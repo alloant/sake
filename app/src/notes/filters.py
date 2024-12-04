@@ -55,8 +55,9 @@ def register_filter(reg,filter = ""):
     # First filter register notes. Diving for ctr or the rest
     if reg[0] == 'des': # Es despacho
         fn.append(Note.reg!='mat')
+        fn.append(Note.flow=='in')
+        fn.append(Note.result('num_sign_despacho')<2)
         fn.append(Note.state>1)
-        fn.append(Note.state<5)
     elif reg[0] == 'box' and reg[1] == 'out': # Es outbox
         fn.append(Note.reg!='mat')
         fn.append(Note.flow=='out')
@@ -77,7 +78,7 @@ def register_filter(reg,filter = ""):
         #if not session['showAll'] and reg[1] == 'in':
         if session['filter_option'] == 'hide_archived' and reg[1] == 'in':
             ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
-            fn.append(Note.is_done(ctr_fn))
+            fn.append(Note.result('is_done',ctr_fn))
     else: # Es un register
         if reg[0] == 'all': # Here I get all notes from all registers
             if current_user.admin:
@@ -95,8 +96,8 @@ def register_filter(reg,filter = ""):
                 fn.append(Note.state<6)
  
             fmt = []
-            fmt.append(and_(Note.state == 1,Note.next_in_matters(current_user.alias)))
-            fmt.append(Note.contains_read(current_user.alias))
+            fmt.append(Note.result('target_status')>1)
+            #fmt.append(Note.result('is_target'))
             fmt.append(Note.sender.has(User.id==current_user.id))
             fn.append(or_(*fmt))
         elif reg[0] == 'all' and reg[1] == 'all':
@@ -109,12 +110,13 @@ def register_filter(reg,filter = ""):
         else:
             if reg[1] == 'pen':
                 fmt = []
-                fmt.append(and_(Note.state == 1,Note.next_in_matters(current_user.alias)))
+                fmt.append(Note.result('target_status')==2)
                 fmt.append(Note.sender.has(User.id==current_user.id))
 
                 fsrn = []
                 fsrn.append(Note.sender_id==current_user.id)
-                fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.state > 4))
+                #fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.state > 4))
+                fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.result('num_sign_despacho') > 1))
                 fsr = []
                 fsr.append(and_(or_(*fsrn),Note.reg != 'mat'))
                 fsr.append(and_(Note.reg == 'mat',or_(*fmt)))
@@ -125,7 +127,8 @@ def register_filter(reg,filter = ""):
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
-                    fn.append(Note.state >= 5)
+                    fn.append(Note.result('num_sign_despacho') > 1)
+                    #fn.append(Note.state > 4)
                 else:
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
             

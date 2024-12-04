@@ -13,7 +13,7 @@
   </li>
   {% if note.flow == 'out' %}
     <li><hr class="dropdown-divider"></li>
-    {% if note.is_read(current_user) %}
+    {% if note.result('is_read') %}
       <li>
         <a class="dropdown-item"
           hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
@@ -94,7 +94,7 @@
 
   {% if note.flow == 'out' and note.state >= 5 %}
     <li><hr class="dropdown-divider"></li>
-    {% if note.is_done(session['ctr']) %}
+    {% if note.result('is_done',session['ctr']) %}
       <li>
         <a class="dropdown-item"
           <a  class="dropdown-item"

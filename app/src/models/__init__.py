@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, date
 import re
 
 from flask import current_app, session
@@ -184,8 +184,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     done: Mapped[bool] = mapped_column(db.Boolean, default=False)
     state: Mapped[int] = mapped_column(db.Integer, default = 0)
-    received_by: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
-    read_by: Mapped[str] = mapped_column(db.String(500), default = '')
+    
+    read_by: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
     
     privileges: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
 
@@ -235,7 +235,13 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         return False
 
     def current_status(self,user=current_user):
-        return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user_id==user.id))
+        if isinstance(user,dict):
+            return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user.has(User.alias==user['alias'])))
+        else:
+            return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user_id==user.id))
+
+    def actived_status(self):
+        return db.session.scalars(select(NoteStatus).where(NoteStatus.target_order==self.current_target_order)).all()
 
     def toggle_status_attr(self,attr,user=current_user):
         rst = self.current_status(user)
@@ -254,12 +260,21 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def addFileArgs(self,*args,**kargs):
         self.addFile(File(**kargs))
     
+    @hybrid_property
+    def current_target_order(self):
+        for state in self.status:
+            if state.target_acted == 0:
+                break
+        return state.target_order
+
+    @current_target_order.expression
+    def current_target_order(cls):
+        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,not_(NoteStatus.target_acted)))
+
     @hybrid_method
     def result(self,demand,user=current_user):
         match demand:
             case 'is_sign_despacho':
-                return self.contains_in('read_by',f'des_{current_user.alias}')
-                #NEW
                 rst = self.current_status(user)
                 if rst:
                     return rst.sign_despacho
@@ -269,8 +284,39 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 if rst:
                     return rst.target
                 return False
+            case 'is_current_target':
+                if self.reg != 'mat':
+                    return False
+
+                rst = self.current_status(user)
+                if rst:
+                    if rst.target:
+                        if rst.target_acted:
+                            return False
+                        elif self.current_target_order == rst.target_order:
+                            return True
+                return False
+            case 'target_status': #0 not involved, 1 not involved yet, 2 working on it, 3 done
+                if self.state == 0:
+                    return 0
+
+                rst = self.current_status(user)
+                if rst:
+                    if rst.target:
+                        if rst.target_acted:
+                            return 3
+                        else:
+                            if self.current_target_order == rst.target_order:
+                                return 2
+                            else:
+                                return 1
+                return 0
+            case 'num_sign_proposal':
+                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.target_acted))
+            case 'num_target':
+                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.target))
             case 'is_read':
-                if self.n_date < current_user.date:
+                if self.n_date < user.date:
                     toggle = lambda x: not x
                 else:
                     toggle = lambda x: x
@@ -280,81 +326,52 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                     return toggle(True)
 
                 return toggle(False)
+            case 'is_done':
+                dt = date.fromisoformat(user['date']) if isinstance(user,dict) else user.date
+                
+                if self.n_date < dt:
+                    toggle = lambda x: not x
+                else:
+                    toggle = lambda x: x
+                
+                alias = user['alias'] if isinstance(user,dict) else user.alias
+
+                rst = self.current_status(user)
+                if rst and rst.target_acted:
+                    return toggle(True)
+
+                return toggle(False)
             case 'num_sign_despacho':
-                return self.state - 3
-                #NEW return db.session.scalars(select(func.count(NoteStatus)).where(NoteStatus.note_id==self.id,NoteStatus.sign_despacho))
+                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.sign_despacho))
 
     @result.expression
     def result(cls,demand,user=current_user):
         match demand:
             case 'is_sign_despacho':
-                return cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho)
+                return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
             case 'is_target':
-                return cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target)
+                return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target))
+            case 'target_status':
+                return case(
+                    (cls.state==0,0),
+                    (not_(cls.result('is_target')),0),
+                    (cls.result('is_done'),3),
+                    (cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_order==cls.current_target_order)),2),
+                    else_=1
+                )
+            case 'is_done':
+                return case(
+                    (user.date < cls.n_date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),
+                    else_=cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted))
+                )
             case 'is_read':
                 return case(
                     (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read)))),
                     else_=cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read))
                 )
             case 'num_sign_despacho':
-                return func.count(cls.status.any(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
-
-
-    @hybrid_method
-    def is_read_new(self,user=current_user):
-        if self.n_date < current_user.date:
-            toggle = lambda x: not x
-        else:
-            toggle = lambda x: x
-        
-        rst = self.current_status()
-        if rst and rst.read:
-            return toggle(True)
-        
-        return toggle(False)
-            
-    @is_read_new.expression
-    def is_read_new(cls,user=current_user):
-        return case(
-            (cls.n_date < current_user.date,not_(cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read))),
-            else_=cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
-        )
-        return cls.status.any(NoteStatus.note_id==self.id,NoteStatus.user_id==current_user.id,NoteStatus.read)
-
-    #NEW
-    @hybrid_method
-    def is_read(self,user=current_user):
-        if isinstance(user,str): # This is a ctr or des
-            alias = user if user[:4] == 'des_' else user.split('_')[2]
-            return alias in self.read_by.split(",")
-
-        if 'of' in user.groups:
-            if not user in self.receiver and not user.alias in self.privileges.split(','):
-                return True
-
-        if user.date > self.n_date:
-            return not user.alias in self.read_by.split(",")
-        else:
-            return user.alias in self.read_by.split(",")
-    #NEW
-    @is_read.expression
-    def is_read(cls,user=current_user):
-        if isinstance(user,User):
-            if 'of' in user.groups:
-                return case (
-                    (not_(or_(cls.receiver.any(User.id==user.id),cls.privileges.regexp_match(fr'(^|[^-])\b{user.alias}\b($|[^-])'))),True),
-                    (user.date > cls.n_date,not_(cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )) ),
-                    else_=cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )
-                )
-            else:
-                return case (
-                    (user.date > cls.n_date,not_(cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )) ),
-                    else_=cls.read_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )
-                )
-        else:
-            alias = user if user[:4] == 'des_' else user.split('_')[2]
-            return cls.read_by.regexp_match( fr'(^|[^-])\b{alias}\b($|[^-])' )
-
+                return select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==cls.id,NoteStatus.sign_despacho).scalar_subquery()
+                return func.count(cls.status.any(NoteStatus.sign_despacho))
 
     def is_involve(self,reg,user):
         if reg[0] == 'des':
@@ -363,11 +380,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             check = db.session.scalar(select(User).where(User.alias==reg[2]))
         else:
             check = user
-       
-        if self.reg == 'mat':
-            return check.alias in self.received_by.replace('|',',').split(',')
-        else:
-            return check in self.receiver
+        
+        return self.result('is_target',check)
     
     def potential_receivers(self,filter,possibles = [],only_of = False):
         fn = []
@@ -388,12 +402,16 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all() if user.alias != self.sender.alias]
             firsts = []
             for pot in possibles:
-                for rc in recs:
-                    if rc[0] == pot:
-                        firsts.append(rc)
+                if pot == '---':
+                    firsts.append(('---','--- All above at the same time ---'))
+                else:
+                    for rc in recs:
+                        if rc[0] == pot:
+                            firsts.append(rc)
 
             for ft in firsts:
-                recs.remove(ft)
+                if ft in recs:
+                    recs.remove(ft)
 
             return firsts + recs
         
@@ -532,7 +550,7 @@ class User(UserProp,UserMixin, db.Model):
     def has_pendings(self):
         pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4)))
         for note in pendings:
-            if not note.is_read(current_user):
+            if not note.result('is_read',current_user):
                 return True
 
         return False
@@ -581,10 +599,10 @@ class User(UserProp,UserMixin, db.Model):
             rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='out',Note.state==1))
         elif info == 'register':
             if 'permanente' in current_user.groups:
-                rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.register.has(Register.permissions!='notallowed'),not_(Note.is_read(current_user))))
+                rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.register.has(Register.permissions!='notallowed'),not_(Note.result('is_read'))))
             else:
-                rst = db.session.scalar(select(func.count(Note.id)).where(not_(Note.permanent),Note.reg!='mat',Note.flow=='in',Note.register.has(Register.permissions!='notallowed'),not_(Note.is_read(current_user))))
-                rst += db.session.scalar(select(func.count(Note.id)).where(not_(Note.permanent),Note.reg=='ctr',Note.flow=='out',Note.register.has(Register.permissions!='notallowed'),not_(Note.is_read(current_user))))
+                rst = db.session.scalar(select(func.count(Note.id)).where(not_(Note.permanent),Note.reg!='mat',Note.flow=='in',Note.register.has(Register.permissions!='notallowed'),not_(Note.result('is_read'))))
+                rst += db.session.scalar(select(func.count(Note.id)).where(not_(Note.permanent),Note.reg=='ctr',Note.flow=='out',Note.register.has(Register.permissions!='notallowed'),not_(Note.result('is_read'))))
             rst = current_user.unread
         elif '_' in info:
             reg = info.split('_')
@@ -601,11 +619,11 @@ class User(UserProp,UserMixin, db.Model):
 
     @property
     def pendings(self):
-        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.is_read(current_user)),Note.register.has(Register.alias!='mat'),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4))
+        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_read')),Note.register.has(Register.alias!='mat'),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4))
 
     @property
     def despacho(self):
-        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.is_read(f'des_{current_user.alias}')),Note.register.has(Register.contains_group('despacho')),Note.state<5,Note.state>2))
+        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_sign_despacho')),Note.register.has(Register.contains_group('despacho')),Note.state<5,Note.state>2))
 
 
     @property
@@ -614,18 +632,18 @@ class User(UserProp,UserMixin, db.Model):
         registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions=='allowed'))).all()
         for register in registers:
             for sb in register.get_subregisters():
-                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.is_read(current_user)))))
+                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.result('is_read')))))
 
         if 'permanent' in current_user.groups:
-            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.is_read(current_user)))))
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
         else:
-            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.is_read(current_user)))))
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
         
         return cont
 
     @property
     def pending_matters(self):
-        return db.session.scalar(select(func.count(Note.id)).where(Note.register.has(Register.alias=='mat'),Note.receiver.any(User.id==current_user.id),Note.state==1,Note.next_in_matters(current_user.alias)))
+        return db.session.scalar(select(func.count(Note.id)).where(Note.register.has(Register.alias=='mat'),Note.receiver.any(User.id==current_user.id),Note.state==1,Note.result('target_status') == 2))
 
 
 class NoteStatus(db.Model):
@@ -728,10 +746,10 @@ class Register(RegisterHtml,db.Model):
 
     def unread(self,sb=""):
         if sb:
-            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.is_read(current_user)))))
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.result('is_read')))))
         else:
             if 'permanent' in current_user.groups:
-                return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='in',not_(Note.is_read(current_user)))))
+                return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
         
-            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id==self.id,Note.flow=='in',not_(Note.is_read(current_user)))))
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
 

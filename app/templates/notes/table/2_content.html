@@ -3,7 +3,7 @@
   <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text text-danger"></i></span>
 {% endif %}
 
-{% with read = note.is_read() %}
+{% with read = note.result('is_read') %}
   {% if note.register.alias != 'mat' and note.files_date %}
     {% if not read and note.n_date < note.files_date %}
       <span class="badge bg-danger">New</span>
@@ -17,7 +17,7 @@
         {{note.content_url|safe}}
       </span>
     {% else %}
-      <span class="{{'fw-bold' if note.working_matter(current_user.alias) else '' }}">
+      <span class="{{'fw-bold' if note.result('is_current_target') else '' }}">
         {{note.content_url|safe}}
       </span>
     {% endif %}

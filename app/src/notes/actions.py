@@ -167,32 +167,17 @@ def circulation_proposal(note_id,action):
             note.state = 0
         case 'restart':
             note.state = 0
-            note.read_by = ''
             for status in note.status:
                 status.target_acted = False
         case 'forward':
-            note.toggle_status_attr('target_acted')
-            if '|' in note.received_by and not '|' in note.read_by: # When there is not | or all the people together had read the note
-                together,sequence = note.received_by.split('|')
-                together = together.split(',')
-                read = note.read_by.split(',')
-                rst = []
-                for alias in together:
-                    if alias in read:
-                        rst.append(alias)
-                note.read_by = ','.join([alias for alias in rst if alias])
-                if rst == together:
-                    note.read_by += '|'
-            else:
-                note.read_by += f',{current_user.alias}' if note.read_by and note.read_by[-1] != '|' else current_user.alias
-
-            if note.read_by == note.received_by:
+            print('lens:',note.result('num_sign_proposal'),note.result('num_target') - 1)
+            if note.result('num_sign_proposal') == note.result('num_target') - 1:
                 note.state = 5
+            note.toggle_status_attr('target_acted')
         case 'back':
             note.state = 0
         case 'reset':
             note.state = 0
-            note.read_by = ''
             for status in note.status:
                 status.target_acted = False
  
@@ -209,12 +194,6 @@ def toggle_archive(note_id,is_ctr=False):
             ctr = db.session.scalar(select(User).where(User.alias==session['ctr']['alias']))
             if ctr:
                 note.toggle_status_attr('target_acted',ctr)
-                ctr_acted = note.received_by.split(',')
-                if ctr.alias in ctr_acted:
-                    ctr_acted.remove(ctr.alias)
-                else:
-                    ctr_acted.append(ctr.alias)
-                note.received_by = ','.join([alias for alias in ctr_acted if alias])
         else:
             note.toggle_status_attr('target_acted')
             if note.state == 6:
@@ -231,19 +210,10 @@ def toggle_archive(note_id,is_ctr=False):
 
 def toggle_read(note_id,file_clicked=False):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    #print('preview:',note.preview)
     if note:
         if note.register.alias != 'mat':
             if not file_clicked or not note.result('is_read'):
                 note.toggle_status_attr('read')
-                read_by = note.read_by.split(',')
-                if current_user.alias in read_by:
-                    read_by.remove(current_user.alias)
-                else:
-                    read_by.append(current_user.alias)
-
-                note.read_by = ','.join([alias for alias in read_by if alias])
-                db.session.commit()
 
 def notes_from_cg(notes_page=None):
     month = date.today().replace(day=1)
@@ -270,19 +240,14 @@ def mark_as_sent(note_id):
 
 def sign_despacho(note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    read_by = note.read_by.split(',')
-    if f'des_{current_user.alias}' in read_by:
-        note.state -= 1
-        read_by.remove(f'des_{current_user.alias}')
-    else:
-        note.state += 1
-        read_by.append(f'des_{current_user.alias}')
-    
-    note.read_by = ','.join([alias for alias in read_by if alias])
     note.toggle_status_attr('sign_despacho')
     note.toggle_status_attr('read')
 
     db.session.commit()
+
+    if note.result('num_sign_despacho') > 1:
+        note.state = 5
+        db.session.commit()
 
     if note.state == 5:
         users = db.session.scalars(select(User).where(User.contains_group('cr')))
@@ -420,7 +385,7 @@ def get_info(note_id,reg):
         rst_yes = []
         rst_no = []
         for user in people:
-            if note.is_read(user):
+            if note.result('is_read',user):
                 rst_yes.append({'alias':user.name,'read':True})
             else:
                 rst_no.append({'alias':user.name,'read':False})
@@ -436,12 +401,12 @@ def get_info(note_id,reg):
         rst = {}
         for ctr in ctrs:
             rst[ctr.alias] = {}
-            rst[ctr.alias]['archived'] = note.is_done(ctr)
+            rst[ctr.alias]['archived'] = note.result('is_done',ctr)
             people = db.session.scalars(select(User).where(User.contains_group(f'v_ctr_{ctr.alias}')).order_by(User.name))
             rst_yes = []
             rst_no = []
             for user in people:
-                if note.is_read(user):
+                if note.result('is_read',user):
                     rst_yes.append({'alias':user.name,'read':True})
                 else:
                     rst_no.append({'alias':user.name,'read':False})

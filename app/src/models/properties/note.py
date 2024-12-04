@@ -19,7 +19,7 @@ class NoteProp(object):
                 if self.state in [1,6]:
                     return "fw-light"
             else:
-                if not self.working_matter(current_user):
+                if not self.result('is_current_target'):
                     return "fw-light"
         return ""
 
@@ -30,35 +30,6 @@ class NoteProp(object):
     @property
     def tags(self):
         return self.n_tags.split(',')
-
-    @hybrid_method
-    def next_in_matters(cls,user):
-        return case(
-            (and_(cls.received_by.contains('|'),not_(cls.read_by.contains('|'))),and_(not_(cls.contains_read(user)),cls.contains_received_by_part(user))),
-            else_ = cls.received_by.regexp_match(func.concat('^',cls.read_by,fr',*{user}.*'))
-        )
-    
-    def working_matter(self,alias):
-        if '|' in self.received_by and not '|' in self.read_by: # There are some people who read at the same time
-            return bool(re.search(fr'\b{alias}\b',self.received_by.split('|')[0]) and not re.search(fr'\b{alias}\b',self.read_by))
-        else: #Normal circulation
-            return bool(re.search(fr'^{self.read_by.replace("|","\|")},*{alias}',self.received_by))
-    
-    @property
-    def can_return_matter(self):
-        return not bool(re.search(fr'\b{current_user.alias}\b.*\|',self.received_by))
-
-    @hybrid_method
-    def contains_read(cls,alias):
-        return cls.read_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
-    
-    @hybrid_method
-    def contains_received_by(cls,alias):
-        return cls.received_by.regexp_match(fr'(^|[^-])\b{alias}\b($|[^-])')
-    
-    @hybrid_method
-    def contains_received_by_part(cls,alias):
-        return cls.received_by.regexp_match(fr'\b{alias}\b(?=.*\|)')
 
     @hybrid_method
     def contains_tag(cls,tag):
@@ -140,12 +111,14 @@ class NoteProp(object):
                     if self.flow == 'in':
                         return True
             case 'can_sign_matter':
-                if '|' in self.received_by and not '|' in self.read_by: # There are some people who read at the same time
-                    return bool(re.search(fr'\b{current_user.alias}\b',self.received_by.split('|')[0]) and not re.search(fr'\b{current_user.alias}\b',self.read_by))
-                else: #Normal circulation
-                    return bool(re.search(fr'^{self.read_by.replace("|","\|")},*{current_user.alias}',self.received_by))
+                return self.result('is_current_target')
             case 'can_return_matter':
-                return not bool(re.search(fr'\b{current_user.alias}\b.*\|',self.received_by))
+                rst = self.actived_status()
+                
+                if len(rst) > 1:
+                    return False
+                else:
+                    return True
         
         return False
 
@@ -211,7 +184,7 @@ class NoteProp(object):
             return 2
         elif self.sender_id == current_user.id and self.state in [0,5]: #My proposal and I have to do something because is new or reviewed
             return 2
-        elif self.sender_id != current_user.id and self.working_matter(current_user): #My turn to review
+        elif self.sender_id != current_user.id and self.result('is_current_target'): #My turn to review
             return 1
         else:
             return 3
@@ -222,30 +195,8 @@ class NoteProp(object):
             #(and_(cls.reg!='mat',cls.result('is_read')),2),
             (cls.reg!='mat',1),
             (and_(or_(cls.state==0,cls.state==5),cls.sender==current_user),2),
-            (and_(cls.next_in_matters(current_user.alias),cls.sender!=current_user),1),
+            (cls.result('target_status')==2,1),
             else_=3,
-        )
-
-    @hybrid_method
-    def is_done(self,user): #Use in state_cl and updateState for cl. We assume note is in for the ctr
-        alias = user['alias'] if isinstance(user,dict) else user.alias
-        dt = date.fromisoformat(user['date']) if isinstance(user,dict) else user.date
-
-        if alias in self.received_by.split(','):
-            rst = True
-        else:
-            rst = False
-        
-        if dt > self.n_date:
-            rst = not rst
-        
-        return rst 
-
-    @is_done.expression
-    def is_done(cls,user):
-        return case (
-            (user.date < cls.n_date,not_(cls.received_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )) ),
-        else_=cls.received_by.regexp_match( fr'(^|[^-])\b{user.alias}\b($|[^-])' )
         )
 
     @property

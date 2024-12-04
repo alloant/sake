@@ -16,6 +16,34 @@ from app.src.models import User, Note, Register, NoteStatus
 from app.src.tools.mail import send_email, send_emails
 
 def toNewNotesStatus():
+    notes = db.session.scalars(select(Note).where(Note.flow=='in',Note.reg!='mat',Note.result('num_sign_despacho')<2)).all()
+    print(len(notes))
+
+    vcr = db.session.scalar(select(User).where(User.alias=="rvaldes"))
+    df = db.session.scalar(select(User).where(User.alias=="jb"))
+
+    print(vcr,df)
+
+    for note in notes:
+        if note.state > 4:
+            st_vcr = note.current_status(vcr)
+            st_df = note.current_status(df)
+            
+            if st_vcr:
+                st_vcr.sign_despacho = True
+            else:
+                note.toggle_status_attr('sign_despacho',user=vcr)
+
+            if st_df:
+                st_df.sign_despacho = True
+            else:
+                note.toggle_status_attr('sign_despacho',user=df)
+
+    db.session.commit()
+
+
+
+def toNewNotesStatus_old():
     notes = db.session.scalars(select(Note).where(Note.reg!='mat')).all()
 
     for note in notes:
