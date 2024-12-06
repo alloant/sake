@@ -123,6 +123,7 @@ class NoteHtml(object):
             color = 'light'
             text = 'dark'
 
+        # First people who have already signed
         if len(done) > max_done:
             start = len(done) - max_done
             t = ET.Element('span',attrib={'class':f'badge border text-secondary border-secondary fw-normal'})
@@ -137,28 +138,28 @@ class NoteHtml(object):
             t = ET.Element('span',attrib={'class':f'badge border text-secondary border-secondary fw-normal'})
             t.text = alias
             span.append(t)
-            
+        
+        # Then people who are working in the note
         for alias in working:
-            t = ET.Element('span',attrib={'class':f'badge border bg-{color} text-{text} fw-bold'})
+            if alias == current_user.alias:
+                t = ET.Element('span',attrib={'class':f'badge border bg-{color} text-{text} fw-bold'})
+            else:
+                t = ET.Element('span',attrib={'class':f'badge border bg-secondary text-light fw-bold'})
             t.attrib['data-bs-toggle'] = 'tooltip'
             t.attrib['title'] = f"{alias} is studying the matter"
             t.text = alias
 
             span.append(t)
 
-        if len(waiting) > max_waiting:
-            start = len(done) - max_waiting
+        # People who still cannot see the proposal
+        for i,alias in enumerate(waiting):
             t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-normal'})
-            t.text = '...'
-            t.attrib['data-bs-toggle'] = 'tooltip'
-            t.attrib['title'] = ','.join(waiting[:start])
-            span.append(t)
-        else:
-            start = 0
-
-        for alias in waiting[start:]:
-            t = ET.Element('span',attrib={'class':f'badge border text-{color} border-{color} fw-normal'})
-            t.text = alias
+            if i >= max_waiting and i != len(waiting) - 1:
+                t.text = '...'
+                t.attrib['data-bs-toggle'] = 'tooltip'
+                t.attrib['title'] = ','.join(waiting[i:])
+            else:
+                t.text = alias
             span.append(t)
 
         return ET.tostring(span,encoding='unicode',method='html')
