@@ -263,13 +263,13 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     @hybrid_property
     def current_target_order(self):
         for state in self.status:
-            if state.target_acted == 0:
+            if state.target and state.target_acted == 0:
                 break
         return state.target_order
 
     @current_target_order.expression
     def current_target_order(cls):
-        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,not_(NoteStatus.target_acted)))
+        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted)))
 
     @hybrid_method
     def result(self,demand,user=current_user):
@@ -361,8 +361,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 )
             case 'is_done':
                 return case(
-                    (user.date < cls.n_date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),
-                    else_=cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted))
+                    (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),
+                    else_=cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_acted))
                 )
             case 'is_read':
                 return case(
