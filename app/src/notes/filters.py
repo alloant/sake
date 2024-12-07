@@ -15,7 +15,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Note, User, Register, File
+from app.src.models import Note, User, Register, File, NoteStatus
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note
 
@@ -96,10 +96,16 @@ def register_filter(reg,filter = ""):
                 fn.append(Note.state<6)
  
             fmt = []
-            fmt.append(Note.result('target_status')>1)
-            #fmt.append(Note.result('is_target'))
+            fmt_t = []
+            #fmt.append(Note.result('target_status')>1)
+            fmt_t.append(Note.result('is_target'))
+            fmt_t.append(Note.state>0)
+            fmt_t.append(Note.status.any(and_(NoteStatus.user_id==current_user.id,or_(
+                NoteStatus.target_acted,NoteStatus.target_order<=
+                select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target).scalar_subquery()
+            ))))
             fmt.append(Note.sender.has(User.id==current_user.id))
-            fn.append(or_(*fmt))
+            fn.append(or_(and_(*fmt_t),*fmt))
         elif reg[0] == 'all' and reg[1] == 'all':
             if session['filter_option'] == 'only_notes':
                 fn.append(Note.reg!='mat')

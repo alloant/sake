@@ -1,5 +1,5 @@
 {% if note.flow == 'out' %}
-    {% if note.is_read(current_user) %}
+    {% if note.result('is_read') %}
         <a class="text-decoration-none"
           hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}"
           hx-target="#row_{{note.id}}"
@@ -48,7 +48,7 @@
 {% endif %}
 
 {% if note.flow == 'out' and note.state >= 5 %}
-    {% if note.is_done(session['ctr']) %}
+    {% if note.result('is_done',session['ctr']) %}
           <a  class="text-decoration-none"
             hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 

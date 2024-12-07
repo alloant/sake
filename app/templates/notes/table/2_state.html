@@ -1,5 +1,4 @@
 {% if reg[0] == 'des' %}
-  {{note.result('num_sign_despacho')}}
   {% if note.result('num_sign_despacho') == 0 %}
     <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Nobody has signed')}}"></i></span>
   {% elif note.result('num_sign_despacho') == 1 %}

@@ -8,7 +8,7 @@ from flask import current_app, session
 from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
-from sqlalchemy import select, delete, func, case, union, and_, or_, not_
+from sqlalchemy import select, delete, func, case, union, and_, or_, not_, any_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.sql import text
 
@@ -269,7 +269,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @current_target_order.expression
     def current_target_order(cls):
-        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted)))
+        return select(func.min(NoteStatus.target_order)).where(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted)).label('current_target_order')
+        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted))).label('current_target_order')
 
     @hybrid_method
     def result(self,demand,user=current_user):
@@ -356,9 +357,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                     (cls.state==0,0),
                     (not_(cls.result('is_target')),0),
                     (cls.result('is_done'),3),
+                    #(select(NoteStatus).where(any_(NoteStatus.target)),2),
+                    #(cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_order==1)),2),
                     (cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_order==cls.current_target_order)),2),
                     else_=1
-                )
+                ).label('target_status')
             case 'is_done':
                 return case(
                     (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),
