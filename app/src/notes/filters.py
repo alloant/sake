@@ -57,6 +57,7 @@ def register_filter(reg,filter = ""):
         fn.append(Note.reg!='mat')
         fn.append(Note.flow=='in')
         fn.append(Note.result('num_sign_despacho')<2)
+        fn.append(Note.register.has(Register.contains_group('despacho')))
         fn.append(Note.state>1)
     elif reg[0] == 'box' and reg[1] == 'out': # Es outbox
         fn.append(Note.reg!='mat')
@@ -116,16 +117,25 @@ def register_filter(reg,filter = ""):
         else:
             if reg[1] == 'pen':
                 fmt = []
-                fmt.append(Note.result('target_status')==2)
+                fmt_t = []
+                #fmt.append(Note.result('target_status')==2)
+                fmt_t.append(Note.result('is_target'))
+                fmt_t.append(Note.state>0)
+                fmt_t.append(Note.status.any(and_(NoteStatus.user_id==current_user.id,not_(NoteStatus.target_acted),or_(
+                    NoteStatus.target_acted,NoteStatus.target_order<=
+                    select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target).scalar_subquery()
+                ))))
+    
                 fmt.append(Note.sender.has(User.id==current_user.id))
 
                 fsrn = []
                 fsrn.append(Note.sender_id==current_user.id)
                 #fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.state > 4))
                 fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.result('num_sign_despacho') > 1))
+                fsrn.append(Note.register.has(and_(Register.permissions=='allowed',Register.contains_group('personal'))))
                 fsr = []
                 fsr.append(and_(or_(*fsrn),Note.reg != 'mat'))
-                fsr.append(and_(Note.reg == 'mat',or_(*fmt)))
+                fsr.append(and_(Note.reg == 'mat',or_(and_(*fmt_t),*fmt)))
                 fn.append(or_(*fsr))
 
                 if session['filter_option'] == 'hide_archived':
@@ -133,7 +143,7 @@ def register_filter(reg,filter = ""):
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
-                    fn.append(Note.result('num_sign_despacho') > 1)
+                    fn.append(or_(Note.register.has(and_(Register.permissions=='allowed',Register.contains_group('personal'))),Note.result('num_sign_despacho') > 1))
                     #fn.append(Note.state > 4)
                 else:
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
