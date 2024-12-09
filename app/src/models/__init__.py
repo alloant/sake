@@ -274,11 +274,24 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @target_working.expression
     def target_working(cls,user=current_user):
-        return case (
-            (exists().where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target,not_(NoteStatus.target_acted)),False),
-            (exists().where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target,NoteStatus.target_order==cls.current_target_order),False),
-            else_=False
-        )
+        NS = aliased(NoteStatus)
+        subquery = select(func.min(NS.target_order)).where(
+                        NS.note_id==cls.id,
+                        NS.target,
+                        not_(NS.target_acted)
+                    )
+        
+        rst = exists().where(
+                NoteStatus.note_id == cls.id,
+                NoteStatus.user_id == user.id,
+                cls.state>0,
+                cls.reg=='mat',
+                NoteStatus.target,
+                not_(NoteStatus.target_acted),
+                NoteStatus.target_order == subquery.scalar_subquery()
+            )
+
+        return rst
 
     @hybrid_property
     def current_target_order(self):
@@ -289,8 +302,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @current_target_order.expression
     def current_target_order(cls):
-        return select(func.min(NoteStatus.target_order)).where(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted)).label('current_target_order')
-        return select(func.min(NoteStatus.target_order)).where(and_(NoteStatus.note_id==cls.id,NoteStatus.target,not_(NoteStatus.target_acted))).label('current_target_order')
+        return select(func.min(NoteStatus.target_order)).where(
+            NoteStatus.note_id==cls.id,
+            NoteStatus.target,
+            not_(NoteStatus.target_acted)
+        ).label('current_target_order')
 
     @hybrid_method
     def result(self,demand,user=current_user):
@@ -666,8 +682,7 @@ class User(UserProp,UserMixin, db.Model):
 
     @property
     def pending_matters(self):
-        return db.session.scalar(select(func.count(Note.id)).where(Note.register.has(Register.alias=='mat'),Note.receiver.any(User.id==current_user.id),Note.state==1,Note.result('target_status') == 2))
-
+        return db.session.scalar(select(func.count()).where(Note.state>0,Note.reg=='mat',Note.target_working()))
 
 class NoteStatus(db.Model):
     __tablename__ = 'notestatus'
