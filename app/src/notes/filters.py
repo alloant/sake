@@ -99,16 +99,17 @@ def register_filter(reg,filter = ""):
             fmt = []
             fmt_t = []
             #fmt.append(Note.result('target_status')>1)
-            fmt_t.append(Note.result('is_target'))
+            #fmt_t.append(Note.result('is_target'))
             fmt_t.append(Note.state>0)
-            fmt_t.append(Note.status.any(
-                and_(NoteStatus.user_id==current_user.id,
-                    or_(
-                        NoteStatus.target_acted,
-                        NoteStatus.target_order <= select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target,NoteStatus.note_id==Note.id).scalar_subquery()
-                    )
-                )
-            ))
+            fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
+            #fmt_t.append(Note.status.any(
+            #    and_(NoteStatus.user_id==current_user.id,
+            #        or_(
+            #            NoteStatus.target_acted,
+            #            NoteStatus.target_order <= select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target,NoteStatus.note_id==Note.id).scalar_subquery()
+            #        )
+            #    )
+            #))
             fmt.append(Note.sender.has(User.id==current_user.id))
             fn.append(or_(and_(*fmt_t),*fmt))
         elif reg[0] == 'all' and reg[1] == 'all':
@@ -123,17 +124,10 @@ def register_filter(reg,filter = ""):
                 fmt = []
                 fmt_t = []
                 #fmt.append(Note.result('target_status')==2)
-                fmt_t.append(Note.result('is_target'))
+                #fmt_t.append(Note.result('is_target'))
                 fmt_t.append(Note.state>0)
-                fmt_t.append(Note.status.any(
-                    and_(NoteStatus.user_id==current_user.id,
-                        or_(
-                            NoteStatus.target_acted,
-                            NoteStatus.target_order <= select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target,NoteStatus.note_id==Note.id).scalar_subquery()
-                        )
-                    )
-                ))
-
+                fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
+               
 
                 fmt.append(Note.sender.has(User.id==current_user.id))
 

@@ -8,7 +8,7 @@ from flask import current_app, session
 from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
-from sqlalchemy import select, delete, func, case, union, and_, or_, not_, any_
+from sqlalchemy import select, delete, func, case, union, exists, and_, or_, not_, any_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.sql import text
 
@@ -259,7 +259,27 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     def addFileArgs(self,*args,**kargs):
         self.addFile(File(**kargs))
-    
+
+    @hybrid_method
+    def target_working(self,user=current_user):
+        order = 0
+        for state in self.status:
+            if state.target and state.target_acted == 0:
+                order = state.target_order
+            if state.user_id == user.id:
+                if state.target_order == order:
+                    return True
+        
+        return False
+
+    @target_working.expression
+    def target_working(cls,user=current_user):
+        return case (
+            (exists().where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target,not_(NoteStatus.target_acted)),False),
+            (exists().where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target,NoteStatus.target_order==cls.current_target_order),False),
+            else_=False
+        )
+
     @hybrid_property
     def current_target_order(self):
         for state in self.status:
