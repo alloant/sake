@@ -101,10 +101,14 @@ def register_filter(reg,filter = ""):
             #fmt.append(Note.result('target_status')>1)
             fmt_t.append(Note.result('is_target'))
             fmt_t.append(Note.state>0)
-            fmt_t.append(Note.status.any(and_(NoteStatus.user_id==current_user.id,or_(
-                NoteStatus.target_acted,NoteStatus.target_order<=
-                select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target).scalar_subquery()
-            ))))
+            fmt_t.append(Note.status.any(
+                and_(NoteStatus.user_id==current_user.id,
+                    or_(
+                        NoteStatus.target_acted,
+                        NoteStatus.target_order <= select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target,NoteStatus.note_id==Note.id).scalar_subquery()
+                    )
+                )
+            ))
             fmt.append(Note.sender.has(User.id==current_user.id))
             fn.append(or_(and_(*fmt_t),*fmt))
         elif reg[0] == 'all' and reg[1] == 'all':
@@ -121,11 +125,16 @@ def register_filter(reg,filter = ""):
                 #fmt.append(Note.result('target_status')==2)
                 fmt_t.append(Note.result('is_target'))
                 fmt_t.append(Note.state>0)
-                fmt_t.append(Note.status.any(and_(NoteStatus.user_id==current_user.id,not_(NoteStatus.target_acted),or_(
-                    NoteStatus.target_acted,NoteStatus.target_order<=
-                    select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target).scalar_subquery()
-                ))))
-    
+                fmt_t.append(Note.status.any(
+                    and_(NoteStatus.user_id==current_user.id,
+                        or_(
+                            NoteStatus.target_acted,
+                            NoteStatus.target_order <= select(func.min(NoteStatus.target_order)).where(not_(NoteStatus.target_acted),NoteStatus.target,NoteStatus.note_id==Note.id).scalar_subquery()
+                        )
+                    )
+                ))
+
+
                 fmt.append(Note.sender.has(User.id==current_user.id))
 
                 fsrn = []
@@ -140,6 +149,7 @@ def register_filter(reg,filter = ""):
 
                 if session['filter_option'] == 'hide_archived':
                     fn.append(Note.state<6)
+                    fn.append(or_(Note.reg!='mat',and_(Note.reg=='mat',not_(Note.result('is_done')))))
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
