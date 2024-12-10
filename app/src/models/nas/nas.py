@@ -176,7 +176,7 @@ def _convert_office(synd,path,delete):
     new_permanent_link = new_file['data']['permanent_link']
     new_file_path = new_file['data']['display_path']
 
-    return new_file_path, new_file_id, new_permanent_link
+    return {'path':new_file_path, 'fid': new_file_id, 'link': new_permanent_link}
 
 def _download_path(synd,path,dest):
     if not path.isdigit():

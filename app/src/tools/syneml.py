@@ -143,6 +143,7 @@ def read_eml(file_eml,emails = None):
                 efiles.append(True)
         
         for i,file in enumerate(attachments):
+            print('----',file['filename'],'----')
             if efiles[i]:
                 continue
 
@@ -154,10 +155,16 @@ def read_eml(file_eml,emails = None):
 
             path = rst['data']['display_path']
             link = rst['data']['permanent_link']
-        
+            
             if file['filename'].split(".")[-1] in EXT.keys():
-                path,fid,link = convert_office(rst['data']['display_path'])
-                move_path(rst['data']['display_path'],f"{dest}/Originals")
+                rst_conv = convert_office(rst['data']['display_path'])
+                if rst_conv:
+                    path = rst_conv['path']
+                    fid = rst_conv['fid']
+                    link = rst_conv['link']
+                    move_path(rst['data']['display_path'],f"{dest}/Originals")
+                else:
+                    flash(f"The file {file['filename']} could not be converted to Synology office and the original was added",'danger')
 
             fl = File(path=path,permanent_link=link,subject=subject,sender=sender.lower(),date=date.date())
             db.session.add(fl)

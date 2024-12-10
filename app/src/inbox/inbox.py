@@ -37,9 +37,13 @@ def action_inbox_view(request):
                 rst = upload_path(b_file,dest)
                 if rst:
                     if file.filename.split(".")[-1] in EXT.keys():
-                        print(rst)
-                        path,fid,link = convert_office(rst['data']['display_path'])
-                        move_path(rst['data']['display_path'],f"{dest}/Originals")
+                        rst_conv = convert_office(rst['data']['display_path'])
+                        if rst_conv:
+                            path = rst_conv['path']
+                            fid = rst_conv['fid']
+                            link = rst_conv['link']
+
+                            move_path(rst['data']['display_path'],f"{dest}/Originals")
                     else:
                         path = rst['data']['display_path']
                         link = rst['data']['permament_link']
@@ -90,12 +94,10 @@ def action_inbox_view(request):
         case 'notes_in_folder':
             notes = db.session.scalars(select(Note).where(Note.state>=5,Note.reg.in_(['cg','asr','ctr','r']),not_(Note.path.contains('team-folders/Data'))))
             for note in notes:
-                print(note,note.state,note.path,note.reg,note.flow,f'/team-folders/Data/Notes/{note.year}/{note.reg} {note.flow}')
                 #rst = note.move(f'/team-folders/Data/Notes/{note.year}/{note.reg} {note.flow}')
                 #print(rst)
                 rst = note.get_info
                 if rst:
-                    print(rst['data']['display_path'])
                     note.path = rst['data']['display_path']
             db.session.commit()
 
@@ -157,8 +159,13 @@ def import_asr():
                 path = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}"
                 link = file['permanent_link']
                 if filename.split(".")[-1] in ['xls','xlsx','docx','rtf']:
-                    path,fid,link = convert_office(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}")
-                    move_path(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}",f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/Originals")
+                    rst_conv = convert_office(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}")
+                    if rst_conv:
+                        path = rst_conv['path']
+                        fid = rst_conv['fid']
+                        link = rst_conv['link']
+
+                        move_path(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/{filename}",f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Mail/IN/Originals")
                 
                 rnt = db.session.scalar(select(File).where(and_(File.path.contains(filename),File.sender=='asr')))
                 exists = False
@@ -202,6 +209,7 @@ def generate_notes(output):
     # All the files in import view. The ones without a note
     files = db.session.scalars(select(File).where(File.note_id==None))
     involved_notes = []
+
     for file in files:
         # Get the prot and the rest from the form in inbox
         prot = output[f"number_{file.id}"].lower()
@@ -227,11 +235,13 @@ def generate_notes(output):
         if not register:
             continue
 
-        fullkey = f"{sender.alias} {prot}" #before gfk
+        if 'personal' in register.groups:
+            fullkey = f"{sender.alias}-{register.alias} {prot}" #before gfk
+        else:
+            fullkey = f"{sender.alias} {prot}" #before gfk
 
         # Check if the note already exist in the database
         note = get_note_fullkey(fullkey)
-        
         if note and not (isref_field == 'on' and note.flow == 'out'):
             rst = note.addFile(file)
             if rst:
@@ -241,7 +251,6 @@ def generate_notes(output):
                 flash(f"{file} was added to {note}")
         else: # We need to create a new note
             # First get the content if possible, if not empty
-            print('here')
             content = "" 
             if ";" in file.subject:
                 parts = file.subject.split(";")
@@ -272,11 +281,7 @@ def generate_notes(output):
             if not note in involved_notes:
                 involved_notes.append(note)
 
-            db.session.add(note)
-
-            flash(f"{note} was created")
-            flash(f"{file} was added to {note}")
-
+            
             if isref_field == 'on':
                 note.ref.append(ref)
             else:
@@ -287,6 +292,13 @@ def generate_notes(output):
 
             if len(refs) != len(note.ref): # I didn't get all refs
                 flash(f"There was a problem with {file.subject}. Not all references are in place")
+            
+            db.session.add(note)
+            db.session.commit()
+
+            flash(f"{note} was created")
+            flash(f"{file} was added to {note}")
+
 
         db.session.commit()
 

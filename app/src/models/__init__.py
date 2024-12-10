@@ -31,8 +31,9 @@ def get_register(prot):
     prot = prot.strip('- ')
 
     for reg in registers:
-        alias = r"^\D+"
-        if re.match( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
+        #alias = r"^\D+"
+        alias = r"[^0-9-]+"
+        if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
             alias = ""
 
             senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
@@ -41,14 +42,16 @@ def get_register(prot):
                 sender = senders[0]
             else:
                 rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
-                sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
+                sender = db.session.scalar(select(User).where(User.alias==rst))
+                #sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
             
             if sender:
                 return {'reg':reg,'sender':sender,'flow':'in'}
 
         
-        alias = r"\D+$"
-        if re.match( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
+        #alias = r"\D+$"
+        alias = r"[^0-9-]+$"
+        if re.fullmatch( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
             return {'reg':reg,'flow':'out'}
 
 
