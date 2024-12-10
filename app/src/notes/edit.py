@@ -67,11 +67,10 @@ def fill_form_note(reg,form,note, filter = ""):
             form.receiver.data.append(status.user.alias)
 
             previous_order = status.target_order
-   
-    if note.reg == 'mat' and bar_needed and not bar_put:
-        form.receiver.data = ['---'] + form.receiver.data
 
     if note.reg == 'mat':
+        if not bar_put:
+            form.receiver.data = ['---'] + form.receiver.data
         form.receiver.choices = note.potential_receivers(filter,form.receiver.data)
 
 
