@@ -71,8 +71,9 @@ def register_filter(reg,filter = ""):
         register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
         fn.append(Note.register_id==register.id)
         if reg[1] == 'in':
-            fn.append(Note.state==6)
-            fn.append(Note.receiver.any(User.alias==reg[2]))
+            #fn.append(Note.state==6)
+            fn.append(Note.status.any(NoteStatus.user.has(User.alias==reg[2])))
+            #fn.append(Note.receiver.any(User.alias==reg[2]))
         elif reg[1] == 'out':
             fn.append(Note.sender.has(User.alias==reg[2]))
     
@@ -101,7 +102,11 @@ def register_filter(reg,filter = ""):
             #fmt.append(Note.result('target_status')>1)
             #fmt_t.append(Note.result('is_target'))
             fmt_t.append(Note.state>0)
-            fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
+            
+            fmt_t.append(Note.result('is_target'))
+            fmt_t.append(or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+            
+            #fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
             #fmt_t.append(Note.status.any(
             #    and_(NoteStatus.user_id==current_user.id,
             #        or_(
@@ -126,7 +131,9 @@ def register_filter(reg,filter = ""):
                 #fmt.append(Note.result('target_status')==2)
                 #fmt_t.append(Note.result('is_target'))
                 fmt_t.append(Note.state>0)
-                fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
+                fmt_t.append(Note.result('is_target'))
+                fmt_t.append(or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+                #fmt_t.append(or_(Note.result('is_done'),Note.target_working()))
                
 
                 fmt.append(Note.sender.has(User.id==current_user.id))

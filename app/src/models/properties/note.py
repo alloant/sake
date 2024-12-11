@@ -195,7 +195,7 @@ class NoteProp(object):
             #(and_(cls.reg!='mat',cls.result('is_read')),2),
             (cls.reg!='mat',1),
             (and_(or_(cls.state==0,cls.state==5),cls.sender==current_user),2),
-            (cls.result('target_status')==2,1),
+            (and_(cls.result('is_target'),cls.current_target_order==cls.result('target_order')),1),
             else_=3,
         )
 

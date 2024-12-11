@@ -8,7 +8,7 @@ from flask import current_app, session
 from flask_login import UserMixin, current_user
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship, aliased, column_property
-from sqlalchemy import select, delete, func, case, union, exists, and_, or_, not_, any_
+from sqlalchemy import select, delete, func, case, union, exists, literal_column, and_, or_, not_, any_
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.sql import text
 
@@ -283,7 +283,21 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                         NS.target,
                         not_(NS.target_acted)
                     )
-        
+
+        note = aliased(Note,name="note_status")
+
+        rst = select(NoteStatus).join(NoteStatus.note.of_type(note)).where(
+                NoteStatus.note_id==cls.id,
+                NoteStatus.user_id == user.id,
+                literal_column(f"note_status.state > 0"),
+                literal_column(f"note_status.reg = 'mat'"),
+                NoteStatus.target,
+                not_(NoteStatus.target_acted),
+                NoteStatus.target_order == subquery.scalar_subquery()
+        )
+
+        return exists(rst)
+
         rst = exists().where(
                 NoteStatus.note_id == cls.id,
                 NoteStatus.user_id == user.id,
@@ -293,7 +307,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 not_(NoteStatus.target_acted),
                 NoteStatus.target_order == subquery.scalar_subquery()
             )
-
+        print(rst)
         return rst
 
     @hybrid_property
@@ -305,10 +319,11 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @current_target_order.expression
     def current_target_order(cls):
-        return select(func.min(NoteStatus.target_order)).where(
-            NoteStatus.note_id==cls.id,
-            NoteStatus.target,
-            not_(NoteStatus.target_acted)
+        NS = aliased(NoteStatus)
+        return select(func.min(NS.target_order)).where(
+            NS.note_id==cls.id,
+            NS.target,
+            not_(NS.target_acted)
         ).label('current_target_order')
 
     @hybrid_method
@@ -391,6 +406,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
             case 'is_target':
                 return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target))
+            case 'target_order':
+                return select(NoteStatus.target_order).where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id).scalar_subquery()
             case 'target_status':
                 return case(
                     (cls.state==0,0),
