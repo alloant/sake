@@ -6,7 +6,7 @@ import re
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from flask import render_template, session, make_response, current_app
+from flask import render_template, session, make_response, current_app, flash
 from flask_login import current_user
 
 from sqlalchemy import select, and_, or_, func, not_
@@ -170,7 +170,6 @@ def circulation_proposal(note_id,action):
             for status in note.status:
                 status.target_acted = False
         case 'forward':
-            print('lens:',note.result('num_sign_proposal'),note.result('num_target') - 1)
             if note.result('num_sign_proposal') == note.result('num_target') - 1:
                 note.state = 5
             note.toggle_status_attr('target_acted')
@@ -185,6 +184,10 @@ def circulation_proposal(note_id,action):
     updateSocks(users,"")
 
     db.session.commit()
+
+    if action in ['start','forward']:
+        targets = [status.user for status in note.status if note.result('is_current_target',status.user)]
+        send_emails(note,kind='proposal',targets=targets)
 
 
 def toggle_archive(note_id,is_ctr=False):
@@ -251,6 +254,7 @@ def sign_despacho(note_id,back):
 
     if note.state == 5:
         users = db.session.scalars(select(User).where(User.contains_group('cr')))
+        send_emails(note,kind='from despacho')
     else:
         users = db.session.scalars(select(User).where(User.contains_group('despacho')))
 
@@ -270,11 +274,12 @@ def outbox_to_target(note_id=None,back=False):
         else:
             if note.register.alias in ['cg','r'] and note_id or note.register.alias in ['asr','ctr']: #Here only when you choose one note
                 if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
+                    flash(f'Could not move note {note}')
                     continue
-
+            
             if note.register.alias in ['cg','r'] and note_id:
                 note.state = 6
-            elif note.register.alias == 'asr':
+            elif note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
                 note.state = 6
             elif note.register.alias == 'ctr':

@@ -70,4 +70,12 @@
   display: block;
 }
 
-
+.file-pill {
+    display: inline-block; /* Ensure it behaves like a block element */
+    width: 120px; /* Set a fixed width */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    text-align: left;
+    white-space: nowrap; /* Prevent text from wrapping */
+    max-width: 100%; /* Ensure it doesn't exceed the container */
+}

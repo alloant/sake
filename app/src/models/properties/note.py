@@ -178,10 +178,11 @@ class NoteProp(object):
 
     @hybrid_property
     def matters_order(self):
-        if self.reg != 'mat' and not self.result('is_read'):
-            return 1
-        elif self.reg != 'mat':
-            return 2
+        if self.reg != 'mat':
+            if self.result('is_read'):
+                return 3
+            else:
+                return 1
         elif self.sender_id == current_user.id and self.state in [0,5]: #My proposal and I have to do something because is new or reviewed
             return 2
         elif self.sender_id != current_user.id and self.result('is_current_target'): #My turn to review

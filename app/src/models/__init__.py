@@ -42,8 +42,10 @@ def get_register(prot):
                 sender = senders[0]
             else:
                 rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
-                sender = db.session.scalar(select(User).where(User.alias==rst))
-                #sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
+                if 'personal' in reg.groups:
+                    sender = db.session.scalar(select(User).where(User.alias==rst))
+                else:
+                    sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
             
             if sender:
                 return {'reg':reg,'sender':sender,'flow':'in'}
@@ -58,7 +60,7 @@ def get_register(prot):
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
-    
+    print(reg,nums,reg['reg'],reg['flow'])
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
@@ -351,21 +353,6 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                         elif self.current_target_order == rst.target_order:
                             return True
                 return False
-            case 'target_status': #0 not involved, 1 not involved yet, 2 working on it, 3 done
-                if self.state == 0:
-                    return 0
-
-                rst = self.current_status(user)
-                if rst:
-                    if rst.target:
-                        if rst.target_acted:
-                            return 3
-                        else:
-                            if self.current_target_order == rst.target_order:
-                                return 2
-                            else:
-                                return 1
-                return 0
             case 'num_sign_proposal':
                 return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.target_acted))
             case 'num_target':
@@ -408,16 +395,6 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target))
             case 'target_order':
                 return select(NoteStatus.target_order).where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id).scalar_subquery()
-            case 'target_status':
-                return case(
-                    (cls.state==0,0),
-                    (not_(cls.result('is_target')),0),
-                    (cls.result('is_done'),3),
-                    #(select(NoteStatus).where(any_(NoteStatus.target)),2),
-                    #(cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_order==1)),2),
-                    (cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_order==cls.current_target_order)),2),
-                    else_=1
-                ).label('target_status')
             case 'is_done':
                 return case(
                     (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),

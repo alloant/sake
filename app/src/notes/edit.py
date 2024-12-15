@@ -57,12 +57,13 @@ def fill_form_note(reg,form,note, filter = ""):
     
     for i,status in enumerate(note.status):
         if status.target:
-            if note.reg == 'mat' and previous_order != -1 and previous_order == status.target_order: # Two with same order, then is needed
-                bar_needed = True
+            if note.reg == 'mat' and previous_order != -1:
+                if previous_order == status.target_order: # Two with same order, then is needed
+                    bar_needed = True
 
-            if bar_needed and not bar_put and note.reg == 'mat' and previous_order != -1 and status.target_order != previous_order:
-                form.receiver.data.append('---')
-                bar_put = True
+                if bar_needed and not bar_put and status.target_order != previous_order:
+                    form.receiver.data.append('---')
+                    bar_put = True
 
             form.receiver.data.append(status.user.alias)
 
@@ -70,7 +71,10 @@ def fill_form_note(reg,form,note, filter = ""):
 
     if note.reg == 'mat':
         if not bar_put:
-            form.receiver.data = ['---'] + form.receiver.data
+            if bar_needed:
+                form.receiver.data = form.receiver.data + ['---']
+            else:
+                form.receiver.data = ['---'] + form.receiver.data
         form.receiver.choices = note.potential_receivers(filter,form.receiver.data)
 
 
@@ -164,7 +168,9 @@ def extract_form_note(reg,form,note):
         current_refs = []
         if form.ref.data != "" and not isinstance(form.ref.data,list):
             for ref in form.ref.data.split(","):
+                print('ref',ref)
                 nt = get_note_fullkey(ref.strip())
+                print(nt)
                 if nt:
                     if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
                         current_refs.append(nt.fullkey)
