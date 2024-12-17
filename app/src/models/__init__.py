@@ -148,10 +148,10 @@ note_ref = db.Table('note_ref',
                 db.Column('ref_id', db.Integer, db.ForeignKey('note.id'))
                 )
 
-note_receiver = db.Table('note_receiver',
-                db.Column('note_id', db.Integer, db.ForeignKey('note.id')),
-                db.Column('receiver_id', db.Integer, db.ForeignKey('user.id')),
-                )
+#note_receiver = db.Table('note_receiver',
+#                db.Column('note_id', db.Integer, db.ForeignKey('note.id')),
+#                db.Column('receiver_id', db.Integer, db.ForeignKey('user.id')),
+#                )
 
 
 class Note(NoteProp,NoteHtml,NoteNas,db.Model):
@@ -164,7 +164,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     sender_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('user.id'))
     sender: Mapped["User"] = relationship(back_populates="outbox")
 
-    receiver: Mapped[list["User"]] = relationship('User', secondary=note_receiver, backref='rec_notes')
+#    receiver: Mapped[list["User"]] = relationship('User', secondary=note_receiver, backref='rec_notes')
 
     status: Mapped[list["NoteStatus"]] = relationship(back_populates="note", order_by="NoteStatus.target_order")
 
@@ -264,6 +264,29 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     def addFileArgs(self,*args,**kargs):
         self.addFile(File(**kargs))
+
+    @property
+    def receiver(self):
+        return [state.user for state in self.status if state.target]
+
+    @hybrid_method
+    def has_target(self,user):
+        return user in self.receiver
+
+    @has_target.expression
+    def has_target(cls, user):
+        if isinstance(user,int):
+            return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == user, NoteStatus.target)
+        elif isinstance(user,int):
+            if user.isdigit():
+                return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == int(user), NoteStatus.target)
+            else:
+                user_db = db.scalar(select(User).where(User.alias==user))
+                return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == user_db.id, NoteStatus.target)
+
+
+        #return select(User).where(NoteStatus.note_id == cls.id, NoteStatus.user_id == User.id).label('receiver')
+
 
     @hybrid_method
     def target_working(self,user=current_user):
@@ -584,7 +607,7 @@ class User(UserProp,UserMixin, db.Model):
  
     @property
     def has_pendings(self):
-        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4)))
+        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.has_target(current_user.id),Note.state<6,Note.state>4)))
         for note in pendings:
             if not note.result('is_read',current_user):
                 return True
@@ -645,7 +668,6 @@ class User(UserProp,UserMixin, db.Model):
             register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
             if reg[2]:
                 rst = register.unread(reg[2])
-                #rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg==reg[0],Note.flow=='out',Note.register.has(Register.permissions!='notallowed'),not_(Note.is_read(current_user)),Note.receiver.any()))
             else:
                 rst = register.unread()
         if html:
@@ -655,7 +677,7 @@ class User(UserProp,UserMixin, db.Model):
 
     @property
     def pendings(self):
-        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_read')),Note.register.has(Register.alias!='mat'),Note.receiver.any(User.id==current_user.id),Note.state<6,Note.state>4))
+        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_read')),Note.register.has(Register.alias!='mat'),Note.has_target(current_user.id),Note.state<6,Note.state>4))
 
     @property
     def despacho(self):
@@ -668,7 +690,7 @@ class User(UserProp,UserMixin, db.Model):
         registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions=='allowed'))).all()
         for register in registers:
             for sb in register.get_subregisters():
-                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.result('is_read')))))
+                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
 
         if 'permanent' in current_user.groups:
             cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
@@ -781,7 +803,7 @@ class Register(RegisterHtml,db.Model):
 
     def unread(self,sb=""):
         if sb:
-            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.receiver.any(User.alias==sb),not_(Note.result('is_read')))))
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
         else:
             if 'permanent' in current_user.groups:
                 return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))

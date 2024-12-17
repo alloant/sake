@@ -126,7 +126,9 @@ def register_filter(reg,filter = ""):
                 fsrn = []
                 fsrn.append(Note.sender_id==current_user.id)
                 #fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.state > 4))
-                fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.result('num_sign_despacho') > 1))
+                #fsrn.append(and_(Note.receiver(current_user),Note.result('num_sign_despacho') > 1))
+                fsrn.append(and_(Note.has_target(current_user.id),Note.result('num_sign_despacho') > 1))
+                #rreecc#fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.result('num_sign_despacho') > 1))
                 fsrn.append(Note.register.has(and_(Register.permissions=='allowed',Register.contains_group('personal'))))
                 fsr = []
                 fsr.append(and_(or_(*fsrn),Note.reg != 'mat'))
@@ -145,7 +147,8 @@ def register_filter(reg,filter = ""):
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
             
         if not 'permanente' in current_user.groups:
-            fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
+            #rreecc#fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
+            fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
 
     # Find filter in fullkey, sender, receivers or content
     if filter:
@@ -167,7 +170,7 @@ def register_filter(reg,filter = ""):
             if reg[0] == 'mat' and alias == current_user.alias:
                 sfn.append( Note.sender.has(User.alias==alias) )
             else:
-                sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver.any(User.alias==alias)) )
+                sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver(alias)) )
 
         files = re.findall(r'file:\w+(?:[.-]\w+)*',ft)
         ft = re.sub(r'file:\w+(?:[.-]\w+)*','',ft).strip()
@@ -203,7 +206,7 @@ def register_filter(reg,filter = ""):
         if ft != "":
             ofn.append( Note.content.contains(ft) )
             ofn.append( Note.sender.has(User.alias==ft) )
-            ofn.append( Note.receiver.any(User.alias==ft) )
+            ofn.append( Note.has_target(ft) )
             
 
             rst = re.findall(r'\b[a-zA-Z-]* \b\d+\/\d+\b',ft)

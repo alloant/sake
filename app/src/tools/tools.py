@@ -183,8 +183,8 @@ def delete_note(note_id):
     for comment in note.comments_ctr:
         db.session.delete(comment)
 
-    for rec in note.receiver:
-        note.receiver.remove(rec)
+    #for rec in note.receiver:
+    #    note.receiver.remove(rec)
 
     for status in note.status:
         db.session.delete(status)

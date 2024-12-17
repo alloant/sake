@@ -140,7 +140,7 @@ def extract_form_note(reg,form,note):
 
         for n,user in enumerate(reversed(note.receiver)):
             if not user.alias in form.receiver.data:
-                note.receiver.remove(user)
+                #note.receiver.remove(user)
                 note.toggle_status_attr('target',user=user)
        
         for user in session['rst_checkbox']:
@@ -148,7 +148,7 @@ def extract_form_note(reg,form,note):
                 continue
             rec = db.session.scalars(select(User).where(User.alias==user)).first()
             if not rec in note.receiver:
-                note.receiver.append(rec)
+                #note.receiver.append(rec)
                 note.toggle_status_attr('target',user=rec)
 
         dash_position = session['rst_checkbox'].index('---') if '---' in session['rst_checkbox'] else -1
@@ -393,13 +393,13 @@ def edit_receivers_view(request):
         if save == '1':
             for n,user in enumerate(reversed(note.receiver)):
                 if not user.alias in form.receiver.data:
-                    note.receiver.remove(user)
+                    #note.receiver.remove(user)
                     note.toggle_status_attr('target',user=user)
 
             for user in session['rst_checkbox']:
                 rec = db.session.scalars(select(User).where(User.alias==user)).first()
                 if not rec in note.receiver:
-                    note.receiver.append(rec)
+                    #note.receiver.append(rec)
                     note.toggle_status_attr('target',user=rec)
 
             db.session.commit()

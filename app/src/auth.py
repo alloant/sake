@@ -36,7 +36,8 @@ def login():
             session['version'] = 'old'
 
         if user.all_registers:
-            return redirect(url_for('register.register', reg='all_all_pending', page=1))
+            #return redirect(url_for('register.register', reg='all_all_pending', page=1))
+            return redirect(url_for('register.register'))
 
         registers = db.session.scalars(select(Register).where(Register.active==1)).all()
         for register in registers:

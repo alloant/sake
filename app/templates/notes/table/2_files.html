@@ -64,7 +64,7 @@
             </h5>
           {% endif %}
         </li>
-        {% if ref.reg!='mat' or ref.reg=='mat' and ref.is_involve(reg,current_user) %}
+        {% if ref.reg!='mat' or ref.reg == 'mat' and (ref.has_target(current_user) or ref.sender == current_user) %}
           {% for file in ref.files %}
             {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
               <li style="padding-left: 2rem;"><a  class="dropdown-item small fw-light" 

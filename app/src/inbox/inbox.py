@@ -78,7 +78,7 @@ def action_inbox_view(request):
             sdate = datetime.strptime(dates[0],"%m/%d/%Y")
             edate = datetime.strptime(dates[1],"%m/%d/%Y")
             
-            notes = db.session.scalars(select(Note).where(or_(Note.receiver.any(User.alias == 'cg'),and_(Note.reg.in_(['cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.state==6))
+            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.state==6))
             path = f"{current_user.local_path}/Outbox"
             dates = f"{sdate.strftime('%d/%m/%Y')} - {edate.strftime('%d/%m/%Y')}"
            
