@@ -178,25 +178,27 @@ def edit_user():
             user.active = form.active.data
             user.admin_active = form.admin_active.data
             
-            if not is_ctr:
-                if 'of' in form.groups.data:
-                    rst = ['o_cg','o_asr','o_ctr','o_r','o_mat','ct_mat']
-                elif 'cr' in form.groups.data:
-                    rst = ['v_cg','v_asr','v_ctr','v_r','o_mat','ct_mat']
-                else:
-                    rst = []
+            if 'of' in form.groups.data:
+                rst = ['o_cg','o_asr','o_ctr','o_r','o_mat','ct_mat']
+            elif 'cr' in form.groups.data:
+                rst = ['v_cg','v_asr','v_ctr','v_r','o_mat','ct_mat']
+            else:
+                rst = []
                 
-                for group in form.groups.data:
-                    if group in groups_choices[:group1]:
-                        rst.append(group)
+            for group in form.groups.data:
+                if group in groups_choices[:group1]:
+                    rst.append(group)
 
-                    if group in groups_choices[group1:group2]:
-                        rst.append(f"e_{group}")
+                if group in groups_choices[group1:group2]:
+                    rst.append(f"e_{group}")
 
-                    if group in groups_choices[group2:]:
-                        rst.append(f"v_ctr_{group}")
+                if group in groups_choices[group2:]:
+                    rst.append(f"v_ctr_{group}")
 
-                user.u_groups = ",".join([g for g in rst if g])
+            if form.notifications_active.data:
+                rst.append('notifications')
+
+            user.u_groups = ",".join([g for g in rst if g])
 
         db.session.commit()
 
@@ -220,6 +222,9 @@ def edit_user():
 
             if re.match(fr'[veo]_ctr_\w+',group):
                 form.groups.data.append(group.split('_')[2])
+
+            if group == 'notifications':
+                form.notifications_active.data = True
 
     
     if 'admin' in current_user.groups or 'scr' in current_user.groups:

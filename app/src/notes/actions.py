@@ -185,7 +185,7 @@ def circulation_proposal(note_id,action):
 
     db.session.commit()
 
-    if action in ['start','forward']:
+    if action in ['start','forward'] and note.state == 1:
         targets = [status.user for status in note.status if note.result('is_current_target',status.user)]
         send_emails(note,kind='proposal',targets=targets)
 

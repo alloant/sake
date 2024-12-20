@@ -19,7 +19,18 @@
     <div class="row mb-3">
       {{ form.email(class="form-control", placeholder="Your Email") }}
     </div>
-   
+    
+    {% if 'of' in user.groups or 'cr' in user.groups %}
+      <div class="row mb-3">
+        <div>
+          {{ form.notifications_active(class="form-check-input") }}
+          Receive notifications
+        </div>
+      </div>
+    {% endif %}
+
+
+
     {% if 'scr' in user.groups %}
       <div class="row mb-3">
         {{ form.local_path(class="form-control", placeholder="Local folder for emls") }}

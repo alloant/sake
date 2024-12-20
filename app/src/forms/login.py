@@ -37,6 +37,8 @@ class UserForm(Form):
     active = BooleanField(gettext('User is active'))
     admin_active = BooleanField(gettext('Admin mode on'))
     
+    notifications_active = BooleanField(gettext('Receive notifications'),default=False)
+    
     groups = MultiCheckboxField(gettext('Groups'),coerce=str)
    
     submit = SubmitField(gettext('Submit'))

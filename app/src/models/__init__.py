@@ -190,8 +190,6 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     done: Mapped[bool] = mapped_column(db.Boolean, default=False)
     state: Mapped[int] = mapped_column(db.Integer, default = 0)
     
-    read_by: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
-    
     privileges: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
 
     files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.files_order,File.path")

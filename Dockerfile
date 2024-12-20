@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM python:3.12.4-alpine3.20 AS builder
+FROM python:3.13.1-alpine3.21 AS builder
 
 RUN pip install --upgrade pip
 RUN apk add git

@@ -287,7 +287,10 @@ def generate_notes(output):
             else:
                 refs = file.guess_ref
 
-                for ref in refs:
+                for i,ref in enumerate(refs):
+                    if i == 0 and note.content == '':
+                        note.content = ref.content
+
                     note.ref.append(ref)
 
             if len(refs) != len(note.ref): # I didn't get all refs

@@ -79,3 +79,12 @@
     white-space: nowrap; /* Prevent text from wrapping */
     max-width: 100%; /* Ensure it doesn't exceed the container */
 }
+
+.sortable-drag { opacity: 0; }
+
+.no-sort {
+  background-color: transparent;
+  shadow: none;
+  border: 0;
+  outline: none;
+}
