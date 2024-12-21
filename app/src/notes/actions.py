@@ -121,7 +121,12 @@ def action_note_view(request,template):
             return get_info(note_id,reg)
         case 'update_files':
             note_id = request.args.get('note')
-            return update_files(reg,note_id)
+            create_folder = True if request.args.get('create_folder','false') == 'true' else False
+            print('create_folder:',create_folder)
+            if create_folder:
+                update_files(reg,note_id)
+            else:
+                return update_files(reg,note_id)
         case 'new_from_template':
             template = request.args.get('template')
             note_id = request.args.get('note')

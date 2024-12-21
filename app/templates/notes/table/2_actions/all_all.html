@@ -88,8 +88,13 @@
     </li>
     <li>
       <a  class="dropdown-item ms-1"
-          hx-get="action_note?reg={{reg}}&note={{note.id}}&action=update_files" 
-          hx-target="#row_{{note.id}}_files"
+          {% if note.permanent_link %}
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=update_files" 
+            hx-target="#row_{{note.id}}_files"
+          {% else %}
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=update_files&create_folder=true"
+            hx-target="#row_{{note.id}}"
+          {% endif %}
           hx-target-error="#flash-errors"
           hx-trigger="click" 
           hx-indicator="#indicator-table"

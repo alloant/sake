@@ -108,18 +108,20 @@ class NoteNas(object):
         return copy_path(f'link:{self.permanent_link}',f"{dest}/{self.folder_name}")
 
     def updateFiles(self):
+        folder_created = False
         if not self.permanent_link: # There is no permanent_link, I should get it first
-            rst = self.getPermanentLink()
-        else:
-            rst = True
-        
-        if not rst:
-            flash("Could not update files. Try again")
-            return False
+            if not self.getPermanentLink():
+                flash("Could not update files. Try again")
+                return False
+            folder_created = True
 
-        #files = files_path(self.folder_path)
-        files = files_path(f'link:{self.permanent_link}')
+        if folder_created:
+            for file in self.files:
+                file.move(self.folder_path)
+
         self.deleteFiles([f.id for f in self.files])
+        
+        files = files_path(f'link:{self.permanent_link}')
 
         for file in files:
             kargs = {'path':file['name'],'permanent_link':file['permanent_link']} 
