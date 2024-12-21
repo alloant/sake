@@ -264,7 +264,11 @@ def get_files_view(request):
     
     note_id = request.args.get('note')
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-       
+    
+    path = '/mydrive'
+    files = files_path(path)
+    return render_template('modals/modal_files_list_synology.html',files=files)
+ 
     if note.ref:
         files = note.ref[0].files
         return render_template('modals/modal_files_list_sake.html',files=files)

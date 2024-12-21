@@ -25,6 +25,7 @@ from app.src.tools.tools import newNote, send_emails, delete_note
 from app.src.tools.syneml import write_eml
 
 from app.src.models.nas.nas import toggle_share_permissions
+from app.src.models.nas.nas import copy_path, copy_office_path
 
 def action_note_view(request,template):
     reg = request.args.get('reg')
@@ -121,6 +122,10 @@ def action_note_view(request,template):
         case 'update_files':
             note_id = request.args.get('note')
             return update_files(reg,note_id)
+        case 'new_from_template':
+            template = request.args.get('template')
+            note_id = request.args.get('note')
+            return new_from_template(reg,note_id,template)
         case 'sign_despacho':
             note_id = request.args.get('note')
             back = True if request.args.get('back','false') == 'true' else False
@@ -477,3 +482,20 @@ def update_files(reg,note_id):
     res.headers['HX-Trigger'] = 'update-flash,update-action  s'
 
     return res
+
+def new_from_template(reg,note_id,template):
+    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    ext = template.split('.')[-1]
+    cont = 0
+    for file in note.files:
+        if re.match(fr'{note.folder_name}_*a*[0-9]*\.[a-zA-Z]+',file.path):
+            print(file.path)
+            cont += 1
+
+    if cont == 0:
+        copy_office_path(f"/team-folders/Data/Templates/{template}",f"{note.folder_path}/{note.folder_name}.{ext}")
+    else:
+        copy_office_path(f"/team-folders/Data/Templates/{template}",f"{note.folder_path}/{note.folder_name}_a{cont}.{ext}")
+
+    return update_files(reg,note_id)
+

@@ -15,29 +15,25 @@
 
       <div>
         <select class="form-select form-select-lg mb-4" name="path_folder" hx-get="/files" hx-target="#files" hx-indicator="#modalFiles">
-          {% for ref in note.history_notes %}
-            {% if ref.id != note.id %}
-              {% if ref == note.ref[0] %}
-                <option selected value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
-              {% else %}
-                <option value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          
-          {% if note.ref %}
+          <optgroup label="From my files">
+            <option selected value="mydrive">My Drive</option>
             <option value="teams">Team folders</option>
-          {% else %}
-            <option selected value="teams">Team folders</option>
-          {% endif %}
+          </optgroup>
           
-          <option value="templates">New File</option>
-          <option value="mydrive">My Drive</option>
 
           {% if not reg[2] %}
-            <option value="forms">Forms</option>
+            <optgroup label="Forms cr">
+              <option value="forms">Forms</option>
+            </optgroup>
           {% endif %}
-
+          
+          <optgroup label="From references">
+          {% for ref in note.history_notes %}
+            {% if ref.id != note.id %}
+              <option value="note_{{ref.id}}">{{ref.fullkey}} {{ref.content}}</option>
+            {% endif %}
+          {% endfor %}
+          </optgroup>
         </select>
       </div>
       
