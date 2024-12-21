@@ -7,10 +7,18 @@
       role="button">
       <div class="" style="display: flex; justify-content: center;">
       
-      {% if focus %}
-        <img class="border-5 rounded" src="static/icons/{{icon}}.svg" width="52vmin" height="35rem" style="background-color:#bfbfbf; border-color:#bfbfbf">
+      {% if 'ctr/' in icon %}
+        {% if focus %}
+          <img class="border-5 rounded" src="static/icons/{{icon}}.svg" width="60rem" height="30rem" style="background-color:#bfbfbf; border-color:#bfbfbf">
+        {% else %}
+          <img class="" src="static/icons/{{icon}}.svg" width="60rem" height="30rem">
+        {% endif %}
       {% else %}
-        <img class="" src="static/icons/{{icon}}.svg" width="70rem" height="35rem">
+        {% if focus %}
+          <img class="border-5 rounded" src="static/icons/{{icon}}.svg" width="70rem" height="35rem" style="background-color:#bfbfbf; border-color:#bfbfbf">
+        {% else %}
+          <img class="" src="static/icons/{{icon}}.svg" width="70rem" height="35rem">
+        {% endif %}
       {% endif %}
       </div>
     {% if element_title %}

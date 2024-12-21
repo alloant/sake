@@ -71,16 +71,14 @@ def register_filter(reg,filter = ""):
         register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
         fn.append(Note.register_id==register.id)
         if reg[1] == 'in':
-            #fn.append(Note.state==6)
+            fn.append(Note.state==6)
             fn.append(Note.status.any(NoteStatus.user.has(User.alias==reg[2])))
-            #fn.append(Note.receiver.any(User.alias==reg[2]))
+            if session['filter_option'] == 'hide_archived':
+                ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
+                fn.append(not_(Note.result('is_done',ctr_fn)))
+                
         elif reg[1] == 'out':
             fn.append(Note.sender.has(User.alias==reg[2]))
-    
-        #if not session['showAll'] and reg[1] == 'in':
-        if session['filter_option'] == 'hide_archived' and reg[1] == 'in':
-            ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
-            fn.append(Note.result('is_done',ctr_fn))
     else: # Es un register
         if reg[0] == 'all': # Here I get all notes from all registers
             if current_user.admin:
