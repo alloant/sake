@@ -11,134 +11,68 @@ from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
-from app.src.models import User, Note, Register, NoteStatus
+from app.src.models import User, Note, Register, NoteStatus, Group
 
 from app.src.tools.mail import send_email, send_emails
 
 def toNewNotesStatus():
-    notes = db.session.scalars(select(Note).where(Note.flow=='in',Note.reg!='mat',Note.result('num_sign_despacho')<2)).all()
-    print(len(notes))
 
-    vcr = db.session.scalar(select(User).where(User.alias=="rvaldes"))
-    df = db.session.scalar(select(User).where(User.alias=="jb"))
+    users = db.session.scalars(select(User)).all()
+    ctrs = db.session.scalars(select(User).where(User.contains_group('ctr'))).all()
+    registers = db.session.scalars(select(Register)).all()
+    groups = db.session.scalars(select(Group)).all()
 
-    print(vcr,df)
+    for user in users:
+        user.set_setting('password',user.password)
+        user.set_setting('password_nas',user.password_nas)
 
-    for note in notes:
-        if note.state > 4:
-            st_vcr = note.current_status(vcr)
-            st_df = note.current_status(df)
-            
-            if st_vcr:
-                st_vcr.sign_despacho = True
-            else:
-                note.toggle_status_attr('sign_despacho',user=vcr)
+        if 'notifications' in user.groups:
+            user.set_setting('notifications',True)
 
-            if st_df:
-                st_df.sign_despacho = True
-            else:
-                note.toggle_status_attr('sign_despacho',user=df)
+        if 'of' in user.u_groups.split(','):
+            user.category = 'of'
+            for reg in registers:
+                if 'despacho' in reg.groups:
+                    reg.set_user_access('viewer',user)
+                elif reg.alias == 'mat':
+                    reg.set_user_access('viewer_contact',user)
+                elif f'e_{reg.alias}' in user.groups:
+                    reg.set_user_access('editor',user)
+        elif 'cr' in user.u_groups.split(','):
+            user.category = 'dr'
+            for reg in registers:
+                if 'despacho' in reg.groups:
+                    reg.set_user_access('reader',user)
+                elif reg.alias == 'mat':
+                    reg.set_user_access('viewer_contact',user)
+                elif f'e_{reg.alias}' in user.groups:
+                    reg.set_user_access('editor',user)
+        elif 'ctr' in user.u_groups.split(','):
+            print('user:',user.alias)
+            user.category = 'ctr'
+            for reg in registers:
+                if reg.alias == 'ctr':
+                    reg.set_user_access('contact',user)
+        elif 'sake' in user.u_groups.split(','):
+            user.category = 'cl'
+        else:
+            user.category = 'contact'
+            for reg in registers:
+                if f'ct_{reg.alias}' in user.groups:
+                    reg.set_user_access('contact',user)
+        
+        for ctr in ctrs:
+            if f'v_ctr_{ctr.alias}' in user.groups:
+                if not ctr in user.ctrs:
+                    user.ctrs.append(ctr)
 
-    db.session.commit()
+        for user_group in user.u_groups.split(','):
+            for group in groups:
+                if group.text.lower() == user_group:
+                    user.add_group(group.text)
+        
+        db.session.commit()
 
-
-
-def toNewNotesStatus_old():
-    notes = db.session.scalars(select(Note).where(Note.reg!='mat')).all()
-
-    for note in notes:
-        #Now the receivers
-        for rec in note.receiver:
-            status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==rec.id))
-            if not status:
-                status = NoteStatus(note_id=note.id,user_id=rec.id,target=True)
-                db.session.add(status)
-            else:
-                status.target = True
-
-        for alias in note.read_by.split(','):
-            if alias[:4] == 'des_' and note.flow == 'in':
-                user = db.session.scalar(select(User).where(User.alias==alias[4:]))
-                if not user:
-                    continue
-                status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==user.id))
-                if not status:
-                    status = NoteStatus(note_id=note.id,user_id=user.id,sign_despacho=True)
-                    db.session.add(status)
-                else:
-                    status.sign_despacho = True
-            else:
-                user = db.session.scalar(select(User).where(User.alias==alias))
-                if not user:
-                    continue
-                status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==user.id))
-                if not status:
-                    status = NoteStatus(note_id=note.id,user_id=user.id,read=True)
-                    db.session.add(status)
-                else:
-                    status.read = True
-
-        #Here the is_done for the ctr which is kept in recevied_by
-        for alias in note.received_by.split(','):
-            user = db.session.scalar(select(User).where(User.alias==alias)) #Esto es un ctr
-            if not user:
-                continue
-            status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==user.id))
-            if not status:
-                status = NoteStatus(note_id=note.id,user_id=user.id,target_acted=True)
-                db.session.add(status)
-            else:
-                status.target_acted = True
-
-        for comment in note.comments_ctr:
-            status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==comment.sender_id))
-            if not status:
-                status = NoteStatus(note_id=note.id,user_id=comment.sender_id,comment=comment.comment)
-                db.session.add(status)
-            else:
-                status.comment = comment.comment
-
-        # Change the date of files to the date of the note if all are the same
-        if note.register.alias != 'mat':
-            change_date_files = True
-            for file in note.files:
-                if file.date != note.files_date:
-                    change_date_files = False
-
-            if change_date_files:
-                for file in note.files:
-                    if not 'ref' in file.path.lower():
-                        file.date = note.n_date
-
-    proposals = db.session.scalars(select(Note).where(Note.reg=='mat')).all()
-
-    for note in proposals:
-        for alias in note.read_by.split(','):
-            user = db.session.scalar(select(User).where(User.alias==alias))
-            if not user:
-                continue
-            status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==user.id))
-            if not status:
-                status = NoteStatus(note_id=note.id,user_id=user.id,target_acted=True)
-                db.session.add(status)
-            else:
-                status.target_acted = True
-
-        for i,alias in enumerate(note.received_by.split(',')):
-            user = db.session.scalar(select(User).where(User.alias==alias))
-            if not user:
-                continue
-            status = db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==note.id,NoteStatus.user_id==user.id))
-            if not status:
-                status = NoteStatus(note_id=note.id,user_id=user.id,target=True,target_order=i)
-                db.session.add(status)
-            else:
-                status.target = True
-                status.target_order = i
-
-
-
-    db.session.commit()
 
 
 def nextNumReg(rg,target=None):

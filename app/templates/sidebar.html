@@ -2,7 +2,7 @@
 <div id="sidebar" class="col-sm-auto sticky-top border p-1" style="background-color: light;">
   {% with registers = current_user.all_registers_and_sub %}
   <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
-    {% if 'cr' in current_user.groups %}
+    {% if current_user.category in ['dr','of'] %}
       <a class="nav-link position-relative my-1"
         hx-get="/main_title_body?reg=['all','pen','']"
         hx-indicator="#indicator-table"

@@ -7,4 +7,4 @@ flask db migrate -m "Init"
 flask db upgrade
 
 # Start your application (e.g., using Gunicorn or another server)
-gunicorn --certfile=/cert/server.crt --keyfile=/cert/server.key -w 1 --threads 100 -b :8041 'app:create_app()'
+#gunicorn --certfile=/cert/server.crt --keyfile=/cert/server.key -w 1 --threads 100 -b :8041 'app:create_app()'

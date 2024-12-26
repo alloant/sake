@@ -34,6 +34,7 @@ def updateSocks(users,msg=''):
             try:
                 sock_clients[user.alias].send(f'<div id="sock_id"><span hx-get="/load_socket?msg={umsg}" hx-trigger="load" hx-swap="outerHTML"></span></div>')
             except:
+                print('Error socks')
                 pass
     
 
@@ -41,7 +42,7 @@ def fill_form_note(reg,form,note, filter = ""):
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
-        form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
+        form.sender.choices = db.session.scalars(select(User).where(and_(User.category.in_(['dr','of']),User.active==1))).all()
 
     form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 

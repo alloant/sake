@@ -27,7 +27,7 @@ def send_emails_threading(nt,kind,targets):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
         smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
         for rec in nt.receiver:
-            if not (kind in ['from despacho','proposal'] and 'notifications' in rec.groups):
+            if not (kind in ['from despacho','proposal'] and rec.get_setting('notifications')):
                 continue
             if targets and not rec in targets:
                 continue

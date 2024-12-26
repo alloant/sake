@@ -12,7 +12,7 @@
     </a>
     <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownRegister">
       {% for register in registers %}
-        {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+        {% if register.permissions != '' and register.alias != 'mat' %}
           <li class="">
             <a  class="dropdown-item"
                 hx-get="/main_title_body?reg=['{{register.alias}}','in','']"
@@ -63,7 +63,7 @@
       <li class="dropdown-divider"></li>
       </li>
         {% for register in registers %}
-          {% if register.permissions != 'notallowed' and not 'matters' in register.groups %}
+          {% if register.permissions != '' and register.alias != 'mat' %}
             <li class="">
               <a class="dropdown-item"
                   hx-get="/main_title_body?reg=['{{register.alias}}','out','']"

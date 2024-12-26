@@ -22,7 +22,7 @@ def wrap_error(func, *args):
 
         cipher = Fernet(current_app.config['SECRET_KEY'])
         #print("!@#!@#!@#",cipher.decrypt(""))
-        PASSWD = cipher.decrypt(current_user.password_nas)
+        PASSWD = cipher.decrypt(current_user.get_setting('password_nas'))
 
         
         if current_app.config['DEBUG'] == 'True':

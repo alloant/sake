@@ -84,9 +84,9 @@ def register_filter(reg,filter = ""):
             if current_user.admin:
                 registers = db.session.scalars(select(Register).where(Register.active==1)).all()
             else:
-                registers = db.session.scalars(select(Register).where(and_(Register.permissions=='allowed',Register.active==1))).all()
+                registers = db.session.scalars(select(Register).where(and_(Register.permissions,Register.active==1))).all()
         else:
-            registers = db.session.scalars(select(Register).where(and_(Register.permissions=='allowed',Register.active==1,Register.alias==reg[0]))).all()
+            registers = db.session.scalars(select(Register).where(and_(Register.permissions,Register.active==1,Register.alias==reg[0]))).all()
     
         #fn.append(Note.register.any(Register.alias.in_(registers)))
         fn.append(Note.register_id.in_([reg.id for reg in registers]))
@@ -144,8 +144,7 @@ def register_filter(reg,filter = ""):
                 else:
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
             
-        if not 'permanente' in current_user.groups:
-            #rreecc#fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.receiver.any(User.id==current_user.id)) )
+        if not 'Permanente' in current_user.groups:
             fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
 
     # Find filter in fullkey, sender, receivers or content
@@ -168,7 +167,7 @@ def register_filter(reg,filter = ""):
             if reg[0] == 'mat' and alias == current_user.alias:
                 sfn.append( Note.sender.has(User.alias==alias) )
             else:
-                sfn.append( or_(Note.sender.has(User.alias==alias),Note.receiver(alias)) )
+                sfn.append( or_(Note.sender.has(User.alias==alias),Note.status.any(NoteStatus.user.has(User.alias==alias))) )
 
         files = re.findall(r'file:\w+(?:[.-]\w+)*',ft)
         ft = re.sub(r'file:\w+(?:[.-]\w+)*','',ft).strip()

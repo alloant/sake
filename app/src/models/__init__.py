@@ -60,7 +60,6 @@ def get_register(prot):
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
-    print(reg,nums,reg['reg'],reg['flow'])
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
@@ -153,6 +152,16 @@ note_ref = db.Table('note_ref',
 #                db.Column('receiver_id', db.Integer, db.ForeignKey('user.id')),
 #                )
 
+class Tag(db.Model):
+    __tablename__= 'tag'
+    
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    text: Mapped[str] = mapped_column(db.String(50), default = '')
+
+note_tag = db.Table('note_tag',
+                db.Column('note_id', db.Integer, db.ForeignKey('note.id')),
+                db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+                )
 
 class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     __tablename__ = 'note'
@@ -166,6 +175,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
 #    receiver: Mapped[list["User"]] = relationship('User', secondary=note_receiver, backref='rec_notes')
 
+    tag: Mapped[list["Tag"]] = relationship('Tag', secondary=note_tag, primaryjoin=note_tag.c.note_id==id, secondaryjoin=note_tag.c.tag_id==id, order_by="desc(Tag.text)") 
     status: Mapped[list["NoteStatus"]] = relationship(back_populates="note", order_by="NoteStatus.target_order")
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
@@ -455,7 +465,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         recs = []
 
         if self.register.alias == 'mat':
-            fn.append(User.contains_group('cr'))
+            fn.append(User.category.in_(['dr','of']))
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all() if user.alias != self.sender.alias]
             firsts = []
             for pot in possibles:
@@ -548,6 +558,46 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
         return db.session.scalars( select(Note).where(Note.id.in_(nids)).order_by(Note.date.desc(), Note.id.desc()) ).all()
 
+class Group(db.Model):
+    __tablename__= 'group'
+    
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    category: Mapped[str] = mapped_column(db.String(50), default = '')
+    text: Mapped[str] = mapped_column(db.String(50), default = '')
+
+    def __eq__(self, other):
+        if isinstance(other,str):
+            return self.text == other
+        else:
+            return self.text == other.text
+
+    def __ne__(self, other):
+        if isinstance(other,str):
+            return self.text != other
+        else:
+            return self.text != other.text
+
+user_group = db.Table('user_group',
+                db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
+                )
+
+class Setting(db.Model):
+    __tablename__= 'setting'
+    
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+
+    user: Mapped["User"] = relationship(back_populates="setting")
+    
+    password: Mapped[str] = mapped_column(db.String(500), default='')
+    password_nas: Mapped[str] = mapped_column(db.String(500), default='')
+    
+    notifications: Mapped[str] = mapped_column(db.Boolean, default=False)
+
+user_ctr = db.Table('user_ctr',
+                db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                db.Column('ctr_id', db.Integer, db.ForeignKey('user.id'))
+                )
 
 class User(UserProp,UserMixin, db.Model):
     __tablename__ = 'user'
@@ -555,6 +605,18 @@ class User(UserProp,UserMixin, db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     password: Mapped[str] = mapped_column(db.String(500), default='')
     password_nas: Mapped[str] = mapped_column(db.String(500), default='')
+
+    setting_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("setting.id"))
+    setting: Mapped["Setting"] = relationship(back_populates="user")
+
+    registers: Mapped[list["RegisterUser"]] = relationship(back_populates="user")
+    
+    category: Mapped[str] = mapped_column(db.String(20), default='')
+    
+    ctrs: Mapped[list["User"]] = relationship('User', secondary=user_ctr, primaryjoin=user_ctr.c.user_id==id, secondaryjoin=user_ctr.c.ctr_id==id, order_by="desc(User.alias)")
+
+    groups: Mapped[list["Group"]] = relationship('Group', secondary=user_group, primaryjoin=user_group.c.user_id==id, secondaryjoin=user_group.c.group_id==Group.id, order_by="desc(Group.text)") 
+    u_groups: Mapped[str] = mapped_column(db.String(500), default='')
 
     date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     name: Mapped[str] = mapped_column(db.String(200), default='')
@@ -582,6 +644,43 @@ class User(UserProp,UserMixin, db.Model):
 
     def __gt__(self,other):
         return self.order > other.order
+
+    def get_setting(self,setting):
+        if self.setting:
+            return getattr(self.setting,setting)
+        return None
+
+    def set_setting(self,setting,value):
+        if not self.setting:
+            self.setting = Setting()
+        setattr(self.setting,setting,value)
+
+        db.session.commit()
+    
+    def set_register_access(self,register,access,user=current_user):
+        rst = self.current_status(user)
+        if not rst:
+            status = NoteStatus(note_id=self.id,user_id=user.id)
+            setattr(status,attr,True)
+            db.session.add(status)
+        else:
+            setattr(rst,attr,not getattr(rst,attr))
+        
+        db.session.commit()
+
+    def add_group(self,group):
+        group = db.session.scalar(select(Group).where(Group.text==group))
+        if group and not group in self.groups:
+            self.groups.append(group)
+            db.session.commit()
+            
+    def del_group(self,group):
+        group = db.session.scalar(select(Group).where(Group.text==group))
+        if group in self.groups:
+            self.groups.remove(group)
+
+            db.session.commit()
+
 
     @property
     def all_registers(self):
@@ -719,6 +818,17 @@ class NoteStatus(db.Model):
 
     comment: Mapped[str] = mapped_column(db.String(500), default='')
 
+class RegisterUser(db.Model):
+    __tablename__ = 'registeruser'
+    
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("register.id"), primary_key=True)
+    
+    user: Mapped["User"] = relationship(back_populates="registers")
+    register: Mapped["Register"] = relationship(back_populates="users")
+    
+    access: Mapped[str] = mapped_column(db.String(20), default='')
+
 class Register(RegisterHtml,db.Model):
     __tablename__ = 'register'
 
@@ -726,6 +836,8 @@ class Register(RegisterHtml,db.Model):
     
     name: Mapped[str] = mapped_column(db.String(200), default='')
     alias: Mapped[str] = mapped_column(db.String(20), unique=True)
+    
+    users: Mapped[list["RegisterUser"]] = relationship(back_populates="register")
     
     r_groups: Mapped[str] = mapped_column(db.String(200), default=False)
     
@@ -741,6 +853,18 @@ class Register(RegisterHtml,db.Model):
     def __repr__(self):
         return f"{self.name} ({self.alias})"
 
+    def get_user_access(self,c_user=current_user):
+        return next((user.access for user in self.users if user.user_id == c_user.id), None)
+
+    def set_user_access(self,value,c_user=current_user):
+        user = next((user for user in self.users if user.user_id == c_user.id), None)
+        if user:
+            user.access = value
+        else:
+            self.users.append(RegisterUser(user_id=c_user.id,register_id=self.id,access=value))
+        
+        db.session.commit()
+
     @hybrid_method
     def contains_group(cls,group):
         return cls.r_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
@@ -751,53 +875,24 @@ class Register(RegisterHtml,db.Model):
     
     @hybrid_property
     def permissions(self): # it is only for full register not subregister
-        #rst = re.search(fr'\b[evo]_{self.alias}_*[a-z,0-9]*\b',user.u_groups)
-        rst = re.search(fr'\b[evo]_{self.alias}\b',current_user.u_groups)
-
-        if not rst:
-            return 'notallowed'
-         
-        rst = rst.group().split('_')
-        
-        if rst[0] == 'e':
-            return 'editor'
-        elif rst[0] == 'v':
-            return 'viewer'
-        elif rst[0] == 'o':
-            return 'official'
-        else:
-            return 'notallowed'
+        return next((user.access for user in self.users if user.user_id == current_user.id), None)
     
     @permissions.expression
     def permissions(cls):
-        rst = re.findall(fr'\b[evo]_[A-Za-z]*\b',current_user.u_groups)
-        registers = [r.split('_')[1] for r in rst]
-        
-        return case(
-            (cls.alias.in_(registers),'allowed'),
-            else_='notallowed'
-        )
+        return cls.users.any(and_(RegisterUser.user_id==current_user.id,RegisterUser.access!=''))
 
     def get_subregisters(self,ids=False):
-        rst = re.findall(fr'\b[evo]_{self.alias}_[A-Za-z0-9-]+\b',current_user.u_groups)
-
-        sbs = []
-        for sb in rst:
-            if ids:
-                usb = db.session.scalar(select(User).where(User.alias==sb.split('_')[2]))
-                if usb:
-                    sbs.append([usb.id,sb.split('_')[2]])
-            else:
-                sbs.append(sb.split('_')[2])
-
-        return sbs
+        if self.alias == 'ctr':
+            return [ctr.alias for ctr in current_user.ctrs]
+        else:
+            return []
 
     def get_contacts(self):
-        return db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all()
+        return [contact.user for contact in self.users if contact.access == 'contact']
  
     @property
     def get_num_contacts(self):
-        return len(db.session.scalars(select(User).where(User.u_groups.regexp_match(fr'\bct_{self.alias}\b'))).all())
+        return len(self.get_contacts())
 
     def unread(self,sb=""):
         if sb:

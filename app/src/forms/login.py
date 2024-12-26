@@ -40,5 +40,7 @@ class UserForm(Form):
     notifications_active = BooleanField(gettext('Receive notifications'),default=False)
     
     groups = MultiCheckboxField(gettext('Groups'),coerce=str)
+    registers = MultiCheckboxField(gettext('Registers'),coerce=str)
+    ctrs = MultiCheckboxField(gettext('ctrs'),coerce=str)
    
     submit = SubmitField(gettext('Submit'))

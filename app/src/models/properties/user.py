@@ -29,11 +29,8 @@ class UserProp(object):
 
     @property
     def severalCalendars(self):
-        rst = re.findall(r'\b[evo]_[a-z]+_*[A-Za-z0-9-]*\b',self.u_groups)
-        if len(rst) > 1:
-            return True
+        return True if self.category in ['dr','of'] or len(self.ctrs)>1 else False
 
-        return False
 
     @hybrid_method
     def contains_group(cls,group):

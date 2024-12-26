@@ -20,7 +20,7 @@
       {{ form.email(class="form-control", placeholder="Your Email") }}
     </div>
     
-    {% if 'of' in user.groups or 'cr' in user.groups %}
+    {% if user.category in ['dr','of'] %}
       <div class="row mb-3">
         <div>
           {{ form.notifications_active(class="form-check-input") }}
@@ -58,40 +58,35 @@
     <div class="col">
       <ul class="" style="max-height:45em; overflow-y: auto;">
         {% for group in form.groups %}
-          {% if loop.index <= group1 %}
           <li class="list-group-item">
             {{ group(class="form-check-input chbox") }}
             {{ group.label(class="form-check-label chbox_label") }}
           </li>
-          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  
+    <div class="col">
+      <ul class="" style="max-height:45em; overflow-y: auto;">
+        {% for register in form.registers %}
+          <li class="list-group-item">
+            {{ register(class="form-check-input chbox") }}
+            {{ register.label(class="form-check-label chbox_label") }}
+          </li>
         {% endfor %}
       </ul>
     </div>
 
     <div class="col">
       <ul class="" style="max-height:45em; overflow-y: auto;">
-        {% for group in form.groups %}
-          {% if loop.index > group1 and loop.index <= group2 %}
+        {% for ctr in form.ctrs %}
           <li class="list-group-item">
-            {{ group(class="form-check-input chbox") }}
-            {{ group.label(class="form-check-label chbox_label") }}
+            {{ ctr(class="form-check-input chbox") }}
+            {{ ctr.label(class="form-check-label chbox_label") }}
           </li>
-          {% endif %}
         {% endfor %}
       </ul>
     </div>
-
-    <div class="col">
-      <ul class="" style="max-height:45em; overflow-y: auto;">
-        {% for group in form.groups %}
-          {% if loop.index > group2 %}
-          <li class="list-group-item">
-            {{ group(class="form-check-input chbox") }}
-            {{ group.label(class="form-check-label chbox_label") }}
-          </li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    </div>
+ 
   {% endif %}
 </div>

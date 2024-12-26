@@ -11,7 +11,7 @@ from sqlalchemy import select, and_, or_
 
 from app import db
 from app.src.forms.login import LoginForm, RegistrationForm, UserForm
-from app.src.models import User, Register
+from app.src.models import User, Register, Group
 
 bp = Blueprint('auth', __name__)
 
@@ -21,7 +21,7 @@ def login():
     if request.method == 'POST' and form.validate():
         user = db.session.scalar(select(User).where(User.alias==form.alias.data))
 
-        if not user or not check_password_hash(user.password,form.password.data):
+        if not user or not check_password_hash(user.get_setting('password'),form.password.data):
             flash('User or password is not correct','danger')
             return render_template('auth/auth.html',login=True, form=form)
 
@@ -56,15 +56,18 @@ def signup():
         cipher = Fernet(current_app.config['SECRET_KEY'])
         
         if user:
-            if user.password != '':  
+            if user.get_setting('password') != '':  
                 flash('Name user already exists','warning')
                 return render_template('auth/auth.html', login=False, form=form)
             
             user.name = form.name.data
             user.alias = form.alias.data
             user.email = form.email.data
-            user.password = generate_password_hash(form.password.data,method='scrypt')
-            user.password_nas = cipher.encrypt(str.encode(form.password.data))
+            #user.password = generate_password_hash(form.password.data,method='scrypt')
+            #user.password_nas = cipher.encrypt(str.encode(form.password.data))
+            user.set_setting('password',generate_password_hash(form.password.data,method='scrypt'))
+            user.set_setting('password_nas',cipher.encrypt(str.encode(form.password.data)))
+
         else:
             alias = form.alias.data.split(" ")
             groups = ""
@@ -78,11 +81,15 @@ def signup():
                 groups = 'Aes-of' if alias[0] == 'of' else alias[1]
 
             # create new user with the form data. Hash the password so plaintext version isn't saved.
-            new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, u_groups=groups, password=generate_password_hash(form.password.data), password_nas=cipher.encrypt(str.encode(form.password.data)))
-
+            #new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, u_groups=groups, password=generate_password_hash(form.password.data), password_nas=cipher.encrypt(str.encode(form.password.data)))
+            new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, u_groups=groups)
+            
             # add the new user to the database
             db.session.add(new_user)
-        
+            
+            new_user.set_setting('password',generate_password_hash(form.password.data,method='scrypt'))
+            new_user.set_setting('password_nas',cipher.encrypt(str.encode(form.password.data)))
+ 
         db.session.commit()
 
         return redirect(url_for('auth.login'))
@@ -142,28 +149,16 @@ def edit_user():
  
     form = UserForm(request.form,obj=user)
     
-    groups_choices = ['sake','admin','cr','of','despacho','scr','permanente']
+    groups = db.session.scalars(select(Group).where(Group.category=='user')).all()
+    form.groups.choices = [group.text for group in groups]
 
-    group1 = len(groups_choices)
+    registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.r_groups.regexp_match(r'\bpersonal\b')))).all()
+    form.registers.choices = [register.alias for register in registers]
 
-    registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.r_groups.regexp_match(r'\bpersonal\b'))))
+    ctrs = db.session.scalars(select(User).where(and_(User.active==1,User.category=='ctr')).order_by(User.alias)).all()
+    form.ctrs.choices = [ctr.alias for ctr in ctrs]
 
 
-    for register in registers:
-        groups_choices.append(f"{register.alias}")
-    
-    group2 = len(groups_choices)
-
-    ctrs = db.session.scalars(select(User).where(and_(User.active==1,User.u_groups.regexp_match(r'\bctr\b'))).order_by(User.alias))
-
-    for ctr in ctrs:
-        groups_choices.append(f"{ctr.alias}")
-    
-    group3 = len(groups_choices)
-    
-    form.groups.choices = [(group,group) for group in groups_choices]
-
-    
     #form.active.data =  1 if user.active else 0
     #form.admin_active.data = 1 if user.admin_active else 0
     if request.method == 'POST':
@@ -178,27 +173,31 @@ def edit_user():
             user.active = form.active.data
             user.admin_active = form.admin_active.data
             
-            if 'of' in form.groups.data:
-                rst = ['o_cg','o_asr','o_ctr','o_r','o_mat','ct_mat']
-            elif 'cr' in form.groups.data:
-                rst = ['v_cg','v_asr','v_ctr','v_r','o_mat','ct_mat']
-            else:
-                rst = []
-                
-            for group in form.groups.data:
-                if group in groups_choices[:group1]:
-                    rst.append(group)
+            
+            for group in form.groups.choices:
+                if group in form.groups.data:
+                    user.add_group(group)
+                else:
+                    user.del_group(group)
 
-                if group in groups_choices[group1:group2]:
-                    rst.append(f"e_{group}")
-
-                if group in groups_choices[group2:]:
-                    rst.append(f"v_ctr_{group}")
+            for register in registers:
+                if register.alias in form.registers.data:
+                    register.set_user_access('editor',user)
+                else:
+                    register.set_user_access('',user)
+            
+            for ctr in ctrs:
+                if ctr.alias in form.ctrs.data:
+                    if not ctr in user.ctrs:
+                        user.ctrs.append(ctr)
+                else:
+                    if ctr in user.ctrs:
+                        user.ctrs.remove(ctr)
 
             if form.notifications_active.data:
-                rst.append('notifications')
-
-            user.u_groups = ",".join([g for g in rst if g])
+                user.set_setting('notifications',True)
+            else:
+                user.set_setting('notifications',False)
 
         db.session.commit()
 
@@ -214,25 +213,26 @@ def edit_user():
         form.admin_active.data = user.admin_active
         
         for group in user.groups:
-            if group in groups_choices:
-                form.groups.data.append(group)
-            
-            if re.match(fr'e_\w+',group):
-                form.groups.data.append(group.split('_')[1])
+            form.groups.data.append(group.text)
+        
+        for register in registers:
+            if register.get_user_access(user) == 'editor':
+                form.registers.data.append(register.alias)
+        
+        for ctr in ctrs:
+            if ctr in user.ctrs:
+                form.ctrs.data.append(ctr.alias)
 
-            if re.match(fr'[veo]_ctr_\w+',group):
-                form.groups.data.append(group.split('_')[2])
-
-            if group == 'notifications':
-                form.notifications_active.data = True
+        if user.get_setting('notifications'):
+            form.notifications_active.data = True
 
     
     if 'admin' in current_user.groups or 'scr' in current_user.groups:
         is_admin = True
     else:
         is_admin = False
-
-    return render_template('modals/modal_edit_user.html', form=form, user=user, group1=group1, group2=group2, group3=group3, is_admin=is_admin, is_ctr=is_ctr)
+    
+    return render_template('modals/modal_edit_user.html', form=form, user=user, is_admin=is_admin, is_ctr=is_ctr)
 
 
 @bp.route('/language')

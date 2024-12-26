@@ -23,9 +23,9 @@ class NoteProp(object):
                     return "fw-light"
         return ""
 
-    @property
-    def groups(self):
-        return self.n_groups.split(',')
+#    @property
+#    def groups(self):
+#        return self.n_groups.split(',')
    
     @property
     def tags(self):
@@ -88,7 +88,7 @@ class NoteProp(object):
                 if self.register.alias == 'mat':
                     return False
 
-                if 'of' in current_user.groups:
+                if current_user.category == 'of':
                     return self.is_target() or current_user.alias in self.privileges.split(',')
                 else:
                     return True
