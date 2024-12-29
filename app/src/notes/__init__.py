@@ -91,8 +91,8 @@ def body_element(template):
     reg = ast.literal_eval(request.args.get('reg'))
     note_id = request.args.get('note')
     element = request.args.get('element')
-    print('here',note_id)
     return render_body_element(reg,note_id,element,template)
+    irint('here',note_id)
 
 @bp.route('/register_icon')
 @login_required

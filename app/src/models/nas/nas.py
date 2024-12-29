@@ -155,7 +155,7 @@ def _copy_path(synd,path,dest):
     #        rst = synd.get_file_or_folder_info(dest)
     return rst
 
-def _convert_office(synd,path,delete):
+def _convert_office(synd,path,delete=False):
     rst = synd.convert_to_online_office(path,delete_original_file=delete)
     task_id = rst['data']['async_task_id']
     

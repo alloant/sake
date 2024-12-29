@@ -36,7 +36,8 @@ def get_register(prot):
         if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
             alias = ""
 
-            senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
+            #senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
+            senders = db.session.scalars(select(User).where(User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
             
             if len(senders) == 1:
                 sender = senders[0]
@@ -45,7 +46,8 @@ def get_register(prot):
                 if 'personal' in reg.groups:
                     sender = db.session.scalar(select(User).where(User.alias==rst))
                 else:
-                    sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
+                    senders = db.session.scalars(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
+                    #sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
             
             if sender:
                 return {'reg':reg,'sender':sender,'flow':'in'}
@@ -176,7 +178,8 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 #    receiver: Mapped[list["User"]] = relationship('User', secondary=note_receiver, backref='rec_notes')
 
     tag: Mapped[list["Tag"]] = relationship('Tag', secondary=note_tag, primaryjoin=note_tag.c.note_id==id, secondaryjoin=note_tag.c.tag_id==id, order_by="desc(Tag.text)") 
-    status: Mapped[list["NoteStatus"]] = relationship(back_populates="note", order_by="NoteStatus.target_order")
+    users: Mapped[list["NoteUser"]] = relationship(back_populates="note", order_by="NoteUser.target_order")
+    status: Mapped[str] = mapped_column(db.String(20), default = '')
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     content: Mapped[str] = mapped_column(db.Text, default = '')
@@ -197,7 +200,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     n_tags: Mapped[str] = mapped_column(db.String(500), default = '')
     n_groups: Mapped[str] = mapped_column(db.String(50), default = '')
 
-    done: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    archived: Mapped[bool] = mapped_column(db.Boolean, default=False)
     state: Mapped[int] = mapped_column(db.Integer, default = 0)
     
     privileges: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
@@ -249,17 +252,17 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     def current_status(self,user=current_user):
         if isinstance(user,dict):
-            return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user.has(User.alias==user['alias'])))
+            return db.session.scalar(select(NoteUser).where(NoteUser.note_id==self.id,NoteUser.user.has(User.alias==user['alias'])))
         else:
-            return db.session.scalar(select(NoteStatus).where(NoteStatus.note_id==self.id,NoteStatus.user_id==user.id))
+            return db.session.scalar(select(NoteUser).where(NoteUser.note_id==self.id,NoteUser.user_id==user.id))
 
     def actived_status(self):
-        return db.session.scalars(select(NoteStatus).where(NoteStatus.target_order==self.current_target_order)).all()
+        return db.session.scalars(select(NoteUser).where(NoteUser.target_order==self.current_target_order)).all()
 
     def toggle_status_attr(self,attr,user=current_user):
         rst = self.current_status(user)
         if not rst:
-            status = NoteStatus(note_id=self.id,user_id=user.id)
+            status = NoteUser(note_id=self.id,user_id=user.id)
             setattr(status,attr,True)
             db.session.add(status)
         else:
@@ -275,7 +278,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @property
     def receiver(self):
-        return [state.user for state in self.status if state.target]
+        return [user.user for user in self.users if user.target]
 
     @hybrid_method
     def has_target(self,user):
@@ -284,75 +287,75 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     @has_target.expression
     def has_target(cls, user):
         if isinstance(user,int):
-            return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == user, NoteStatus.target)
+            return exists().where(NoteUser.note_id == cls.id, NoteUser.user_id == user, NoteUser.target)
         elif isinstance(user,int):
             if user.isdigit():
-                return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == int(user), NoteStatus.target)
+                return exists().where(NoteUser.note_id == cls.id, NoteUser.user_id == int(user), NoteUser.target)
             else:
                 user_db = db.scalar(select(User).where(User.alias==user))
-                return exists().where(NoteStatus.note_id == cls.id, NoteStatus.user_id == user_db.id, NoteStatus.target)
+                return exists().where(NoteUser.note_id == cls.id, NoteUser.user_id == user_db.id, NoteUser.target)
 
 
-        #return select(User).where(NoteStatus.note_id == cls.id, NoteStatus.user_id == User.id).label('receiver')
+        #return select(User).where(NoteUser.note_id == cls.id, NoteUser.user_id == User.id).label('receiver')
 
 
     @hybrid_method
-    def target_working(self,user=current_user):
+    def target_working(self,cuser=current_user):
         order = 0
-        for state in self.status:
-            if state.target and state.target_acted == 0:
-                order = state.target_order
-            if state.user_id == user.id:
-                if state.target_order == order:
+        for user in self.users:
+            if user.target and user.target_acted == 0:
+                order = user.target_order
+            if user.user_id == cuser.id:
+                if user.target_order == order:
                     return True
         
         return False
 
     @target_working.expression
     def target_working(cls,user=current_user):
-        NS = aliased(NoteStatus)
+        NS = aliased(NoteUser)
         subquery = select(func.min(NS.target_order)).where(
                         NS.note_id==cls.id,
                         NS.target,
                         not_(NS.target_acted)
                     )
 
-        note = aliased(Note,name="note_status")
+        note = aliased(Note,name="note_user")
 
-        rst = select(NoteStatus).join(NoteStatus.note.of_type(note)).where(
-                NoteStatus.note_id==cls.id,
-                NoteStatus.user_id == user.id,
-                literal_column(f"note_status.state > 0"),
-                literal_column(f"note_status.reg = 'mat'"),
-                NoteStatus.target,
-                not_(NoteStatus.target_acted),
-                NoteStatus.target_order == subquery.scalar_subquery()
+        rst = select(NoteUser).join(NoteUser.note.of_type(note)).where(
+                NoteUser.note_id==cls.id,
+                NoteUser.user_id == user.id,
+                literal_column(f"note_user.status = 'shared'"),
+                literal_column(f"note_user.reg = 'mat'"),
+                NoteUser.target,
+                not_(NoteUser.target_acted),
+                NoteUser.target_order == subquery.scalar_subquery()
         )
 
         return exists(rst)
 
         rst = exists().where(
-                NoteStatus.note_id == cls.id,
-                NoteStatus.user_id == user.id,
-                cls.state>0,
+                NoteUser.note_id == cls.id,
+                NoteUser.user_id == user.id,
+                cls.status=='shared',
                 cls.reg=='mat',
-                NoteStatus.target,
-                not_(NoteStatus.target_acted),
-                NoteStatus.target_order == subquery.scalar_subquery()
+                NoteUser.target,
+                not_(NoteUser.target_acted),
+                NoteUser.target_order == subquery.scalar_subquery()
             )
-        print(rst)
+        
         return rst
 
     @hybrid_property
     def current_target_order(self):
-        for state in self.status:
-            if state.target and state.target_acted == 0:
+        for user in self.users:
+            if user.target and user.target_acted == 0:
                 break
-        return state.target_order
+        return user.target_order
 
     @current_target_order.expression
     def current_target_order(cls):
-        NS = aliased(NoteStatus)
+        NS = aliased(NoteUser)
         return select(func.min(NS.target_order)).where(
             NS.note_id==cls.id,
             NS.target,
@@ -385,9 +388,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                             return True
                 return False
             case 'num_sign_proposal':
-                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.target_acted))
+                return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.target_acted))
             case 'num_target':
-                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.target))
+                return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.target))
             case 'is_read':
                 if self.n_date < user.date:
                     toggle = lambda x: not x
@@ -415,30 +418,30 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
                 return toggle(False)
             case 'num_sign_despacho':
-                return db.session.scalar(select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==self.id,NoteStatus.sign_despacho))
+                return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.sign_despacho))
 
     @result.expression
     def result(cls,demand,user=current_user):
         match demand:
             case 'is_sign_despacho':
-                return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.sign_despacho))
+                return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.sign_despacho))
             case 'is_target':
-                return cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target))
+                return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.target))
             case 'target_order':
-                return select(NoteStatus.target_order).where(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id).scalar_subquery()
+                return select(NoteUser.target_order).where(NoteUser.note_id==cls.id,NoteUser.user_id==user.id).scalar_subquery()
             case 'is_done':
                 return case(
-                    (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.target_acted)))),
-                    else_=cls.status.any(and_(NoteStatus.user_id==user.id,NoteStatus.target_acted))
+                    (cls.n_date < user.date,not_(cls.users.any(and_(NoteUser.note_id==cls.id,NoteUser.user_id==user.id,NoteUser.target_acted)))),
+                    else_=cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.target_acted))
                 )
             case 'is_read':
                 return case(
-                    (cls.n_date < user.date,not_(cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read)))),
-                    else_=cls.status.any(and_(NoteStatus.note_id==cls.id,NoteStatus.user_id==user.id,NoteStatus.read))
+                    (cls.n_date < user.date,not_(cls.users.any(and_(NoteUser.note_id==cls.id,NoteUser.user_id==user.id,NoteUser.read)))),
+                    else_=cls.users.any(and_(NoteUser.note_id==cls.id,NoteUser.user_id==user.id,NoteUser.read))
                 )
             case 'num_sign_despacho':
-                return select(func.count(NoteStatus.user_id)).where(NoteStatus.note_id==cls.id,NoteStatus.sign_despacho).scalar_subquery()
-                return func.count(cls.status.any(NoteStatus.sign_despacho))
+                return select(func.count(NoteUser.user_id)).where(NoteUser.note_id==cls.id,NoteUser.sign_despacho).scalar_subquery()
+                return func.count(cls.users.any(NoteUser.sign_despacho))
 
     def is_involve(self,reg,user):
         if reg[0] == 'des':
@@ -453,20 +456,25 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def potential_receivers(self,filter,possibles = [],only_of = False):
         fn = []
         fn.append(User.active==1)
+        
         if filter:
             fts = re.findall(r'\w+',filter)
             ftn = []
             for ft in fts:
                 ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),User.description.regexp_match(fr'\b{ft}\b')))
             fn.append(and_(*ftn))
+        
         if only_of:
-            fn.append(User.u_groups.regexp_match(fr'\bof\b'))
+            fn.append(User.category == 'of')
         
         recs = []
 
         if self.register.alias == 'mat':
-            fn.append(User.category.in_(['dr','of']))
+            if not only_of:
+                fn.append(User.category.in_(['dr','of']))
+            
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all() if user.alias != self.sender.alias]
+            
             firsts = []
             for pot in possibles:
                 if pot == '---':
@@ -483,13 +491,13 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             return firsts + recs
         
         if self.flow == 'in' or only_of:
-            if self.register.alias in ['vc','vcr']:
-                fn.append(User.u_groups.regexp_match(fr'\bcr\b'))
-            else:
-                fn.append(User.u_groups.regexp_match(fr'\b[evo]_{self.register.alias}\b'))
+            if not only_of:
+                fn.append(User.category.in_(['dr','of']))
+
             recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
         else:
-            fn.append(User.u_groups.regexp_match(fr'\bct_{self.register.alias}\b'))
+            fn.append(User.registers.any(and_(RegisterUser.access == 'contact',RegisterUser.register_id == self.register.id)))
+            
             recs = [(user.alias,f"{user.alias} - {user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.alias)).all() if user.alias in possibles or not possibles]
  
         return recs
@@ -521,11 +529,16 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     @hybrid_property
     def flow(self) -> str:
-        return 'out' if any(map(lambda v: v in self.sender.groups, ['sake'])) else 'in'
+        return 'out' if self.sender.category in ['dr','of'] else 'in'
+        return 'out' if any(map(lambda v: v in self.sender.groups, ['dr','of'])) else 'in'
 
     @flow.expression
     def flow(cls):
-        cr_users = [user.id for user in db.session.scalars( select(User).where(User.u_groups.regexp_match(r'\bsake\b')) ).all()]
+        return case (
+            (exists().where(User.id==cls.sender_id,User.category.in_(['dr','of'])),'out'),
+            else_='in'
+        )
+        cr_users = [user.id for user in db.session.scalars( select(User).where(User.category.in_(['dr','of'])) ).all()]
         return case(
             (cls.sender_id.in_(cr_users),'out'),
             else_='in'
@@ -629,7 +642,7 @@ class User(UserProp,UserMixin, db.Model):
     
     local_path: Mapped[str] = mapped_column(db.String(200), default='')
     
-    status: Mapped[list["NoteStatus"]] = relationship(back_populates="user")
+    notes: Mapped[list["NoteUser"]] = relationship(back_populates="user")
     
     active: Mapped[str] = mapped_column(db.Boolean, default=True)
     admin_active: Mapped[str] = mapped_column(db.Boolean, default=False)
@@ -660,7 +673,7 @@ class User(UserProp,UserMixin, db.Model):
     def set_register_access(self,register,access,user=current_user):
         rst = self.current_status(user)
         if not rst:
-            status = NoteStatus(note_id=self.id,user_id=user.id)
+            status = NoteUser(note_id=self.id,user_id=user.id)
             setattr(status,attr,True)
             db.session.add(status)
         else:
@@ -704,7 +717,12 @@ class User(UserProp,UserMixin, db.Model):
  
     @property
     def has_pendings(self):
-        pendings = db.session.scalars(select(Note).where(and_(not_(Note.register.has(Register.alias=='mat')),Note.has_target(current_user.id),Note.state<6,Note.state>4)))
+        pendings = db.session.scalars(select(Note).where(
+            Note.register.has(Register.alias!='mat'),
+            Note.has_target(current_user.id),
+            Note.status=='registered',
+            not_(Note.status))
+        )
         for note in pendings:
             if not note.result('is_read',current_user):
                 return True
@@ -750,9 +768,9 @@ class User(UserProp,UserMixin, db.Model):
         elif info == 'despacho':
             rst = current_user.despacho
         elif info == 'inbox':
-            rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.state==1))
+            rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.status=='queued'))
         elif info == 'outbox':
-            rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='out',Note.state==1))
+            rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='out',Note.status=='queued'))
         elif info == 'register':
             if 'permanente' in current_user.groups:
                 rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.register.has(Register.permissions!='notallowed'),not_(Note.result('is_read'))))
@@ -769,16 +787,26 @@ class User(UserProp,UserMixin, db.Model):
                 rst = register.unread()
         if html:
             rst = str(rst) if rst > 0 else ""
-
+        
         return rst
 
     @property
     def pendings(self):
-        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_read')),Note.register.has(Register.alias!='mat'),Note.has_target(current_user.id),Note.state<6,Note.state>4))
+        return db.session.scalar(select(func.count(Note.id)).where(
+            not_(Note.result('is_read')),
+            Note.register.has(Register.alias!='mat'),
+            Note.has_target(current_user.id),
+            Note.status=='registered',
+            not_(Note.status)
+        ))
 
     @property
     def despacho(self):
-        return db.session.scalar(select(func.count(Note.id)).where(not_(Note.result('is_sign_despacho')),Note.register.has(Register.contains_group('despacho')),Note.state<5,Note.state>2))
+        return db.session.scalar(select(func.count(Note.id)).where(
+            not_(Note.result('is_sign_despacho')),
+            Note.register.has(Register.groups.any(Group.text=='despacho')),
+            Note.status=='despacho',
+        ))
 
 
     @property
@@ -787,26 +815,26 @@ class User(UserProp,UserMixin, db.Model):
         registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions=='allowed'))).all()
         for register in registers:
             for sb in register.get_subregisters():
-                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==register.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
+                cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='sent',Note.register_id==register.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
 
         if 'permanent' in current_user.groups:
-            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='registered',Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
         else:
-            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
+            cont += db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='registered',Note.permanent==False,Note.register_id.in_([reg.id for reg in registers]),Note.flow=='in',not_(Note.result('is_read')))))
         
         return cont
 
     @property
     def pending_matters(self):
-        return db.session.scalar(select(func.count()).where(Note.state>0,Note.reg=='mat',Note.target_working()))
+        return db.session.scalar(select(func.count()).where(Note.status=='draft',Note.reg=='mat',Note.target_working()))
 
-class NoteStatus(db.Model):
-    __tablename__ = 'notestatus'
+class NoteUser(db.Model):
+    __tablename__ = 'noteuser'
     note_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("note.id"), primary_key=True)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
 
-    note: Mapped["Note"] = relationship(back_populates="status")
-    user: Mapped["User"] = relationship(back_populates="status")
+    note: Mapped["Note"] = relationship(back_populates="users")
+    user: Mapped["User"] = relationship(back_populates="notes")
 
     read: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
@@ -829,6 +857,14 @@ class RegisterUser(db.Model):
     
     access: Mapped[str] = mapped_column(db.String(20), default='')
 
+
+
+register_group = db.Table('register_group',
+                db.Column('register_id', db.Integer, db.ForeignKey('register.id')),
+                db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
+                )
+
+
 class Register(RegisterHtml,db.Model):
     __tablename__ = 'register'
 
@@ -839,6 +875,7 @@ class Register(RegisterHtml,db.Model):
     
     users: Mapped[list["RegisterUser"]] = relationship(back_populates="register")
     
+    groups: Mapped[list["Group"]] = relationship('Group', secondary=register_group, primaryjoin=register_group.c.register_id==id, secondaryjoin=register_group.c.group_id==Group.id, order_by="desc(Group.text)") 
     r_groups: Mapped[str] = mapped_column(db.String(200), default=False)
     
     in_pattern: Mapped[str] = mapped_column(db.String(200), default='')
@@ -864,22 +901,32 @@ class Register(RegisterHtml,db.Model):
             self.users.append(RegisterUser(user_id=c_user.id,register_id=self.id,access=value))
         
         db.session.commit()
+    
+    def add_group(self,group):
+        group = db.session.scalar(select(Group).where(Group.text==group))
+        if group and not group in self.groups:
+            self.groups.append(group)
+            db.session.commit()
+            
+    def del_group(self,group):
+        group = db.session.scalar(select(Group).where(Group.text==group))
+        if group in self.groups:
+            self.groups.remove(group)
+
+            db.session.commit()
 
     @hybrid_method
     def contains_group(cls,group):
         return cls.r_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
 
-    @property
-    def groups(self):
-        return [g.strip() for g in self.r_groups.split(",")]
-    
     @hybrid_property
     def permissions(self): # it is only for full register not subregister
+        return db.session.scalar(select(RegisterUser.access).where(RegisterUser.register_id==self.id,RegisterUser.user_id==current_user.id))
         return next((user.access for user in self.users if user.user_id == current_user.id), None)
     
     @permissions.expression
     def permissions(cls):
-        return cls.users.any(and_(RegisterUser.user_id==current_user.id,RegisterUser.access!=''))
+        return select(RegisterUser.access).where(RegisterUser.register_id==cls.id,RegisterUser.user_id==current_user.id).scalar_subquery()
 
     def get_subregisters(self,ids=False):
         if self.alias == 'ctr':
@@ -896,10 +943,10 @@ class Register(RegisterHtml,db.Model):
 
     def unread(self,sb=""):
         if sb:
-            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='sent',Note.register_id==self.id,Note.flow=='out',Note.has_target(sb),not_(Note.result('is_read')))))
         else:
             if 'permanent' in current_user.groups:
-                return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
+                return db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='registered',Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
         
-            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.state>=5,Note.permanent==False,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
+            return db.session.scalar(select(func.count(Note.id)).where(and_(Note.status=='registered',Note.permanent==False,Note.register_id==self.id,Note.flow=='in',not_(Note.result('is_read')))))
 

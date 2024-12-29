@@ -1,11 +1,11 @@
-{% if current_user.alias == 'antonio' %}
+{% if current_user.alias == 'antonio-' %}
 <form class=form-group">
     <div class="sortable d-inline-flex flex-wrap">
-    {% for status in note.status %}
-      {% if status.target %}
+    {% for user in note.users %}
+      {% if user.target %}
         <div class="d-inline-flex border rounded-pill p-0 me-1" role="button">
           <i class="bi bi-person-circle text-secondary p-0"></i>
-          <span class="mx-1 p-0">{{status.user.alias}}</span>
+          <span class="mx-1 p-0">{{user.user.alias}}</span>
           <i class="bi bi-x text-secondary p-0"></i>
         </div>
       {% endif %}

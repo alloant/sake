@@ -56,17 +56,17 @@ def fill_form_note(reg,form,note, filter = ""):
     bar_put = False
     bar_needed = False
     
-    for i,status in enumerate(note.status):
-        if status.target:
+    for i,user in enumerate(note.users):
+        if user.target:
             if note.reg == 'mat' and previous_order != -1:
-                if previous_order == status.target_order: # Two with same order, then is needed
+                if previous_order == user.target_order: # Two with same order, then is needed
                     bar_needed = True
 
-                if bar_needed and not bar_put and status.target_order != previous_order:
+                if bar_needed and not bar_put and user.target_order != previous_order:
                     form.receiver.data.append('---')
                     bar_put = True
 
-            form.receiver.data.append(status.user.alias)
+            form.receiver.data.append(user.user.alias)
 
             previous_order = status.target_order
 
@@ -99,7 +99,7 @@ def extract_form_note(reg,form,note):
     if reg[2] or note.flow == 'in':
         form.sender.choices = [note.sender]
     else:
-        form.sender.choices = db.session.scalars(select(User).where(and_(User.contains_group('cr'),User.active==1))).all()
+        form.sender.choices = db.session.scalars(select(User).where(and_(User.category.in_(['dr','of']),User.active==1))).all()
 
     form.proc.choices = ['Routine','Ordinary','Not ordinary','Consultative','Deliberative','Extraordinary']
 
@@ -153,25 +153,23 @@ def extract_form_note(reg,form,note):
                 note.toggle_status_attr('target',user=rec)
 
         dash_position = session['rst_checkbox'].index('---') if '---' in session['rst_checkbox'] else -1
-        for status in note.status:
-            pos = session['rst_checkbox'].index(status.user.alias) if status.user.alias in session['rst_checkbox'] else -1
+        for user in note.users:
+            pos = session['rst_checkbox'].index(user.user.alias) if user.user.alias in session['rst_checkbox'] else -1
             if pos == -1:
-                status.target = False
+                user.target = False
             else:
-                status.target_order = pos if pos > dash_position else dash_position
+                user.target_order = pos if pos > dash_position else dash_position
 
-        if note.reg == 'mat' and note.state == 5:
-            for state in note.status:
-                if not state.target_acted:
-                    note.state = 1
+        if note.reg == 'mat' and note.status in ['approved','denied']:
+            for user in note.users:
+                if not user.target_acted:
+                    note.status = 'shared'
                     break
 
         current_refs = []
         if form.ref.data != "" and not isinstance(form.ref.data,list):
             for ref in form.ref.data.split(","):
-                print('ref',ref)
                 nt = get_note_fullkey(ref.strip())
-                print(nt)
                 if nt:
                     if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
                         current_refs.append(nt.fullkey)

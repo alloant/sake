@@ -12,30 +12,32 @@
   {% endif %}
 {% elif note.reg == 'mat' %}
   {% if note.sender_id == current_user.id %}
-    {% if note.state == 0 %}
+    {% if note.status == 'draft' %}
       <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('The proposal is in your hands')}}"></i></span>
-    {% elif note.state < 5 %}
+    {% elif note.status == 'shared' %}
       <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
-    {% elif note.state == 5 %}
+    {% elif note.status == 'approved' %}
       <span><i class="bi bi-hand-thumbs-up-fill text-success" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
-    {% else %}
+    {% elif note.status == 'denied' %}
+      <span><i class="bi bi-hand-thumbs-down-fill text-danger" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
+    {% elif note.archived %}
       <span><i class="bi bi-check-circle-fill" data-toggle="tooltip" title="{{gettext('The proposal is done and archived')}}"></i></span>
     {% endif %}
   {% else %}
-    {% if note.state < 5 %}
+    {% if note.status == 'shared' %}
       {% if note.result('is_current_target') %}
         <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Is your turn to study the proposal')}}"></i></span>
       {% else %}
         <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
       {% endif %}
-    {% elif note.state == 5 %}
+    {% elif note.status in ['approved','denied'] %}
       <span><i class="bi bi-hourglass-bottom" style="color: gray;" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
     {% else %}
       <span><i class="bi bi-check-circle" data-toggle="tooltip" title="{{gettext('The proposal has been archived')}}"></i></span>
     {% endif %}
   {% endif %}
 {% elif reg[0] == 'box' and reg[1] == 'in' %}
-  {% if note.state < 2 %}
+  {% if note.status == 'queued' %}
       <span><i class="bi bi-patch-exclamation" data-toggle="tooltip" title="{{gettext('Note in inbox')}}"></i></span>
   {% else %}
       <span><i class="bi bi-check-circle text-muted" data-toggle="tooltip" title="{{gettext('Note sent')}}"></i></span>
@@ -43,16 +45,16 @@
 {% else %}
   {% if note.flow == 'in' %}
     {% with fill = '-fill' if note.is_involve(reg,current_user) else '' %}
-      {% if note.state == 6 %}
+      {% if note.archived %}
         <span><i class="bi bi-check-circle{{fill}} text-muted" data-toggle="tooltip" title="{{gettext('Archived')}}"></i></span>
       {% else %}
         <span><i class="bi bi-patch-exclamation{{fill}}" data-toggle="tooltip" title="{{gettext('To be done')}}"></i></span>
       {% endif %}
     {% endwith %}
   {% else %}
-    {% if note.state == 0 %}
+    {% if note.status == 'draft' %}
       <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Note is in preparation')}}"></i></span>
-    {% elif note.state == 1 %}
+    {% elif note.status == 'queued' %}
       <span><i class="bi bi-hourglass-split text-muted" data-toggle="tooltip" title="{{gettext('Note sent to sccr')}}"></i></span>
     {% else %}
       <span><i class="bi bi-send-check text-muted" data-toggle="tooltip" title="{{gettext('The note has been sent to destination')}}"></i></span>

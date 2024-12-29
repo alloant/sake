@@ -102,11 +102,11 @@ class NoteHtml(object):
         working = []
         waiting = []
 
-        for user in self.status:
+        for user in self.users:
             if user.target:
                 if user.target_acted:
                     done.append(user.user.alias)
-                elif user.target_order == self.current_target_order and self.state > 0:
+                elif user.target_order == self.current_target_order and self.status == 'shared':
                     working.append(user.user.alias)
                 else:
                     waiting.append(user.user.alias)

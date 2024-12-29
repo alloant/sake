@@ -60,7 +60,7 @@ class NoteForm(FlaskForm):
             self.comments.render_kw = {"disabled": False}
             self.proc.render_kw = {"disabled": False}
             self.permanent.render_kw = {"disabled": False}
-        elif user.admin or note.state == 0 or note.permissions('can_edit') or reg[0] in ['box','des']:
+        elif user.admin or note.status == 'draft' or note.permissions('can_edit') or reg[0] in ['box','des']:
             self.n_date.render_kw = {"disabled": False}
             self.content.render_kw = {"disabled": False}
             self.content_jp.render_kw = {"disabled": False}

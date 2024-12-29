@@ -32,8 +32,8 @@
         </a>
       </li>
     {% endif %}
-  {% elif note.state < 6 %}
-    {% if note.state == 0 %}
+  {% elif not note.archived %}
+    {% if note.status == 'draft' %}
       <li><hr class="dropdown-divider"></li>
       <li>
         <a  class="dropdown-item ms-1"
@@ -75,7 +75,7 @@
           <i class="bi bi-send"></i> {{gettext('Send to sccr')}}
         </a>
       </li>
-    {% elif note.state == 1 %}
+    {% elif note.status == 'queued' %}
       <li><hr class="dropdown-divider"></li>
       <li>
         <a  class="dropdown-item"
@@ -92,7 +92,7 @@
 
   {% endif %}
 
-  {% if note.flow == 'out' and note.state >= 5 %}
+  {% if note.flow == 'out' and note.status == 'sent' %}
     <li><hr class="dropdown-divider"></li>
     {% if note.result('is_done',session['ctr']) %}
       <li>
@@ -136,7 +136,7 @@
   {% endif %}
 
 
-  {% if current_user.admin or note.state == 0 or reg[1] == 'in' %}
+  {% if current_user.admin or note.status == 'draft' or reg[1] == 'in' %}
     <li><hr class="dropdown-divider"></li>
     <li>
       <a  class="dropdown-item"

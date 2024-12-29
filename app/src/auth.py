@@ -63,8 +63,6 @@ def signup():
             user.name = form.name.data
             user.alias = form.alias.data
             user.email = form.email.data
-            #user.password = generate_password_hash(form.password.data,method='scrypt')
-            #user.password_nas = cipher.encrypt(str.encode(form.password.data))
             user.set_setting('password',generate_password_hash(form.password.data,method='scrypt'))
             user.set_setting('password_nas',cipher.encrypt(str.encode(form.password.data)))
 
@@ -78,11 +76,9 @@ def signup():
                         flash('User is not in Synology','warning')
                         return render_template('auth/auth.html', login=False, form=form)
             
-                groups = 'Aes-of' if alias[0] == 'of' else alias[1]
+                category = 'of' if alias[0] == 'of' else 'cl'
 
-            # create new user with the form data. Hash the password so plaintext version isn't saved.
-            #new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, u_groups=groups, password=generate_password_hash(form.password.data), password_nas=cipher.encrypt(str.encode(form.password.data)))
-            new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, u_groups=groups)
+            new_user = User(name=form.name.data,alias=form.alias.data, email=form.email.data, category=category)
             
             # add the new user to the database
             db.session.add(new_user)
@@ -122,9 +118,9 @@ def list_users():
     output = request.form.to_dict()
 
     if 'search' in output:
-        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.u_groups.regexp_match(r'\bsake\b'))).order_by(User.alias))
+        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.category.in_(['dr','of']))).order_by(User.alias))
     else:
-        users = db.session.scalars(select(User).where(User.u_groups.regexp_match(r'\bsake\b')).order_by(User.alias))
+        users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
 
     return render_template('users/list_users.html', users=users)
 
@@ -135,7 +131,7 @@ def main_users():
     if not ('admin' in current_user.groups or 'scr' in current_user.groups):
         return redirect(request.referrer)
 
-    users = db.session.scalars(select(User).where(User.u_groups.regexp_match(r'\bsake\b')).order_by(User.alias))
+    users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
 
     return render_template('users/main.html', users=users)
 
@@ -168,7 +164,6 @@ def edit_user():
         
         if 'admin' in current_user.groups:
             user.local_path = form.local_path.data
-            #user.u_groups = form.u_groups.data
        
             user.active = form.active.data
             user.admin_active = form.admin_active.data

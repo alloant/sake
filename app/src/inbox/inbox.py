@@ -78,7 +78,7 @@ def action_inbox_view(request):
             sdate = datetime.strptime(dates[0],"%m/%d/%Y")
             edate = datetime.strptime(dates[1],"%m/%d/%Y")
             
-            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.state==6))
+            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.status=='sent'))
             path = f"{current_user.local_path}/Outbox"
             dates = f"{sdate.strftime('%d/%m/%Y')} - {edate.strftime('%d/%m/%Y')}"
            
@@ -92,10 +92,8 @@ def action_inbox_view(request):
             from app.src.tools.tools import toNewNotesStatus
             toNewNotesStatus()
         case 'notes_in_folder':
-            notes = db.session.scalars(select(Note).where(Note.state>=5,Note.reg.in_(['cg','asr','ctr','r']),not_(Note.path.contains('team-folders/Data'))))
+            notes = db.session.scalars(select(Note).where(Note.status.in_(['registered','sent']),Note.reg.in_(['cg','asr','ctr','r']),not_(Note.path.contains('team-folders/Data'))))
             for note in notes:
-                #rst = note.move(f'/team-folders/Data/Notes/{note.year}/{note.reg} {note.flow}')
-                #print(rst)
                 rst = note.get_info
                 if rst:
                     note.path = rst['data']['display_path']
@@ -120,11 +118,7 @@ def inbox_main_view(request):
     sql = select(File).where(File.note_id == None)
     files = db.paginate(sql, per_page=25)
     
-    ctr_notes = db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==0))),db.session.scalar(select(func.count(Note.id)).where(and_(Note.flow=='in',Note.reg=='ctr',Note.state==1)))
-    
-    notes = db.session.scalars(select(Note).where(Note.flow=='in',Note.reg=='ctr',Note.state==1))
-    
-    res = make_response(render_template('inbox/main.html',title=title, files=files, ctr_notes=ctr_notes,notes=notes))
+    res = make_response(render_template('inbox/main.html',title=title, files=files))
     res.headers['HX-Trigger'] = 'update-main'
 
     return res
@@ -188,17 +182,17 @@ def import_asr():
         db.session.commit()
 
 def import_ctr(id_note = None):
-    # Searching for notes sent by the ctr. reg = ctr, flow = in and state = 1
+    # Searching for notes sent by the ctr. reg = ctr, flow = in and status = queued
     sender = aliased(User,name="sender_user")
     if id_note:
         notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(Note.id==id_note))
     else:
-        notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='ctr',Note.flow=='in',Note.state==1)))
+        notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='ctr',Note.flow=='in',Note.status=='queued')))
 
     for note in notes:
         rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/ctr in/")
         if rst:
-            note.state = 3
+            note.status = 'despacho'
             note.n_date = date.today()
         else:
             flash(f"Could not move note {note} to its destination")
@@ -247,7 +241,7 @@ def generate_notes(output):
             if rst:
                 if not note in involved_notes:
                     involved_notes.append(note)
-                note.state = 1   
+                note.status = 'queued'
                 flash(f"{file} was added to {note}")
         else: # We need to create a new note
             # First get the content if possible, if not empty
@@ -271,8 +265,8 @@ def generate_notes(output):
                 year = re.findall(r'\d+',fullkey)[1]
                 is_ref = False
 
-            # The state is 1 because they all go to inbox
-            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,state=1,content=content,is_ref=is_ref)
+            # The status is queued because they all go to inbox
+            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref)
 
             note.addFile(file)
             # I put the date of the note

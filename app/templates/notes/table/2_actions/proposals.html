@@ -1,5 +1,5 @@
-{% if note.sender_id == current_user.id and note.state < 6 %}
-  {%if note.state == 0 %}
+{% if note.sender_id == current_user.id and note.status != 'sent' %}
+  {%if note.status == 'draft' %}
     <li>
       <a class="dropdown-item"
       hx-post="/action_note?action=start_circulation&reg={{reg}}&note={{note.id}}"
@@ -22,7 +22,7 @@
       </a>
     </li>
   
-  {% elif note.state == 1 %}
+  {% elif note.status == 'queued' %}
     <li>
       <a class="dropdown-item"
       hx-post="/action_note?action=stop_circulation&reg={{reg}}&note={{note.id}}"

@@ -1,5 +1,5 @@
 <span id="row_{{note.id}}_files">
-{% if note.flow == 'in'  and note.state == 0 %}  
+{% if note.flow == 'in'  and note.status == 'draft' %}  
   <a  class="text-decoration-none ms-1"
       hx-get="browse_files?reg={{reg}}&note={{note.id}}" 
       hx-target="#modal-htmx" 

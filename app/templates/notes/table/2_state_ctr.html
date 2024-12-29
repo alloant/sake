@@ -5,9 +5,9 @@
     <span><i class="bi bi-x-circle-fill" data-toggle="tooltip" title="To be done"></i></span>
   {% endif %}
 {% else %}
-  {% if note.state == 0 %}
+  {% if note.status == 'draft' %}
     <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="The cl is working on the note"></i></span>
-  {% elif note.state == 1 %}
+  {% elif note.status == 'queued' %}
     <span><i class="bi bi-hourglass-split text-muted" data-toggle="tooltip" title="The note has been sent to sccr but he has note received it yet"></i></span>
   {% else %}
     <span><i class="bi bi-send-check text-muted" data-toggle="tooltip" title="sccr has received the note"></i></span>

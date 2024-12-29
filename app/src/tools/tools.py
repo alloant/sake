@@ -11,16 +11,55 @@ from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
-from app.src.models import User, Note, Register, NoteStatus, Group
+from app.src.models import User, Note, Register, NoteUser, Group
 
 from app.src.tools.mail import send_email, send_emails
 
 def toNewNotesStatus():
 
+    notes = db.session.scalars(select(Note)).all()
     users = db.session.scalars(select(User)).all()
     ctrs = db.session.scalars(select(User).where(User.contains_group('ctr'))).all()
     registers = db.session.scalars(select(Register)).all()
     groups = db.session.scalars(select(Group)).all()
+
+    #for register in registers:
+    #    for group in register.r_groups.split(','):
+    #        if not group in register.groups:
+    #            register.add_group(group)
+
+    for note in notes:
+        note.archived = False
+        if note.reg == 'mat':
+            if note.state == 0:
+                note.status = 'draft'
+            elif note.state < 5:
+                note.status = 'shared'
+            elif note.state == 5:
+                note.status = 'approved'
+            elif note.state == 6:
+                note.status = 'approved'
+                note.archived = True
+        elif note.flow == 'in':
+            if note.state == 0: # In inbox
+                note.status = 'draft'
+            elif note.state == 1: # In inbox
+                note.status = 'queued'
+            elif note.state < 5:
+                note.status = 'despacho'
+            elif note.state == 5:
+                note.status = 'registered'
+            elif note.state == 6:
+                note.status = 'registered'
+                note.archived = True
+        elif note.flow == 'out':
+            if note.state == 0:
+                note.status = 'draft'
+            elif note.state < 5: # outbox
+                note.status = 'queued'
+            elif note.state == 6:
+                note.status = 'sent'
+
 
     for user in users:
         user.set_setting('password',user.password)
@@ -58,11 +97,11 @@ def toNewNotesStatus():
         else:
             user.category = 'contact'
             for reg in registers:
-                if f'ct_{reg.alias}' in user.groups:
+                if f'ct_{reg.alias}' in user.u_groups.split(','):
                     reg.set_user_access('contact',user)
         
         for ctr in ctrs:
-            if f'v_ctr_{ctr.alias}' in user.groups:
+            if f'v_ctr_{ctr.alias}' in user.u_groups.split(','):
                 if not ctr in user.ctrs:
                     user.ctrs.append(ctr)
 
@@ -120,8 +159,8 @@ def delete_note(note_id):
     #for rec in note.receiver:
     #    note.receiver.remove(rec)
 
-    for status in note.status:
-        db.session.delete(status)
+    for user in note.users:
+        db.session.delete(user)
     
     db.session.commit()
 

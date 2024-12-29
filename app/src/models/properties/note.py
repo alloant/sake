@@ -16,7 +16,7 @@ class NoteProp(object):
     def light_row(self,reg):
         if self.reg == 'mat':
             if self.sender_id == current_user.id:
-                if self.state in [1,6]:
+                if self.status == 'shared' or self.archived:
                     return "fw-light"
             else:
                 if not self.result('is_current_target'):
@@ -74,15 +74,15 @@ class NoteProp(object):
                 elif self.register.permissions == 'editor':
                     return True
                 elif self.sender_id == current_user.id:
-                    if self.register.alias == 'mat' and self.state in [0,5]:
+                    if self.register.alias == 'mat' and self.status in ['draft','approved','denied']:
                         return True
-                    elif self.state < 6:
+                    elif not self.archived:
                         return True
             case 'can_assign_permissions':
                 if current_user.admin or 'despacho' in current_user.groups:
                     return True
             case 'can_edit_files':
-                if self.sender_id == current_user.id and self.state < 6 or current_user.admin:
+                if self.sender_id == current_user.id and not self.status or current_user.admin:
                     return True
             case 'can_read':
                 if self.register.alias == 'mat':
@@ -95,15 +95,13 @@ class NoteProp(object):
             case 'can_archive':
                 if self.register.alias == 'mat':
                     if self.sender_id == current_user.id:
-                        if self.state >= 5 or not self.receiver:
+                        if self.status in ['approved','denied'] or not self.receiver:
                             return True
                 else:
-                    if self.state < 5:
-                        return False
-                    elif self.is_target() or self.register.permissions == 'editor':
+                    if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
                         return True
             case 'can_send':
-                return self.sender_id == current_user.id and self.state < 2
+                return self.sender_id == current_user.id and self.status == 'draft'
             case 'can_check_info':
                 if self.register.alias == 'mat':
                     return False
@@ -169,7 +167,6 @@ class NoteProp(object):
                 pattern = self.register.out_pattern.split('|')[-1].strip(' ^$')
 
         prot = eval(fr"f'{pattern}'")
-
         return f"{prot} {self.num}/{self.year-2000}"
 
     @property
@@ -183,7 +180,7 @@ class NoteProp(object):
                 return 3
             else:
                 return 1
-        elif self.sender_id == current_user.id and self.state in [0,5]: #My proposal and I have to do something because is new or reviewed
+        elif self.sender_id == current_user.id and self.status in ['draft','approved','denied']: #My proposal and I have to do something because is new or reviewed
             return 2
         elif self.sender_id != current_user.id and self.result('is_current_target'): #My turn to review
             return 1
@@ -195,7 +192,7 @@ class NoteProp(object):
         return case (
             #(and_(cls.reg!='mat',cls.result('is_read')),2),
             (cls.reg!='mat',1),
-            (and_(or_(cls.state==0,cls.state==5),cls.sender==current_user),2),
+            (and_(or_(cls.status=='draft',cls.status=='approved',cls.status=='denied'),cls.sender==current_user),2),
             (and_(cls.result('is_target'),cls.current_target_order==cls.result('target_order')),1),
             else_=3,
         )

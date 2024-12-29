@@ -10,10 +10,6 @@ from flask_babel import gettext
 
 class UserProp(object):
     @property
-    def groups(self):
-        return self.u_groups.split(',') if self.u_groups else []
-
-    @property
     def admin(self):
         if 'admin' in self.groups and self.admin_active:
             return True

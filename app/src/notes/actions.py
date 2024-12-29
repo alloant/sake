@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import ast
+import io
 import re
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -24,8 +25,9 @@ from app.src.notes.renders import render_main_body, render_body_element
 from app.src.tools.tools import newNote, send_emails, delete_note
 from app.src.tools.syneml import write_eml
 
-from app.src.models.nas.nas import toggle_share_permissions
-from app.src.models.nas.nas import copy_path, copy_office_path
+from app.src.models.nas.nas import copy_path, copy_office_path, toggle_share_permissions, delete_path, upload_path, convert_office
+
+EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 
 def action_note_view(request,template):
     reg = request.args.get('reg')
@@ -109,6 +111,13 @@ def action_note_view(request,template):
             note_id = request.args.get('note')
             delete_note(note_id)
             note_id = None
+        case 'delete_file':
+            note_id = request.args.get('note')
+            file_id = request.args.get('file')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            file = db.session.scalar(select(File).where(File.id==file_id))
+            delete_path(f'{note.folder_path}/{file.path}')
+            return update_files(reg,note_id)
         case 'edit_note':
             note_id = request.args.get('note')
             output = request.form.to_dict()
@@ -127,6 +136,31 @@ def action_note_view(request,template):
                 update_files(reg,note_id)
             else:
                 return update_files(reg,note_id)
+        case 'upload_files':
+            print('upload_files')
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            if request.method == 'POST':
+                print('post')
+                files = request.files.getlist('files')
+                checkboxes = request.form.getlist('checkboxes')
+                print(checkboxes)
+                for file in files:
+                    print(file.filename,note.folder_path)
+                    b_file = io.BytesIO(file.read())
+                    b_file.name = file.filename
+                    rst = upload_path(b_file,note.folder_path)
+                    if rst and 'convert' in checkboxes:
+                        if file.filename.split(".")[-1] in EXT.keys():
+                            convert_office(rst['data']['display_path'])
+                            if 'delete' in checkboxes:
+                                print('we are going to delete')
+                                delete_path(f'{note.folder_path}/{file.filename}')
+
+                return update_files(reg,note_id)
+            else:
+                return render_template('modals/modal_upload_files.html',note=note)
+
         case 'new_from_template':
             template = request.args.get('template')
             note_id = request.args.get('note')
@@ -157,12 +191,12 @@ def action_note_view(request,template):
 
 def send_to_box(reg,note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    users = db.session.scalars(select(User).where(User.contains_group('scr')))
+    users = db.session.scalars(select(User).where(User.groups.any(Group.txt=='scr')))
     if back:
-        note.state = 0
+        note.status = 'draft'
         updateSocks(users,"")
     else:
-        note.state = 1
+        note.status = 'queued'
         update_files(reg,note_id)
         updateSocks(users,f"There is new mail in {note.flow}box")
 
@@ -172,31 +206,31 @@ def circulation_proposal(note_id,action):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     match action:
         case 'start':
-            note.state = 1
+            note.status = 'shared'
         case 'stop':
-            note.state = 0
+            note.status = 'draft'
         case 'restart':
-            note.state = 0
-            for status in note.status:
-                status.target_acted = False
+            note.status = 'draft'
+            for user in note.users:
+                user.target_acted = False
         case 'forward':
             if note.result('num_sign_proposal') == note.result('num_target') - 1:
-                note.state = 5
+                note.status = 'approved'
             note.toggle_status_attr('target_acted')
         case 'back':
-            note.state = 0
+            note.status = 'denied'
         case 'reset':
-            note.state = 0
-            for status in note.status:
-                status.target_acted = False
+            note.status = 'draft'
+            for user in note.users:
+                user.target_acted = False
  
     users = note.receiver + [note.sender]
     updateSocks(users,"")
 
     db.session.commit()
 
-    if action in ['start','forward'] and note.state == 1:
-        targets = [status.user for status in note.status if note.result('is_current_target',status.user)]
+    if action in ['start','forward'] and note.status == 'shared':
+        targets = [user.user for user in note.users if note.result('is_current_target',user.user)]
         send_emails(note,kind='proposal',targets=targets)
 
 
@@ -209,14 +243,14 @@ def toggle_archive(note_id,is_ctr=False):
                 note.toggle_status_attr('target_acted',ctr)
         else:
             note.toggle_status_attr('target_acted')
-            if note.state == 6:
+            if note.archived:
                 if note.register.alias == 'mat':
                     toggle_share_permissions(note.folder_path,'editor')
-                note.state = 5
+                note.archived = False
             else:
                 if note.register.alias == 'mat':
                     toggle_share_permissions(note.folder_path,'viewer')
-                note.state = 6
+                note.archived = False
         
         db.session.commit()
 
@@ -247,7 +281,7 @@ def notes_from_cg(notes_page=None):
 
 def mark_as_sent(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    note.state = 6
+    note.status = 'sent'
     db.session.commit()
 
 
@@ -259,14 +293,14 @@ def sign_despacho(note_id,back):
     db.session.commit()
 
     if note.result('num_sign_despacho') > 1:
-        note.state = 5
+        note.status = 'registered'
         db.session.commit()
 
-    if note.state == 5:
-        users = db.session.scalars(select(User).where(User.contains_group('cr')))
+    if note.status == 'registered':
+        users = db.session.scalars(select(User).where(User.groups.any(Group.text=='cr')))
         send_emails(note,kind='from despacho')
     else:
-        users = db.session.scalars(select(User).where(User.contains_group('despacho')))
+        users = db.session.scalars(select(User).where(User.groups(Group.text=='despacho')))
 
     updateSocks(users,'')
 
@@ -276,11 +310,11 @@ def outbox_to_target(note_id=None,back=False):
     if note_id:
         notes = db.session.scalars(select(Note).where(Note.id==note_id)).all()
     else:
-        notes = db.session.scalars(select(Note).where(Note.flow=='out',Note.state==1)).all()
+        notes = db.session.scalars(select(Note).where(Note.flow=='out',Note.status=='queued')).all()
 
     for note in notes:
         if back:
-            note.state = 0
+            note.status = 'draft'
         else:
             if note.register.alias in ['cg','r'] and note_id or note.register.alias in ['asr','ctr']: #Here only when you choose one note
                 if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
@@ -288,15 +322,15 @@ def outbox_to_target(note_id=None,back=False):
                     continue
             
             if note.register.alias in ['cg','r'] and note_id:
-                note.state = 6
+                note.status = 'sent'
             elif note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
-                note.state = 6
+                note.status = 'sent'
             elif note.register.alias == 'ctr':
                 send_emails(note)
-                note.state = 6
+                note.status = 'sent'
     
-    users = db.session.scalars(select(User).where(User.contains_group('scr')))
+    users = db.session.scalars(select(User).where(User.groups(Group.text=='scr')))
     updateSocks(users,'')
 
     db.session.commit()
@@ -304,12 +338,6 @@ def outbox_to_target(note_id=None,back=False):
 
 def download_eml(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-
-    #if note.state < 6:
-    #    if note.reg in ['vc','vcr','dg','cc','desr']:
-    #        rst = note.move(f"/team-folders/Mail {note.reg}/Notes/{note.year}/{note.reg} out")
-    #    else:
-    #        rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out")
 
     if note.reg in ['cg','dg','cc','desr']:
         rec = "cg@cardumen.lan"
@@ -326,19 +354,19 @@ def inbox_to_despacho(note_id=None,back=False):
     if note_id:
         notes = db.session.scalars(select(Note).where(Note.id==note_id)).all()
     else:
-        notes = db.session.scalars(select(Note).where(Note.flow=='in',Note.state==1)).all()
+        notes = db.session.scalars(select(Note).where(Note.flow=='in',Note.status=='queued')).all()
 
     for note in notes:
         if back:
-            note.state = 0
+            note.status = 'draft'
         elif note.register.alias == 'ctr':
             import_ctr(note.id)
         elif 'despacho' in note.register.r_groups.split(','):
-            note.state = 3
+            note.status = 'despacho'
         else: # If it is not for despacho is a personal register and we send it to the final place
-            note.state = 5
+            note.status = 'registered'
 
-    users = db.session.scalars(select(User).where(or_(User.contains_group('scr'),User.contains_group('despacho'))))
+    users = db.session.scalars(select(User).where(or_(User.groups(Group.text=='scr'),User.groups(Group.text=='despacho'))))
     updateSocks(users,'')
 
     db.session.commit()
@@ -351,7 +379,7 @@ def new_note(reg):
     choices = []
     for group in ['cr','ct_cg','ct_asr','ct_ctr','ct_r']:
         rg = group if group == 'cr' else group[3:]
-        choices += [f"{rg} - {user.alias}" for user in db.session.scalars(select(User).where(User.active==1,User.contains_group(group)).order_by(User.alias)).all()]
+        choices += [f"{rg} - {user.alias}" for user in db.session.scalars(select(User).where(User.active==1,User.groups(Group.text==group)).order_by(User.alias)).all()]
     form.sender.choices = choices
     form.reg.choices = ['cg','asr','ctr','r']
     return render_template('modals/modal_edit_note.html',note=None,dnone=dnone,form=form, reg=reg)
@@ -390,11 +418,11 @@ def get_info(note_id,reg):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     if reg[2] or not reg[2] and note.flow == 'in':
         if reg[2]:
-            people = db.session.scalars(select(User).where(User.contains_group(f'v_ctr_{reg[2]}')).order_by(User.name))
+            people = db.session.scalars( select(User).where(User.ctrs.any(User.alias==reg[2])).order_by(User.name) )
         else:
-            fn = [and_(User.contains_group('cr'),not_(User.contains_group('of')))]
+            fn = [User.category=='dr']
             has_access = note.privileges.split(',') + [user.alias for user in note.receiver]
-            fn.append(and_(User.contains_group('of'),User.alias.in_(has_access)))
+            fn.append(and_(User.category=='of',User.alias.in_(has_access)))
             people = db.session.scalars(select(User).where(and_(User.active==True,or_(*fn))).order_by(User.name))
 
         rst_yes = []
@@ -417,7 +445,7 @@ def get_info(note_id,reg):
         for ctr in ctrs:
             rst[ctr.alias] = {}
             rst[ctr.alias]['archived'] = note.result('is_done',ctr)
-            people = db.session.scalars(select(User).where(User.contains_group(f'v_ctr_{ctr.alias}')).order_by(User.name))
+            people = db.session.scalars(select(User).where(User.ctrs.any(User.alias==ctr.alias)).order_by(User.name))
             rst_yes = []
             rst_no = []
             for user in people:
@@ -459,17 +487,17 @@ def visibility_note_form(reg,note):
     return dnone
 
 def import_ctr(id_note = None):
-    # Searching for notes sent by the ctr. reg = ctr, flow = in and state = 1
+    # Searching for notes sent by the ctr. reg = ctr, flow = in and status = draft
     sender = aliased(User,name="sender_user")
     if id_note:
         notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(Note.id==id_note))
     else:
-        notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='ctr',Note.flow=='in',Note.state==1)))
+        notes = db.session.scalars(select(Note).join(Note.sender.of_type(sender)).where(and_(Note.reg=='ctr',Note.flow=='in',Note.status=='queued')))
 
     for note in notes:
         rst = note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/ctr in/")
         if rst:
-            note.state = 3
+            note.status = 'despacho'
             note.n_date = date.today()
         else:
             flash(f"Could not move note {note} to its destination")

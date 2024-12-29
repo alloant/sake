@@ -18,8 +18,8 @@
           <i class="bi bi-envelope-open-fill"></i>
         </a>
     {% endif %}
-{% elif note.state < 6 %}
-    {% if note.state == 0 %}
+{% elif not note.archived %}
+    {% if note.status == 'draft' %}
         <a  class="text-decoration-none"
             hx-post="/action_note?action=send_to_box&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
@@ -31,7 +31,7 @@
             role="button">
           <i class="bi bi-send text-warning"></i>
         </a>
-    {% elif note.state == 1 %}
+    {% elif note.status == 'queued' %}
         <a  class="text-decoration-none"
             hx-post="/action_note?action=send_to_box&back=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
@@ -47,7 +47,7 @@
 
 {% endif %}
 
-{% if note.flow == 'out' and note.state >= 5 %}
+{% if note.flow == 'out' and note.status == 'sent' %}
     {% if note.result('is_done',session['ctr']) %}
           <a  class="text-decoration-none"
             hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
@@ -75,7 +75,7 @@
     {% endif %}
 {% endif %}
 
-{% if current_user.admin or note.state == 0 or reg[1] == 'in' %}
+{% if current_user.admin or note.status == 'draft' or reg[1] == 'in' %}
   <a  class="text-decoration-none"
       hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
       hx-trigger="click"

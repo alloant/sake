@@ -1,8 +1,8 @@
-{% for status in note.status %}
-  {% if status.target %}
+{% for user in note.users %}
+  {% if user.target %}
     <div class="d-inline-flex border rounded-pill px-2 py-0 m-1" role="button">
       <i class="bi bi-person-circle text-secondary"></i>
-      <span class="mx-1">{{status.user.alias}}</span>
+      <span class="mx-1">{{user.user.alias}}</span>
       <span class="">x</span>
     </div>
   {% endif %}

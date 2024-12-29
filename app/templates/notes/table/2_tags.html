@@ -1,9 +1,9 @@
 <!-- Tags-->
 {% if current_user.admin or reg[0] in ['box','des'] or note.register.permissions == 'editor'
-    or note.sender_id == current_user.id and note.state < 1 and note.register.alias != 'mat' 
-    or note.sender_id == current_user.id  and note.state < 6 and note.register.alias == 'mat' 
-    or 'scr' in current_user.groups and note.state == 1 and note.flow == 'out' 
-    or 'despacho' in current_user.groups and note.state < 5 and note.flow == 'in' %}
+    or note.sender_id == current_user.id and note.status == 'draft' and note.register.alias != 'mat' 
+    or note.sender_id == current_user.id  and not note.archived and note.register.alias == 'mat' 
+    or 'scr' in current_user.groups and note.status == 'queued' and note.flow == 'out' 
+    or 'despacho' in current_user.groups and note.status == 'despacho' and note.flow == 'in' %}
   <a 
     hx-get="/edit_tags?note={{note.id}}" 
     hx-target="#modal-htmx" 

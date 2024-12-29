@@ -3,7 +3,7 @@
 <fieldset class="form-group">
 
 <div class="container">
-  {% if not reg[2] and (note.flow == 'out' and note.register.get_contacts()|length > 1 or despacho or current_user.admin or note.register.alias == 'mat') %}
+  {% if not reg[2] and (note.flow == 'out' and note.register.get_num_contacts > 1 or note.flow == 'in' and (despacho or current_user.admin) or note.register.alias == 'mat') %}
     <div class="row">
       <div class="col-5">
         {% include 'notes/form_edit_note_fields.html' %}

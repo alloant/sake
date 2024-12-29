@@ -15,7 +15,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Note, User, Register, File, NoteStatus
+from app.src.models import Note, User, Register, File, NoteUser, Group
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note
 
@@ -57,92 +57,104 @@ def register_filter(reg,filter = ""):
         fn.append(Note.reg!='mat')
         fn.append(Note.flow=='in')
         fn.append(Note.result('num_sign_despacho')<2)
-        fn.append(Note.register.has(Register.contains_group('despacho')))
-        fn.append(Note.state>1)
+        fn.append(Note.register.has(Register.groups.any(Group.text=='despacho')))
+        fn.append(Note.status == 'despacho')
     elif reg[0] == 'box' and reg[1] == 'out': # Es outbox
         fn.append(Note.reg!='mat')
         fn.append(Note.flow=='out')
-        fn.append(Note.state==1)
+        fn.append(Note.status=='queued')
     elif reg[0] == 'box' and reg[1] == 'in': # Es outbox
         fn.append(Note.reg!='mat')
         fn.append(Note.flow=='in')
-        fn.append(Note.state==1)
-    elif reg[2]: # Es un subregister
+        fn.append(Note.status=='queued')
+    elif reg[2]: # Es un subregisterde un ctr
         register = db.session.scalar(select(Register).where(Register.alias==reg[0]))
         fn.append(Note.register_id==register.id)
         if reg[1] == 'in':
-            fn.append(Note.state==6)
-            fn.append(Note.status.any(NoteStatus.user.has(User.alias==reg[2])))
+            fn.append(Note.status.in_(['sent']))
+            fn.append(Note.users.any(NoteUser.user.has(User.alias==reg[2])))
+            
             if session['filter_option'] == 'hide_archived':
                 ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
                 fn.append(not_(Note.result('is_done',ctr_fn)))
-                
         elif reg[1] == 'out':
             fn.append(Note.sender.has(User.alias==reg[2]))
     else: # Es un register
         if reg[0] == 'all': # Here I get all notes from all registers
             if current_user.admin:
-                registers = db.session.scalars(select(Register).where(Register.active==1)).all()
+                fn.append(Note.register.has(Register.active==1))
             else:
-                registers = db.session.scalars(select(Register).where(and_(Register.permissions,Register.active==1))).all()
+                fn.append(Note.register.has(and_(Register.active==1,Register.permissions!='')))
         else:
-            registers = db.session.scalars(select(Register).where(and_(Register.permissions,Register.active==1,Register.alias==reg[0]))).all()
+            fn.append(Note.register.has(and_(Register.active==1,Register.permissions!='',Register.alias==reg[0])))
     
-        #fn.append(Note.register.any(Register.alias.in_(registers)))
-        fn.append(Note.register_id.in_([reg.id for reg in registers]))
-
         if reg[0] == 'mat':
             if session['filter_option'] == 'hide_archived':
-                fn.append(Note.state<6)
+                fn.append(not_(Note.archived))
  
-            fmt = []
+            
+            ## Proposals I have to do or I have done and are not over
+            fn.append(Note.reg=='mat')
             fmt_t = []
-            fmt_t.append(Note.state>0)
-            
             fmt_t.append(Note.result('is_target'))
-            fmt_t.append(or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
-            
-            fmt.append(Note.sender.has(User.id==current_user.id))
-            fn.append(or_(and_(*fmt_t),*fmt))
-        elif reg[0] == 'all' and reg[1] == 'all':
+            fmt_t.append(or_(
+                Note.status.in_(['approved','denied']),
+                and_(Note.status=='shared',or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+            ))
+            fn.append(or_(
+                Note.sender.has(User.id==current_user.id),
+                and_(*fmt_t)
+            ))
+
+        elif reg[0] == 'all' and reg[1] == 'all': # Global search
             if session['filter_option'] == 'only_notes':
                 fn.append(Note.reg!='mat')
             elif session['filter_option'] == 'only_proposals':
                 fn.append(Note.reg=='mat')
             if not current_user.admin:
-                fn.append(Note.state>4)
+                fn.append(Note.status.in_(['registered','approved','sent']))
         else:
             if reg[1] == 'pen':
-                fmt = []
                 fmt_t = []
-                fmt_t.append(Note.state>0)
                 fmt_t.append(Note.result('is_target'))
-                fmt_t.append(or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+                fmt_t.append(or_(
+                    Note.status.in_(['approved','denied']),
+                    and_(Note.status=='shared',or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+                ))
 
-                fmt.append(Note.sender.has(User.id==current_user.id))
 
                 fsrn = []
                 fsrn.append(Note.sender_id==current_user.id)
-                #fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.state > 4))
-                #fsrn.append(and_(Note.receiver(current_user),Note.result('num_sign_despacho') > 1))
                 fsrn.append(and_(Note.has_target(current_user.id),Note.result('num_sign_despacho') > 1))
-                #rreecc#fsrn.append(and_(Note.receiver.any(User.id==current_user.id),Note.result('num_sign_despacho') > 1))
-                fsrn.append(Note.register.has(and_(Register.permissions=='allowed',Register.contains_group('personal'))))
+                fsrn.append(Note.register.has(and_(Register.permissions=='allowed',Register.groups.any(Group.text=='personal'))))
+                
                 fsr = []
-                fsr.append(and_(or_(*fsrn),Note.reg != 'mat'))
-                fsr.append(and_(Note.reg == 'mat',or_(and_(*fmt_t),*fmt)))
+                fsr.append(and_(Note.reg != 'mat', or_(*fsrn)))
+                fsr.append(and_(Note.reg == 'mat', or_(Note.sender.has(User.id==current_user.id),and_(*fmt_t))))
+                
                 fn.append(or_(*fsr))
 
                 if session['filter_option'] == 'hide_archived':
-                    fn.append(Note.state<6)
-                    fn.append(or_(Note.reg!='mat',and_(Note.reg=='mat',not_(Note.result('is_done')))))
+                    fn.append(not_(Note.archived))
+                    fn.append(not_(Note.status!='sent'))
+                    fn.append(or_(
+                        Note.reg!='mat',
+                        and_(Note.reg=='mat',not_(Note.result('is_done')))
+                    ))
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
-                    fn.append(or_(Note.register.has(and_(Register.permissions=='allowed',Register.contains_group('personal'))),Note.result('num_sign_despacho') > 1))
-                    #fn.append(Note.state > 4)
+                    fn.append(
+                        or_(
+                            Note.register.has(
+                                and_(
+                                    Register.permissions,
+                                    Register.groups.any(Group.text == 'personal')
+                                )
+                            ),
+                            Note.status=='registered'))
                 else:
-                    fn.append(or_(Note.sender.has(User.id==current_user.id),Note.state == 6))
+                    fn.append(or_(Note.sender.has(User.id==current_user.id),Note.status == 'sent'))
             
         if not 'Permanente' in current_user.groups:
             fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
@@ -167,7 +179,7 @@ def register_filter(reg,filter = ""):
             if reg[0] == 'mat' and alias == current_user.alias:
                 sfn.append( Note.sender.has(User.alias==alias) )
             else:
-                sfn.append( or_(Note.sender.has(User.alias==alias),Note.status.any(NoteStatus.user.has(User.alias==alias))) )
+                sfn.append( or_(Note.sender.has(User.alias==alias),Note.users.any(NoteUser.user.has(User.alias==alias))) )
 
         files = re.findall(r'file:\w+(?:[.-]\w+)*',ft)
         ft = re.sub(r'file:\w+(?:[.-]\w+)*','',ft).strip()
@@ -229,7 +241,7 @@ def register_filter(reg,filter = ""):
 
                     
         fn.append( and_( *ft_flows,*ft_dates,*ft_files,*sfn,*tfn,or_(*ofn) ) )
-    
+     
     return fn
 
 def get_title(reg):
@@ -305,7 +317,7 @@ def get_notes(reg,filter = ""):
         sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
     else:
         sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
-  
+     
     notes = db.paginate(sql, per_page=25)
 
     return notes

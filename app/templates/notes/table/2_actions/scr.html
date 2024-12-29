@@ -1,6 +1,6 @@
 {% if reg[0] == 'box' %}
   {% if reg[1] == 'in' %}
-    {% if note.state < 3 %}
+    {% if note.status == 'queued' %}
       <li>
         <a class="dropdown-item"
           hx-get="/action_note?action=inbox_despacho&note={{note.id}}&reg={{reg}}"
