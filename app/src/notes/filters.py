@@ -89,22 +89,25 @@ def register_filter(reg,filter = ""):
             fn.append(Note.register.has(and_(Register.active==1,Register.permissions!='',Register.alias==reg[0])))
     
         if reg[0] == 'mat':
+            ## Proposals
+            proposals = [Note.reg=='mat']
+            proposals.append(or_(
+                Note.sender_id==current_user.id,
+                and_(
+                    Note.result('is_target'),
+                    Note.status!='draft',
+                    or_(
+                        Note.result('is_done'),
+                        Note.current_target_order==Note.result('target_order')
+                        )
+                    )
+
+            ))
+
             if session['filter_option'] == 'hide_archived':
-                fn.append(not_(Note.archived))
- 
-            
-            ## Proposals I have to do or I have done and are not over
-            fn.append(Note.reg=='mat')
-            fmt_t = []
-            fmt_t.append(Note.result('is_target'))
-            fmt_t.append(or_(
-                Note.status.in_(['approved','denied']),
-                and_(Note.status=='shared',or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
-            ))
-            fn.append(or_(
-                Note.sender.has(User.id==current_user.id),
-                and_(*fmt_t)
-            ))
+                proposals.append(not_(Note.archived))
+
+            fn.append(and_(*proposals))
 
         elif reg[0] == 'all' and reg[1] == 'all': # Global search
             if session['filter_option'] == 'only_notes':
@@ -115,32 +118,37 @@ def register_filter(reg,filter = ""):
                 fn.append(Note.status.in_(['registered','approved','sent']))
         else:
             if reg[1] == 'pen':
-                fmt_t = []
-                fmt_t.append(Note.result('is_target'))
-                fmt_t.append(or_(
-                    Note.status.in_(['approved','denied']),
-                    and_(Note.status=='shared',or_(Note.result('is_done'),Note.current_target_order==Note.result('target_order')))
+                ## Proposals
+                proposals = [Note.reg=='mat']
+                proposals.append(or_(
+                    Note.sender_id==current_user.id,
+                    and_(
+                        Note.result('is_target'),
+                        Note.status!='draft',
+                        or_(
+                            Note.result('is_done'),
+                            Note.current_target_order==Note.result('target_order')
+                            )
+                        )
                 ))
 
+                ## Notas que tienes asignadas
+                notes_in = []
+                notes_in.append(Note.has_target(current_user.id))
+                notes_in.append(Note.status=='registered')
 
-                fsrn = []
-                fsrn.append(Note.sender_id==current_user.id)
-                fsrn.append(and_(Note.has_target(current_user.id),Note.result('num_sign_despacho') > 1))
-                fsrn.append(Note.register.has(and_(Register.permissions=='allowed',Register.groups.any(Group.text=='personal'))))
-                
-                fsr = []
-                fsr.append(and_(Note.reg != 'mat', or_(*fsrn)))
-                fsr.append(and_(Note.reg == 'mat', or_(Note.sender.has(User.id==current_user.id),and_(*fmt_t))))
-                
-                fn.append(or_(*fsr))
+                ## Notas I have sent and are in queued
+                notes_out = [Note.reg != 'mat']
+                notes_out.append(Note.sender_id==current_user.id)
+
 
                 if session['filter_option'] == 'hide_archived':
-                    fn.append(not_(Note.archived))
-                    fn.append(not_(Note.status!='sent'))
-                    fn.append(or_(
-                        Note.reg!='mat',
-                        and_(Note.reg=='mat',not_(Note.result('is_done')))
-                    ))
+                    proposals.append(not_(Note.archived))
+                    proposals.append(not_(Note.result('is_done')))
+                    notes_in.append(not_(Note.archived))
+                    notes_out.append(Note.status.in_(['draft','queued']))
+
+                fn.append(or_(and_(*proposals),and_(*notes_in),and_(*notes_out)))
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
@@ -156,7 +164,7 @@ def register_filter(reg,filter = ""):
                 else:
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.status == 'sent'))
             
-        if not 'Permanente' in current_user.groups:
+        if not 'permanente' in current_user.groups:
             fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
 
     # Find filter in fullkey, sender, receivers or content

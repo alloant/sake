@@ -140,7 +140,14 @@ def main_users():
 @login_required
 def edit_user():
     user_id = request.args.get('user')
-    user = db.session.scalars(select(User).where(User.id==user_id)).first()
+    if isinstance(user_id,int):
+        user = db.session.scalars(select(User).where(User.id==user_id)).first()
+    elif isinstance(user_id,str):
+        if user_id.isdigit():
+            user = db.session.scalars(select(User).where(User.id==int(user_id))).first()
+        else:
+            user = db.session.scalars(select(User).where(User.alias==user_id)).first()
+    
     is_ctr = request.args.get('is_ctr',False)
  
     form = UserForm(request.form,obj=user)

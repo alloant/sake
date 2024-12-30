@@ -17,7 +17,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Note, User, Register, File
+from app.src.models import Note, User, Register, File, NoteUser
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
@@ -420,10 +420,9 @@ def get_info(note_id,reg):
         if reg[2]:
             people = db.session.scalars( select(User).where(User.ctrs.any(User.alias==reg[2])).order_by(User.name) )
         else:
-            fn = [User.category=='dr']
-            has_access = note.privileges.split(',') + [user.alias for user in note.receiver]
-            fn.append(and_(User.category=='of',User.alias.in_(has_access)))
-            people = db.session.scalars(select(User).where(and_(User.active==True,or_(*fn))).order_by(User.name))
+            people_id = db.session.scalars(select(NoteUser.user_id).where(NoteUser.note_id==note_id,or_(NoteUser.target,NoteUser.access.in_(['reader','editor'])))).all()
+            print('people_id:',people_id)
+            people = db.session.scalars(select(User).where(User.active==1,or_(User.id.in_(people_id),User.category=='dr')).order_by(User.name)).all()
 
         rst_yes = []
         rst_no = []

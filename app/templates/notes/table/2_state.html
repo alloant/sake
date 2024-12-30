@@ -17,9 +17,17 @@
     {% elif note.status == 'shared' %}
       <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
     {% elif note.status == 'approved' %}
-      <span><i class="bi bi-hand-thumbs-up-fill text-success" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
+      {% if note.archived %}
+        <span><i class="bi bi-hand-thumbs-up-fill text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
+      {% else %}
+        <span><i class="bi bi-hand-thumbs-up-fill text-success" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
+      {% endif %}
     {% elif note.status == 'denied' %}
-      <span><i class="bi bi-hand-thumbs-down-fill text-danger" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
+      {% if note.archived %}
+        <span><i class="bi bi-hand-thumbs-down-fill text-secondary" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
+      {% else %}
+        <span><i class="bi bi-hand-thumbs-down-fill text-danger" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
+      {% endif %}
     {% elif note.archived %}
       <span><i class="bi bi-check-circle-fill" data-toggle="tooltip" title="{{gettext('The proposal is done and archived')}}"></i></span>
     {% endif %}
@@ -30,8 +38,18 @@
       {% else %}
         <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
       {% endif %}
-    {% elif note.status in ['approved','denied'] %}
-      <span><i class="bi bi-hourglass-bottom" style="color: gray;" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
+    {% elif note.status == 'approved' %}
+      {% if note.archived %}
+        <span><i class="bi bi-hand-thumbs-up text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
+      {% else %}
+        <span><i class="bi bi-hand-thumbs-up text-success" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
+      {% endif %}
+    {% elif note.status == 'denied' %}
+      {% if note.archived %}
+        <span><i class="bi bi-hand-thumbs-down text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
+      {% else %}
+        <span><i class="bi bi-hand-thumbs-down text-danger" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
+      {% endif %}
     {% else %}
       <span><i class="bi bi-check-circle" data-toggle="tooltip" title="{{gettext('The proposal has been archived')}}"></i></span>
     {% endif %}

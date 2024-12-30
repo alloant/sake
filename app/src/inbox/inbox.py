@@ -195,7 +195,7 @@ def import_ctr(id_note = None):
             note.status = 'despacho'
             note.n_date = date.today()
         else:
-            flash(f"Could not move note {note} to its destination")
+            flash(f"Could not move note {note} to its destination","warning")
 
     db.session.commit()
 
@@ -242,7 +242,7 @@ def generate_notes(output):
                 if not note in involved_notes:
                     involved_notes.append(note)
                 note.status = 'queued'
-                flash(f"{file} was added to {note}")
+                flash(f"{file} was added to {note}","success")
         else: # We need to create a new note
             # First get the content if possible, if not empty
             content = "" 
@@ -266,7 +266,7 @@ def generate_notes(output):
                 is_ref = False
 
             # The status is queued because they all go to inbox
-            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref)
+            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref,date=file.date)
 
             note.addFile(file)
             # I put the date of the note
@@ -288,13 +288,13 @@ def generate_notes(output):
                     note.ref.append(ref)
 
             if len(refs) != len(note.ref): # I didn't get all refs
-                flash(f"There was a problem with {file.subject}. Not all references are in place")
+                flash(f"There was a problem with {file.subject}. Not all references are in place","warning")
             
             db.session.add(note)
             db.session.commit()
 
-            flash(f"{note} was created")
-            flash(f"{file} was added to {note}")
+            flash(f"{note} was created","success")
+            flash(f"{file} was added to {note}","success")
 
 
         db.session.commit()

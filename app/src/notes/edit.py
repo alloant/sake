@@ -12,7 +12,7 @@ from flask_login import current_user
 from sqlalchemy import select, and_
 
 from app import db, sock_clients
-from app.src.models import Note, User, Comment, File, get_note_fullkey
+from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser
 from app.src.forms.note import ReceiverForm, TagForm
 from app.src.tools.tools import newNote
 from app.src.tools.websocket import send_message
@@ -408,14 +408,20 @@ def edit_receivers_view(request):
             db.session.commit()
             return note.dep_html
         elif save == '2':
-            note.privileges = [p for p in session['rst_checkbox'] if p] if session['rst_checkbox'] else ""
+            old_access = db.session.scalars(select(NoteUser).where(NoteUser.note_id==note.id,NoteUser.access!='')).all()
+            for user in old_access:
+                note.set_access_user('',user)
+
+            for user in session['rst_checkbox']:
+                note.set_access_user('reader',user)
+
             db.session.commit()
             return ""
 
         return render_template("modals/modal_receivers_list.html",note=note, form=form)
     else:
         if type_save == 'permissions':
-            form.receiver.data = note.privileges.split(',')
+            form.receiver.data = [user.user.alias for user in note.users if user.access!='']
         else:
             for rec in note.receiver:
                 form.receiver.data.append(rec.alias)

@@ -57,8 +57,12 @@ def toNewNotesStatus():
                 note.status = 'draft'
             elif note.state < 5: # outbox
                 note.status = 'queued'
-            elif note.state == 6:
+            elif note.state >= 5:
                 note.status = 'sent'
+
+        for privilege in note.privileges.split(','):
+            if privilege:
+                note.set_access_user('reader',privilege)
 
 
     for user in users:

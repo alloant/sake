@@ -260,25 +260,26 @@
               hx-target="#main-title-body"
               role="button">
               <i class="bi bi-people"></i> {{gettext('List users')}}</a></li>
-          {% endif %}
           <li><hr class="dropdown-divider"></li>
+          {% endif %}
           
-          {% for register in registers %}
-            {% for subregister in register.get_subregisters(True) %}
-              <li>
-                <a class="dropdown-item"
-                  hx-get="/edit_user?user={{subregister[0]}}&is_ctr=True" 
-                  hx-trigger="click"
-                  hx-target="#modal-htmx"
-                  data-bs-toggle="modal"
-                  data-bs-target="#modal-htmx"
-                  role="button">
-                  <i class="bi bi-house"></i> {{gettext('Profile')}} {{subregister[1]}} 
-                </a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-            {% endfor %}
+          {% for ctr in current_user.ctrs %}
+            <li>
+              <a class="dropdown-item"
+                hx-get="/edit_user?user={{ctr}}&is_ctr=True" 
+                hx-trigger="click"
+                hx-target="#modal-htmx"
+                data-bs-toggle="modal"
+                data-bs-target="#modal-htmx"
+                role="button">
+                <i class="bi bi-house"></i> {{gettext('Profile')}} {{ctr}} 
+              </a>
+            </li>
           {% endfor %}
+              
+          {% if current_user.ctrs %}
+            <li><hr class="dropdown-divider"></li>
+          {% endif %}
 
           <li><a class="dropdown-item" href="{{url_for('auth.logout')}}"><i class="bi bi-door-closed"></i> {{gettext('Log out')}}</a></li>
           {% else %}

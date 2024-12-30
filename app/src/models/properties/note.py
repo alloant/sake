@@ -89,7 +89,7 @@ class NoteProp(object):
                     return False
 
                 if current_user.category == 'of':
-                    return self.is_target() or current_user.alias in self.privileges.split(',')
+                    return self.is_target() or self.result('access') in ['reader','editor']
                 else:
                     return True
             case 'can_archive':
@@ -191,9 +191,12 @@ class NoteProp(object):
     def matters_order(cls):
         return case (
             #(and_(cls.reg!='mat',cls.result('is_read')),2),
+            (cls.archived,3),
+            (cls.status=='sent',3),
             (cls.reg!='mat',1),
-            (and_(or_(cls.status=='draft',cls.status=='approved',cls.status=='denied'),cls.sender==current_user),2),
-            (and_(cls.result('is_target'),cls.current_target_order==cls.result('target_order')),1),
+            (and_(cls.status.in_(['draft','approved','denied']),cls.sender==current_user),1),
+            (and_(cls.result('is_target'),cls.current_target_order==cls.result('target_order'),not_(cls.result('is_done'))),1),
+            (cls.reg=='mat',2),
             else_=3,
         )
 

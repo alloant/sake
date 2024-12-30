@@ -4,7 +4,7 @@
 {% endif %}
 
 {% with read = note.result('is_read') %}
-  {% if note.register.alias != 'mat' and note.files_date %}
+  {% if note.register.alias != 'mat' and note.status == 'registered' and note.files_date %}
     {% if not read and note.n_date < note.files_date %}
       <span class="badge bg-danger">New</span>
     {% endif %}

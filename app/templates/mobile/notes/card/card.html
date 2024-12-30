@@ -9,7 +9,7 @@
   </span>
   
   <span>
-    {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') %}
+    {% if not 'of' in current_user.groups and note.reg!='mat' or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') or note.result('access') in ['reader','editor'] %}
       {% include 'notes/table/2_files.html' %}
     {% endif %}
     {% include 'notes/table/2_actions.html' %}
