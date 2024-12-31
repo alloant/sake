@@ -316,14 +316,14 @@ def outbox_to_target(note_id=None,back=False):
         if back:
             note.status = 'draft'
         else:
-            if note.register.alias in ['cg','r'] and note_id or note.register.alias in ['asr','ctr']: #Here only when you choose one note
+            if note.status != 'sent':
                 if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
                     flash(f'Could not move note {note}')
                     continue
+        
+            note.status = 'sent'
             
-            if note.register.alias in ['cg','r'] and note_id:
-                note.status = 'sent'
-            elif note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
+            if note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
                 note.status = 'sent'
             elif note.register.alias == 'ctr':
