@@ -17,7 +17,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Note, User, Register, File, NoteUser
+from app.src.models import Note, User, Register, File, NoteUser, Group
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
@@ -229,8 +229,15 @@ def circulation_proposal(note_id,action):
 
     db.session.commit()
 
-    if action in ['start','forward'] and note.status == 'shared':
-        targets = [user.user for user in note.users if note.result('is_current_target',user.user)]
+    if action in ['start','forward','back'] and note.status == 'shared':
+        if note.status in ['approved','denied']:
+            targets = [note.sender]
+        elif action == 'start':
+            targets = [user.user for user in note.users if note.result('is_current_target',user.user)]
+        else:
+            rst = note.current_status()
+            targets = [user.user for user in note.users if note.current_status(user.user).target_order > rst.target_order and note.result('is_current_target',user.user)]
+
         send_emails(note,kind='proposal',targets=targets)
 
 
@@ -316,21 +323,22 @@ def outbox_to_target(note_id=None,back=False):
         if back:
             note.status = 'draft'
         else:
-            if note.status != 'sent':
+            if note.status != 'sent' and note.path != f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out":
                 if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
                     flash(f'Could not move note {note}')
                     continue
         
             note.status = 'sent'
-            
+            print('sent') 
             if note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
                 note.status = 'sent'
             elif note.register.alias == 'ctr':
+                print('sending')
                 send_emails(note)
                 note.status = 'sent'
     
-    users = db.session.scalars(select(User).where(User.groups(Group.text=='scr')))
+    users = db.session.scalars(select(User).where(User.groups.any(Group.text=='scr')))
     updateSocks(users,'')
 
     db.session.commit()

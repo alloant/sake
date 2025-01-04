@@ -27,11 +27,11 @@ def send_emails_threading(nt,kind,targets):
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
         smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
         for rec in nt.receiver:
-            if not (kind in ['from despacho','proposal'] and rec.get_setting('notifications')):
-                continue
-            if targets and not rec in targets:
+            if kind in ['from despacho','proposal'] and not rec.get_setting('notifications'):
                 continue
 
+            if targets and not rec in targets:
+                continue
             if rec.email:
                 msg = MIMEText("")
                 if kind == 'to ctr':
@@ -40,6 +40,8 @@ def send_emails_threading(nt,kind,targets):
                     msg['Subject'] = f"A new note ({nt.fullkey}) has been assgined to you ({rec.alias})"
                 elif kind == 'proposal':
                     msg['Subject'] = f"You ({rec.alias}) have a new proposal pending ({nt.fullkey})"
+                elif kind in ['approved','denied']:
+                    msg['Subject'] = f"Your proposal ({nt.fullkey}) has been ({kind})"
                 else:
                     msg['Subject'] = ""
                 msg['From'] = Config.EMAIL_ADDRESS
