@@ -190,25 +190,31 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     status: Mapped[str] = mapped_column(db.String(20), default = 'draft')
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
+    
     content: Mapped[str] = mapped_column(db.Text, default = '')
     content_jp: Mapped[str] = mapped_column(db.Text, default = '')
+    
     proc: Mapped[int] = mapped_column(db.String(50), default = '')
+    
     ref: Mapped[list["Note"]] = relationship('Note', secondary=note_ref, primaryjoin=note_ref.c.note_id==id, secondaryjoin=note_ref.c.ref_id==id, backref='notes', order_by="desc(Note.n_date)") 
+    
     path: Mapped[str] = mapped_column(db.String(150), default = '')
     permanent_link: Mapped[str] = mapped_column(db.String(150), default = '')
+    
     comments: Mapped[str] = mapped_column(db.Text, default = '')
     
     is_ref: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    
     permanent: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
     reg: Mapped[str] = mapped_column(db.String(15), default = '')
     register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'), default=1)
     register: Mapped["Register"] = relationship(back_populates="notes")
 
-    n_tags: Mapped[str] = mapped_column(db.String(500), default = '')
+    #n_tags: Mapped[str] = mapped_column(db.String(500), default = '')
 
     archived: Mapped[bool] = mapped_column(db.Boolean, default=False)
-    state: Mapped[int] = mapped_column(db.Integer, default = 0)
+    #state: Mapped[int] = mapped_column(db.Integer, default = 0)
     
 
     files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.files_order,File.path")
