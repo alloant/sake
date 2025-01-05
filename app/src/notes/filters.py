@@ -19,7 +19,7 @@ from app.src.models import Note, User, Register, File, NoteUser, Group
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note
 
-from app.src.tools.tools import newNote, sendmail, delete_note
+from app.src.tools.tools import newNote, delete_note
 
 
 

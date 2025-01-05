@@ -7,7 +7,7 @@
           hx-target="#row_{{note.id}}"
           role="button">
           <i class="bi bi-send-fill"></i>
-          {% if 'despacho' in note.register.r_groups.split(',') %}
+          {% if 'despacho' in note.register.groups %}
             {{ gettext('Send to despacho') }}
           {% else %}
             {{ gettext('Send to') }} {{ note.register.alias }}

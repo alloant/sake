@@ -10,7 +10,7 @@
     <a class="btn btn-primary" hx-get="/documentation?topic=config" hx-trigger="click" hx-target="#main-body">{{gettext('1. Registration and configuration')}}</a>
   </p>
 
-  {% if 'cl_' in current_user.u_groups or 'cr' in current_user.u_groups %}
+  {% if current_user.category.in_(['dr','of','cl']) %}
       <p class="title text-center display-6">
       <a class="btn btn-primary" hx-get="/documentation?topic=cl_in" hx-trigger="click" hx-target="#main-body">{{gettext('2. Mail from cr')}}</a>
     </p>

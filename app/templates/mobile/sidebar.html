@@ -8,7 +8,7 @@
     <div class="collapse navbar-collapse" id="mobileNavbarSake">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% with registers = current_user.all_registers_and_sub %}
-          {% if 'cr' in current_user.groups %}
+          {% if current_user.category in ['dr','of'] %}
             <li class="nav-item">
               <a class="nav-link"
                   hx-get="/main_title_body?reg=['all','pen','']"
@@ -119,7 +119,7 @@
               <!-- End cl registers-->
             {% endif %}
         
-            {% if 'cr' in current_user.groups %}
+            {% if current_user.category in ['dr','of'] %}
               <li class="nav-item">
                 <a class="nav-link" type="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
                   <i class="bi bi-link"></i> {{gettext('Links')}}

@@ -31,12 +31,10 @@ def get_register(prot):
     prot = prot.strip('- ')
 
     for reg in registers:
-        #alias = r"^\D+"
         alias = r"[^0-9-]+"
         if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
             alias = ""
 
-            #senders = db.session.scalars(select(User).where(and_( User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') ))).all()
             senders = db.session.scalars(select(User).where(User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
             
             if len(senders) == 1:
@@ -47,7 +45,6 @@ def get_register(prot):
                     sender = db.session.scalar(select(User).where(User.alias==rst))
                 else:
                     senders = db.session.scalars(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
-                    #sender = db.session.scalar(select(User).where(and_(User.alias==rst,User.u_groups.regexp_match(f'\\bct_{reg.alias}\\b') )))
             
             if sender:
                 return {'reg':reg,'sender':sender,'flow':'in'}
@@ -160,6 +157,18 @@ class Tag(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     text: Mapped[str] = mapped_column(db.String(50), default = '')
 
+    def __eq__(self, other):
+        if isinstance(other,str):
+            return self.text == other
+        else:
+            return self.text == other.text
+
+    def __ne__(self, other):
+        if isinstance(other,str):
+            return self.text != other
+        else:
+            return self.text != other.text
+
 note_tag = db.Table('note_tag',
                 db.Column('note_id', db.Integer, db.ForeignKey('note.id')),
                 db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
@@ -175,11 +184,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     sender_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('user.id'))
     sender: Mapped["User"] = relationship(back_populates="outbox")
 
-#    receiver: Mapped[list["User"]] = relationship('User', secondary=note_receiver, backref='rec_notes')
-
-    tag: Mapped[list["Tag"]] = relationship('Tag', secondary=note_tag, primaryjoin=note_tag.c.note_id==id, secondaryjoin=note_tag.c.tag_id==id, order_by="desc(Tag.text)") 
+    tags: Mapped[list["Tag"]] = relationship('Tag', secondary=note_tag, primaryjoin=note_tag.c.note_id==id, secondaryjoin=note_tag.c.tag_id==Tag.id, order_by="desc(Tag.id)") 
+    
     users: Mapped[list["NoteUser"]] = relationship(back_populates="note", order_by="NoteUser.target_order")
-    status: Mapped[str] = mapped_column(db.String(20), default = '')
+    status: Mapped[str] = mapped_column(db.String(20), default = 'draft')
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     content: Mapped[str] = mapped_column(db.Text, default = '')
@@ -198,12 +206,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     register: Mapped["Register"] = relationship(back_populates="notes")
 
     n_tags: Mapped[str] = mapped_column(db.String(500), default = '')
-    n_groups: Mapped[str] = mapped_column(db.String(50), default = '')
 
     archived: Mapped[bool] = mapped_column(db.Boolean, default=False)
     state: Mapped[int] = mapped_column(db.Integer, default = 0)
     
-    privileges: Mapped[str] = mapped_column(db.String(500), default = '', nullable=True)
 
     files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.files_order,File.path")
     comments_ctr: Mapped[list["Comment"]] = relationship(back_populates="note")
@@ -219,9 +225,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     def __init__(self, *args, **kwargs):
         super(Note,self).__init__(*args, **kwargs)
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
-        self.year = datetime.utcnow().year 
+        self.year = datetime.utcnow().year
         alias = self.sender.alias
-        flow = 'out' if 'cr' in self.sender.groups else 'in'
+        flow = 'out' if self.sender.category in ['dr','of'] else 'in'
         
         if 'personal' in self.register.groups:
             self.path = f"/team-folders/Mail {self.register.alias}/Register/{self.year}/{self.register.alias} {flow}"
@@ -271,6 +277,19 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             setattr(rst,attr,not getattr(rst,attr))
         
         db.session.commit()
+
+    def add_tag(self,tag):
+        db_tag = db.session.scalar(select(Tag).where(Tag.text==tag))
+        if db_tag and not tag in self.tags:
+            self.tags.append(db_tag)
+            db.session.commit()
+            
+    def del_tag(self,tag):
+        db_tag = db.session.scalar(select(Tag).where(Tag.text==tag))
+        if db_tag and tag in self.tags:
+            self.tags.remove(db_tag)
+
+            db.session.commit()
 
     def set_access_user(self,access,user=current_user):
         rst = self.current_status(user)
@@ -576,6 +595,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     @flow.expression
     def flow(cls):
         return case (
+            (cls.sender.has(User.category.in_(['dr','of'])),'out'),
+            else_='in'
+        )
+        return case (
             (exists().where(User.id==cls.sender_id,User.category.in_(['dr','of'])),'out'),
             else_='in'
         )
@@ -657,8 +680,6 @@ class User(UserProp,UserMixin, db.Model):
     __tablename__ = 'user'
 
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
-    password: Mapped[str] = mapped_column(db.String(500), default='')
-    password_nas: Mapped[str] = mapped_column(db.String(500), default='')
 
     setting_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("setting.id"))
     setting: Mapped["Setting"] = relationship(back_populates="user")
@@ -670,12 +691,10 @@ class User(UserProp,UserMixin, db.Model):
     ctrs: Mapped[list["User"]] = relationship('User', secondary=user_ctr, primaryjoin=user_ctr.c.user_id==id, secondaryjoin=user_ctr.c.ctr_id==id, order_by="desc(User.alias)")
 
     groups: Mapped[list["Group"]] = relationship('Group', secondary=user_group, primaryjoin=user_group.c.user_id==id, secondaryjoin=user_group.c.group_id==Group.id, order_by="desc(Group.text)") 
-    u_groups: Mapped[str] = mapped_column(db.String(500), default='')
 
     date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     name: Mapped[str] = mapped_column(db.String(200), default='')
     alias: Mapped[str] = mapped_column(db.String(20), unique=True)
-    u_groups: Mapped[str] = mapped_column(db.String(200), default=False)
     order: Mapped[str] = mapped_column(db.Integer, default=0)
 
     email: Mapped[str] = mapped_column(db.String(200), default='')
@@ -723,18 +742,17 @@ class User(UserProp,UserMixin, db.Model):
         db.session.commit()
 
     def add_group(self,group):
-        group = db.session.scalar(select(Group).where(Group.text==group))
-        if group and not group in self.groups:
-            self.groups.append(group)
+        db_group = db.session.scalar(select(Group).where(Group.text==group))
+        if db_group and not group in self.groups:
+            self.groups.append(db_group)
             db.session.commit()
             
     def del_group(self,group):
-        group = db.session.scalar(select(Group).where(Group.text==group))
-        if group in self.groups:
-            self.groups.remove(group)
+        db_group = db.session.scalar(select(Group).where(Group.text==group))
+        if db_group and group in self.groups:
+            self.groups.remove(db_group)
 
             db.session.commit()
-
 
     @property
     def all_registers(self):
@@ -946,11 +964,10 @@ class Register(RegisterHtml,db.Model):
     users: Mapped[list["RegisterUser"]] = relationship(back_populates="register")
     
     groups: Mapped[list["Group"]] = relationship('Group', secondary=register_group, primaryjoin=register_group.c.register_id==id, secondaryjoin=register_group.c.group_id==Group.id, order_by="desc(Group.text)") 
-    r_groups: Mapped[str] = mapped_column(db.String(200), default=False)
     
     in_pattern: Mapped[str] = mapped_column(db.String(200), default='')
     out_pattern: Mapped[str] = mapped_column(db.String(200), default='')
-    #protocol_pattern: Mapped[str] = mapped_column(db.String(200), default='')
+    
     folder: Mapped[str] = mapped_column(db.String(200), default='')
 
     active: Mapped[str] = mapped_column(db.Boolean, default=True)
@@ -984,10 +1001,6 @@ class Register(RegisterHtml,db.Model):
             self.groups.remove(group)
 
             db.session.commit()
-
-    @hybrid_method
-    def contains_group(cls,group):
-        return cls.r_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
 
     @hybrid_property
     def permissions(self): # it is only for full register not subregister

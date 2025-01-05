@@ -157,7 +157,7 @@
       <!-- End cl registers-->
       {% endif %}
       
-      {% if 'cr' in current_user.groups %}
+      {% if current_user.category in ['dr','of'] %}
         <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
           <div class="row">
             <img src="static/icons/00-links{{dark}}.svg" width="35rem" height="35rem">

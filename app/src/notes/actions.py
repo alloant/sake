@@ -22,7 +22,8 @@ from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
 
-from app.src.tools.tools import newNote, send_emails, delete_note
+from app.src.tools.mail import send_emails
+from app.src.tools.tools import newNote, delete_note
 from app.src.tools.syneml import write_eml
 
 from app.src.models.nas.nas import copy_path, copy_office_path, toggle_share_permissions, delete_path, upload_path, convert_office
@@ -307,7 +308,7 @@ def sign_despacho(note_id,back):
         users = db.session.scalars(select(User).where(User.groups.any(Group.text=='cr')))
         send_emails(note,kind='from despacho')
     else:
-        users = db.session.scalars(select(User).where(User.groups(Group.text=='despacho')))
+        users = db.session.scalars(select(User).where(User.groups.any(Group.text=='despacho')))
 
     updateSocks(users,'')
 
@@ -369,12 +370,12 @@ def inbox_to_despacho(note_id=None,back=False):
             note.status = 'draft'
         elif note.register.alias == 'ctr':
             import_ctr(note.id)
-        elif 'despacho' in note.register.r_groups.split(','):
+        elif 'despacho' in note.register.groups:
             note.status = 'despacho'
         else: # If it is not for despacho is a personal register and we send it to the final place
             note.status = 'registered'
 
-    users = db.session.scalars(select(User).where(or_(User.groups(Group.text=='scr'),User.groups(Group.text=='despacho'))))
+    users = db.session.scalars(select(User).where(or_(User.groups.any(Group.text=='scr'),User.groups.any(Group.text=='despacho'))))
     updateSocks(users,'')
 
     db.session.commit()
@@ -387,7 +388,7 @@ def new_note(reg):
     choices = []
     for group in ['cr','ct_cg','ct_asr','ct_ctr','ct_r']:
         rg = group if group == 'cr' else group[3:]
-        choices += [f"{rg} - {user.alias}" for user in db.session.scalars(select(User).where(User.active==1,User.groups(Group.text==group)).order_by(User.alias)).all()]
+        choices += [f"{rg} - {user.alias}" for user in db.session.scalars(select(User).where(User.active==1,User.groups.any(Group.text==group)).order_by(User.alias)).all()]
     form.sender.choices = choices
     form.reg.choices = ['cg','asr','ctr','r']
     return render_template('modals/modal_edit_note.html',note=None,dnone=dnone,form=form, reg=reg)

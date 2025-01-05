@@ -65,7 +65,7 @@ class NoteHtml(object):
                 span.attrib['title'] = ",".join([t for t in self.tags if t])
                 break
             else:
-                t.text = tag
+                t.text = tag.text
                 span.append(t)
             cont +=1
 

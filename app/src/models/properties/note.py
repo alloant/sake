@@ -23,26 +23,6 @@ class NoteProp(object):
                     return "fw-light"
         return ""
 
-#    @property
-#    def groups(self):
-#        return self.n_groups.split(',')
-   
-    @property
-    def tags(self):
-        return self.n_tags.split(',')
-
-    @hybrid_method
-    def contains_tag(cls,tag):
-        return cls.n_tags.regexp_match(fr'(^|[^-])\b{tag}\b($|[^-])')
-    
-    @hybrid_method
-    def contains_group(cls,group):
-        return cls.n_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
-
-    @hybrid_method
-    def contains_privileges(cls,group):
-        return cls.privileges.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
-
     @hybrid_method
     def contains_in(self,attr,value):
         return value in getattr(self,attr).split(',')

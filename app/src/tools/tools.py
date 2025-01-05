@@ -11,110 +11,21 @@ from flask_babel import gettext
 from flask_login import current_user
 
 from app import db
-from app.src.models import User, Note, Register, NoteUser, Group
-
-from app.src.tools.mail import send_email, send_emails
+from app.src.models import User, Note, Register, NoteUser, Group, Tag
 
 def toNewNotesStatus():
 
     notes = db.session.scalars(select(Note)).all()
     users = db.session.scalars(select(User)).all()
-    ctrs = db.session.scalars(select(User).where(User.contains_group('ctr'))).all()
+    ctrs = db.session.scalars(select(User).where(User.category=='ctr')).all()
     registers = db.session.scalars(select(Register)).all()
     groups = db.session.scalars(select(Group)).all()
 
-    #for register in registers:
-    #    for group in register.r_groups.split(','):
-    #        if not group in register.groups:
-    #            register.add_group(group)
-
     for note in notes:
-        note.archived = False
-        if note.reg == 'mat':
-            if note.state == 0:
-                note.status = 'draft'
-            elif note.state < 5:
-                note.status = 'shared'
-            elif note.state == 5:
-                note.status = 'approved'
-            elif note.state == 6:
-                note.status = 'approved'
-                note.archived = True
-        elif note.flow == 'in':
-            if note.state == 0: # In inbox
-                note.status = 'draft'
-            elif note.state == 1: # In inbox
-                note.status = 'queued'
-            elif note.state < 5:
-                note.status = 'despacho'
-            elif note.state == 5:
-                note.status = 'registered'
-            elif note.state == 6:
-                note.status = 'registered'
-                note.archived = True
-        elif note.flow == 'out':
-            if note.state == 0:
-                note.status = 'draft'
-            elif note.state < 5: # outbox
-                note.status = 'queued'
-            elif note.state >= 5:
-                note.status = 'sent'
+        for tag in note.n_tags.split(','):
+            note.add_tag(tag)
 
-        for privilege in note.privileges.split(','):
-            if privilege:
-                note.set_access_user('reader',privilege)
-
-
-    for user in users:
-        user.set_setting('password',user.password)
-        user.set_setting('password_nas',user.password_nas)
-
-        if 'notifications' in user.groups:
-            user.set_setting('notifications',True)
-
-        if 'of' in user.u_groups.split(','):
-            user.category = 'of'
-            for reg in registers:
-                if 'despacho' in reg.groups:
-                    reg.set_user_access('viewer',user)
-                elif reg.alias == 'mat':
-                    reg.set_user_access('viewer_contact',user)
-                elif f'e_{reg.alias}' in user.groups:
-                    reg.set_user_access('editor',user)
-        elif 'cr' in user.u_groups.split(','):
-            user.category = 'dr'
-            for reg in registers:
-                if 'despacho' in reg.groups:
-                    reg.set_user_access('reader',user)
-                elif reg.alias == 'mat':
-                    reg.set_user_access('viewer_contact',user)
-                elif f'e_{reg.alias}' in user.groups:
-                    reg.set_user_access('editor',user)
-        elif 'ctr' in user.u_groups.split(','):
-            print('user:',user.alias)
-            user.category = 'ctr'
-            for reg in registers:
-                if reg.alias == 'ctr':
-                    reg.set_user_access('contact',user)
-        elif 'sake' in user.u_groups.split(','):
-            user.category = 'cl'
-        else:
-            user.category = 'contact'
-            for reg in registers:
-                if f'ct_{reg.alias}' in user.u_groups.split(','):
-                    reg.set_user_access('contact',user)
-        
-        for ctr in ctrs:
-            if f'v_ctr_{ctr.alias}' in user.u_groups.split(','):
-                if not ctr in user.ctrs:
-                    user.ctrs.append(ctr)
-
-        for user_group in user.u_groups.split(','):
-            for group in groups:
-                if group.text.lower() == user_group:
-                    user.add_group(group.text)
-        
-        db.session.commit()
+    db.session.commit()
 
 
 
@@ -160,9 +71,6 @@ def delete_note(note_id):
     for comment in note.comments_ctr:
         db.session.delete(comment)
 
-    #for rec in note.receiver:
-    #    note.receiver.remove(rec)
-
     for user in note.users:
         db.session.delete(user)
     
@@ -182,75 +90,56 @@ def newNote(user, reg, ref = None, target = None):
     # Creating the note. We need to know the register it bellows. This note could have been created by a cr dr or a cl member
     if reg[2]: # New note made by a cl member. It's a note for cr from ctr 
         ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
-        nt = Note(num=num,sender_id=ctr.id,reg=reg[0],register=register)
+        newnote = Note(num=num,sender_id=ctr.id,reg=reg[0],register=register)
     else: # Note created by a cr dr
-        nt = Note(num=num,sender_id=user.id,reg=reg[0],register=register)
+        newnote = Note(num=num,sender_id=user.id,reg=reg[0],register=register)
+    
+    db.session.add(newnote)
+    db.session.commit()
    
     if reg[0] == 'vc' and target == 'asr':
         asr = db.session.scalar(select(User).where(User.alias==target))
-        nt.receiver.append(asr)
+        newnote.receiver.append(asr)
     
     contacts = register.get_contacts()
     if len(contacts) == 1: # There is only one possibility I add it from the beginning
-        nt.receiver.append(contacts[0])
+        newnote.receiver.append(contacts[0])
 
     if ref:
         if type(ref) == Note:
-            if nt.register.alias == 'mat':
-                nt.content = f"{ref.content}"
-                nt.content_jp = f"{ref.content_jp}"
+            if newnote.register.alias == 'mat':
+                newnote.content = f"{ref.content}"
+                newnote.content_jp = f"{ref.content_jp}"
             else:
-                nt.content = f"Re: {ref.content}" if ref.content else ''
-                nt.content_jp = f"件名: {ref.content_jp}" if ref.content_jp else ''
-            nt.n_tags = ref.n_tags
+                newnote.content = f"Re: {ref.content}" if ref.content else ''
+                newnote.content_jp = f"件名: {ref.content_jp}" if ref.content_jp else ''
             
-            if nt.register.alias == 'mat':
-                rb = []
-                for rec in ref.receiver:
-                    if rec != current_user and 'sake' in rec.groups:
-                        rb.append(rec.alias)
-                nt.received_by = ','.join([r for r in rb if r])
+            for tag in ref.tags:
+                newnote.add_tag(tag.text)
+            
+            if newnote.register.alias == 'mat':
+                for user in ref.receiver:
+                    if user != current_user and user.category in ['dr','of']:
+                        newnote.toggle_status_attr('target',user=user)
+
             if ref.register.alias == 'mat':
                 if ref.ref:
-                    nt.ref = ref.ref + [ref]
-                    if ref.ref[0].register == register:
-                        if f'ct_{register.alias}' in ref.ref[0].sender.groups:
-                            nt.receiver.append(ref.ref[0].sender)
+                    newnote.ref = ref.ref + [ref] # I add all the refs of the minuta for people to follow better
                 else:
-                    nt.ref.append(ref)
-            else:
-                nt.ref.append(ref)
+                    newnote.ref.append(ref)
+
+            for rf in ref.ref:
+                if rf.register == register and rf.flow == 'in': # I try to guess the target using the firt reference
+                    newnote.toggle_status_attr('target',user=rf.sender)
+                    break
         else:
-            for irf in ref.split(","):
-                rf = db.session.scalar(select(Note).where(Note.id==irf))
+            for id_ref in ref.split(","):
+                rf = db.session.scalar(select(Note).where(Note.id==id_ref))
                 if rf.reg == 'mat':
                     for r in rf.ref:
-                        nt.ref.append(r)
+                        newnote.ref.append(r)
+                    newnote.ref.append(rf)
                 else:
-                    nt.ref.append(rf)
+                    newnote.ref.append(rf)
 
-    db.session.add(nt)
     rst = db.session.commit()
-
-def sendmail(note_id=None):
-    if note_id:
-        tosendnotes = db.session.scalars(select(Note).where(Note.id==note_id))
-    else:
-        tosendnotes = db.session.scalars(select(Note).where(and_(Note.flow=='out',Note.state==1,Note.reg!='mat')))
-    
-    for nt in tosendnotes:
-        if not 'personal' in nt.register.groups: # Only for not personal calendars
-            if nt.state < 6: #If the state is already 6 then the notes have already been moved
-                if not nt.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{nt.year}/{nt.reg} out"):
-                    continue
-
-        if 'folder' in nt.register.groups: # Note for asr. We just copy it to the right folder
-            nt.copy(f"/team-folders/Mail {nt.register.alias}/Mail to {nt.register.alias}") # I have to add this to the register database!!!!! Pending
-            nt.state = 6
-        
-        if 'sake' in nt.register.groups: # note for a ctr (internal sake system). We just change the state.
-            nt.state = 6
-            send_emails(nt)
-
-        db.session.commit()
-

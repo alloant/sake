@@ -27,11 +27,6 @@ class UserProp(object):
     def severalCalendars(self):
         return True if self.category in ['dr','of'] or len(self.ctrs)>1 else False
 
-
-    @hybrid_method
-    def contains_group(cls,group):
-        return cls.u_groups.regexp_match(fr'(^|[^-])\b{group}\b($|[^-])')
-
     def register_icon_html(self,register, size=35):
         match register:
             case 'pendings':

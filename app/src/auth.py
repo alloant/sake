@@ -155,15 +155,12 @@ def edit_user():
     groups = db.session.scalars(select(Group).where(Group.category=='user')).all()
     form.groups.choices = [group.text for group in groups]
 
-    registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.r_groups.regexp_match(r'\bpersonal\b')))).all()
+    registers = db.session.scalars(select(Register).where(Register.active==1,Register.groups.any(Group.text=='personal'))).all()
     form.registers.choices = [register.alias for register in registers]
 
     ctrs = db.session.scalars(select(User).where(and_(User.active==1,User.category=='ctr')).order_by(User.alias)).all()
     form.ctrs.choices = [ctr.alias for ctr in ctrs]
 
-
-    #form.active.data =  1 if user.active else 0
-    #form.admin_active.data = 1 if user.admin_active else 0
     if request.method == 'POST':
         user.alias = form.alias.data
         user.name = form.name.data

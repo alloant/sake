@@ -12,7 +12,7 @@ from flask_login import current_user
 from sqlalchemy import select, and_
 
 from app import db, sock_clients
-from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser
+from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser, Tag
 from app.src.forms.note import ReceiverForm, TagForm
 from app.src.tools.tools import newNote
 from app.src.tools.websocket import send_message
@@ -68,7 +68,7 @@ def fill_form_note(reg,form,note, filter = ""):
 
             form.receiver.data.append(user.user.alias)
 
-            previous_order = status.target_order
+            previous_order = user.target_order
 
     if note.reg == 'mat':
         if not bar_put:
@@ -171,7 +171,7 @@ def extract_form_note(reg,form,note):
             for ref in form.ref.data.split(","):
                 nt = get_note_fullkey(ref.strip())
                 if nt:
-                    if nt.register.alias == 'ctr' or 'cr' in current_user.groups:
+                    if nt.register.alias == 'ctr' or current_user.category in ['dr','of']:
                         current_refs.append(nt.fullkey)
                         if not nt in note.ref:
                             note.ref.append(nt)
@@ -335,7 +335,9 @@ def edit_tags_view(request):
     filter = output['search'] if 'search' in output else ''
     
     
-    form.tag.choices = [(tag,tag) for tag in ['aop','ar','df','dg','dest','desr','stgr','str','sccr','ocsr','minors','vcr','vcsr','sm','sg','sr','sss+','Ind','Aso','Asmo','J'] if filter in tag]
+    #form.tag.choices = [(tag,tag) for tag in ['aop','ar','df','dg','dest','desr','stgr','str','sccr','ocsr','minors','vcr','vcsr','sm','sg','sr','sss+','Ind','Aso','Asmo','J'] if filter in tag]
+
+    form.tag.choices = [(tag.text,tag.text) for tag in db.session.scalars(select(Tag).where(Tag.text.contains(filter))).all()]
 
     if request.method == 'POST':
         if 'rst_tags' in session:
@@ -350,14 +352,20 @@ def edit_tags_view(request):
             session['rst_tags'] = form.tag.data
         
         if save:
-            note.n_tags = ",".join([t for t in form.tag.data if t])
+            old_tags = [tag.text for tag in note.tags]
+            for tag in old_tags:
+                if not tag in form.tag.data:
+                    note.del_tag(tag)
+
+            for tag in form.tag.data:
+                note.add_tag(tag)
 
             db.session.commit()
             return note.tag_html(True)
 
         return render_template("modals/modal_tags_list.html",note=note, form=form)
     else:
-        form.tag.data = note.tags
+        form.tag.data = [tag.text for tag in note.tags]
         
     
     session['opt_tags'] = form.tag.choices

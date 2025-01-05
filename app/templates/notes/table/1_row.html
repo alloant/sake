@@ -21,7 +21,7 @@
   <span hx-get="/body_element?reg={{reg}}&note={{note.id}}&element=actions" hx-trigger="update-actions from:body">
     {% include 'notes/table/2_actions.html' %}
   </span>
-  {% if note.reg!='mat' and current_user.category=='dr' or current_user.admin or note.is_involve(reg,current_user) or note.sender_id == current_user.id or current_user.alias in note.privileges.split(',') or note.result('access') in ['reader','editor'] %}
+  {% if note.reg!='mat' and current_user.category=='dr' or current_user.admin or note.is_involve(reg,current_user) or note.sender_id == current_user.id or note.result('access') in ['reader','editor'] %}
     <span id="row_{{note.id}}_files">
       {% include 'notes/table/2_files.html' %}
     </span>

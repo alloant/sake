@@ -34,7 +34,6 @@ class NoteForm(FlaskForm):
 
     receiver = MultiCheckboxField(gettext('Receiver'),coerce=str)
     #receiver = SelectMultipleField('Receiver', validators=[DataRequired()])
-    n_groups = StringField(gettext('Groups'), validators=[])
     n_date = DateField(gettext('Date'), validators=[DataRequired()], render_kw={"disabled": True})
     content = TextAreaField(gettext('Subject'), validators=[DataRequired()], render_kw={"disabled": True})
     content_jp = TextAreaField(gettext('Subject Japanese'), validators=[], render_kw={"disabled": True})

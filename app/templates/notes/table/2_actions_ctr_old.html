@@ -50,7 +50,7 @@
 {% if note.flow == 'out' and note.status == 'sent' %}
     {% if note.result('is_done',session['ctr']) %}
           <a  class="text-decoration-none"
-            hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=archive&ctr=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
@@ -62,7 +62,7 @@
         </a>
     {% else %}
           <a  class="text-decoration-none"
-            hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
+            hx-post="/action_note?action=archive&ctr=true&reg={{reg}}&note={{note.id}}" 
             hx-target="#row_{{note.id}}" 
             hx-trigger="click"
             hx-disinherit="*"
