@@ -83,6 +83,20 @@ class NoteNas(object):
         delete_path(f"{self.path}/{self.folder_name}")
 
     def create_folder(self,folder = None):
+        if not self.path:
+            if 'personal' in self.register.groups:
+                self.path = f"/team-folders/Mail {self.register.alias}/Register/{self.year}/{self.register.alias} {self.flow}"
+            elif 'matters' in self.register.groups: # Is matters
+                self.path = f"/team-folders/Mail {self.sender.alias}/Matters/{self.year}"
+                self.proc = "Ordinario"
+            elif self.sender.category == 'ctr': # A note to cr created in a ctr. The sender is a ctr.
+                self.path = f"/team-folders/Mailbox {self.sender.alias}/{self.sender.alias} to cr"
+            elif self.flow == 'out': # a dr from cr writing a note out
+                self.path = f"/team-folders/Mail {self.sender.alias}/Outbox/"
+            else: # Note in from cg, asr or r
+                self.path = f"{self.register.folder}/{self.year}/{self.register.alias} in"
+
+ 
         if folder:
             rst = create_folder(self.path,folder)
         else:

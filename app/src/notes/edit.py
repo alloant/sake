@@ -14,7 +14,7 @@ from sqlalchemy import select, and_
 from app import db, sock_clients
 from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser, Tag
 from app.src.forms.note import ReceiverForm, TagForm
-from app.src.tools.tools import newNote
+from app.src.notes.manage import new_note
 from app.src.tools.websocket import send_message
 
 from app.src.models.nas.nas import files_path
@@ -240,7 +240,7 @@ def reply_note_view(request):
             new_reg = [reg[0],'out',reg[2]]
         
          
-        newNote(current_user,reg=new_reg,ref=note)
+        new_note(current_user,reg=new_reg,ref=note)
         session['reg'] = new_reg
         resp = Response()
         resp.headers["hx-redirect"] = '/'

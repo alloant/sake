@@ -19,7 +19,7 @@
     </a>
   </li>
   {% endif %}
-  {% if reg[0] == 'box' or note.permissions('can_edit_files') %}
+  {% if reg[0] == 'box' or note.permissions('can_edit_files') or note.sender == current_user and note.status == 'draft' %}
     <li><hr class="dropdown-divider"></li>
     <li>
       <span class="dropdown-item ms-1">

@@ -23,7 +23,7 @@ from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
 
 from app.src.tools.mail import send_emails
-from app.src.tools.tools import newNote, delete_note
+from app.src.notes.manage import new_note, delete_note
 from app.src.tools.syneml import write_eml
 
 from app.src.models.nas.nas import copy_path, copy_office_path, toggle_share_permissions, delete_path, upload_path, convert_office
@@ -84,10 +84,10 @@ def action_note_view(request,template):
             trigger.append('socket-updated')
         case 'new':
             if reg[0] == 'box':
-                return new_note(reg)
+                return action_new_note(reg)
             else:
                 target = request.args.get('target')
-                newNote(current_user,reg,target=target)
+                new_note(current_user,reg,target=target)
         case 'create_note':
             created(reg,request)
         case 'send_to_box':
@@ -192,7 +192,7 @@ def action_note_view(request,template):
 
 def send_to_box(reg,note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    users = db.session.scalars(select(User).where(User.groups.any(Group.txt=='scr')))
+    users = db.session.scalars(select(User).where(User.groups.any(Group.text=='scr')))
     if back:
         note.status = 'draft'
         updateSocks(users,"")
@@ -380,7 +380,7 @@ def inbox_to_despacho(note_id=None,back=False):
 
     db.session.commit()
 
-def new_note(reg):
+def action_new_note(reg):
     form = NoteForm()
     form.set_disabled(current_user,None,reg)
     dnone = {}

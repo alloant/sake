@@ -103,6 +103,46 @@
         {% endif %}
       {% endif %}
     {% endfor%}
+
+    {% if note.ref and note.ref|length == 1 %}
+      {% for ref in note.ref[0].ref %}
+      {% if not ref in note.ref %}
+        {% if reg[2] and ref.reg != 'mat' and (ref.sender.alias == reg[2] or reg[2] in ref.receivers) or not reg[2] %}
+          <li>
+            {% if reg[0] == 'des' %}
+              <a  class="text-decoration-none"
+                  hx-on:click="navigator.clipboard.writeText('{{ref.content}}')"
+                  role=button>
+                <h5 class="dropdown-header text-decoration-underline fw-bold mt-2">{{ref.fullkey}}: {{ref.content}}
+                  {% with note = ref %}{% include 'notes/table/2_involved.html' %}{% endwith %}
+                </h5>
+              </a>
+            {% else %}
+              <h5 class="dropdown-header text-decoration-underline fw-bold">{{ref.fullkey}}: {{ref.content}}
+              </h5>
+            {% endif %}
+          </li>
+          {% if ref.reg!='mat' or ref.reg == 'mat' and (ref.has_target(current_user) or ref.sender == current_user) %}
+            {% for file in ref.files %}
+              {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
+                <li style="padding-left: 2rem;"><a  class="dropdown-item small fw-light" 
+                      hx-get="/action_note?action=read&note={{ref.id}}&reg={{reg}}&file_clicked=true"
+                      hx-swap="none"
+                      hx-on:htmx:after-request="window.open('{{file.link}}')"
+                      role="button">
+                    <i class="bi {{file.bi_icon}}"></i> {{file.name}}
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      {% endif %}
+      {% endfor%}
+    {% endif %}
+
+
+
   </ul>
 </span>
 

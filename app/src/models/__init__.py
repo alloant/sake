@@ -44,7 +44,7 @@ def get_register(prot):
                 if 'personal' in reg.groups:
                     sender = db.session.scalar(select(User).where(User.alias==rst))
                 else:
-                    senders = db.session.scalars(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
+                    sender = db.session.scalar(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) ))
             
             if sender:
                 return {'reg':reg,'sender':sender,'flow':'in'}
@@ -211,15 +211,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     register_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('register.id'), default=1)
     register: Mapped["Register"] = relationship(back_populates="notes")
 
-    #n_tags: Mapped[str] = mapped_column(db.String(500), default = '')
-
     archived: Mapped[bool] = mapped_column(db.Boolean, default=False)
-    #state: Mapped[int] = mapped_column(db.Integer, default = 0)
-    
 
     files: Mapped[list["File"]] = relationship(back_populates="note", order_by="File.files_order,File.path")
     comments_ctr: Mapped[list["Comment"]] = relationship(back_populates="note")
-    
 
     files_date = column_property(
         select(func.max(File.date)).
@@ -227,7 +222,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         correlate_except(File).
         scalar_subquery()
     )
-
+    """
     def __init__(self, *args, **kwargs):
         super(Note,self).__init__(*args, **kwargs)
         self.sender = db.session.scalar(select(User).where(User.id==self.sender_id))  
@@ -248,7 +243,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             self.path = f"{self.register.folder}/{self.year}/{self.register.alias} in"
 
         rst = self.create_folder()
-
+    """
     def __repr__(self):
         return f'<{self.fullkey_short} "{self.content}">'
 
