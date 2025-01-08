@@ -1,5 +1,5 @@
 {% if not reg[0] in ['des','box'] and note.permissions('can_archive') %}
-  {% if note.status == 'registered' or note.reg == 'mat' and note.receiver|length == 0 and not note.archived %}
+  {% if not note.archived %}
     <li>
       <a class="dropdown-item"
         <a  class="dropdown-item"

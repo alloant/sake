@@ -250,7 +250,7 @@ def toggle_archive(note_id,is_ctr=False):
             if ctr:
                 note.toggle_status_attr('target_acted',ctr)
         else:
-            note.toggle_status_attr('target_acted')
+            #note.toggle_status_attr('target_acted')
             if note.archived:
                 if note.register.alias == 'mat':
                     toggle_share_permissions(note.folder_path,'editor')
@@ -258,7 +258,7 @@ def toggle_archive(note_id,is_ctr=False):
             else:
                 if note.register.alias == 'mat':
                     toggle_share_permissions(note.folder_path,'viewer')
-                note.archived = False
+                note.archived = True
         
         db.session.commit()
 

@@ -83,7 +83,6 @@ def delete_note(note_id):
 
 
 def new_note(user, reg, reference = None, target = None, num = None, year = None, date = None, is_ref = False, status = 'draft'):
-    print('---',user,reg,reference,target,'---')
     if not num:
         num = next_num_note(reg,target)
 
@@ -110,17 +109,6 @@ def new_note(user, reg, reference = None, target = None, num = None, year = None
     db.session.commit()
     newnote.create_folder()
    
-    # Special case to add asr as a target in vc notes
-    targets_added = False
-    if reg[0] == 'vc' and target == 'asr':
-        asr = db.session.scalar(select(User).where(User.alias==target))
-        newnote.receiver.append(asr)
-        targets_added = True
-    else: # For the rest I get all possible contacts and if there is only one I add it because there is no doubt
-        contacts = register.get_contacts()
-        if len(contacts) == 1: # There is only one possibility I add it from the beginning
-            newnote.receiver.append(contacts[0])
-            targets_added = True
 
     # Information we can get from the references
     if reference:
@@ -134,12 +122,12 @@ def new_note(user, reg, reference = None, target = None, num = None, year = None
     for ref in refs:
         # Try add content if needed
         if newnote.content == '' and ref.content != '':
-            if newnote.register.alias != 'mat' or re.match(r'^Re:',ref.content):
-                newnote.content = f"{ref.content}"
-                newnote.content_jp = f"{ref.content_jp}"
-            else:
+            if (newnote.register.alias == 'mat' or newnote.sender.category == 'ctr') and not re.match(r'^Re:',ref.content):
                 newnote.content = f"Re: {ref.content}"
                 newnote.content_jp = f"件名: {ref.content_jp}" if ref.content_jp else ''
+            else:
+                newnote.content = f"{ref.content}"
+                newnote.content_jp = f"{ref.content_jp}"
         
         ## Add tags if needed
         if not newnote.tags:
@@ -149,18 +137,23 @@ def new_note(user, reg, reference = None, target = None, num = None, year = None
         ## The ref
         newnote.ref.append(ref)
 
-        ## Try to add targets
-        if not targets_added:
-            if newnote.register.alias == 'mat': # It is a proposal. I add the same people assigned to original
-                for user in ref.receiver:
-                    if user != current_user and user.category in ['dr','of']:
-                        newnote.toggle_status_attr('target',user=user)
-                        targets_added = True
+    ## Adding targets only for note going out:
+    if newnote.flow == 'out' and refs:
+        if newnote.register.alias == 'mat': # It is a proposal. I add the same people assigned to original
+            for user in refs[0].receiver:
+                if user != current_user and user.category in ['dr','of']:
+                    newnote.toggle_status_attr('target',user=user)
+        elif reg[0] == 'vc' and target == 'asr': # Special case to add asr as a target in vc notes for notes going out
+            asr = db.session.scalar(select(User).where(User.alias==target))
+            newnote.receiver.append(asr)
+        else:
+            contacts = register.get_contacts()
+            if len(contacts) == 1: # There is only one possibility I add it from the beginning
+                newnote.receiver.append(contacts[0])
             else:
-                for rf in ref.ref:
+                for rf in refs[0].ref:
                     if rf.register == register and rf.flow == 'in': # I try to guess the target using the firt reference
                         newnote.toggle_status_attr('target',user=rf.sender)
-                        targets_added = True
                         break
 
     rst = db.session.commit()

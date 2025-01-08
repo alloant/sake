@@ -62,7 +62,7 @@ class NoteProp(object):
                 if current_user.admin or 'despacho' in current_user.groups:
                     return True
             case 'can_edit_files':
-                if self.sender_id == current_user.id and not self.status or current_user.admin:
+                if self.sender_id == current_user.id and self.status in ['draft'] or current_user.admin:
                     return True
             case 'can_read':
                 if self.register.alias == 'mat':
@@ -74,9 +74,8 @@ class NoteProp(object):
                     return True
             case 'can_archive':
                 if self.register.alias == 'mat':
-                    if self.sender_id == current_user.id:
-                        if self.status in ['approved','denied'] or not self.receiver:
-                            return True
+                    if self.sender_id == current_user.id and (self.status in ['approved','denied','draft'] or not self.receiver):
+                        return True
                 else:
                     if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
                         return True

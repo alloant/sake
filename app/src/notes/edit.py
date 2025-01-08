@@ -240,7 +240,7 @@ def reply_note_view(request):
             new_reg = [reg[0],'out',reg[2]]
         
          
-        new_note(current_user,reg=new_reg,ref=note)
+        new_note(current_user,reg=new_reg,reference=note)
         session['reg'] = new_reg
         resp = Response()
         resp.headers["hx-redirect"] = '/'

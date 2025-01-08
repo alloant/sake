@@ -12,46 +12,30 @@
   {% endif %}
 {% elif note.reg == 'mat' %}
   {% if note.sender_id == current_user.id %}
-    {% if note.status == 'draft' %}
+    {% if note.archived %}
+      <span><i class="bi bi-check-circle-fill text-muted" data-toggle="tooltip" title="{{gettext('The proposal is done and archived')}}"></i></span>
+    {% elif note.status == 'draft' %}
       <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('The proposal is in your hands')}}"></i></span>
     {% elif note.status == 'shared' %}
       <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
     {% elif note.status == 'approved' %}
-      {% if note.archived %}
-        <span><i class="bi bi-hand-thumbs-up-fill text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
-      {% else %}
-        <span><i class="bi bi-hand-thumbs-up-fill text-success" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
-      {% endif %}
+      <span><i class="bi bi-hand-thumbs-up-fill text-success" data-toggle="tooltip" title="{{gettext('Everyone has agreed with the proposal')}}"></i></span>
     {% elif note.status == 'denied' %}
-      {% if note.archived %}
-        <span><i class="bi bi-hand-thumbs-down-fill text-secondary" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
-      {% else %}
-        <span><i class="bi bi-hand-thumbs-down-fill text-danger" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
-      {% endif %}
-    {% elif note.archived %}
-      <span><i class="bi bi-check-circle-fill" data-toggle="tooltip" title="{{gettext('The proposal is done and archived')}}"></i></span>
+      <span><i class="bi bi-hand-thumbs-down-fill text-danger" data-toggle="tooltip" title="{{gettext('Someone did not agree with the proposal')}}"></i></span>
     {% endif %}
   {% else %}
-    {% if note.status == 'shared' %}
+    {% if note.archived %}
+        <span><i class="bi bi-check-circle text-muted" data-toggle="tooltip" title="{{gettext('The proposal has been archived')}}"></i></span>
+    {% elif note.status == 'shared' %}
       {% if note.result('is_current_target') %}
         <span><i class="bi bi-patch-exclamation-fill" data-toggle="tooltip" title="{{gettext('Is your turn to study the proposal')}}"></i></span>
       {% else %}
         <span><i class="bi bi-hourglass-split" style="color: gray;" data-toggle="tooltip" title="{{gettext('The proposal is circulating')}}"></i></span>
       {% endif %}
     {% elif note.status == 'approved' %}
-      {% if note.archived %}
-        <span><i class="bi bi-hand-thumbs-up text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
-      {% else %}
-        <span><i class="bi bi-hand-thumbs-up text-success" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
-      {% endif %}
+      <span><i class="bi bi-hand-thumbs-up text-success" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
     {% elif note.status == 'denied' %}
-      {% if note.archived %}
-        <span><i class="bi bi-hand-thumbs-down text-secondary" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
-      {% else %}
-        <span><i class="bi bi-hand-thumbs-down text-danger" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
-      {% endif %}
-    {% else %}
-      <span><i class="bi bi-check-circle" data-toggle="tooltip" title="{{gettext('The proposal has been archived')}}"></i></span>
+      <span><i class="bi bi-hand-thumbs-down text-danger" data-toggle="tooltip" title="{{gettext('Everyone has seen the proposal and is back to the owner')}}"></i></span>
     {% endif %}
   {% endif %}
 {% elif reg[0] == 'box' and reg[1] == 'in' %}
