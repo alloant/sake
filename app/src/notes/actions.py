@@ -305,7 +305,7 @@ def sign_despacho(note_id,back):
         db.session.commit()
 
     if note.status == 'registered':
-        users = db.session.scalars(select(User).where(User.groups.any(Group.text=='cr')))
+        users = db.session.scalars(select(User).where(User.category.in_(['dr','of']))).all()
         send_emails(note,kind='from despacho')
     else:
         users = db.session.scalars(select(User).where(User.groups.any(Group.text=='despacho')))

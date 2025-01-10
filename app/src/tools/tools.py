@@ -3,6 +3,8 @@
 from datetime import datetime
 import re
 
+from cryptography.fernet import Fernet
+
 from sqlalchemy import select, func, literal_column, and_
 from sqlalchemy.orm import aliased
 
@@ -14,15 +16,10 @@ from app import db
 from app.src.models import User, Note, Register, NoteUser, Group, Tag
 
 def toNewNotesStatus():
+    USER = 'pop'
+    user = db.session.scalar(select(User).where(User.alias==USER))
+    cipher = Fernet(current_app.config['SECRET_KEY'])
+    PASSWD = cipher.decrypt(user.get_setting('password_nas'))
+    print(PASSWD)
 
-    notes = db.session.scalars(select(Note)).all()
-    users = db.session.scalars(select(User)).all()
-    ctrs = db.session.scalars(select(User).where(User.category=='ctr')).all()
-    registers = db.session.scalars(select(Register)).all()
-    groups = db.session.scalars(select(Group)).all()
 
-    for note in notes:
-        for tag in note.n_tags.split(','):
-            note.add_tag(tag)
-
-    db.session.commit()
