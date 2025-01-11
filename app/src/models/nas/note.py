@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import flash
+from flask import flash, current_app
 
 from sqlalchemy import and_, select, func, case
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
@@ -107,11 +107,16 @@ class NoteNas(object):
                 self.permanent_link = rst['permanent_link']
                 db.session.commit()
 
-    def move(self,dest):
+    def move(self,dest=""):
+        if not dest:
+            dest = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} {note.flow}"
+        
         if self.path == dest:
             return True
+        
         #rst = move_path(self.folder_path,dest)
         rst = move_path(f'link:{self.permanent_link}',dest)
+        print(f'Moving {self.path} to {dest} with result: {rst}')
         if rst:
             self.path = dest
             db.session.commit()

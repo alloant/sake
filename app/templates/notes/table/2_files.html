@@ -12,7 +12,7 @@
 {% endif %}
 
 <span class="dropdown dropdown-center position-static p-0 m-0">
-  <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill {{'text-warning' if not note.permanent_link else ''}}" data-bs-toggle="dropdown">
+  <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill {{'text-warning' if not note.permanent_link else 'text-info' if not note.in_folder_notes else ''}}" data-bs-toggle="dropdown">
     {{ note.number_files(reg[2])|safe }}
     {% if note.ref %}
       <i class="bi bi-chevron-double-down small"></i>

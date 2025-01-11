@@ -53,7 +53,7 @@
           <i class="bi bi-send"></i> {{gettext('Send note')}}
         </a>
       </li>
-    {% elif not note.reg in ['mat'] %}
+    {% elif not note.reg in ['mat'] and False %}
       <li>
         <a  class="dropdown-item"
           hx-post="/action_note?action=mark_as_sent&note={{note.id}}" 

@@ -88,20 +88,12 @@ def write_eml(rec,note,path_download):
             rst = False
 
     if rst:
-        #fp = tempfile.TemporaryFile()
         fp = io.BytesIO()
         emlGenerator = generator.BytesGenerator(fp)
         emlGenerator.flatten(msg)
         fp.seek(0) 
         return send_file(fp,download_name=f"{note.fullkey.replace("/","-")}.eml",as_attachment=False)
-        #return send_file(fp,download_name=f"{note.key}.eml",as_attachment=True)
-        
-        return True
-
-        #with open(f"{path_download}/{note.key}.eml",'w') as file:
-        #    emlGenerator = generator.Generator(file)
-        #    emlGenerator.flatten(msg)
-        #    return True
+    
     return False
 
 

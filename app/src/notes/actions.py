@@ -330,14 +330,10 @@ def outbox_to_target(note_id=None,back=False):
                     continue
         
             note.status = 'sent'
-            print('sent') 
             if note.register.alias == 'asr' or note.register.alias in ['vc','vcr'] and '-asr ' in note.fullkey:
                 note.copy(f"/team-folders/Mail asr/Mail to asr")
-                note.status = 'sent'
             elif note.register.alias == 'ctr':
-                print('sending')
                 send_emails(note)
-                note.status = 'sent'
     
     users = db.session.scalars(select(User).where(User.groups.any(Group.text=='scr')))
     updateSocks(users,'')
@@ -347,6 +343,10 @@ def outbox_to_target(note_id=None,back=False):
 
 def download_eml(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
+
+    if not note.move():
+        flash(f"Could not move note {note.fullkey} to register. Operation cancelled. Try again","danger")
+        return False
 
     if note.reg in ['cg','dg','cc','desr']:
         rec = "cg@cardumen.lan"
@@ -520,7 +520,7 @@ def update_files(reg,note_id):
         res = make_response(render_template("notes/table/2_files_old.html",note=note, reg=reg))
     else:
         res = make_response(render_template("notes/table/2_files.html",note=note, reg=reg))
-    res.headers['HX-Trigger'] = 'update-flash,update-action  s'
+    res.headers['HX-Trigger'] = 'update-flash,update-actions'
 
     return res
 

@@ -31,6 +31,14 @@ class NoteProp(object):
     def contains_in(cls,attr,value):
         return getattr(cls,attr).regexp_match(fr'(^|[^-])\b{value}\b($|[^-])')
 
+    @property
+    def folder_notes(self):
+        return current_app.config['SYNOLOGY_FOLDER_NOTES']
+
+    @property
+    def in_folder_notes(self):
+        return current_app.config['SYNOLOGY_FOLDER_NOTES'] in self.path
+
     def first_file(self,ctr=None):
         if not self.files:
             return None
