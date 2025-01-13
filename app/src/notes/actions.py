@@ -129,6 +129,10 @@ def action_note_view(request,template):
         case 'info':
             note_id = request.args.get('note')
             return get_info(note_id,reg)
+        case 'move_to_register':
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            note.move()
         case 'update_files':
             note_id = request.args.get('note')
             create_folder = True if request.args.get('create_folder','false') == 'true' else False
@@ -289,8 +293,9 @@ def notes_from_cg(notes_page=None):
 
 def mark_as_sent(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-    note.status = 'sent'
-    db.session.commit()
+    if note.move():
+        note.status = 'sent'
+        db.session.commit()
 
 
 def sign_despacho(note_id,back):

@@ -109,7 +109,7 @@ class NoteNas(object):
 
     def move(self,dest=""):
         if not dest:
-            dest = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} {note.flow}"
+            dest = f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{self.year}/{self.reg} {self.flow}"
         
         if self.path == dest:
             return True

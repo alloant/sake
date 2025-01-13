@@ -874,9 +874,6 @@ class User(UserProp,UserMixin, db.Model):
                 Note.status=='sent',Note.register.has(Register.alias=='ctr'),Note.has_target(ctr),not_(Note.result('is_read'))
             ))
 
-        #registers = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions.in_(['editor','reader'])))).all()
-        #registers_viewer = db.session.scalars(select(Register).where(and_(Register.active==1,Register.permissions=='viewer'))).all()
-
         ## All the others
         if 'permanent' in current_user.groups:
             cont += db.session.scalar(select(func.count(Note.id)).where(
@@ -885,12 +882,6 @@ class User(UserProp,UserMixin, db.Model):
                 not_(Note.result('is_read'))
             ))
         else:
-            #cont += db.session.scalar(select(func.count(Note.id)).where(
-            #    Note.status=='registered',
-            #    Note.permanent==False,
-            #    Note.register_id.in_([reg.id for reg in registers]),
-            #    not_(Note.result('is_read'))
-            #))
             cont += db.session.scalar(select(func.count(Note.id)).where(
                 Note.status=='registered',
                 Note.permanent==False,
@@ -899,14 +890,6 @@ class User(UserProp,UserMixin, db.Model):
             ))
 
 
-        
-        #cont += db.session.scalar(select(func.count(Note.id)).where(
-        #        Note.status=='registered',
-        #        Note.register_id.in_([reg.id for reg in registers_viewer]),
-        #        or_(Note.has_target(current_user),Note.result('access')=='reader'),
-        #        not_(Note.result('is_read'))
-        #    ))
-        
         return cont
 
     @property
