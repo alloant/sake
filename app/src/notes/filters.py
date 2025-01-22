@@ -165,7 +165,7 @@ def register_filter(reg,filter = ""):
                     fn.append(or_(Note.sender.has(User.id==current_user.id),Note.status == 'sent'))
             
         if not 'permanente' in current_user.groups:
-            fn.append( or_(Note.permanent==False,Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
+            fn.append( or_(Note.permanent==False,Note.result('access').in_(['reader','editor']),Note.sender.has(User.id==current_user.id),Note.has_target(current_user.id) ))
 
     # Find filter in fullkey, sender, receivers or content
     if filter:

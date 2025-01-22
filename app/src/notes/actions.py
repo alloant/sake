@@ -77,11 +77,6 @@ def action_note_view(request,template):
             circulation_proposal(note_id,act)
             trigger.append('state-updated')
             trigger.append('socket-updated')
-        case 'reset_proposal':
-            note_id = request.args.get('note')
-            circulation_proposal(note_id,'reset')
-            trigger.append('state-updated')
-            trigger.append('socket-updated')
         case 'new':
             if reg[0] == 'box':
                 return action_new_note(reg)
@@ -216,6 +211,7 @@ def circulation_proposal(note_id,action):
             note.status = 'draft'
         case 'restart':
             note.status = 'draft'
+            note.n_date = date.today()
             for user in note.users:
                 user.target_acted = False
         case 'forward':
@@ -224,10 +220,6 @@ def circulation_proposal(note_id,action):
             note.toggle_status_attr('target_acted')
         case 'back':
             note.status = 'denied'
-        case 'reset':
-            note.status = 'draft'
-            for user in note.users:
-                user.target_acted = False
  
     users = note.receiver + [note.sender]
     updateSocks(users,"")

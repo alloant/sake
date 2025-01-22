@@ -11,17 +11,6 @@
       </a>
     </li>
 
-    <li>
-      <a class="dropdown-item text-danger"
-      hx-post="/action_note?action=reset_proposal&reg={{reg}}&note={{note.id}}"
-      hx-target="#row_{{note.id}}"
-      hx-disinherit="*"
-      hx-indicator="#indicator-table"
-      role="button">
-      <i class="bi bi-x-octagon"></i> {{gettext('Reset proposal')}}
-      </a>
-    </li>
-  
   {% elif note.status == 'shared' %}
     <li>
       <a class="dropdown-item"

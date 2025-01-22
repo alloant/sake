@@ -82,8 +82,8 @@ def delete_note(note_id):
     db.session.commit()
 
 
-def new_note(user, reg, reference = None, target = None, num = None, year = None, date = None, is_ref = False, status = 'draft'):
-    if not num:
+def new_note(user, reg, reference = None, target = None, num = -1, year = None, date = None, is_ref = False, status = 'draft'):
+    if num < 0:
         num = next_num_note(reg,target)
 
     if isinstance(reg,list): # New note made by a cl member. It's a note for cr from ctr 

@@ -41,12 +41,14 @@ def get_register(prot):
                 sender = senders[0]
             else:
                 rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
+                print('rst',rst,prot)
                 if 'personal' in reg.groups:
                     sender = db.session.scalar(select(User).where(User.alias==rst))
                 else:
                     sender = db.session.scalar(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) ))
-            
-            if sender:
+           
+            if sender != None:
+                print('Why????????',sender,type(sender))
                 return {'reg':reg,'sender':sender,'flow':'in'}
 
         
@@ -62,6 +64,7 @@ def get_filter_fullkey(prot):
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
+
         if reg['reg'].alias != 'mat':
             fn.append(Note.flow==reg['flow'])
 
@@ -70,6 +73,8 @@ def get_filter_fullkey(prot):
 
         fn.append(Note.num==int(nums[0]))
         fn.append(Note.year==2000+int(nums[1]))
+
+        print('filter',reg)    
         
         return and_(*fn)
     
@@ -496,14 +501,19 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 return select(func.count(NoteUser.user_id)).where(NoteUser.note_id==cls.id,NoteUser.sign_despacho).scalar_subquery()
                 return func.count(cls.users.any(NoteUser.sign_despacho))
             case 'access':
-                return case(
+                if 'permanente' in user.groups:
+                    return case(
                         (exists().where(NoteUser.access!='',NoteUser.note_id==cls.id,NoteUser.user_id==user.id),
                             select(NoteUser.access).where(NoteUser.note_id==cls.id,NoteUser.user_id==user.id).scalar_subquery()),
                         else_= select(RegisterUser.access).where(RegisterUser.register_id==cls.register_id,RegisterUser.user_id==user.id).scalar_subquery()
                     )
-                return select(NoteUser.access).where(NoteUser.note_id==cls.id,NoteUser.user_id==user.id).scalar_subquery()
-                return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.target))
-
+                else:
+                    return case(
+                        (exists().where(NoteUser.access!='',NoteUser.note_id==cls.id,NoteUser.user_id==user.id),
+                            select(NoteUser.access).where(NoteUser.note_id==cls.id,NoteUser.user_id==user.id).scalar_subquery()),
+                        (cls.permanent,False),
+                        else_= select(RegisterUser.access).where(RegisterUser.register_id==cls.register_id,RegisterUser.user_id==user.id).scalar_subquery()
+                    )
     def is_involve(self,reg,user):
         if reg[0] == 'des':
             return True
@@ -875,7 +885,7 @@ class User(UserProp,UserMixin, db.Model):
             ))
 
         ## All the others
-        if 'permanent' in current_user.groups:
+        if 'permanente' in current_user.groups:
             cont += db.session.scalar(select(func.count(Note.id)).where(
                 Note.status=='registered',
                 Note.result('access').in_(['reader','editor']),
@@ -1014,8 +1024,8 @@ class Register(RegisterHtml,db.Model):
                 Note.status=='sent',Note.register_id==self.id,Note.has_target(ctr),not_(Note.result('is_read'))
             ))
         else:
-            if 'permanent' in current_user.groups:
-                return db.session.scalar(select(func.count(Note.id)).where(Note.status=='registered',Note.access.in_(['reader','editor']),Note.register_id==self.id,not_(Note.result('is_read'))))
+            if 'permanente' in current_user.groups:
+                return db.session.scalar(select(func.count(Note.id)).where(Note.status=='registered',Note.result('access').in_(['reader','editor']),Note.register_id==self.id,not_(Note.result('is_read'))))
              
             return db.session.scalar(select(func.count(Note.id)).where(Note.status=='registered',Note.permanent==False,Note.result('access').in_(['reader','editor']),Note.register_id==self.id,not_(Note.result('is_read'))))
 

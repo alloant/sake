@@ -383,8 +383,9 @@ def edit_receivers_view(request):
     form = ReceiverForm(request.form,obj=note)
 
     filter = output['search'] if 'search' in output else ''
+    
     if type_save == 'permissions':
-        form.receiver.choices = note.potential_receivers(filter,only_of=True)
+        form.receiver.choices = note.potential_receivers(filter,only_of=False if note.permanent else True)
     else:
         form.receiver.choices = note.potential_receivers(filter)
     
@@ -418,7 +419,7 @@ def edit_receivers_view(request):
         elif save == '2':
             old_access = db.session.scalars(select(NoteUser).where(NoteUser.note_id==note.id,NoteUser.access!='')).all()
             for user in old_access:
-                note.set_access_user('',user)
+                note.set_access_user('',user.user)
 
             for user in session['rst_checkbox']:
                 note.set_access_user('reader',user)

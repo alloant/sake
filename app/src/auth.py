@@ -118,9 +118,9 @@ def list_users():
     output = request.form.to_dict()
 
     if 'search' in output:
-        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.category.in_(['dr','of']))).order_by(User.alias))
+        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.category.in_(['dr','of','cl']))).order_by(User.alias))
     else:
-        users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
+        users = db.session.scalars(select(User).where(User.category.in_(['dr','of','cl'])).order_by(User.alias))
 
     return render_template('users/list_users.html', users=users)
 

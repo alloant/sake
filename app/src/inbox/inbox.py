@@ -231,13 +231,16 @@ def generate_notes(output):
         if not register:
             continue
 
-        if 'personal' in register.groups:
+        if isref_field == 'on':
+            fullkey = prot
+        elif 'personal' in register.groups:
             fullkey = f"{sender.alias}-{register.alias} {prot}" #before gfk
         else:
             fullkey = f"{sender.alias} {prot}" #before gfk
 
         # Check if the note already exist in the database
         note = get_note_fullkey(fullkey)
+        print('isref:',isref_field,note,fullkey)
         
         if note and not (isref_field == 'on' and note.flow == 'out'):
             rst = note.addFile(file)
@@ -269,6 +272,7 @@ def generate_notes(output):
                 is_ref = False
 
             # The status is queued because they all go to inbox
+            print('----',sender,register_field,num,year,is_ref)
             note = new_note(sender,register_field,num=num,year=f"20{year}",date=file.date, is_ref=is_ref, status='queued')
             #note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref,date=file.date)
             note.content = content
@@ -292,8 +296,8 @@ def generate_notes(output):
 
                     note.ref.append(ref)
 
-            if len(refs) != len(note.ref): # I didn't get all refs
-                flash(f"There was a problem with {file.subject}. Not all references are in place","warning")
+                if len(refs) != len(note.ref): # I didn't get all refs
+                    flash(f"There was a problem with {file.subject}. Not all references are in place","warning")
             
             db.session.add(note)
             db.session.commit()
