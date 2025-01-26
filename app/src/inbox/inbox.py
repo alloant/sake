@@ -240,7 +240,6 @@ def generate_notes(output):
 
         # Check if the note already exist in the database
         note = get_note_fullkey(fullkey)
-        print('isref:',isref_field,note,fullkey)
         
         if note and not (isref_field == 'on' and note.flow == 'out'):
             rst = note.addFile(file)
@@ -267,12 +266,11 @@ def generate_notes(output):
                 year = date.today().year
                 is_ref = True
             else: # Get number and year from fullkey
-                num = re.findall(r'\d+',fullkey)[0]
+                num = int(re.findall(r'\d+',fullkey)[0])
                 year = re.findall(r'\d+',fullkey)[1]
                 is_ref = False
 
             # The status is queued because they all go to inbox
-            print('----',sender,register_field,num,year,is_ref)
             note = new_note(sender,register_field,num=num,year=f"20{year}",date=file.date, is_ref=is_ref, status='queued')
             #note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref,date=file.date)
             note.content = content

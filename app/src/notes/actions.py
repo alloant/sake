@@ -293,7 +293,8 @@ def mark_as_sent(note_id):
 def sign_despacho(note_id,back):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     note.toggle_status_attr('sign_despacho')
-    note.toggle_status_attr('read')
+    if not note.result('is_read'):
+        note.toggle_status_attr('read')
 
     db.session.commit()
 
@@ -340,11 +341,11 @@ def outbox_to_target(note_id=None,back=False):
 
 def download_eml(note_id):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
-
+    print(note)
     if not note.move():
         flash(f"Could not move note {note.fullkey} to register. Operation cancelled. Try again","danger")
         return False
-
+    print('No need to move')
     if note.reg in ['cg','dg','cc','desr']:
         rec = "cg@cardumen.lan"
     else:

@@ -4,6 +4,7 @@ import base64
 from datetime import date
 
 from flask import flash, current_app, send_file
+from slugify import slugify
 
 from sqlalchemy import select, and_
 
@@ -75,7 +76,7 @@ def write_eml(rec,note,path_download):
     rst = True
     for file in note.files:
         ext = Path(file.name).suffix[1:]
-        file_name = f"{Path(file.name).stem}.{INV_EXT[ext]}" if ext in INV_EXT else file.name
+        file_name = f"{slugify(Path(file.name).stem)}.{INV_EXT[ext]}" if ext in INV_EXT else f"{slugify(file.name[:-len(ext)])}.{ext}"
 
         attachment = download_path(f"{note.folder_path}/{file.path}")
         
