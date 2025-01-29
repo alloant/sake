@@ -22,7 +22,9 @@
       <i class="bi bi-sign-stop-fill text-danger"></i> {{gettext('Stop circulation proposal')}}
       </a>
     </li>
-  {% else %}
+  {% endif %}
+
+  {% if note.status != 'shared' and note.result('num_sign_proposal') > 0 %}
     <li>
       <a class="dropdown-item text-danger"
       hx-post="/action_note?action=restart_circulation&reg={{reg}}&note={{note.id}}"

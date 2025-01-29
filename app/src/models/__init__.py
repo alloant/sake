@@ -831,8 +831,19 @@ class User(UserProp,UserMixin, db.Model):
         rst = 0
         if info == "pending":
             rst = current_user.pending_matters + current_user.pendings
+            rst = current_user.pendings
         elif info == "proposals":
             rst = current_user.pending_matters
+        elif info == "proposals_all":
+            rst = current_user.pending_matters
+        elif info == "proposals_to_sign":
+            rst = current_user.pending_matters_to_sign
+        elif info == "proposals_draft":
+            rst = current_user.pending_matters_draft
+        elif info == "proposals_shared":
+            rst = current_user.pending_matters_shared
+        elif info == "proposals_done":
+            rst = current_user.pending_matters_done
         elif info == "unread":
             rst = current_user.unread
         elif info == 'despacho':
@@ -904,7 +915,41 @@ class User(UserProp,UserMixin, db.Model):
 
     @property
     def pending_matters(self):
-        return db.session.scalar(select(func.count()).where(Note.status=='draft',Note.reg=='mat',Note.target_working()))
+        return db.session.scalar(select(func.count()).where(Note.status=='shared',Note.reg=='mat',not_(Note.result('is_done')),Note.current_target_order==Note.result('target_order')))
+    
+    @property
+    def pending_matters_to_sign(self):
+        return db.session.scalar(select(func.count()).where(
+            Note.status=='shared',
+            Note.reg=='mat',
+            not_(Note.result('is_done')),
+            Note.current_target_order==Note.result('target_order')))
+
+    @property
+    def pending_matters_draft(self):
+        return db.session.scalar(select(func.count()).where(
+            Note.sender_id==current_user.id,
+            Note.status=='draft',
+            Note.reg=='mat',
+            not_(Note.result('is_done')))
+            )
+
+    @property
+    def pending_matters_shared(self):
+        return db.session.scalar(select(func.count()).where(
+                Note.sender_id==current_user.id,
+                Note.status=='shared',
+                Note.reg=='mat',
+                not_(Note.result('is_done'))))
+
+    @property
+    def pending_matters_done(self):
+        return db.session.scalar(select(func.count()).where(
+                Note.sender_id==current_user.id,
+                or_(Note.status=='approved',Note.status=='denied'),
+                Note.reg=='mat',
+                not_(Note.archived)))
+
 
 class NoteUser(db.Model):
     __tablename__ = 'noteuser'

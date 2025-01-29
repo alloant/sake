@@ -82,7 +82,7 @@ class NoteProp(object):
                     return True
             case 'can_archive':
                 if self.register.alias == 'mat':
-                    if self.sender_id == current_user.id and (self.status in ['approved','denied','draft'] or not self.receiver):
+                    if self.sender_id == current_user.id and (self.status in ['approved','denied'] or not self.receiver):
                         return True
                 else:
                     if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):

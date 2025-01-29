@@ -83,6 +83,7 @@
       <div class="container-fluid">
         <div class="row">
           {% include "sidebar.html" %}
+          {% include "sidebar_proposals.html" %}
           {% if current_user.is_authenticated and current_user.severalCalendars %}
             {% include "sidebar_registers.html" %}
           {% endif %}

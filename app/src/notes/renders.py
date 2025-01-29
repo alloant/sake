@@ -126,6 +126,26 @@ def render_sidebar(element,template):
             element_title = 'Proposals'
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'mat' else False
+        elif element == 'matters_all':
+            element_title = 'Proposals'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] == 'mat' and reg[1] == 'all' else False
+        elif element == 'matters_to_sign':
+            element_title = 'To sign'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] == 'mat' and reg[1] == 'sign' else False
+        elif element == 'matters_draft':
+            element_title = 'Drafts'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] == 'mat' and reg[1] == 'draft' else False
+        elif element == 'matters_shared':
+            element_title = 'Circul'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] == 'mat' and reg[1] == 'shared' else False
+        elif element == 'matters_done':
+            element_title = 'Done'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] == 'mat' and reg[1] == 'done' else False
         elif element == 'search':
             element_title = 'Global search'
             icon = f'00-{element}{theme}'

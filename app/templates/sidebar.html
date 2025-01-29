@@ -9,7 +9,7 @@
         hx-trigger="click"
         hx-target="#main-title-body"
         hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
         data-bs-title="{{gettext('Shows only my notes and proposals')}}"
         role="button">
@@ -25,21 +25,21 @@
         hx-trigger="click"
         hx-target="#main-title-body"
         hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
         data-bs-title="{{gettext('Global search among all notes and proposals')}}"
         role="button">
         <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
       </a>
 
-
+      <!--
       <a class="nav-link position-relative my-1"
         hx-get="/main_title_body?reg=['mat','in','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
         hx-target="#main-title-body"
         hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
         data-bs-toggle="tooltip"
         data-bs-title="{{gettext('All the proposals I am involved in')}}"
         role="button">
@@ -48,7 +48,22 @@
             hx-get="/body_data?info=proposals"
             hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
       </a>
-      
+      -->
+
+      <a class="nav-link position-relative my-1"
+        data-bs-toggle="collapse"
+        data-bs-target="#proposals_collapse"
+        role="button">
+        <div class="container" 
+          hx-get="sidebar?element=matters" 
+          hx-trigger="update-main from:body" 
+          hx-swap="outerHTML">
+        </div>
+        <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
+            hx-get="body_data?info=proposals"
+            hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+        </span>
+      </a> 
     {% endif %}
     
     {% if current_user.is_authenticated %}
@@ -71,7 +86,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
           role="button">
           <div class="container" hx-get="sidebar?element=despacho" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
@@ -87,7 +102,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('Imported files from eml or asr folder')}}"
           role="button">
@@ -100,7 +115,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('All notes the sccr has to prepare for despacho')}}"
           role="button">
@@ -116,7 +131,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('All the notes the sccr has to send')}}"
           role="button">
@@ -205,7 +220,7 @@
               hx-get="/edit_user?user={{current_user.id}}" 
               hx-trigger="click"
               hx-target="#modal-htmx"
-              hx-on:click="$('#registers_collapse').collapse('hide');"
+              hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
               data-bs-toggle="modal"
               data-bs-target="#modal-htmx"
               role="button">

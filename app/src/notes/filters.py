@@ -91,18 +91,38 @@ def register_filter(reg,filter = ""):
         if reg[0] == 'mat':
             ## Proposals
             proposals = [Note.reg=='mat']
-            proposals.append(or_(
-                Note.sender_id==current_user.id,
-                and_(
-                    Note.result('is_target'),
-                    Note.status!='draft',
-                    or_(
-                        Note.result('is_done'),
+            if reg[1] == 'all':
+                proposals.append(or_(
+                    Note.sender_id==current_user.id,
+                    and_(
+                        Note.result('is_target'),
+                        Note.status!='draft',
+                        or_(
+                            Note.result('is_done'),
+                            Note.current_target_order==Note.result('target_order')
+                            )
+                        )
+                ))
+            elif reg[1] == 'sign':
+                proposals.append(
+                    and_(
+                        Note.result('is_target'),
+                        Note.status=='shared',
+                        not_(Note.result('is_done')),
                         Note.current_target_order==Note.result('target_order')
                         )
-                    )
+                )
+            elif reg[1] == 'draft':
+                proposals.append(Note.sender_id==current_user.id)
+                proposals.append(Note.status=='draft')
 
-            ))
+            elif reg[1] == 'shared':
+                proposals.append(Note.sender_id==current_user.id)
+                proposals.append(Note.status=='shared')
+            elif reg[1] == 'done':
+                proposals.append(Note.sender_id==current_user.id)
+                proposals.append(or_(Note.status=='approved',Note.status=='denied'))
+
 
             if session['filter_option'] == 'hide_archived':
                 proposals.append(not_(Note.archived))
@@ -148,7 +168,8 @@ def register_filter(reg,filter = ""):
                     notes_in.append(not_(Note.archived))
                     notes_out.append(Note.status.in_(['draft','queued']))
 
-                fn.append(or_(and_(*proposals),and_(*notes_in),and_(*notes_out)))
+                #fn.append(or_(and_(*proposals),and_(*notes_in),and_(*notes_out)))
+                fn.append(or_(and_(*notes_in),and_(*notes_out)))
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
@@ -301,8 +322,10 @@ def get_title(reg):
         title['icon'] = f'static/icons/00-matters{dark}.svg' 
         title['text'] = gettext(u'Proposals')
         title['filter'] = True
-        title['showAll'] = True
-        title['new'] = True
+        if reg[1] in ['draft','all','done']:
+            title['showAll'] = True
+        if reg[1] == 'draft':
+            title['new'] = True
     else:
         title['icon'] = f'static/icons/ctr/{reg[0]}-{reg[1]}.svg'
         title['text'] = f"{reg[0]} {reg[1]}"
