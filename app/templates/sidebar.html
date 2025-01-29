@@ -2,82 +2,55 @@
 <div id="sidebar" class="col-sm-auto sticky-top border p-1" style="background-color: light;">
   {% with registers = current_user.all_registers_and_sub %}
   <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
-    {% if current_user.category in ['dr','of'] %}
-      <a class="nav-link position-relative my-1"
-        hx-get="/main_title_body?reg=['all','pen','']"
-        hx-indicator="#indicator-table"
-        hx-trigger="click"
-        hx-target="#main-title-body"
-        hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
-        data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('Shows only my notes and proposals')}}"
-        role="button">
-        <div class="container" hx-get="sidebar?element=pendings" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
-        <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
-            hx-get="/body_data?info=pending"
-            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;"></span>
-      </a>
-
-      <a class="nav-link position-relative my-1"
-        hx-get="/main_title_body?reg=['all','all','']"
-        hx-indicator="#indicator-table"
-        hx-trigger="click"
-        hx-target="#main-title-body"
-        hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
-        data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('Global search among all notes and proposals')}}"
-        role="button">
-        <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
-      </a>
-
-      <!--
-      <a class="nav-link position-relative my-1"
-        hx-get="/main_title_body?reg=['mat','in','']"
-        hx-indicator="#indicator-table"
-        hx-trigger="click"
-        hx-target="#main-title-body"
-        hx-disinherit="*"
-        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
-        data-bs-toggle="tooltip"
-        data-bs-title="{{gettext('All the proposals I am involved in')}}"
-        role="button">
-        <div class="container" hx-get="sidebar?element=matters" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
-        <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
-            hx-get="/body_data?info=proposals"
-            hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
-      </a>
-      -->
-
-      <a class="nav-link position-relative my-1"
-        data-bs-toggle="collapse"
-        data-bs-target="#proposals_collapse"
-        role="button">
-        <div class="container" 
-          hx-get="sidebar?element=matters" 
-          hx-trigger="update-main from:body" 
-          hx-swap="outerHTML">
-        </div>
-        <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
-            hx-get="body_data?info=proposals"
-            hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
-        </span>
-      </a> 
-    {% endif %}
-    
     {% if current_user.is_authenticated %}
       {% if current_user.severalCalendars %}
         <a class="nav-link position-relative my-1"
           data-bs-toggle="collapse"
           data-bs-target="#registers_collapse"
+          hx-on:click="$('#proposals_collapse').collapse('hide');"
           role="button">
           <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
+            hx-get="/body_data?info=pending"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+
+          <span class="position-absolute top-0 start-0 badge rounded-pill bg-primary"
               hx-get="body_data?info=register"
               hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
         </a>
       {% endif %}
+
+      {% if current_user.category in ['dr','of'] %}
+        <a class="nav-link position-relative my-1"
+          data-bs-toggle="collapse"
+          data-bs-target="#proposals_collapse"
+          hx-on:click="$('#registers_collapse').collapse('hide');"
+          role="button">
+          <div class="container" 
+            hx-get="sidebar?element=matters" 
+            hx-trigger="update-main from:body" 
+            hx-swap="outerHTML">
+          </div>
+          <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
+              hx-get="body_data?info=proposals"
+              hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+          </span>
+        </a> 
+ 
+      <a class="nav-link position-relative my-1"
+          hx-get="/main_title_body?reg=['all','all','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('All notes and proposals')}}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+        </a>
+      {% endif %}
+   
 
       {% if 'despacho' in current_user.groups %}
         <a class="nav-link position-relative my-1"
@@ -171,7 +144,6 @@
         {% endfor %}   
       <!-- End cl registers-->
       {% endif %}
-      
       {% if current_user.category in ['dr','of'] %}
         <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
           <div class="row">

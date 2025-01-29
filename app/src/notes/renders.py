@@ -115,11 +115,12 @@ def render_body_row(reg,note_id,template):
             return render_template('notes/table/1_row.html',note=note, reg=reg, user=current_user)
 
 def render_sidebar(element,template):
+    print('render',element,template)
     theme = '' if session['theme'] == 'light-mode' else '-dark'
     if element:
         reg = session['reg']
         if element == 'pendings':
-            element_title = 'Pending'
+            element_title = 'My notes'
             icon = f'00-{element}{theme}'
             focus = True if reg[1] == 'pen' else False
         elif element == 'matters':
@@ -127,7 +128,7 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'mat' else False
         elif element == 'matters_all':
-            element_title = 'Proposals'
+            element_title = 'All'
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'mat' and reg[1] == 'all' else False
         elif element == 'matters_to_sign':
@@ -147,13 +148,13 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'mat' and reg[1] == 'done' else False
         elif element == 'search':
-            element_title = 'Global search'
+            element_title = 'All'
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'all' and reg[1] == 'all' else False
         elif element == 'register':
-            element_title = 'Register'
+            element_title = 'Notes'
             icon = f'00-{element}{theme}'
-            focus = True if not reg[0] in ['mat','des','box','import','all'] and reg[1] != 'pen' else False
+            focus = True if not reg[0] in ['mat','des','box','import','all'] or reg[1] == 'pen' else False
         elif element == 'despacho':
             element_title = 'Despacho'
             icon = f'00-{element}{theme}'
@@ -170,6 +171,10 @@ def render_sidebar(element,template):
             element_title = 'Outbox'
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'box' and reg[1] == 'out' else False
+        elif element == "register_list":
+            return render_template('sidebar_registers_list.html',reg=reg)
+        elif element == "proposal_list":
+            return render_template('sidebar_proposals_list.html',reg=reg)
         elif '_' in element:
             ele = element.split('_')
             if ele[2]:
@@ -179,7 +184,7 @@ def render_sidebar(element,template):
                 element_title = f'{ele[0]} {ele[1]}'
                 icon = f'ctr/{ele[0]}-{ele[1]}'
             focus = True if ele == reg else False
-            element_title = ''
+            #element_title = ''
         else:
             element_title = element
             icon = f'00-{element}{theme}'

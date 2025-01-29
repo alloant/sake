@@ -170,6 +170,12 @@ def register_filter(reg,filter = ""):
 
                 #fn.append(or_(and_(*proposals),and_(*notes_in),and_(*notes_out)))
                 fn.append(or_(and_(*notes_in),and_(*notes_out)))
+            elif reg[1] == 'done':
+                ## Notas que tienes asignadas
+                notes_in = []
+                notes_in.append(Note.has_target(current_user.id))
+                notes_in.append(Note.status=='registered')
+
             else:
                 fn.append(Note.flow==reg[1])
                 if reg[1] == 'in':
@@ -284,7 +290,7 @@ def get_title(reg):
 
     if reg[1] == 'pen':
         title['icon'] = f'static/icons/00-pendings{dark}.svg' 
-        title['text'] = gettext(u'Pending notes and proposals')
+        title['text'] = gettext(u'Pending notes')
         title['filter'] = True
         title['showAll'] = True
     elif reg[0] == 'import':

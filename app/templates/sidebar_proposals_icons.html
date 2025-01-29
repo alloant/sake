@@ -1,0 +1,79 @@
+  <a class="nav-link position-relative my-1"
+    hx-get="/main_title_body?reg=['mat','all','']"
+    hx-indicator="#indicator-table"
+    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    data-bs-toggle="tooltip"
+    data-bs-title="{{gettext('All proposals')}}"
+    role="button">
+
+    <div class="container" hx-get="sidebar?element=matters_all" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+  </a>
+
+  <a class="nav-link position-relative my-1"
+    hx-get="/main_title_body?reg=['mat','sign','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    data-bs-toggle="tooltip"
+    data-bs-title="{{gettext('Pending proposals to sign')}}"
+    role="button">
+
+    <div class="container" hx-get="sidebar?element=matters_to_sign" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+
+    <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
+        hx-get="/body_data?info=proposals_to_sign"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </a>
+
+  <a class="nav-link position-relative my-1"
+    hx-get="/main_title_body?reg=['mat','draft','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    data-bs-toggle="tooltip"
+    data-bs-title="{{gettext('My drafts')}}"
+    role="button">
+
+    <div class="container" hx-get="sidebar?element=matters_draft" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+  </a>
+
+  <a class="nav-link position-relative my-1"
+    hx-get="/main_title_body?reg=['mat','shared','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    data-bs-toggle="tooltip"
+    data-bs-title="{{gettext('Proposals circulating')}}"
+    role="button">
+
+    <div class="container" hx-get="sidebar?element=matters_shared" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+
+  </a>
+  
+  <a class="nav-link position-relative my-1"
+    hx-get="/main_title_body?reg=['mat','done','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    data-bs-toggle="tooltip"
+    data-bs-title="{{gettext('Signed proposals')}}"
+    role="button">
+
+    <div class="container" hx-get="sidebar?element=matters_done" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+
+    <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
+        hx-get="/body_data?info=proposals_done"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </a>
+
