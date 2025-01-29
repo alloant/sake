@@ -1,25 +1,36 @@
 {% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
-    {% if current_user.category in ['dr','of'] %}
-        <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['all','pen',''] %}active{% endif %}"
-          hx-get="/main_title_body?reg=['all','pen','']"
-          hx-indicator="#indicator-table"
-          hx-trigger="click"
-          hx-target="#main-title-body"
-          hx-disinherit="*"
-          hx-on:click="$('#proposals_collapse').collapse('hide');"
-          data-bs-toggle="tooltip"
-          data-bs-title="{{gettext('My notes')}}"
-          role="button">
-          <span>
-          <img class="me-2" src="static/icons/00-pendings{{dark}}.svg" width="20em" height="auto">
-          My notes
-          </span>
-          <span class="badge rounded-pill bg-danger ms-2"
-              hx-get="/body_data?info=pending"
-              hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
-          </span>
-        </li>
-    {% endif %}
+  {% if current_user.category in ['dr','of'] %}
+      <li class="list-group-item align-items-center {% if reg == ['notes','all',''] %}active{% endif %}"
+        hx-get="/main_title_body?reg=['notes','all','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#proposals_collapse').collapse('hide');"
+        role="button">
+        <img class="me-2" src="static/icons/00-search{{dark}}.svg" width="20em" height="auto">
+        All
+      </li>
+
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['all','pen',''] %}active{% endif %}"
+        hx-get="/main_title_body?reg=['all','pen','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#proposals_collapse').collapse('hide');"
+        role="button">
+        <span>
+        <img class="me-2" src="static/icons/00-pendings{{dark}}.svg" width="20em" height="auto">
+        My notes
+        </span>
+        <span class="badge rounded-pill bg-danger ms-2"
+            hx-get="/body_data?info=pending"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+        </span>
+      </li>
+      <li class="list-group-item-divider"></li> <!-- Divider -->
+  {% endif %}
   {% with registers = current_user.all_registers_and_sub %}
     {% for register in registers %}
       {% if register.permissions and register.alias != 'mat' %}
@@ -67,7 +78,11 @@
           </span>
         </li>
       {% endif %}
+
     {% endfor %}
+    {% if current_user.category in ['dr','of'] %}
+      <li class="list-group-item-divider"></li> <!-- Divider -->
+    {% endif %}
     
     {% for register in registers %}
       {% for subregister in register.get_subregisters() %}

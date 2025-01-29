@@ -115,7 +115,6 @@ def render_body_row(reg,note_id,template):
             return render_template('notes/table/1_row.html',note=note, reg=reg, user=current_user)
 
 def render_sidebar(element,template):
-    print('render',element,template)
     theme = '' if session['theme'] == 'light-mode' else '-dark'
     if element:
         reg = session['reg']

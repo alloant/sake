@@ -80,7 +80,7 @@ def register_filter(reg,filter = ""):
         elif reg[1] == 'out':
             fn.append(Note.sender.has(User.alias==reg[2]))
     else: # Es un register
-        if reg[0] == 'all': # Here I get all notes from all registers
+        if reg[0] in ['all','notes']: # Here I get all notes from all registers
             if current_user.admin:
                 fn.append(Note.register.has(Register.active==1))
             else:
@@ -136,6 +136,9 @@ def register_filter(reg,filter = ""):
                 fn.append(Note.reg=='mat')
             if not current_user.admin:
                 fn.append(Note.status.in_(['registered','approved','sent']))
+        elif reg[0] == 'notes' and reg[1] == 'all':
+            fn.append(Note.reg!='mat')
+            fn.append(Note.status.in_(['registered','approved','sent']))
         else:
             if reg[1] == 'pen':
                 ## Proposals
