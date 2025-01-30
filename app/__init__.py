@@ -71,7 +71,10 @@ def create_app(config_class=Config):
 
     from app.src.notes import bp as notes_blueprint
     app.register_blueprint(notes_blueprint)
-    
+   
+    from app.src.pages import bp as pages_blueprint
+    app.register_blueprint(pages_blueprint)
+ 
     from app.src.docs import bp as documentation_blueprint
     app.register_blueprint(documentation_blueprint)
     

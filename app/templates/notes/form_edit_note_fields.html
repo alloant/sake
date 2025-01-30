@@ -59,13 +59,11 @@
 
   <div class="p-2 {{'d-none' if reg[2] else ''}} container">
     {{ form.comments.label(class="form-label") }}
-    {{ form.comments(class="form-control",id="summernote_no") }}
+    {{ form.comments(class="form-control",id="summernote_disable") }}
     <script>
       $('#summernote').summernote({});
     </script>
-
   </div>
-  
 </div>
 
 <div class="p-2 container border">

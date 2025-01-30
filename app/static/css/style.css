@@ -88,3 +88,28 @@
   border: 0;
   outline: none;
 }
+
+.font-icon {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 2em; /* Adjust size as needed */
+  height: 2em; /* Adjust size as needed */
+  border-radius: 0.5em; /* Makes it circular */
+  font-weight: bold; /* Make text bold */
+}
+
+.sub-icon {
+  position: absolute; /* Position relative to the parent */
+  top: 2.5em; /* Distance from the bottom */
+  right: -0.5em; /* Distance from the right */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2em; /* Adjust size as needed */
+  height: 2em; /* Adjust size as needed */
+  border-radius: 50%; /* Makes it circular */
+  font-weight: bold; /* Make text bold */
+  font-size: 0.5em;
+}

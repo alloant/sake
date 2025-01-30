@@ -670,6 +670,35 @@ user_group = db.Table('user_group',
                 db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
                 )
 
+page_group = db.Table('page_group',
+                db.Column('page_id', db.Integer, db.ForeignKey('page.id')),
+                db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
+                )
+
+class Page(db.Model):
+    __tablename__ = 'page'
+    
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(db.String(500), default = '')
+    category: Mapped[str] = mapped_column(db.String(50), default = '')
+    text: Mapped[str] = mapped_column(db.Text, default = '')
+    date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
+    
+    groups: Mapped[list["Group"]] = relationship('Group', secondary=page_group, primaryjoin=page_group.c.page_id==id, secondaryjoin=page_group.c.group_id==Group.id, order_by="desc(Group.text)") 
+    
+    users: Mapped[list["PageUser"]] = relationship(back_populates="page")
+
+class PageUser(db.Model):
+    __tablename__ = 'pageuser'
+    page_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("page.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+
+    page: Mapped["Page"] = relationship(back_populates="users")
+    user: Mapped["User"] = relationship(back_populates="pages")
+
+    access: Mapped[str] = mapped_column(db.String(20), default='')
+
+
 class Setting(db.Model):
     __tablename__= 'setting'
     
@@ -714,6 +743,7 @@ class User(UserProp,UserMixin, db.Model):
     local_path: Mapped[str] = mapped_column(db.String(200), default='')
     
     notes: Mapped[list["NoteUser"]] = relationship(back_populates="user")
+    pages: Mapped[list["PageUser"]] = relationship(back_populates="user")
     
     active: Mapped[str] = mapped_column(db.Boolean, default=True)
     admin_active: Mapped[str] = mapped_column(db.Boolean, default=False)

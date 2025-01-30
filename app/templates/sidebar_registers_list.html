@@ -1,6 +1,6 @@
 {% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
   {% if current_user.category in ['dr','of'] %}
-      <li class="list-group-item align-items-center {% if reg == ['notes','all',''] %}active{% endif %}"
+      <li class="list-group-item d-flex align-items-center {% if reg == ['notes','all',''] %}active{% endif %}"
         hx-get="/main_title_body?reg=['notes','all','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
@@ -8,8 +8,10 @@
         hx-disinherit="*"
         hx-on:click="$('#proposals_collapse').collapse('hide');"
         role="button">
-        <img class="me-2" src="static/icons/00-search{{dark}}.svg" width="20em" height="auto">
-        All
+          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+            <i class="bi bi-globe"></i>
+          </span>
+          <span>All</span>
       </li>
 
       <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['all','pen',''] %}active{% endif %}"
@@ -21,8 +23,10 @@
         hx-on:click="$('#proposals_collapse').collapse('hide');"
         role="button">
         <span>
-        <img class="me-2" src="static/icons/00-pendings{{dark}}.svg" width="20em" height="auto">
-        My notes
+          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+            <i class="bi bi-inbox-fill"></i>
+          </span>
+          <span>My notes</span>
         </span>
         <span class="badge rounded-pill bg-danger ms-2"
             hx-get="/body_data?info=pending"
@@ -49,8 +53,11 @@
           {% endif %}
           role="button">
           <span>
-          <img class="me-2" src="static/icons/ctr/{{register.alias}}-in.svg" width="20em" height="auto">
-          {{register.alias}} in
+            <span class="font-icon bg-secondary text-light border me-2" style="font-size: 0.7em">
+              {{register.alias}}
+              <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
+            </span>
+            <span>Inbox {{register.alias}}</span>
           </span>
           <span class="badge rounded-pill bg-primary ms-2"
               hx-get="/body_data?info={{register.alias}}_in_"
@@ -73,8 +80,11 @@
           {% endif %}
           role="button">
           <span>
-            <img class="me-2" src="static/icons/ctr/{{register.alias}}-out.svg" width="20em" height="auto">
-            {{register.alias}} out
+            <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+              {{register.alias}}
+              <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
+            </span>
+            <span>Outbox {{register.alias}}</span>
           </span>
         </li>
       {% endif %}
@@ -97,8 +107,11 @@
             data-bs-title="{{gettext('Mail from cr to')}} {{subregister}}"
             role="button">
             <span>
-              <img class="me-2" src="static/icons/ctr/{{subregister}}-in.svg" width="20em" height="auto">
-              {{subregister}} in
+              <span class="font-icon bg-secondary text-light border me-2" style="font-size: 0.7em">
+                {{subregister}}
+                <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
+              </span>
+              <span>Inbox {{subregister}}</span>
             </span>
             <span class="badge rounded-pill bg-primary ms-2"
                 hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
@@ -116,8 +129,11 @@
             data-bs-title="{{gettext('Mail to cr from')}} {{subregister}}"
             role="button">
             <span>
-              <img class="me-2" src="static/icons/ctr/{{subregister}}-out.svg" width="20em" height="auto">
-              {{subregister}} out
+              <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+                {{subregister}}
+                <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
+              </span>
+              <span>Outbox {{subregister}}</span>
             </span>
           </li>
       {% endfor %}

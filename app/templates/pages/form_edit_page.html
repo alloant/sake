@@ -1,0 +1,24 @@
+{{ form.csrf_token }}
+
+<fieldset class="form-group">
+
+<div class="container-fluid">
+  {{ form.title.label(class="form-label") }}
+  {{ form.title(class="form-control") }}
+
+  <div class="p-2 container-fluid">
+    {{ form.text.label(class="form-label") }}
+    {{ form.text(class="",id="summernote") }}
+    <script>
+      $('#summernote').summernote({
+        height: '70vh'
+      });
+    </script>
+  </div>
+
+</div> <!-- end container -->
+
+
+</fieldset>
+
+

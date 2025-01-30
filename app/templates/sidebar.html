@@ -9,7 +9,9 @@
           data-bs-target="#registers_collapse"
           hx-on:click="$('#proposals_collapse').collapse('hide');"
           role="button">
+          
           <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          
           <span class="position-absolute top-0 end-0 badge rounded-pill bg-danger"
             hx-get="/body_data?info=pending"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;"></span>
@@ -143,6 +145,23 @@
           {% endfor %}
         {% endfor %}   
       <!-- End cl registers-->
+      {% endif %}
+      {% if current_user.alias in ['antonio','jb'] %}
+        <a class="nav-link my-1" 
+          hx-get="/main_title_body?reg=['pages','','']" 
+          hx-trigger="click" 
+          hx-target="#main-title-body" 
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          data-bs-toggle="tooltip" 
+          data-bs-placement="right" 
+          data-bs-original-title="{{gettext('Pages')}}">
+          <div class="row">
+            <img src="static/icons/pages{{dark}}.svg" width="35rem" height="35rem">
+          </div>
+          <div class="row">
+            <small>Links</small>
+          </div>
+        </a>
       {% endif %}
       {% if current_user.category in ['dr','of'] %}
         <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">

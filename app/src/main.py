@@ -26,7 +26,7 @@ def dashboard_view(template):
         reg = session['reg']
     else:
         if current_user.category in ['dr','of']:
-            reg = ['all','pen','']
+            reg = ['notes','all','']
         else:
             registers = db.session.scalars(select(Register).where(Register.active==1)).all()
             reg = ''
@@ -39,7 +39,7 @@ def dashboard_view(template):
             
         session['reg'] = reg
     
-    title = get_title(reg) 
+    title = get_title(reg)
    
     return render_template(template,reg=reg,title=title,sock_server = current_app.config['SOCK_SERVER'])
 

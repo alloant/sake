@@ -1,0 +1,28 @@
+<td class="">
+  <span class="dropstart position-static">
+    <button type="button" class="btn btn-sm mx-2 p-0 my-0" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-three-dots-vertical"></i>
+    </button>
+    <ul class="dropdown-menu border-0 shadow-lg p-3 mb-5 rounded">
+      <li>
+        <a  class="dropdown-item"
+            hx-get="/action_page?action=edit&page={{page.id}}" 
+            hx-trigger="click"
+            hx-target="#modal-htmx"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button">
+          <i class="bi bi-pencil-fill"></i> {{gettext("Edit page")}}
+        </a>
+      </li>
+    </ul>
+  </span>
+  {{ page.title }}
+</td>
+
+<!-- Date -->
+<td id="row_{{page.id}}_date" style="white-space: nowrap;" class="text-end">
+  <span class="fw-light d-md-none d-lg-block"><small>{{ page.date.strftime('%y-%m-%d') }}</small></span>
+</td>
+
+

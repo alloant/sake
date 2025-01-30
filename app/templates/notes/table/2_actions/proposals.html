@@ -1,5 +1,5 @@
 {% if note.sender_id == current_user.id %}
-  {%if note.status == 'draft' %}
+  {%if note.status == 'draft' and note.receiver %}
     <li>
       <a class="dropdown-item"
       hx-post="/action_note?action=start_circulation&reg={{reg}}&note={{note.id}}"
@@ -22,7 +22,8 @@
       <i class="bi bi-sign-stop-fill text-danger"></i> {{gettext('Stop circulation proposal')}}
       </a>
     </li>
-  {% endif %}
+
+  {% endif %} 
 
   {% if note.status != 'shared' and note.result('num_sign_proposal') > 0 %}
     <li>
@@ -35,8 +36,12 @@
       <i class="bi bi-eraser-fill"></i> {{gettext('Reset proposal (remove signatures)')}}
       </a>
     </li>
+    <li><hr class="dropdown-divider"></li>
+  {% else %}
+    {% if note.status == 'shared' or note.status == 'draft' and note.receiver %}
+      <li><hr class="dropdown-divider"></li>
+    {% endif %}
   {% endif %}
-  <li><hr class="dropdown-divider"></li>
 {% elif note.permissions('can_sign_matter') %}
   <li>
     <a  class="dropdown-item"

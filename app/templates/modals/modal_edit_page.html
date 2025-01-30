@@ -1,0 +1,22 @@
+<div class="modal-dialog modal-fullscreen">
+  <form method="POST" class="modal-content">
+    <div class="modal-header justify-content-between">
+      <h3><i class="bi bi-pencil-fill text-primary"></i></h3>
+      <h3 class="modal-title">{{gettext('Edit page')}}</h3>
+        <div>
+          <button type="button" class="btn btn-primary" hx-post="/action_page?action=save&page={{page.id}}"
+            hx-target="#row_{{page.id}}"
+            hx-disinherit="*"
+            data-bs-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-body border" id="modal-fields" style="height: 100vh;">
+      {% include 'pages/form_edit_page.html' %}
+    </div>
+
+  </form>
+</div>
+
+

@@ -13,6 +13,7 @@ from app import db
 from app.src.models import Note, User, Register, File
 from app.src.notes.filters import get_notes, get_history, register_filter, get_title
 from app.src.inbox.inbox import inbox_main_view
+from app.src.pages.views import list_pages_view
 
 def render_main_body(request,template): 
     output = request.form.to_dict()
@@ -52,6 +53,8 @@ def render_main_title_body(request,template):
 
     if reg[0] == 'import':
         return inbox_main_view(request)
+    elif reg[0] == 'pages':
+        return list_pages_view(request)
     else:
         session['filter_notes'] = ''
         if not 'filter_option' in session:
@@ -153,7 +156,7 @@ def render_sidebar(element,template):
         elif element == 'register':
             element_title = 'Notes'
             icon = f'00-{element}{theme}'
-            focus = True if not reg[0] in ['mat','des','box','import','all'] or reg[1] == 'pen' else False
+            focus = True if not reg[0] in ['pages','mat','des','box','import','all'] or reg[1] == 'pen' else False
         elif element == 'despacho':
             element_title = 'Despacho'
             icon = f'00-{element}{theme}'
@@ -189,7 +192,6 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = False
 
-       
         return render_template(f'sidebar_icon.html',element=element,element_title=element_title,focus=focus,icon=icon)
     else:
         return render_template(f'{template}sidebar.html')
