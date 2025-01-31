@@ -6,7 +6,7 @@
         hx-trigger="click"
         hx-target="#main-title-body"
         hx-disinherit="*"
-        hx-on:click="$('#proposals_collapse').collapse('hide');"
+        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
         role="button">
           <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
             <i class="bi bi-globe"></i>
@@ -20,7 +20,7 @@
         hx-trigger="click"
         hx-target="#main-title-body"
         hx-disinherit="*"
-        hx-on:click="$('#proposals_collapse').collapse('hide');"
+        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
         role="button">
         <span>
           <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
@@ -40,7 +40,7 @@
       {% if register.permissions and register.alias != 'mat' %}
         <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == [register.alias,'in',''] %}active{% endif %}"
           hx-get="/main_title_body?reg=['{{register.alias}}','in','']"
-          hx-on:click="$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           hx-indicator="#indicator-table"
           hx-trigger="click"
           hx-target="#main-title-body"
@@ -57,7 +57,7 @@
               {{register.alias}}
               <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
             </span>
-            <span>Inbox {{register.alias}}</span>
+            <span>{{register.alias}} inbox</span>
           </span>
           <span class="badge rounded-pill bg-primary ms-2"
               hx-get="/body_data?info={{register.alias}}_in_"
@@ -67,7 +67,7 @@
       
         <li class="list-group-item {% if reg == [register.alias,'out',''] %}active{% endif %}"
           hx-get="/main_title_body?reg=['{{register.alias}}','out','']"
-          hx-on:click="$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           hx-indicator="#indicator-table"
           hx-trigger="click"
           hx-target="#main-title-body"
@@ -84,7 +84,7 @@
               {{register.alias}}
               <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
             </span>
-            <span>Outbox {{register.alias}}</span>
+            <span>{{register.alias}} outbox</span>
           </span>
         </li>
       {% endif %}
@@ -98,7 +98,7 @@
       {% for subregister in register.get_subregisters() %}
         <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == [register.alias,'in',subregister] %}active{% endif %}"
             hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
-            hx-on:click="$('#proposals_collapse').collapse('hide');"
+            hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
             hx-indicator="#indicator-table"
             hx-trigger="click"
             hx-target="#main-title-body"
@@ -111,7 +111,7 @@
                 {{subregister}}
                 <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
               </span>
-              <span>Inbox {{subregister}}</span>
+              <span>{{subregister}} inbox</span>
             </span>
             <span class="badge rounded-pill bg-primary ms-2"
                 hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
@@ -120,7 +120,7 @@
 
           <li class="list-group-item {% if reg == [register.alias,'out',subregister] %}active{% endif %}"
             hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
-            hx-on:click="$('#proposals_collapse').collapse('hide');"
+            hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
             hx-indicator="#indicator-table"
             hx-trigger="click"
             hx-target="#main-title-body"
@@ -133,7 +133,7 @@
                 {{subregister}}
                 <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
               </span>
-              <span>Outbox {{subregister}}</span>
+              <span>{{subregister}} outbox</span>
             </span>
           </li>
       {% endfor %}

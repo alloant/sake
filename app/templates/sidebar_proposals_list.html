@@ -2,7 +2,7 @@
   <li class="list-group-item align-items-center {% if reg == ['mat','all',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['mat','all','']"
     hx-indicator="#indicator-table"
-    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
     hx-trigger="click"
     hx-target="#main-title-body"
     hx-disinherit="*"
@@ -15,7 +15,7 @@
 
   <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','sign',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['mat','sign','']"
-    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
     hx-indicator="#indicator-table"
     hx-trigger="click"
     hx-target="#main-title-body"
@@ -32,7 +32,7 @@
 
   <li class="list-group-item align-items-center {% if reg == ['mat','draft',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['mat','draft','']"
-    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
     hx-indicator="#indicator-table"
     hx-trigger="click"
     hx-target="#main-title-body"
@@ -46,7 +46,7 @@
 
   <li class="list-group-item align-items-center {% if reg == ['mat','shared',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['mat','shared','']"
-    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
     hx-indicator="#indicator-table"
     hx-trigger="click"
     hx-target="#main-title-body"
@@ -60,7 +60,7 @@
   
   <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','done',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['mat','done','']"
-    hx-on:click="$('#registers_collapse').collapse('hide');"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
     hx-indicator="#indicator-table"
     hx-trigger="click"
     hx-target="#main-title-body"
