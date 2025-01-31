@@ -39,10 +39,8 @@ def page_view(page_id):
 def pages_table_view(request):
     page = 1 if not 'page' in session else session['page']
     
-    res = make_response(render_template('pages/table.html',pages=get_pages(),page=page))
-    res.headers['HX-Trigger'] = 'update-main'
+    return render_template('pages/table.html',pages=get_pages(),page=page)
 
-    return res
 
 def pages_row_view(request,page_id):
     page = db.session.scalar(select(Page).where(Page.id==page_id))

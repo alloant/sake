@@ -1,1 +1,11 @@
-{{page.text|safe}}
+{% extends "base_page.html" %}
+
+{% block content %}
+
+<h1 class="display-1 text-center mb-4">{{ page.title }}</h1>
+
+<div class="container fs-3" style="overflow-y: auto; text-align: justify">
+  {{page.text|safe}}
+</div>
+
+{% endblock %}

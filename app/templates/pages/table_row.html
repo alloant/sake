@@ -1,9 +1,31 @@
+<td>
+  {{ page.id }}
+</td>
+
 <td class="">
+  {{ page.title }}
+</td>
+
+<td>
   <span class="dropstart position-static">
     <button type="button" class="btn btn-sm mx-2 p-0 my-0" data-bs-toggle="dropdown" aria-expanded="false">
       <i class="bi bi-three-dots-vertical"></i>
     </button>
     <ul class="dropdown-menu border-0 shadow-lg p-3 mb-5 rounded">
+      <li>
+        <a class="dropdown-item"
+          hx-get="/main_title_body?reg=['pages','{{page.id}}','']"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          role="button">
+          <i class="bi bi-eye-fill"></i>
+          <span>{{gettext('View')}}</span>
+        </a>
+      </li>
+
       <li>
         <a  class="dropdown-item"
             hx-get="/action_page?action=edit&page={{page.id}}" 
@@ -12,12 +34,26 @@
             data-bs-toggle="modal"
             data-bs-target="#modal-htmx"
             role="button">
-          <i class="bi bi-pencil-fill"></i> {{gettext("Edit page")}}
+              <i class="bi bi-pencil-fill"></i>
+              <span>{{gettext('Edit page')}}</span>
         </a>
       </li>
+      
+      <li>
+        <a  class="dropdown-item text-danger"
+          hx-get="action_page?reg={{reg}}&action=delete&page={{page.id}}" 
+          hx-trigger="click"
+          hx-target="#main-body"
+          hx-indicator="#indicator-table"
+          hx-confirm="Are you sure you want to delete {{page.title}}?"
+          role="button">
+          <i class="bi bi-trash3-fill"></i> {{gettext("Delete page")}}
+      </a>
+
+      </li>
+
     </ul>
   </span>
-  {{ page.title }}
 </td>
 
 <!-- Date -->

@@ -681,12 +681,20 @@ class Page(db.Model):
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     title: Mapped[str] = mapped_column(db.String(500), default = '')
     category: Mapped[str] = mapped_column(db.String(50), default = '')
+    
     text: Mapped[str] = mapped_column(db.Text, default = '')
+    
     date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
+    
+    main: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
     groups: Mapped[list["Group"]] = relationship('Group', secondary=page_group, primaryjoin=page_group.c.page_id==id, secondaryjoin=page_group.c.group_id==Group.id, order_by="desc(Group.text)") 
     
     users: Mapped[list["PageUser"]] = relationship(back_populates="page")
+
+    @property
+    def str_id(self):
+        return str(self.id)
 
 class PageUser(db.Model):
     __tablename__ = 'pageuser'
@@ -709,7 +717,7 @@ class Setting(db.Model):
     password: Mapped[str] = mapped_column(db.String(500), default='')
     password_nas: Mapped[str] = mapped_column(db.String(500), default='')
     
-    notifications: Mapped[str] = mapped_column(db.Boolean, default=False)
+    notifications: Mapped[bool] = mapped_column(db.Boolean, default=False)
 
 user_ctr = db.Table('user_ctr',
                 db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
@@ -794,6 +802,12 @@ class User(UserProp,UserMixin, db.Model):
             self.groups.remove(db_group)
 
             db.session.commit()
+
+    @property
+    def my_pages(self):
+        pages = db.session.scalars(select(Page).where(Page.main)).all()
+
+        return pages
 
     @property
     def all_registers(self):

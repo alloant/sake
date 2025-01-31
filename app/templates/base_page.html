@@ -46,17 +46,6 @@
         {% endblock %}
     </head>
     <body id="whole-body" onload="requestPermission()">
-      {% if current_user.is_authenticated %}
-        <!--
-        <div hx-ext="ws" ws-connect="ws://{{sock_server}}:8765/{{current_user.alias}}"></div>
-        !-->
-        <div hx-ext="ws" ws-connect="/update_sidebar">
-          <div id="sock_id"></div>
-        </div>
-      {% endif %}
-      
-      {% include 'links.html' %}
-      {% include 'links_cl.html' %}
       
       <div id="modal-htmx"
         class="modal modal-blur fade"
@@ -78,24 +67,10 @@
           <div class="modal-content"></div>
         </div>
       </div>
-
       
-      <div class="container-fluid">
-        <div class="row">
-          {% include "sidebar.html" %}
-          {% if current_user.is_authenticated and current_user.severalCalendars %}
-            {% include "sidebar_registers.html" %}
-            {% include "sidebar_proposals.html" %}
-            {% include "sidebar_pages.html" %}
-          {% endif %}
-          <!-- Your page content -->
-          <div class="col-sm min-vh-100">
-            <div hx-get="/flash" hx-trigger="update-flash from:body">
-              {% include 'flash.html' %}
-            </div>
-            {% block content %}{% endblock %}
-          </div>
-        </div>
+      <!-- Your page content -->
+      <div class="col-sm min-vh-100">
+        {% block content %}{% endblock %}
       </div>
 
       {% block scripts %}

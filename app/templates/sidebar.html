@@ -147,21 +147,19 @@
       <!-- End cl registers-->
       {% endif %}
       {% if current_user.alias in ['antonio','jb'] %}
-        <a class="nav-link my-1" 
-          hx-get="/main_title_body?reg=['pages','','']" 
-          hx-trigger="click" 
-          hx-target="#main-title-body" 
+        <a class="nav-link position-relative my-1"
+          data-bs-toggle="collapse"
+          data-bs-target="#pages_collapse"
           hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
-          data-bs-toggle="tooltip" 
-          data-bs-placement="right" 
-          data-bs-original-title="{{gettext('Pages')}}">
+          role="button">
           <div class="row">
             <img src="static/icons/pages{{dark}}.svg" width="35rem" height="35rem">
           </div>
           <div class="row">
-            <small>Links</small>
+            <small>Pages</small>
           </div>
         </a>
+
       {% endif %}
       {% if current_user.category in ['dr','of'] %}
         <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">

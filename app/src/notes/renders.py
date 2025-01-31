@@ -10,7 +10,7 @@ from flask_login import current_user
 from sqlalchemy import select, and_, or_, func, not_
 
 from app import db
-from app.src.models import Note, User, Register, File
+from app.src.models import Note, User, Register, File, Page
 from app.src.notes.filters import get_notes, get_history, register_filter, get_title
 from app.src.inbox.inbox import inbox_main_view
 from app.src.pages.views import list_pages_view
@@ -54,7 +54,11 @@ def render_main_title_body(request,template):
     if reg[0] == 'import':
         return inbox_main_view(request)
     elif reg[0] == 'pages':
-        return list_pages_view(request)
+        if reg[1] == '':
+            return list_pages_view(request)
+        else:
+            page = db.session.scalar(select(Page).where(Page.id==reg[1]))
+            res = make_response(render_template('pages/view.html', page=page, reg=reg))
     else:
         session['filter_notes'] = ''
         if not 'filter_option' in session:
@@ -98,7 +102,6 @@ def render_body_element(reg,note_id,element,template):
         note = db.session.scalar(select(Note).where(Note.id==note_id))
         return render_template('notes/table/2_actions_ctr.html',reg=reg,note=note)
     elif element == 'targets_input':
-        print('targets_input')
         note = db.session.scalar(select(Note).where(Note.id==note_id))
         return render_template('notes/targets_input.html',reg=reg,note=note)
 
@@ -177,6 +180,8 @@ def render_sidebar(element,template):
             return render_template('sidebar_registers_list.html',reg=reg)
         elif element == "proposal_list":
             return render_template('sidebar_proposals_list.html',reg=reg)
+        elif element == "page_list":
+            return render_template('sidebar_pages_list.html',reg=reg)
         elif '_' in element:
             ele = element.split('_')
             if ele[2]:

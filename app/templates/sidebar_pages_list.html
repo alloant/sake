@@ -1,0 +1,48 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  <li class="list-group-item align-items-center {% if reg == ['pages','',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['pages','','']"
+    hx-indicator="#indicator-table"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-globe"></i>
+    </span>
+    <span>{{gettext('All')}}</span>
+  </li>
+  
+  <li class="list-group-item-divider"></li> <!-- Divider -->
+
+  {% for page in current_user.my_pages %}
+  <!--
+  <li class="list-group-item align-items-center {% if reg == ['pages',page.str_id,''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['pages','{{page.id}}','']"
+    hx-indicator="#indicator-table"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-file-earmark"></i>
+    </span>
+    <span>{{page.title}}</span>
+  </li>
+  -->
+  <li>
+    <a class="list-group-item align-items-center {% if reg == ['pages',page.str_id,''] %}active{% endif %}"
+      href="page/{{page.id}}"
+      target="_blank"
+      hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+      role="button">
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-file-earmark"></i>
+      </span>
+      <span>{{page.title}}</span>
+    </a>
+  </li>
+  {% endfor %}
+
+{% endwith %}

@@ -4,7 +4,7 @@
 import ast
 import re
 
-from flask import render_template, session, make_response
+from flask import render_template, session, make_response, redirect, url_for
 from flask_login import current_user
 
 from sqlalchemy import select, and_, or_, func, not_
@@ -17,13 +17,13 @@ from app import db
 from app.src.models import Page
 from app.src.forms.page import PageForm
 
-from app.src.pages.views import pages_table_view, pages_row_view
+from app.src.pages.views import pages_table_view, pages_row_view, list_pages_view
 
 def pages_action(request):
     page_id = request.args.get('page',None)
     action = request.args.get('action')
     trigger = ['update-main']
-    print('action',action,page_id)
+
     match action:
         case 'new':
             page = Page()
@@ -33,11 +33,20 @@ def pages_action(request):
             return edit_page(page_id,request)
         case 'save':
             save_page(page_id,request)
+        case 'delete':
+            page = db.session.scalar(select(Page).where(Page.id==page_id))
+            db.session.delete(page)
+            db.session.commit()
 
-    if page_id:
+    if action == 'delete':
+        res = make_response()
+        res.headers['HX-Redirect'] = "/"
+        return res
+    elif page_id:
         res = make_response(pages_row_view(request,page_id))
     else:
         res = make_response(pages_table_view(request))
+
     
     res.headers['HX-Trigger'] = ','.join(trigger)
 
@@ -49,6 +58,7 @@ def edit_page(page_id,request):
     
     form.title.data = page.title
     form.text.data = page.text
+    form.main.data = page.main
 
     return render_template('modals/modal_edit_page.html',page=page,form=form)
 
@@ -58,6 +68,8 @@ def save_page(page_id,request):
 
     page.title = form.title.data
     page.text = form.text.data
+    page.main = form.main.data
 
     db.session.commit()
+
 
