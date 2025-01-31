@@ -136,7 +136,6 @@ def read_eml(file_eml,emails = None):
                 efiles.append(True)
         
         for i,file in enumerate(attachments):
-            print('----',file['filename'],'----')
             if efiles[i]:
                 continue
 

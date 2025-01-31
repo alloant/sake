@@ -29,38 +29,35 @@ def get_register(prot):
     registers = db.session.scalars(select(Register).where(Register.active==1))
     prot = re.sub(r'\d+\/\d+','',prot)
     prot = prot.strip('- ')
-
     for reg in registers:
         alias = r"[^0-9-]+"
         if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
             alias = ""
-
-            senders = db.session.scalars(select(User).where(User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
             
+            senders = db.session.scalars(select(User).where(User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
             if len(senders) == 1:
                 sender = senders[0]
             else:
                 rst = re.sub( eval(f"f'{reg.in_pattern}'"),'',prot)
-                print('rst',rst,prot)
-                if 'personal' in reg.groups:
+                if 'personal' in reg.groups or reg.alias == 'mat':
                     sender = db.session.scalar(select(User).where(User.alias==rst))
                 else:
                     sender = db.session.scalar(select(User).where(User.alias==rst,User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) ))
            
             if sender != None:
-                print('Why????????',sender,type(sender))
                 return {'reg':reg,'sender':sender,'flow':'in'}
 
         
         #alias = r"\D+$"
         alias = r"[^0-9-]+$"
-        if re.fullmatch( eval(f"f'{reg.out_pattern}'"),prot): # Could note OUT
+        if re.fullmatch( eval(f"f'{reg.out_pattern}'"),prot) and reg.alias != 'mat': # Could note OUT
             return {'reg':reg,'flow':'out'}
 
 
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
+
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
@@ -74,8 +71,6 @@ def get_filter_fullkey(prot):
         fn.append(Note.num==int(nums[0]))
         fn.append(Note.year==2000+int(nums[1]))
 
-        print('filter',reg)    
-        
         return and_(*fn)
     
     return None
