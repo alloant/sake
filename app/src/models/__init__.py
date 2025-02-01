@@ -873,8 +873,10 @@ class User(UserProp,UserMixin, db.Model):
             rst = current_user.pendings
         elif info == "done":
             rst = 0
-        elif info == "proposals":
-            rst = current_user.pending_matters_to_sign + current_user.pending_matters_done
+        elif info == "proposals_to_sign":
+            rst = current_user.pending_matters_to_sign
+        elif info == "proposals_to_finish":
+            rst = current_user.pending_matters_done
         elif info == "proposals_all":
             rst = current_user.pending_matters
         elif info == "proposals_to_sign":

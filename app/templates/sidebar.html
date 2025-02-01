@@ -7,7 +7,7 @@
         <a class="nav-link position-relative my-1"
           data-bs-toggle="collapse"
           data-bs-target="#registers_collapse"
-          hx-on:click="$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           role="button">
           
           <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
@@ -26,7 +26,7 @@
         <a class="nav-link position-relative my-1"
           data-bs-toggle="collapse"
           data-bs-target="#proposals_collapse"
-          hx-on:click="$('#registers_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           role="button">
           <div class="container" 
             hx-get="sidebar?element=matters" 
@@ -34,9 +34,13 @@
             hx-swap="outerHTML">
           </div>
           <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
-              hx-get="body_data?info=proposals"
+              hx-get="body_data?info=proposals_to_sign"
               hx-trigger="load, state-updated from:body, socket-updated from:body">
           </span>
+          <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
+              hx-get="body_data?info=proposals_to_finish"
+              hx-trigger="load, read-updated from:body, socket-updated from:body"></span>
+
         </a> 
  
       <a class="nav-link position-relative my-1"
@@ -45,7 +49,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('All notes and proposals')}}"
           role="button">
@@ -61,7 +65,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           role="button">
           <div class="container" hx-get="sidebar?element=despacho" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
@@ -77,7 +81,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('Imported files from eml or asr folder')}}"
           role="button">
@@ -90,7 +94,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('All notes the sccr has to prepare for despacho')}}"
           role="button">
@@ -106,7 +110,7 @@
           hx-trigger="click"
           hx-target="#main-title-body"
           hx-disinherit="*"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
           data-bs-toggle="tooltip"
           data-bs-title="{{gettext('All the notes the sccr has to send')}}"
           role="button">
@@ -209,7 +213,7 @@
               hx-get="/edit_user?user={{current_user.id}}" 
               hx-trigger="click"
               hx-target="#modal-htmx"
-              hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+              hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
               data-bs-toggle="modal"
               data-bs-target="#modal-htmx"
               role="button">
