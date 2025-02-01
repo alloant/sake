@@ -39,7 +39,7 @@
           </span>
           <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
               hx-get="body_data?info=proposals_to_finish"
-              hx-trigger="load, read-updated from:body, socket-updated from:body"></span>
+              hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
 
         </a> 
  
@@ -150,21 +150,21 @@
         {% endfor %}   
       <!-- End cl registers-->
       {% endif %}
-      {% if current_user.alias in ['antonio','jb'] %}
-        <a class="nav-link position-relative my-1"
-          data-bs-toggle="collapse"
-          data-bs-target="#pages_collapse"
-          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
-          role="button">
-          <div class="row">
-            <img src="static/icons/pages{{dark}}.svg" width="35rem" height="35rem">
-          </div>
-          <div class="row">
-            <small>Pages</small>
-          </div>
-        </a>
+     
+      <a class="nav-link position-relative my-1"
+        data-bs-toggle="collapse"
+        data-bs-target="#pages_collapse"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
+        role="button">
+        <div class="row">
+          <img src="static/icons/pages{{dark}}.svg" width="35rem" height="35rem">
+        </div>
+        <div class="row">
+          <small>Pages</small>
+        </div>
+      </a>
 
-      {% endif %}
+      <!--
       {% if current_user.category in ['dr','of'] %}
         <a class="nav-link my-1" role="button" title="" data-bs-toggle="offcanvas" data-bs-placement="right" data-bs-target="#offlinks">
           <div class="row">
@@ -183,7 +183,8 @@
             <small>Links</small>
           </div>  
         </a>
-        {% endif %}
+      {% endif %}
+      -->
     {% endif %}
    
     {% if False %}

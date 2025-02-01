@@ -33,8 +33,11 @@ def list_pages_view(request):
 
 def page_view(page_id):
     page = db.session.scalar(select(Page).where(Page.id==page_id))
-    
-    return render_template('pages/view.html',page=page)
+    if page.has_access():    
+        return render_template('pages/view.html',page=page)
+
+    return render_template("error.html")
+
 
 def pages_table_view(request):
     page = 1 if not 'page' in session else session['page']

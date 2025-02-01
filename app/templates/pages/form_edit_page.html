@@ -3,10 +3,21 @@
 <fieldset class="form-group">
 
 <div class="container-fluid">
-  {{ form.title.label(class="form-label") }}
-  {{ form.title(class="form-control") }}
-  
-  {{ form.main(class="form-check-input") }} <span class="ms1">Main</span>
+  <div class="d-flex align-items-center">
+    {{ form.main(class="form-check-input") }}
+    <span class="ms-1">Main</span>
+ 
+    <span class="ms-4 me-1">Title</span> 
+    {{ form.title(class="form-control") }}
+
+    <span class="ms-4 border rounded-pill p-1 d-inline-flex flex-nowrap">
+      Groups:
+      {% for group in form.groups %}
+        {{ group(class="form-check-input ms-3")}}
+        {{ group.label(class="ms-1")}}
+      {% endfor %}
+    </span>
+  </div>
 
   <div class="p-2 container-fluid">
     {{ form.text.label(class="form-label") }}

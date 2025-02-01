@@ -86,6 +86,8 @@
           {% if current_user.is_authenticated and current_user.severalCalendars %}
             {% include "sidebar_registers.html" %}
             {% include "sidebar_proposals.html" %}
+          {% endif %}
+          {% if current_user.is_authenticated %}
             {% include "sidebar_pages.html" %}
           {% endif %}
           <!-- Your page content -->

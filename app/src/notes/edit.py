@@ -12,7 +12,7 @@ from flask_login import current_user
 from sqlalchemy import select, and_
 
 from app import db, sock_clients
-from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser, Tag
+from app.src.models import Note, User, Comment, File, get_note_fullkey, NoteUser, Tag, Page
 from app.src.forms.note import ReceiverForm, TagForm
 from app.src.notes.manage import new_note
 from app.src.tools.websocket import send_message
@@ -375,20 +375,35 @@ def edit_tags_view(request):
 
 def edit_receivers_view(request):
     output = request.form.to_dict()
-    note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    page_id = request.args.get('page',False)
+    note_id = request.args.get('note',False)
+    
+    if note_id:
+        note = db.session.scalar(select(Note).where(Note.id==note_id))
+        form = ReceiverForm(request.form,obj=note)
+
+    if page_id:
+        page = db.session.scalar(select(Page).where(Page.id==page_id))
+        form = ReceiverForm(request.form,obj=page)
+
+
     
     type_save = request.args.get('type')
     save = request.args.get('save')
-    form = ReceiverForm(request.form,obj=note)
 
     filter = output['search'] if 'search' in output else ''
     
     if type_save == 'permissions':
-        form.receiver.choices = note.potential_receivers(filter,only_of=False if note.permanent else True)
+        if note_id:
+            form.receiver.choices = note.potential_receivers(filter,only_of=False if note.permanent else True)
+        if page_id:
+            form.receiver.choices = page.potential_receivers(filter)
     else:
-        form.receiver.choices = note.potential_receivers(filter)
-    
+        if note_id:
+            form.receiver.choices = note.potential_receivers(filter)
+        if page_id:
+            form.receiver.choices = page.potential_receivers(filter)
+ 
     if request.method == 'POST':
         if 'rst_checkbox' in session:
             for ch in session['opt_checkbox']:
@@ -401,48 +416,74 @@ def edit_receivers_view(request):
         else:
             session['rst_checkbox'] = form.receiver.data
     
-         
-        if save == '1':
-            for n,user in enumerate(reversed(note.receiver)):
-                if not user.alias in form.receiver.data:
-                    #note.receiver.remove(user)
-                    note.toggle_status_attr('target',user=user)
+        if note_id: 
+            if save == '1':
+                for n,user in enumerate(reversed(note.receiver)):
+                    if not user.alias in form.receiver.data:
+                        #note.receiver.remove(user)
+                        note.toggle_status_attr('target',user=user)
 
-            for user in session['rst_checkbox']:
-                rec = db.session.scalars(select(User).where(User.alias==user)).first()
-                if not rec in note.receiver:
-                    #note.receiver.append(rec)
-                    note.toggle_status_attr('target',user=rec)
+                for user in session['rst_checkbox']:
+                    rec = db.session.scalars(select(User).where(User.alias==user)).first()
+                    if not rec in note.receiver:
+                        #note.receiver.append(rec)
+                        note.toggle_status_attr('target',user=rec)
 
-            db.session.commit()
-            return note.dep_html
-        elif save == '2':
-            old_access = db.session.scalars(select(NoteUser).where(NoteUser.note_id==note.id,NoteUser.access!='')).all()
-            for user in old_access:
-                note.set_access_user('',user.user)
+                db.session.commit()
+                return note.dep_html
+            elif save == '2':
+                old_access = db.session.scalars(select(NoteUser).where(NoteUser.note_id==note.id,NoteUser.access!='')).all()
+                for user in old_access:
+                    note.set_access_user('',user.user)
 
-            for user in session['rst_checkbox']:
-                note.set_access_user('reader',user)
+                for user in session['rst_checkbox']:
+                    note.set_access_user('reader',user)
 
-            db.session.commit()
-            return ""
+                db.session.commit()
+                return ""
 
-        return render_template("modals/modal_receivers_list.html",note=note, form=form)
+            #return render_template("modals/modal_receivers_list.html",note=note, form=form)
+        if page_id:
+            for user in page.users:
+                if user.user_id in form.receiver.data:
+                    page.set_access(user.user_id,'viewer')
+                else:
+                    page.set_access(user.user_id,'')
+            
+            for user in form.receiver.data:
+                page.set_access(user,'viewer')
+
+            if save == '1':
+                return page.access_html
+        
+        return render_template("modals/modal_receivers_list.html", form=form)
     else:
-        if type_save == 'permissions':
-            form.receiver.data = [user.user.alias for user in note.users if user.access!='']
-        else:
-            for rec in note.receiver:
-                form.receiver.data.append(rec.alias)
+        if note_id:
+            if type_save == 'permissions':
+                form.receiver.data = [user.user.alias for user in note.users if user.access!='']
+            else:
+                for rec in note.receiver:
+                    form.receiver.data.append(rec.alias)
+        
+        if page_id:
+            form.receiver.data = [user.user.alias for user in page.users if user.access != '']
 
 
     session['opt_checkbox'] = form.receiver.choices
     session['rst_checkbox'] = form.receiver.data
 
     if type_save == 'permissions':
-        return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget="", form=form)
+        if note_id:
+            return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget="", form=form)
+        if page_id:
+            return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?page={page.id}", hxtarget=f"recRow-{page.id}", form=form)
+
     else:
-        return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
+        print('HEre')
+        if note_id:
+            return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
+        if page_id:
+            return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?page={page.id}", hxtarget=f"recRow-{page.id}", form=form)
 
 def load_socket_view(request):
     msg = request.args.get('msg',False)

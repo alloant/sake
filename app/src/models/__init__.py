@@ -20,6 +20,7 @@ from .nas.file import FileNas
 from .properties.note import NoteProp
 from .html.note import NoteHtml
 from .html.file import FileHtml
+from .html.page import PageHtml
 from .nas.note import NoteNas
 from .html.register import RegisterHtml
 
@@ -519,7 +520,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         
         return self.result('is_target',check)
     
-    def potential_receivers(self,filter,possibles = [],only_of = False):
+    def potential_receivers(self,filter,possibles = [],only_of = False,for_pages=False):
         fn = []
         fn.append(User.active==1)
         
@@ -670,7 +671,7 @@ page_group = db.Table('page_group',
                 db.Column('group_id', db.Integer, db.ForeignKey('group.id'))
                 )
 
-class Page(db.Model):
+class Page(db.Model,PageHtml):
     __tablename__ = 'page'
     
     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
@@ -690,6 +691,68 @@ class Page(db.Model):
     @property
     def str_id(self):
         return str(self.id)
+
+    @property
+    def possible_groups(self):
+        return db.session.scalars(select(Group.text).where(Group.category=='page')).all()
+
+    @hybrid_method
+    def has_access(self,user=current_user):
+        if user.category in self.groups or 'scr' in user.groups or 'admin' in user.groups:
+            return True
+        else:
+            rst = self.get_user(user)
+            print('rst',user,rst,rst.access)
+            if rst and rst.access != '':
+                return True
+        return False
+    
+    @has_access.expression
+    def has_access(cls,user=current_user):
+        if 'scr' in user.groups or 'admin' in user.groups:
+            return True
+        return cls.users.any(or_(cls.groups.any(Group.text==user.category),and_(PageUser.user_id==user.id,PageUser.access!='')))
+
+    
+    def get_user(self,user=current_user):
+        if isinstance(user,str):
+            return db.session.scalar(select(PageUser).where(PageUser.page_id==self.id,PageUser.user.has(User.alias==user)))
+        elif isinstance(user,int):
+            return db.session.scalar(select(PageUser).where(PageUser.page_id==self.id,PageUser.user.has(User.id==user)))
+        else:
+            return db.session.scalar(select(PageUser).where(PageUser.page_id==self.id,PageUser.user_id==user.id))
+
+    def set_access(self,user,value):
+        rst = self.get_user(user)
+
+        if not rst:
+            if isinstance(user,str):
+                user = db.session.scalar(select(User).where(User.alias==user))
+            elif isinstance(user,int):
+                user = db.session.scalar(select(User).where(User.id==user))
+
+            access = PageUser(page_id=self.id,user_id=user.id,access=value)
+            db.session.add(access)
+        else:
+            rst.access = value
+        
+        db.session.commit()
+
+    def potential_receivers(self,filter):
+        fn = []
+        fn.append(User.active==1)
+        
+        if filter:
+            fts = re.findall(r'\w+',filter)
+            ftn = []
+            for ft in fts:
+                ftn.append(or_(func.lower(User.alias).contains(func.lower(ft)),User.description.regexp_match(fr'\b{ft}\b')))
+            fn.append(and_(*ftn))
+
+        fn.append(User.category.in_([group for group in self.possible_groups if not group in self.groups]))
+
+        return [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(*fn).order_by(User.category,User.alias)).all()]
+
 
 class PageUser(db.Model):
     __tablename__ = 'pageuser'
@@ -800,7 +863,8 @@ class User(UserProp,UserMixin, db.Model):
 
     @property
     def my_pages(self):
-        pages = db.session.scalars(select(Page).where(Page.main)).all()
+        #pages = db.session.scalars(select(Page).where(Page.main,Page.groups.any(Group.text==current_user.category))).all()
+        pages = db.session.scalars(select(Page).where(Page.main,Page.has_access())).all()
 
         return pages
 

@@ -20,7 +20,9 @@ class PageForm(FlaskForm):
     title = StringField(gettext('Title'), validators=[])
     category = StringField(gettext('Category'), validators=[])
     text = TextAreaField(gettext('Text'), validators=[])
-    
+
+    groups = MultiCheckboxField(gettext('Group'),coerce=str)
+
     main = BooleanField(gettext('Main page'))
 
     submit = SubmitField(gettext("Save"))

@@ -1,4 +1,5 @@
 {% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  {% if 'scr' in current_user.groups or 'admin' in current_user.groups %}
   <li class="list-group-item align-items-center {% if reg == ['pages','',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['pages','','']"
     hx-indicator="#indicator-table"
@@ -14,6 +15,7 @@
   </li>
   
   <li class="list-group-item-divider"></li> <!-- Divider -->
+  {% endif %}
 
   {% for page in current_user.my_pages %}
   <!--

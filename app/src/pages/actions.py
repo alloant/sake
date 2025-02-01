@@ -14,7 +14,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Page
+from app.src.models import Page, Group
 from app.src.forms.page import PageForm
 
 from app.src.pages.views import pages_table_view, pages_row_view, list_pages_view
@@ -60,6 +60,9 @@ def edit_page(page_id,request):
     form.text.data = page.text
     form.main.data = page.main
 
+    form.groups.choices = db.session.scalars(select(Group.text).where(Group.category=='page')).all()
+    form.groups.data = [group.text for group in page.groups]
+
     return render_template('modals/modal_edit_page.html',page=page,form=form)
 
 def save_page(page_id,request):
@@ -69,6 +72,17 @@ def save_page(page_id,request):
     page.title = form.title.data
     page.text = form.text.data
     page.main = form.main.data
+
+    groups = db.session.scalars(select(Group).where(Group.category=='page')).all()
+
+    for group in groups:
+        if group.text in form.groups.data:
+            if not group in page.groups:
+                page.groups.append(group)
+        else:
+            if group in page.groups:
+                page.groups.remove(group)
+
 
     db.session.commit()
 

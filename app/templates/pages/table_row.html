@@ -4,6 +4,9 @@
 
 <td class="">
   {{ page.title }}
+  <span id="recRow-{{page.id}}">  
+    {{ page.access_html|safe }}
+  </span>
 </td>
 
 <td>
@@ -25,6 +28,7 @@
           <span>{{gettext('View')}}</span>
         </a>
       </li>
+    <li><hr class="dropdown-divider"></li>
 
       <li>
         <a  class="dropdown-item"
@@ -38,6 +42,7 @@
               <span>{{gettext('Edit page')}}</span>
         </a>
       </li>
+    <li><hr class="dropdown-divider"></li>
       
       <li>
         <a  class="dropdown-item text-danger"
@@ -51,6 +56,19 @@
       </a>
 
       </li>
+
+    <li><hr class="dropdown-divider"></li>
+    <li>
+      <a class="dropdown-item" 
+        hx-get="/edit_receivers?page={{page.id}}&type=permissions" 
+        hx-target="#modal-htmx" 
+        hx-trigger="click" 
+        data-bs-toggle="modal"
+        data-bs-target="#modal-htmx"
+        role="button">
+        <i class="bi bi-person-fill-lock"></i> {{gettext('Grant access to...')}}
+      </a>
+    </li>
 
     </ul>
   </span>
