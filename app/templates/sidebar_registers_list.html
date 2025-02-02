@@ -33,7 +33,7 @@
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
         </span>
       </li>
-      <li class="list-group-item-divider"></li> <!-- Divider -->
+      <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
   {% endif %}
   {% with registers = current_user.all_registers_and_sub %}
     {% for register in registers %}
@@ -59,12 +59,13 @@
             </span>
             <span>{{register.alias}} inbox</span>
           </span>
+          
           <span class="badge rounded-pill bg-primary ms-2"
               hx-get="/body_data?info={{register.alias}}_in_"
               hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
           </span>
         </li>
-      
+        
         <li class="list-group-item {% if reg == [register.alias,'out',''] %}active{% endif %}"
           hx-get="/main_title_body?reg=['{{register.alias}}','out','']"
           hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
@@ -79,6 +80,7 @@
             data-bs-title="{{gettext('Mail to')}} {{register.alias}}"
           {% endif %}
           role="button">
+          
           <span>
             <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
               {{register.alias}}
@@ -88,10 +90,10 @@
           </span>
         </li>
       {% endif %}
-
     {% endfor %}
+
     {% if current_user.category in ['dr','of'] %}
-      <li class="list-group-item-divider"></li> <!-- Divider -->
+      <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
     {% endif %}
     
     {% for register in registers %}

@@ -697,7 +697,7 @@ class Page(db.Model,PageHtml):
         return db.session.scalars(select(Group.text).where(Group.category=='page')).all()
 
     @hybrid_method
-    def has_access(self,user=current_user):
+    def has_access(self,user=current_user,for_list=False):
         if user.category in self.groups or 'scr' in user.groups or 'admin' in user.groups:
             return True
         else:
@@ -708,10 +708,14 @@ class Page(db.Model,PageHtml):
         return False
     
     @has_access.expression
-    def has_access(cls,user=current_user):
-        if 'scr' in user.groups or 'admin' in user.groups:
+    def has_access(cls,user=current_user,for_list=False):
+        if not for_list and ('scr' in user.groups or 'admin' in user.groups):
             return True
-        return cls.users.any(or_(cls.groups.any(Group.text==user.category),and_(PageUser.user_id==user.id,PageUser.access!='')))
+        
+        return or_(
+            cls.groups.any(Group.text==user.category),
+            cls.users.any(and_(PageUser.user_id == user.id,PageUser.access != ''))
+        )
 
     
     def get_user(self,user=current_user):
@@ -864,7 +868,7 @@ class User(UserProp,UserMixin, db.Model):
     @property
     def my_pages(self):
         #pages = db.session.scalars(select(Page).where(Page.main,Page.groups.any(Group.text==current_user.category))).all()
-        pages = db.session.scalars(select(Page).where(Page.main,Page.has_access())).all()
+        pages = db.session.scalars(select(Page).where(Page.main,Page.has_access(for_list=True))).all()
 
         return pages
 
