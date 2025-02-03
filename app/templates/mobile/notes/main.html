@@ -1,40 +1,142 @@
-<div id="notes-title">
-  <div class="d-flex flex-row align-items-center mb-4">
-    {% if title['new'] %}
-    <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=new" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('New')}}</button>
-    {% endif %}
-   
-    {% if title['showAll'] %}
-      <div class="p-2">
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/main_body?reg={{reg}}&showAll=toggle" hx-trigger="click" hx-target="#main-body" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
-          <label class="form-check-label" for="flexSwitchCheckDefault">{{gettext('All')}}</label>
-        </div>
-      </div>
-    {% endif %}
- 
-    {% if title['filter'] %}
-      <input class="form-control flex-grow-1" type="search" 
-        name="search" placeholder="Search..." id="search_text"
-        hx-post="/main_body?reg={{reg}}" 
-        hx-trigger="input changed delay:500ms, search" 
-        hx-target="#main-body"> 
-      <div class="p-2">
-        <span class="big" data-toggle="tooltip" data-html="true" title="Click the switch All to archived documents&#013To filter using tags use #tag.&#013To filter by person use @alias">
-          <i class="bi bi-info-circle"></i>
-        </span>
-      </div>
-    {% endif %}
+<div id="notes-title" class="d-flex my-4 mb-1 align-items-center">
+    <div class="d-inline-flex align-items-center">
+      <img src="static/icons/sake.svg" width="45vmin" height="45vmin">
+      <span class="display-6 mx-2">Sake</span>
+    </div>
+    
+    <div class="flex-grow-1">
+      <div class="d-flex align-items-center justify-content-end">
+             
+        
+        {% if title['filter'] %}
+          <span class="flex-grow-1 mx-4">
+            <div class="input-group">
+            <span class="input-group-text rounded-pill rounded-end border-end-0" id="basic-addon1" style="background-color:transparent"><i class="bi bi-search"></i></span>
+              <input class="shadow-none py-0 form-control border-start-0 {{'border-end-0' if title['showAll'] else 'rounded-pill rounded-start'}}" type="search" style="outline:none;"
+                name="search" placeholder="Search..." id="search_text"
+                hx-post="/main_body?reg={{reg}}" 
+                hx-trigger="input changed delay:500ms, search" 
+                hx-target="#main-body"
+                data-toggle="tooltip"
+                data-html="true"
+                title="To filter using tags use #tag.&#013To filter by person use @alias&#013To search by date use date:25/12/2024 or for a range date:25/12/2024-31/12/2024&#013To search in the files' names use file:pdf (to find the pdf) or file:untitled.odoc">
+              {% if title['showAll'] %}
+                <span class="">
+                  <select class="form-select shadow-none w-auto rounded-pill rounded-pill-end rounded-start-0 border-start-0"
+                    name="filter_option"
+                    hx-post="/main_body?reg={{reg}}"
+                    hx-trigger="click"
+                    hx-target="#main-body"
+                    hx-disinherit="*"
+                    >
+                    {% if reg[0] == 'all' and reg[1] == 'all' %}
+                      <option value="only_notes" class="text-end" {{'selected' if session['filter_option'] == 'only_notes' else ''}}>Only notes</option>
+                      <option value="only_proposals" class="text-end" {{'selected' if session['filter_option'] == 'only_proposals' else ''}}>Only proposals</option>
+                      <option value="notes_proposals" class="text-end" {{'selected' if session['filter_option'] == 'notes_proposals' else ''}}>Notes and proposals </option>
+                    {% else %}
+                      <option value="hide_archived" class="text-end" {{'selected' if session['filter_option'] == 'hide_archived' else ''}}>Hide archived</option>
+                      <option value="show_archived" class="text-end" {{'selected' if session['filter_option'] == 'show_archived' else ''}}>Show archived</option>
+                    {% endif %}
+                  </select>
+                </span>
+              {% endif %}
+            </div>
+          </span>
+        {% endif %} <!-- end title['filter'] -->
+        
+        {% if title['new'] %}
+            <button class="border-none btn btn-file rounded-circle"
+                style="background-color: transparent;"
+                hx-get="/action_note?reg={{reg}}&action=new"
+                hx-trigger="click"
+                hx-target="#main-body"
+                hx-indicator="#indicator-table"
+                hx-disinherit="*"
+                data-bs-toggle="tooltip"
+                title="{{gettext('New')}}"><i class="h4 bi bi-file-earmark-plus"></i></button>
+              {% if reg[0] == 'vc' %}
+              <button class="border-none btn btn-file rounded-circle"
+                  style="background-color: transparent;"
+                  hx-get="/action_note?reg={{reg}}&action=new&target=asr"
+                  hx-trigger="click"
+                  hx-target="#main-body"
+                  hx-indicator="#indicator-table"
+                  hx-disinherit="*"
+                  data-bs-toggle="tooltip"
+                  title="{{gettext('New note to asr')}}"><i class="h4 bi bi-patch-plus"></i></button>
+            {% endif %}
+
+        {% elif reg[0] == 'box' and current_user.alias == 'antonio' %}
+          <a class="btn btn-file rounded-circle border-none"
+            hx-get="/action_note?action=new&reg={{reg}}" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button"><i class="h4 bi bi-file-earmark-plus" data-bs-toggle="tooltip" title="See notes from cg"></i></a>
+        {% endif %} <!-- End title['New'] -->
+
+        {% if title['mail_to_despacho'] %}
+          <a class="btn btn-file rounded-circle border-none"
+            hx-get="/action_note?action=notes_from_cg" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            role="button"><i class="h4 bi bi-file-ruled" data-bs-toggle="tooltip" title="See notes from cg"></i></a>
+          
+          <a class="btn btn-file rounded-circle border-none"
+              hx-get="/action_note?action=inbox_despacho"
+              hx-trigger="click"
+              hx-target="#main-body"
+              hx-indicator="#indicator-table"
+              data-bs-toggle="tooltip"
+              title="{{gettext('All to despacho')}}"><i class="h4 bi bi-reply-all"></i></a>
+
+
+        {% endif %}
+
+        {% if title['sendmail'] %}
+          <form class="" id="inboxscr" method="POST">
+            {{gettext('Report for cg. Choose dates:')}} <input type="text" name="daterange" value="">
+            <a class="btn btn-file rounded-circle"
+              hx-post="/action_inbox?action=report_cg"
+              hx-trigger="click"
+              hx-include="#inboxscr"
+              hx-swap="none"
+              hx-on:htmx:after-request="window.open('/download_report')"
+              hx-indicator="#indicator-table"
+              data-bs-toggle="tooltip"
+              title="{{gettext('Report cg')}}"><i class="h4 bi bi-journal-code"></i></a>
+            </form>
+
+            <button class="btn btn-file"
+              hx-get="/action_note?reg={{reg}}&action=outbox_target&reg={{reg}}"
+              hx-trigger="click"
+              hx-target="#main-body"
+              hx-indicator="#indicator-table"
+              hx-disinherit="*"
+              data-bs-toggle="tooltip"
+              title="{{gettext('Send mail')}}"><i class="h4 bi bi-reply-all"></i></button>
+        
+
+
+          <script>
+            $(function() {
+              $('input[name="daterange"]').daterangepicker({
+                opens: 'left'
+              }, function(start, end, label) {
+                console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+              });
+            });
+          </script>
+        {% endif %} <!-- End title['mail_to_despacho'] -->
+    </div>
   </div>
 
+</div>  <!-- End notes_title -->
 
-  {% if title['sendmail'] %}
-  <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
-  {% endif %}
-</div>
-
-
-<div id="main-body" class="">
+<div id="main-body" class="" hx-get='main_body' hx-trigger='socket-updated from:body'>
   {% include 'mobile/notes/cards.html' %}
 </div>
 

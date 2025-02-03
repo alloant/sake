@@ -1,103 +1,17 @@
   {% with registers = current_user.all_registers_and_sub %}
-  <li id="register_menu" class="nav-item">
+  <li id="register_collapse" class="nav-item">
     <a id="dropdownRegister" class="nav-link" data-bs-toggle="dropdown">
-      <i class="bi bi-archive"></i> {{gettext('Registers')}}
-      {% with unread = current_user.unread %}
-        {% if unread > 0 %}
-        <span class="badge rounded-pill bg-danger">
-          {{unread}}
-        </span>
-        {% endif %}
-      {% endwith %}
-    </a>
+      <i class="bi bi-archive"></i> {{gettext('Notes')}}
+        <span class="badge rounded-pill bg-danger" style="font-size:0.6em;"
+            hx-get="/body_data?info=pending"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+
+          <span class="badge rounded-pill bg-primary" style="font-size:0.6em;"
+              hx-get="body_data?info=register"
+              hx-trigger="load, read-updated from:body, socket-updated from:body"></span>
+      </a>
     <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownRegister">
-      {% for register in registers %}
-        {% if register.permissions != '' and register.alias != 'mat' %}
-          <li class="">
-            <a  class="dropdown-item"
-                hx-get="/main_title_body?reg=['{{register.alias}}','in','']"
-                hx-indicator="#indicator-table"
-                hx-trigger="click"
-                hx-target="#main-body"
-                data-bs-toggle="collapse"
-                data-bs-target="#mobileNavbarSake"
-                role="button">
-              <span class="border border-2 p-1 rounded border-danger">{{register.alias}} in</span> {{gettext('Mail from')}} {{register.alias}}
-              {% with unread = register.unread() %}
-                {% if unread > 0 %}
-                  <span class="badge rounded-pill bg-danger">
-                    {{unread}}
-                  </span>
-                {% endif %}
-              {% endwith %}
-            </a>
-          </li>
-        {% endif %}
-      {% endfor %}
-        
-      <!-- cl registers-->
-        {% for register in registers %}
-          {% for subregister in register.get_subregisters() %}
-            {% with unread = register.unread(subregister) %}
-              <li class="">
-                <a  class="dropdown-item"
-                    hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
-                    hx-indicator="#indicator-table"
-                    hx-trigger="click"
-                    hx-target="#main-body"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mobileNavbarSake"
-                    role="button">
-                    <span class="border border-2 p-1 rounded border-danger">{{subregister}} in</span> {{gettext('Mail from')}} cg
-                  {% if unread > 0 %}
-                    <span class="badge rounded-pill bg-danger">
-                      {{unread}}
-                    </span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endwith %}
-          {% endfor %}
-        {% endfor %}
-        <!-- End cl registers-->
-      <li class="dropdown-divider"></li>
-      </li>
-        {% for register in registers %}
-          {% if register.permissions != '' and register.alias != 'mat' %}
-            <li class="">
-              <a class="dropdown-item"
-                  hx-get="/main_title_body?reg=['{{register.alias}}','out','']"
-                  hx-indicator="#indicator-table"
-                  hx-trigger="click"
-                  hx-target="#main-body"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#mobileNavbarSake"
-                  role="button">
-                <span class="border border-2 p-1 rounded border-primary">{{register.alias}} out</span> {{gettext('Mail to')}} {{register.alias}}
-              </a>
-            </li>
-          {% endif %}
-        {% endfor %}
-        
-        <!-- cl registers-->
-        {% for register in registers %}
-          {% for subregister in register.get_subregisters() %}
-            <li class="">
-            <a  class="dropdown-item"
-                hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
-                hx-indicator="#indicator-table"
-                hx-trigger="click"
-                hx-target="#main-body"
-                data-bs-toggle="collapse"
-                data-bs-target="#mobileNavbarSake"
-                role="button">
-              <span class="border border-2 p-1 rounded border-primary">{{subregister}} out</span> {{gettext('Mail to')}} cg
-            </a>
-            </li>
-          {% endfor %}
-        {% endfor %}
-        <!-- End cl registers-->
-      </li>
+      {% include 'mobile/sidebar_registers_list.html' %}
     </ul>
   </li>
   {% endwith %}

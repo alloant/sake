@@ -1,0 +1,85 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  <li class="list-group-item ms-2 align-items-center {% if reg == ['mat','all',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','all','']"
+    hx-indicator="#indicator-table"
+    hx-on:click="$('#mobileNavbarSake').collapse('hide');"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-globe"></i>
+    </span>
+    <span>{{gettext('All')}}</span>
+  </li>
+  
+  <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+
+  <li class="list-group-item mt-1 ms-2 d-flex justify-content-between align-items-center {% if reg == ['mat','sign',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','sign','']"
+    hx-on:click="$('#mobileNavbarSake').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-vector-pen"></i>
+      </span>
+      <span>{{gettext('To sign')}}</span>
+    </span>
+    <span class="badge rounded-pill bg-danger ms-2"
+        hx-get="/body_data?info=proposals_to_sign"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </li>
+  
+  <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+
+  <li class="list-group-item mt-1 ms-2 align-items-center {% if reg == ['mat','draft',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','draft','']"
+    hx-on:click="$('#mobileNavbarSake').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-hammer"></i>
+    </span>
+    <span>{{gettext('Drafts')}}</span>
+  </li>
+
+  <li class="list-group-item mt-1 ms-2 align-items-center {% if reg == ['mat','shared',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','shared','']"
+    hx-on:click="$('#mobileNavbarSake').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-arrow-repeat"></i>
+    </span>
+    <span>{{gettext('Circulating')}}</span>
+  </li>
+  
+  <li class="list-group-item mt-1 ms-2 d-flex justify-content-between align-items-center {% if reg == ['mat','done',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','done','']"
+    hx-on:click="$('#mobileNavbarSake').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-check-circle"></i>
+      </span>
+      <span>{{gettext('Done')}}</span>
+    </span>
+    <span class="badge rounded-pill bg-primary ms-2"
+        hx-get="/body_data?info=proposals_done"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </li>
+{% endwith %}

@@ -13,9 +13,13 @@
         {% block styles %}
             <!-- Bootstrap CSS -->
             {{ bootstrap.load_css() }}
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/summernote.css') }}">
         {% endblock %}
         
-        <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+        <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js"></script>
+        <script src="https://unpkg.com/htmx-ext-ws@2.0.1/ws.js"></script>
+
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>-->
 
         <!-- Sortable -->

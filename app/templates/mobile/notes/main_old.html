@@ -1,0 +1,45 @@
+<div id="notes-title">
+  <div class="d-flex flex-row align-items-center mb-4">
+    {% if title['new'] %}
+      <button class="btn btn-primary"
+        hx-get="/action_note?reg={{reg}}&action=new"
+        hx-trigger="click"
+        hx-target="#main-body"
+        hx-indicator="#indicator-table"
+        hx-disinherit="*">{{gettext('New')}}</button>
+    {% endif %}
+   
+    {% if title['showAll'] %}
+      <div class="p-2">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" hx-post="/main_body?reg={{reg}}&showAll=toggle" hx-trigger="click" hx-target="#main-body" hx-disinherit="*" {% if session['showAll'] %} checked {% endif %}>
+          <label class="form-check-label" for="flexSwitchCheckDefault">{{gettext('All')}}</label>
+        </div>
+      </div>
+    {% endif %}
+ 
+    {% if title['filter'] %}
+      <input class="form-control flex-grow-1" type="search" 
+        name="search" placeholder="Search..." id="search_text"
+        hx-post="/main_body?reg={{reg}}" 
+        hx-trigger="input changed delay:500ms, search" 
+        hx-target="#main-body"> 
+      <div class="p-2">
+        <span class="big" data-toggle="tooltip" data-html="true" title="Click the switch All to archived documents&#013To filter using tags use #tag.&#013To filter by person use @alias">
+          <i class="bi bi-info-circle"></i>
+        </span>
+      </div>
+    {% endif %}
+  </div>
+
+
+  {% if title['sendmail'] %}
+  <button class="btn btn-primary" hx-get="/action_note?reg={{reg}}&action=sendmail&reg={{reg}}" hx-trigger="click" hx-target="#main-body" hx-indicator="#indicator-table" hx-disinherit="*">{{gettext('Send mail')}}</button>
+  {% endif %}
+</div>
+
+
+<div id="main-body" class="">
+  {% include 'mobile/notes/cards.html' %}
+</div>
+

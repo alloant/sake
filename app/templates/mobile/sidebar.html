@@ -8,64 +8,21 @@
     <div class="collapse navbar-collapse" id="mobileNavbarSake">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% with registers = current_user.all_registers_and_sub %}
-          {% if current_user.category in ['dr','of'] %}
-            <li class="nav-item">
-              <a class="nav-link"
-                  hx-get="/main_title_body?reg=['all','pen','']"
-                  hx-indicator="#indicator-table"
-                  hx-trigger="click"
-                  hx-target="#main-body"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#mobileNavbarSake"
-                  role="button">
-                <i class="bi bi-app-indicator"></i> {{gettext('Pending notes and proposals---')}}
-                {% with unread = 0 %}
-                  {% if unread > 0 %}
-                    <span class="badge rounded-pill bg-danger"
-                          hx-get="/register_icon?reg=pendings"
-                          hx-trigger='read-updated from:body, file-opened from:body, socket-updated from:body'
-                          hx-disinherit="*">
-                      {{unread}}
-                    </span>
-                  {% endif %}
-                {% endwith %}
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link"
-                  hx-get="/main_title_body?reg=['mat','in','']"
-                  hx-indicator="#indicator-table"
-                  hx-trigger="click"
-                  hx-target="#main-body"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#mobileNavbarSake"
-                  role="button">
-                <i class="bi bi-file-earmark-richtext"></i> {{gettext('Proposals---')}}
-                {% with unread = 0 %}
-                  {% if unread > 0 %}
-                    <span class="badge rounded-pill bg-danger"
-                          hx-get="/register_icon?reg=matters"
-                          hx-trigger='state-updated from:body, socket-updated from:body'
-                          hx-disinherit="*">
-                      {{unread}}
-                    </span>
-                  {% endif %}
-                {% endwith %}
-              </a>
-            </li>
-          {% endif %}
-
           {% if current_user.is_authenticated%}
             {% if current_user.severalCalendars %}
               {% include 'mobile/sidebar_menu_register.html' %}
             {% endif %}
-   
+            
+            {% if current_user.category in ['dr','of'] %}
+                {% include 'mobile/sidebar_menu_proposal.html' %}
+            {% endif %}
+
             {% if 'despacho' in current_user.groups %}
               <li class="nav-item">
                 <a  class="nav-link"
                     hx-get="/main_title_body?reg=['des','in','']"
                     hx-trigger="click"
-                    hx-target="#main-body"
+                    hx-target="#main-title-body"
                     data-bs-toggle="collapse"
                     data-bs-target="#mobileNavbarSake"
                     role="button">
@@ -75,29 +32,51 @@
             {% endif %}
 
             {% if 'scr' in current_user.groups %}
-              <li class="nav-item">
-                <a  class="nav-link"
-                    hx-get="/inbox_body?reg=['box','in','']"
-                    hx-trigger="click"
-                    hx-target="#main-body"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mobileNavbarSake"
-                   role="button">
-                  <i class="bi bi-box-arrow-in-left"></i> {{gettext('Inbox')}}
-                </a>
-              </li>
+              <a class="nav-link position-relative my-1"
+                hx-get="/inbox_body?reg=['import','in','']"
+                hx-indicator="#indicator-table"
+                hx-trigger="click"
+                hx-target="#main-title-body"
+                hx-disinherit="*"
+                hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+                data-bs-toggle="collapse"
+                data-bs-target="#mobileNavbarSake"
+                role="button">
+                <i class="bi bi-box-arrow-in-down"></i> {{gettext('Import')}}
+              </a>
+        
+              <a class="nav-link position-relative my-1"
+                hx-get="/main_title_body?reg=['box','in','']"
+                hx-indicator="#indicator-table"
+                hx-trigger="click"
+                hx-target="#main-title-body"
+                hx-disinherit="*"
+                hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+                data-bs-toggle="collapse"
+                data-bs-target="#mobileNavbarSake"
+                role="button">
+                <i class="bi bi-download"></i> {{gettext('Inbox')}}
+                <span class="badge rounded-pill bg-danger" style="font-size:0.6em;"
+                  hx-get="/body_data?info=inbox"
+                  hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+              </a>
+        
+              <a class="nav-link position-relative my-1"
+                hx-get="/main_title_body?reg=['box','out','']"
+                hx-indicator="#indicator-table"
+                hx-trigger="click"
+                hx-target="#main-title-body"
+                hx-disinherit="*"
+                hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+                data-bs-toggle="collapse"
+                data-bs-target="#mobileNavbarSake"
+                role="button">
+                <i class="bi bi-upload"></i> {{gettext('Outbox')}}
+                <span class="badge rounded-pill bg-danger" style="font-size:0.6em;"
+                  hx-get="/body_data?info=outbox"
+                  hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+              </a>
 
-              <li class="nav-item">
-                <a  class="nav-link"
-                    hx-get="/main_title_body?reg=['box','out','']"
-                    hx-trigger="click"
-                    hx-target="#main-body"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mobileNavbarSake"
-                   role="button">
-                  <i class="bi bi-box-arrow-left"></i> {{gettext('Outbox')}}
-                </a>
-              </li>
             {% endif %}
 
             {% if not current_user.severalCalendars %}
@@ -134,18 +113,7 @@
             {% endif %}
           {% endif %}
     
-          <li class="nav-item">
-            <a class="nav-link"
-                hx-get="/documentation"
-                hx-trigger="click"
-                hx-target="#main-body"
-                data-bs-toggle="collapse"
-                data-bs-target="#mobileNavbarSake"
-                role="button">
-              <i class="bi bi-question-circle"></i> {{gettext('Help')}}
-            </a>
-          </li>
-
+          
           <li id="settings_menu" class="nav-item">
             <a id="dropdownSettings" class="nav-link" data-bs-toggle="dropdown">
               <i class="bi bi-archive"></i> {{gettext('Settings')}}

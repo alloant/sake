@@ -1,0 +1,17 @@
+  {% with registers = current_user.all_registers_and_sub %}
+  <li id="proposal_collapse" class="nav-item">
+    <a id="dropdownProposal" class="nav-link" data-bs-toggle="dropdown">
+      <i class="bi bi-archive"></i> {{gettext('Proposals')}}
+      <span class="badge rounded-pill bg-danger" style="font-size:0.6em;"
+              hx-get="body_data?info=proposals_to_sign"
+              hx-trigger="load, state-updated from:body, socket-updated from:body">
+          </span>
+          <span class="badge rounded-pill bg-primary" style="font-size:0.6em;"
+              hx-get="body_data?info=proposals_to_finish"
+              hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+    </a>
+    <ul class="dropdown-menu shadow border-0" aria-labelledby="dropdownProposal">
+      {% include 'mobile/sidebar_proposals_list.html' %}
+    </ul>
+  </li>
+  {% endwith %}

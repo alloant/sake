@@ -55,9 +55,24 @@ def create_app(config_class=Config):
     from app.src.models import User, Note
     #admin = Admin(app, name='sake', template_mode='bootstrap4')
     # Add administrative views here    
-    admin = Admin(app, name='sake')
-    admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Note, db.session))   
+    admin = Admin(app, name='sake', template_mode='bootstrap4')
+    
+    class UserView(ModelView):
+        can_delete = False
+        page_size = 30
+        column_exclude_list = []
+        column_searchable_list = ['alias','name']
+        column_filters = ['category']
+
+    class NoteView(ModelView):
+        can_delete = False
+        page_size = 30
+        column_exclude_list = []
+        column_searchable_list = ['num','content']
+        column_filters = ['reg']
+
+    admin.add_view(UserView(User, db.session))
+    admin.add_view(NoteView(Note, db.session))   
     
 
     @login_manager.user_loader

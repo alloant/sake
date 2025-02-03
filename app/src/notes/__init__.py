@@ -77,7 +77,7 @@ def body_data():
 def action_inbox():
     return action_inbox_view(request)
 
-@bp.route('/notes2')
+@bp.route('/notes')
 @login_required
 def notes():
     get = request.args.get('get')
