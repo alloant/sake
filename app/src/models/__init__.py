@@ -58,7 +58,7 @@ def get_register(prot):
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
-
+    
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])
