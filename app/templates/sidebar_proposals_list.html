@@ -23,15 +23,30 @@
     hx-target="#main-title-body"
     hx-disinherit="*"
     role="button">
+    <span>
     <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
         <i class="bi bi-vector-pen"></i>
     </span>
-    <span>{{gettext('To sign')}}</span>
+    {{gettext('To sign')}}</span>
     <span class="badge rounded-pill bg-danger ms-2"
         hx-get="/body_data?info=proposals_to_sign"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
   </li>
-  
+ 
+  <li class="list-group-item d-flex align-items-center {% if reg == ['mat','signed',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','signed','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-fingerprint"></i>
+    </span>
+    <span>{{gettext('Signed')}}</span>
+  </li>
+ 
   <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
 
   <li class="list-group-item align-items-center {% if reg == ['mat','draft',''] %}active{% endif %}"
@@ -80,4 +95,21 @@
         hx-get="/body_data?info=proposals_done"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
   </li>
+
+  <li class="list-group-item d-flex align-items-center {% if reg == ['mat','archived',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','archived','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-folder-check"></i>
+      </span>
+      <span>{{gettext('Archived')}}</span>
+    </span>
+  </li>
+
 {% endwith %}

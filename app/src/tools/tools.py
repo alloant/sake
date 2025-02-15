@@ -16,6 +16,9 @@ from app import db
 from app.src.models import User, Note, Register, NoteUser, Group, Tag
 
 def toNewNotesStatus():
+
+    get_password()
+    return ""
     user = db.session.scalar(select(User).where(User.alias=='tak'))
     register = db.session.scalar(select(Register).where(Register.alias=='ctr'))
     notes = db.session.scalars(select(Note).where(Note.result('is_read',user)==False,Note.reg=='ctr',Note.status=='registered',Note.permanent==False)).all()
@@ -29,7 +32,7 @@ def toNewNotesStatus():
 
 
 def get_password():
-    USER = 'pop'
+    USER = 'akanashiro'
     user = db.session.scalar(select(User).where(User.alias==USER))
     cipher = Fernet(current_app.config['SECRET_KEY'])
     PASSWD = cipher.decrypt(user.get_setting('password_nas'))

@@ -56,6 +56,7 @@ def action_note_view(request,template):
             ctr = True if request.args.get('ctr','false') == 'true' else False
             toggle_archive(note_id,ctr)
             trigger.append('status-updated')
+            trigger.append('state-updated')
         case 'start_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'start')

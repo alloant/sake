@@ -112,19 +112,26 @@ def register_filter(reg,filter = ""):
                         Note.current_target_order==Note.result('target_order')
                         )
                 )
+            elif reg[1] == 'signed':
+                proposals.append(Note.result('is_target'))
+                proposals.append(Note.status.in_(['shared','approved','denied']))
+                proposals.append(Note.result('target_has_acted'))
+            elif reg[1] == 'archived':
+                proposals.append(Note.sender_id==current_user.id)
+                proposals.append(Note.archived)
             elif reg[1] == 'draft':
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(Note.status=='draft')
-
+                proposals.append(not_(Note.archived))
             elif reg[1] == 'shared':
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(Note.status=='shared')
+                proposals.append(not_(Note.archived))
             elif reg[1] == 'done':
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(or_(Note.status=='approved',Note.status=='denied'))
-
-
-            if session['filter_option'] == 'hide_archived':
+                proposals.append(not_(Note.archived))
+            if session['filter_option'] == 'hide_archived' and reg[1] == 'all':
                 proposals.append(not_(Note.archived))
 
             fn.append(and_(*proposals))
@@ -164,8 +171,7 @@ def register_filter(reg,filter = ""):
                 notes_out = [Note.reg != 'mat']
                 notes_out.append(Note.sender_id==current_user.id)
 
-
-                if session['filter_option'] == 'hide_archived':
+                if session['filter_option'] == 'hide_archived' and reg[0] == 'all':
                     proposals.append(not_(Note.archived))
                     proposals.append(not_(Note.result('is_done')))
                     notes_in.append(not_(Note.archived))
@@ -331,7 +337,7 @@ def get_title(reg):
         title['icon'] = f'static/icons/00-matters{dark}.svg' 
         title['text'] = gettext(u'Proposals')
         title['filter'] = True
-        if reg[1] in ['draft','all','done']:
+        if reg[1] in ['all']:
             title['showAll'] = True
         if reg[1] == 'draft':
             title['new'] = True

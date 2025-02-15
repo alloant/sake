@@ -481,6 +481,9 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                 return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.sign_despacho))
             case 'is_target':
                 return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.target))
+            case 'target_has_acted':
+                return cls.users.any(and_(NoteUser.user_id==user.id,NoteUser.target,NoteUser.target_acted))
+
             case 'target_order':
                 return select(NoteUser.target_order).where(NoteUser.note_id==cls.id,NoteUser.user_id==user.id).scalar_subquery()
             case 'is_done':
@@ -984,7 +987,7 @@ class User(UserProp,UserMixin, db.Model):
             Note.register.has(Register.alias!='mat'),
             Note.has_target(current_user.id),
             Note.status=='registered',
-            not_(Note.status)
+            not_(Note.archived)
         ))
 
     @property

@@ -1,5 +1,9 @@
 {% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+{% if dark == '-dark' %}
 <div id="sidebar" class="col-sm-auto sticky-top border p-1" style="background-color: light;">
+{% else %}
+<div id="sidebar" class="col-sm-auto sticky-top border p-1" style="background-color: light;">
+{% endif %}
   {% with registers = current_user.all_registers_and_sub %}
   <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
     {% if current_user.is_authenticated %}
@@ -40,7 +44,6 @@
           <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
               hx-get="body_data?info=proposals_to_finish"
               hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
-
         </a> 
  
       <a class="nav-link position-relative my-1"
