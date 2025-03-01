@@ -18,10 +18,18 @@ from app.src.models import Page
 from app.src.forms.page import PageForm
 
 def get_pages():
-    sql = select(Page)
+    sql = select(Page).order_by(Page.order,Page.title)
     pages = db.paginate(sql, per_page=25)
 
     return pages
+
+def table_pages_view(request):
+    page = 1 if not 'page' in session else session['page']
+    
+    res = make_response(render_template('pages/table.html',pages=get_pages(),page=page))
+    res.headers['HX-Trigger'] = 'update-main'
+
+    return res
 
 def list_pages_view(request):
     page = 1 if not 'page' in session else session['page']
@@ -32,9 +40,9 @@ def list_pages_view(request):
     return res
 
 def page_view(page_id):
-    page = db.session.scalar(select(Page).where(Page.id==page_id))
-    if page.has_access():    
-        return render_template('pages/view.html',page=page)
+    pag = db.session.scalar(select(Page).where(Page.id==page_id))
+    if pag.has_access():
+        return render_template('pages/view.html',pag=pag)
 
     return render_template("error.html")
 
@@ -46,7 +54,7 @@ def pages_table_view(request):
 
 
 def pages_row_view(request,page_id):
-    page = db.session.scalar(select(Page).where(Page.id==page_id))
+    pag = db.session.scalar(select(Page).where(Page.id==page_id))
 
-    return render_template('pages/table_row.html',page=page)
+    return render_template('pages/table_row.html',pag=pag)
 

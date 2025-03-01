@@ -10,7 +10,12 @@
     <span class="ms-4 me-1">Title</span> 
     {{ form.title(class="form-control") }}
 
-    <span class="ms-4 border rounded-pill p-1 d-inline-flex flex-nowrap">
+
+    <span class="ms-4 border rounded-pill p-1 d-inline-flex flex-nowrap align-items-center">
+      <span class="ms-4 me-1">Order:
+      {{ form.order(class="form-control") }}
+      </span>
+
       Groups:
       {% for group in form.groups %}
         {{ group(class="form-check-input ms-3")}}

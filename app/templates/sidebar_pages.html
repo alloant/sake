@@ -5,11 +5,10 @@
 {% endif %}
 
   <ul class="list-group"
-    hx-get="sidebar?element=page_list"
-    hx-trigger="update-main from:body">
-    {% include 'sidebar_pages_list.html' %}
+      style="max-height:100vh; overflow-y: auto;"
+      hx-get="sidebar?element=page_list"
+      hx-trigger="update-main from:body">
+      {% include 'sidebar_pages_list.html' %}
   </ul>
 
-  </div>
-
-
+</div>

@@ -23,7 +23,7 @@ def pages_action(request):
     page_id = request.args.get('page',None)
     action = request.args.get('action')
     trigger = ['update-main']
-
+    
     match action:
         case 'new':
             page = Page()
@@ -58,6 +58,7 @@ def edit_page(page_id,request):
     
     form.title.data = page.title
     form.text.data = page.text
+    form.order.data = page.order
     form.main.data = page.main
 
     form.groups.choices = db.session.scalars(select(Group.text).where(Group.category=='page')).all()
@@ -71,8 +72,9 @@ def save_page(page_id,request):
 
     page.title = form.title.data
     page.text = form.text.data
+    page.order = form.order.data
     page.main = form.main.data
-
+    
     groups = db.session.scalars(select(Group).where(Group.category=='page')).all()
 
     for group in groups:

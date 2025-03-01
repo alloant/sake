@@ -38,7 +38,7 @@ class PageHtml(object):
                 t.text = '...'
                 span.append(t)
                 span.attrib['data-bs-toggle'] = 'tooltip'
-                span.attrib['title'] = ",".join([t for t in self.users if t])
+                span.attrib['title'] = ",".join([t if isinstance(t,str) else t.user.alias for t in self.users if t])
                 break
             else:
                 t.text = user.user.alias

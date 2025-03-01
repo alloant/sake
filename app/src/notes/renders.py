@@ -13,7 +13,7 @@ from app import db
 from app.src.models import Note, User, Register, File, Page
 from app.src.notes.filters import get_notes, get_history, register_filter, get_title
 from app.src.inbox.inbox import inbox_main_view
-from app.src.pages.views import list_pages_view
+from app.src.pages.views import list_pages_view, table_pages_view
 
 def render_main_body(request,template): 
     output = request.form.to_dict()
@@ -21,7 +21,9 @@ def render_main_body(request,template):
     session['page'] = page
     reg = session['reg']
 
-    if reg[2]:
+    if reg[0] == 'pages':
+        return table_pages_view(request)
+    elif reg[2]:
         ctr = db.session.scalar(select(User).where(User.alias==reg[2]))
         session['ctr'] = {'alias': ctr.alias, 'date': ctr.date.strftime('%Y-%m-%d')}
     else:

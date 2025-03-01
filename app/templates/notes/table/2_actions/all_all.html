@@ -135,6 +135,9 @@
       </a>
     </li>
     <li><hr class="dropdown-divider"></li>
+    
+  {% endif %}
+  {% if reg[0] in ['box','des'] or note.permissions('can_delete') %}
     <li>
       <a  class="dropdown-item text-danger"
           hx-get="action_note?reg={{reg}}&action=delete_note&note={{note.id}}" 

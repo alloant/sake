@@ -1,11 +1,11 @@
 <td>
-  {{ page.id }}
+  {{ pag.id }}
 </td>
 
 <td class="">
-  {{ page.title }}
-  <span id="recRow-{{page.id}}">  
-    {{ page.access_html|safe }}
+  {{ pag.title }}
+  <span id="recRow-{{pag.id}}">  
+    {{ pag.access_html|safe }}
   </span>
 </td>
 
@@ -17,7 +17,7 @@
     <ul class="dropdown-menu border-0 shadow-lg p-3 mb-5 rounded">
       <li>
         <a class="dropdown-item"
-          hx-get="/main_title_body?reg=['pages','{{page.id}}','']"
+          hx-get="/main_title_body?reg=['pages','{{pag.id}}','']"
           hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
           hx-indicator="#indicator-table"
           hx-trigger="click"
@@ -32,7 +32,7 @@
 
       <li>
         <a  class="dropdown-item"
-            hx-get="/action_page?action=edit&page={{page.id}}" 
+            hx-get="/action_page?action=edit&page={{pag.id}}" 
             hx-trigger="click"
             hx-target="#modal-htmx"
             data-bs-toggle="modal"
@@ -46,11 +46,11 @@
       
       <li>
         <a  class="dropdown-item text-danger"
-          hx-get="action_page?reg={{reg}}&action=delete&page={{page.id}}" 
+          hx-get="action_page?reg={{reg}}&action=delete&page={{pag.id}}" 
           hx-trigger="click"
           hx-target="#main-body"
           hx-indicator="#indicator-table"
-          hx-confirm="Are you sure you want to delete {{page.title}}?"
+          hx-confirm="Are you sure you want to delete {{pag.title}}?"
           role="button">
           <i class="bi bi-trash3-fill"></i> {{gettext("Delete page")}}
       </a>
@@ -60,7 +60,7 @@
     <li><hr class="dropdown-divider"></li>
     <li>
       <a class="dropdown-item" 
-        hx-get="/edit_receivers?page={{page.id}}&type=permissions" 
+        hx-get="/edit_receivers?page={{pag.id}}&type=permissions" 
         hx-target="#modal-htmx" 
         hx-trigger="click" 
         data-bs-toggle="modal"
@@ -75,8 +75,8 @@
 </td>
 
 <!-- Date -->
-<td id="row_{{page.id}}_date" style="white-space: nowrap;" class="text-end">
-  <span class="fw-light d-md-none d-lg-block"><small>{{ page.date.strftime('%y-%m-%d') }}</small></span>
+<td id="row_{{pag.id}}_date" style="white-space: nowrap;" class="text-end">
+  <span class="fw-light d-md-none d-lg-block"><small>{{ pag.date.strftime('%y-%m-%d') }}</small></span>
 </td>
 
 

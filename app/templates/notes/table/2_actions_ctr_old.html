@@ -85,6 +85,8 @@
       role="button">
       <i class="bi bi-pencil-fill text-primary" data-bs-toggle="tooltip" title="{{gettext("Edit note")}}"></i>
   </a>
+{% endif %}
+{% if current_user.admin or note.status == 'draft' and reg[1] == 'out' %}
   <a  class="text-decoration-none text-danger"
       hx-get="/action_note?reg={{reg}}&action=delete_note&note={{note.id}}" 
       hx-trigger="click"

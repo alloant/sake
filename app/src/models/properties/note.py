@@ -66,6 +66,17 @@ class NoteProp(object):
                         return True
                     elif not self.archived:
                         return True
+            case 'can_delete':
+                if current_user.admin:
+                    return True
+                elif self.register.permissions == 'editor' and not self.status in ['registered','sent']:
+                    return True
+                elif self.sender_id == current_user.id:
+                    if self.register.alias == 'mat' and self.status in ['draft','approved','denied']:
+                        return True
+                    elif not self.status in ['registered','sent']:
+                        return True
+
             case 'can_assign_permissions':
                 if current_user.admin or 'despacho' in current_user.groups:
                     return True

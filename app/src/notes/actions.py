@@ -366,7 +366,7 @@ def inbox_to_despacho(note_id=None,back=False):
 
     for note in notes:
         if back:
-            note.status = 'queued'
+            note.status = 'draft'
         elif note.register.alias == 'ctr':
             import_ctr(note.id)
         elif 'despacho' in note.register.groups:

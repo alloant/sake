@@ -682,6 +682,7 @@ class Page(db.Model,PageHtml):
     category: Mapped[str] = mapped_column(db.String(50), default = '')
     
     text: Mapped[str] = mapped_column(db.Text, default = '')
+    order: Mapped[str] = mapped_column(db.Integer, default=0)
     
     date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     
@@ -705,7 +706,7 @@ class Page(db.Model,PageHtml):
             return True
         else:
             rst = self.get_user(user)
-            print('rst',user,rst,rst.access)
+            
             if rst and rst.access != '':
                 return True
         return False
@@ -871,7 +872,7 @@ class User(UserProp,UserMixin, db.Model):
     @property
     def my_pages(self):
         #pages = db.session.scalars(select(Page).where(Page.main,Page.groups.any(Group.text==current_user.category))).all()
-        pages = db.session.scalars(select(Page).where(Page.main,Page.has_access(for_list=True))).all()
+        pages = db.session.scalars(select(Page).where(Page.main,Page.has_access(for_list=True)).order_by(Page.order,Page.title)).all()
 
         return pages
 
@@ -940,7 +941,6 @@ class User(UserProp,UserMixin, db.Model):
     def data(self,info,html=False):
         rst = 0
         if info == "pending":
-            rst = current_user.pending_matters + current_user.pendings
             rst = current_user.pendings
         elif info == "done":
             rst = 0
@@ -983,7 +983,7 @@ class User(UserProp,UserMixin, db.Model):
     @property
     def pendings(self):
         return db.session.scalar(select(func.count(Note.id)).where(
-            not_(Note.result('is_read')),
+            #not_(Note.result('is_read')),
             Note.register.has(Register.alias!='mat'),
             Note.has_target(current_user.id),
             Note.status=='registered',

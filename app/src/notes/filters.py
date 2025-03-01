@@ -72,7 +72,7 @@ def register_filter(reg,filter = ""):
         fn.append(Note.register_id==register.id)
         if reg[1] == 'in':
             fn.append(Note.status.in_(['sent']))
-            fn.append(Note.users.any(NoteUser.user.has(User.alias==reg[2])))
+            fn.append(Note.users.any(and_(NoteUser.user.has(User.alias==reg[2]),NoteUser.target)))
             
             if session['filter_option'] == 'hide_archived':
                 ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
