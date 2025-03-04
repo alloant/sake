@@ -1,6 +1,6 @@
 {% if note.files|length > 0 %}  
   {% with file = note.first_file(reg[2]) %}
-  <button  class="btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill file-pill" 
+  <button  class="d-none d-lg-inline btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill file-pill" 
     hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
     hx-swap="none"
     hx-on:htmx:after-request="window.open('{{file.link}}')"
@@ -14,7 +14,7 @@
 <span class="dropdown dropdown-center position-static p-0 m-0">
   <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill {{'text-warning' if not note.permanent_link else 'text-info' if not note.in_folder_notes and note.status in ['sent','registered'] and 'despacho' in note.register.groups else ''}}" data-bs-toggle="dropdown">
     {{ note.number_files(reg[2])|safe }}
-    {% if note.ref %}
+    {% if note.number_refs(reg) > 0 %}
       <i class="bi bi-chevron-double-down small"></i>
     {% else %}
       <i class="bi bi-chevron-down small"></i>

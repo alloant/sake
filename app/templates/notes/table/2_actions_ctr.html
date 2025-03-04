@@ -36,6 +36,61 @@
     {% if note.status == 'draft' %}
       <li><hr class="dropdown-divider"></li>
       <li>
+      <span class="dropdown-item ms-1">
+        <i class="bi bi-file-earmark-plus-fill"></i>
+        {{gettext('New document from template')}} &raquo;
+      </span>
+      <ul class="dropdown-menu dropdown-submenu dropdown-submenu">
+        <li>
+          <a class="dropdown-item ms-1"
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=Proposal_note.odoc" 
+            hx-target="#row_{{note.id}}_files"
+            hx-target-error="#flash-errors"
+            hx-trigger="click" 
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-file-earmark-word-fill text-primary"></i> Proposal_note.odoc
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item ms-1"
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=Untitled.odoc" 
+            hx-target="#row_{{note.id}}_files"
+            hx-target-error="#flash-errors"
+            hx-trigger="click" 
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-file-earmark-word-fill text-primary"></i> Untitled.odoc
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item ms-1"
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=Untitled.osheet" 
+            hx-target="#row_{{note.id}}_files"
+            hx-target-error="#flash-errors"
+            hx-trigger="click" 
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-file-earmark-excel-fill text-success"></i> Untitled.osheet
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item ms-1"
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=Untitled.oslides" 
+            hx-target="#row_{{note.id}}_files"
+            hx-target-error="#flash-errors"
+            hx-trigger="click" 
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-file-earmark-slides-fill text-warning"></i> Untitled.oslides
+          </a>
+        </li>
+
+      </ul>
+    </li>
+
+      <li>
         <a  class="dropdown-item ms-1"
             hx-get="browse_files?reg={{reg}}&note={{note.id}}" 
             hx-target="#modal-htmx" 

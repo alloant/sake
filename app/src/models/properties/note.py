@@ -51,6 +51,17 @@ class NoteProp(object):
 
         return self.files[0]
 
+    def number_refs(self,reg):
+        cont = 0
+        if reg[2]:
+            for ref in self.ref:
+                if ref.reg != 'mat' or not reg[2]:
+                    cont += 1
+        else:
+            cont = len(self.ref)
+        
+        return cont
+
     def is_target(self,user=current_user):
         return user in self.receiver
 
