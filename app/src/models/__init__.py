@@ -32,7 +32,7 @@ def get_register(prot):
     prot = prot.strip('- ')
     for reg in registers:
         alias = r"[^0-9-]+"
-        if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot): # Could note IN
+        if re.fullmatch( eval(f"f'{reg.in_pattern}'"),prot,re.IGNORECASE): # Could note IN
             alias = ""
             
             senders = db.session.scalars(select(User).where(User.registers.any(and_(RegisterUser.register_id==reg.id,RegisterUser.access=='contact')) )).all()
@@ -51,14 +51,13 @@ def get_register(prot):
         
         #alias = r"\D+$"
         alias = r"[^0-9-]+$"
-        if re.fullmatch( eval(f"f'{reg.out_pattern}'"),prot) and reg.alias != 'mat': # Could note OUT
+        if re.fullmatch( eval(f"f'{reg.out_pattern}'"),prot,re.IGNORECASE) and reg.alias != 'mat': # Could note OUT
             return {'reg':reg,'flow':'out'}
 
 
 def get_filter_fullkey(prot):
     reg = get_register(prot)
     nums = re.findall(r'\d+',prot)
-    
     if reg and len(nums) == 2:
         fn = []
         fn.append(Note.register==reg['reg'])

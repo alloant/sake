@@ -260,7 +260,7 @@ def generate_notes(output):
                 if note:
                     ref = note
                 else:
-                    flash(f'There is not ref in {prot}')
+                    flash(f'{prot} doesnt exist')
                     continue
                 num = 0
                 year = date.today().year
@@ -363,7 +363,7 @@ def generate_notes_old(output):
                 if note:
                     ref = note
                 else:
-                    flash(f'There is not ref in {prot}')
+                    flash(f'{prot} doesnt exist')
                     continue
                 num = 0
                 year = date.today().year
