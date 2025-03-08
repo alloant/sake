@@ -271,7 +271,14 @@ def generate_notes(output):
                 is_ref = False
 
             # The status is queued because they all go to inbox
-            note = new_note(sender,register_field,num=num,year=f"20{year}",date=file.date, is_ref=is_ref, status='queued')
+            if isinstance(year,int):
+                if year < 2000:
+                    year += 2000
+            elif isintance(year,str):
+                if len(year) == 2:
+                    year = f"20{year}"
+
+            note = new_note(sender,register_field,num=num,year=f"{year}",date=file.date, is_ref=is_ref, status='queued')
             #note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref,date=file.date)
             note.content = content
 
@@ -296,108 +303,6 @@ def generate_notes(output):
 
                 if len(refs) != len(note.ref): # I didn't get all refs
                     flash(f"There was a problem with {file.subject}. Not all references are in place","warning")
-            
-            db.session.add(note)
-            db.session.commit()
-
-            flash(f"{note} was created","success")
-            flash(f"{file} was added to {note}","success")
-
-
-        db.session.commit()
-
-
-def generate_notes_old(output):
-    # All the files in import view. The ones without a note
-    files = db.session.scalars(select(File).where(File.note_id==None))
-    involved_notes = []
-
-    for file in files:
-        # Get the prot and the rest from the form in inbox
-        prot = output[f"number_{file.id}"].lower()
-        prots = re.findall(r'\w+',prot)
-        register_field = output[f"register_{file.id}"].lower()
-        sender_field = output[f"sender_{file.id}"].lower()
-        if f'isref_{file.id}' in output:
-            isref_field = output[f"isref_{file.id}"]
-        else:
-            isref_field = False
-
-        # Find here the sender in the database. Could be the alias or the email
-        if "@" in sender_field:
-            sender = db.session.scalar(select(User).where(User.email==sender_field))
-        else:
-            sender = db.session.scalar(select(User).where(User.alias==sender_field))
-
-        if not sender: # We cannot continue if there is no sender
-            continue
-
-        register = db.session.scalar(select(Register).where(Register.alias==register_field))
-
-        if not register:
-            continue
-
-        if 'personal' in register.groups:
-            fullkey = f"{sender.alias}-{register.alias} {prot}" #before gfk
-        else:
-            fullkey = f"{sender.alias} {prot}" #before gfk
-
-        # Check if the note already exist in the database
-        note = get_note_fullkey(fullkey)
-        if note and not (isref_field == 'on' and note.flow == 'out'):
-            rst = note.addFile(file)
-            if rst:
-                if not note in involved_notes:
-                    involved_notes.append(note)
-                note.status = 'queued'
-                flash(f"{file} was added to {note}","success")
-        else: # We need to create a new note
-            # First get the content if possible, if not empty
-            content = "" 
-            if ";" in file.subject:
-                parts = file.subject.split(";")
-                if "/" in parts[0]:
-                    content = parts[1]
-
-            if isref_field == 'on':
-                if note:
-                    ref = note
-                else:
-                    flash(f'{prot} doesnt exist')
-                    continue
-                num = 0
-                year = date.today().year
-                is_ref = True
-            else: # Get number and year from fullkey
-                num = re.findall(r'\d+',fullkey)[0]
-                year = re.findall(r'\d+',fullkey)[1]
-                is_ref = False
-
-            # The status is queued because they all go to inbox
-
-            note = Note(num=num,year=f"20{year}",sender_id=sender.id,reg=register_field,register=register,status='queued',content=content,is_ref=is_ref,date=file.date)
-
-            note.addFile(file)
-            # I put the date of the note
-            file.date = date.today()
-
-            if not note in involved_notes:
-                involved_notes.append(note)
-
-            
-            if isref_field == 'on':
-                note.ref.append(ref)
-            else:
-                refs = file.guess_ref
-
-                for i,ref in enumerate(refs):
-                    if i == 0 and note.content == '':
-                        note.content = ref.content
-
-                    note.ref.append(ref)
-
-            if len(refs) != len(note.ref): # I didn't get all refs
-                flash(f"There was a problem with {file.subject}. Not all references are in place","warning")
             
             db.session.add(note)
             db.session.commit()
