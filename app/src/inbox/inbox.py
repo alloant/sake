@@ -274,7 +274,7 @@ def generate_notes(output):
             if isinstance(year,int):
                 if year < 2000:
                     year += 2000
-            elif isintance(year,str):
+            elif isinstance(year,str):
                 if len(year) == 2:
                     year = f"20{year}"
 
