@@ -17,7 +17,7 @@
           <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
           
           <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
-            hx-get="/body_data?info=pending"
+            hx-get="/body_data?info=myinbox"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
 
           <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
