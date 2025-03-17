@@ -80,7 +80,7 @@ def register_filter(reg,filter = ""):
         elif reg[1] == 'out':
             fn.append(Note.sender.has(User.alias==reg[2]))
     else: # Es un register
-        if reg[0] in ['all','notes']: # Here I get all notes from all registers
+        if reg[0] in ['my','all','notes']: # Here I get all notes from all registers
             if current_user.admin:
                 fn.append(Note.register.has(Register.active==1))
             else:
@@ -136,6 +136,17 @@ def register_filter(reg,filter = ""):
 
             fn.append(and_(*proposals))
 
+        elif reg[0] == 'my' and reg[1] == 'in':
+            fn.append(Note.has_target(current_user.id))
+            fn.append(Note.status=='registered')
+            if session['filter_option'] == 'hide_archived':
+                fn.append(not_(Note.archived))
+        elif reg[0] == 'my' and reg[1] == 'out':
+            fn.append(Note.reg!='mat')
+            fn.append(Note.sender_id==current_user.id)
+
+            if session['filter_option'] == 'hide_archived':
+                fn.append(Note.status.in_(['draft','queued']))
         elif reg[0] == 'all' and reg[1] == 'all': # Global search
             if session['filter_option'] == 'only_notes':
                 fn.append(Note.reg!='mat')
@@ -297,7 +308,7 @@ def get_title(reg):
     title['mail_to_despacho'] = False
     title['new'] = False
 
-    if reg[1] == 'pen':
+    if reg[0] == 'my':
         title['icon'] = f'static/icons/00-pendings{dark}.svg' 
         title['text'] = gettext(u'Pending notes')
         title['filter'] = True

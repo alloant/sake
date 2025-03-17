@@ -939,8 +939,10 @@ class User(UserProp,UserMixin, db.Model):
 
     def data(self,info,html=False):
         rst = 0
-        if info == "pending":
+        if info == "myinbox":
             rst = current_user.pendings
+        elif info == "myoutbox":
+            rst = current_user.pendings_out
         elif info == "done":
             rst = 0
         elif info == "proposals_to_sign":
@@ -987,6 +989,15 @@ class User(UserProp,UserMixin, db.Model):
             Note.has_target(current_user.id),
             Note.status=='registered',
             not_(Note.archived)
+        ))
+
+    @property
+    def pendings_out(self):
+        return db.session.scalar(select(func.count(Note.id)).where(
+            Note.reg!='mat',
+            Note.register.has(Register.alias!='mat'),
+            Note.sender_id == current_user.id,
+            Note.status!='sent'
         ))
 
     @property

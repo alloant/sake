@@ -34,8 +34,14 @@
                       <option value="only_proposals" class="text-end" {{'selected' if session['filter_option'] == 'only_proposals' else ''}}>Only proposals</option>
                       <option value="notes_proposals" class="text-end" {{'selected' if session['filter_option'] == 'notes_proposals' else ''}}>Notes and proposals </option>
                     {% else %}
-                      <option value="hide_archived" class="text-end" {{'selected' if session['filter_option'] == 'hide_archived' else ''}}>Hide archived</option>
-                      <option value="show_archived" class="text-end" {{'selected' if session['filter_option'] == 'show_archived' else ''}}>Show archived</option>
+                      {% if reg[1] == 'out' %}
+                        <option value="hide_archived" class="text-end" {{'selected' if session['filter_option'] == 'hide_archived' else ''}}>Hide sent</option>
+                        <option value="show_archived" class="text-end" {{'selected' if session['filter_option'] == 'show_archived' else ''}}>Show sent</option>
+                      {% else %}
+                        <option value="hide_archived" class="text-end" {{'selected' if session['filter_option'] == 'hide_archived' else ''}}>Hide archived</option>
+                        <option value="show_archived" class="text-end" {{'selected' if session['filter_option'] == 'show_archived' else ''}}>Show archived</option>
+
+                      {% endif %}
                     {% endif %}
                   </select>
                 </span>
