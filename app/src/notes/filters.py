@@ -15,7 +15,7 @@ from sqlalchemy.orm import aliased
 from flask_babel import gettext
 
 from app import db
-from app.src.models import Note, User, Register, File, NoteUser, Group
+from app.src.models import Note, User, Register, File, NoteUser, Group, Tag
 from app.src.forms.note import NoteForm
 from app.src.notes.edit import fill_form_note, extract_form_note
 
@@ -223,8 +223,9 @@ def register_filter(reg,filter = ""):
         tfn = []
 
         for tag in tags:
-            tfn.append(Note.contains_tag(tag.replace('#','').strip()))
-       
+            #tfn.append(Note.contains_in('tags',tag.replace('#','').strip()))
+            tfn.append(Note.tags.any(Tag.text == tag.replace('#','').strip()))
+
         senders = re.findall(r'@[^ ]*',ft)
         ft = re.sub(r'@[^ ]*','',ft).strip()
         sfn = []
