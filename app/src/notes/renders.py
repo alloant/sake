@@ -60,7 +60,7 @@ def render_main_title_body(request,template):
             return list_pages_view(request)
         else:
             page = db.session.scalar(select(Page).where(Page.id==reg[1]))
-            res = make_response(render_template('pages/view.html', page=page, reg=reg))
+            res = make_response(render_template('pages/page_body.html', pag=page, reg=reg))
     else:
         session['filter_notes'] = ''
         if not 'filter_option' in session:

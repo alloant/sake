@@ -6,7 +6,7 @@ from flask import Blueprint, request, render_template, current_app, session
 from flask_login import login_required, current_user
 from flask_mobility.decorators import mobile_template
 
-from app.src.pages.views import list_pages_view, page_view
+from app.src.pages.views import list_pages_view, page_view, page_body
 from app.src.pages.actions import pages_action
 
 bp = Blueprint('pages', __name__)
@@ -21,8 +21,7 @@ def list_pages():
 @bp.route('/page/<int:page_id>')
 @login_required
 def view_page(page_id):
-    return page_view(page_id)
-
+    return page_body(page_id)
 
 @bp.route('/action_page',methods=['GET','POST'])
 @login_required

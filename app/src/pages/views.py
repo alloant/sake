@@ -46,6 +46,13 @@ def page_view(page_id):
 
     return render_template("error.html")
 
+def page_body(page_id):
+    pag = db.session.scalar(select(Page).where(Page.id==page_id))
+    if pag.has_access():
+        return render_template('pages/page_body.html',pag=pag)
+
+    return render_template("error.html")
+
 
 def pages_table_view(request):
     page = 1 if not 'page' in session else session['page']

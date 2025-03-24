@@ -9,6 +9,22 @@ from xml.etree import ElementTree as ET
 from app import db
 from sqlalchemy import select
 
+def replace_links(text):
+    # Define the pattern to match the links
+    #pattern = r'https://nas\.prome\.com:8001/page/(\d+)'
+    pattern = r'href="/page/(\d+)"'
+
+    # Define the replacement function
+    def replacement(match):
+        page_number = match.group(1)
+        hxget = f"/main_title_body?reg=['pages','{page_number}','']"
+
+        new_link = f'hx-get="{hxget}" hx-indicator="#indicator-table" hx-target="#main-title-body" hx-trigger="click" hx-disinherit="*" href="#"'
+        return new_link
+
+    # Use re.sub to replace the links
+    new_text = re.sub(pattern, replacement, text)
+    return new_text
 
 class PageHtml(object):
     @property
@@ -46,5 +62,9 @@ class PageHtml(object):
             cont +=1
 
         return ET.tostring(span,encoding='unicode',method='html')
+
+    @property
+    def text_htmx_links(self):
+        return replace_links(self.text)
 
 
