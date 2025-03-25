@@ -241,14 +241,19 @@ def reply_note_view(request):
         
          
         new_note(current_user,reg=new_reg,reference=note)
+
         session['reg'] = new_reg
-        session['reg'] = ['my','out','']
+        if new_reg[0] == 'mat':
+            session['reg'] = ['mat','draft','']
+        else:
+            session['reg'] = ['my','out','']
+
         resp = Response()
         resp.headers["hx-redirect"] = '/'
         return resp
    
     regs = [['mat','New proposal'],['cg','New note to cg'],['asr','New note to asr'],['ctr','New note to ctr'],['r','New note to r']]
-    regs = [[rg.alias,f'New proposal' if rg.alias=='mat' else f'New note to {rg.alias}'] for rg in current_user.all_registers_and_sub if rg.permissions]
+    regs = [[rg.alias,f'New proposal' if rg.alias=='mat' else f'New {rg.alias} note'] for rg in current_user.all_registers_and_sub if rg.permissions]
 
     if note.register.alias != 'mat':
         selected = 'mat'

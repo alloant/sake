@@ -70,7 +70,7 @@ class FileProp(object):
     @property
     def register(self):
         for rg in ['vcr','vc','dg','cc','desr']:
-            if re.search(fr"\b{rg}\b",self.subject):
+            if re.search(fr"\b{rg}\b",self.subject) or f'cg-{rg}' in self.sender:
                 return rg
 
         if self.sender == 'cg@cardumen.lan':

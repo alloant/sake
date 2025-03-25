@@ -18,7 +18,7 @@
   {% endif %}
 
   {% for page in current_user.my_pages %}
-    <li class="list-group-item align-items-center {% if reg == ['pages',page.str_id,''] %}active{% endif %}"
+  <li class="list-group-item align-items-center {% if reg == ['pages',page.id_str,''] %}active{% endif %}"
       hx-get="/main_title_body?reg=['pages','{{page.id}}','']"
       hx-indicator="#indicator-table"
       hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');"
@@ -29,7 +29,7 @@
       <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
           <i class="bi bi-file-earmark"></i>
       </span>
-      <span>{{page.title}}</span>
+    <span>{{page.title}}</span>
     </li>
     <!--
     <a class="list-group-item text-decoration-none align-items-center {% if reg == ['pages',page.str_id,''] %}active{% endif %}"

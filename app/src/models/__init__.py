@@ -692,6 +692,10 @@ class Page(db.Model,PageHtml):
     users: Mapped[list["PageUser"]] = relationship(back_populates="page")
 
     @property
+    def id_str(self):
+        return str(self.id)
+
+    @property
     def str_id(self):
         return str(self.id)
 
