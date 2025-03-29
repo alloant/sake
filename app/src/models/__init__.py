@@ -718,11 +718,18 @@ class Page(db.Model,PageHtml):
     def has_access(cls,user=current_user,for_list=False):
         if not for_list and ('scr' in user.groups or 'admin' in user.groups):
             return True
-        
+        ctrs = user.ctrs
+        gps = []
+        for ctr in ctrs:
+            for gp in ctr.groups:
+                if not gp.id in gps:
+                    gps.append(gp.id)
+
         return or_(
             cls.title.in_([f'{ctr.alias} cl' for ctr in user.ctrs]),
             cls.groups.any(Group.text==user.category),
-            cls.groups.any(Group.id.in_([gp.id for gp in user.groups])),
+            cls.groups.any(Group.id.in_(gps)),
+            #cls.groups.any(Group.id.in_([gp.id for gp in gps for gps in user.ctrs.groups])),
             cls.users.any(and_(PageUser.user_id == user.id,PageUser.access != ''))
         )
 

@@ -272,7 +272,14 @@
               hx-target="#main-title-body"
               role="button">
               <i class="bi bi-people"></i> {{gettext('List users')}}</a></li>
+          <li><a class="dropdown-item" 
+              hx-get="/main_users?ctrs=true" 
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              role="button">
+              <i class="bi bi-people"></i> {{gettext('List ctrs')}}</a></li>
           <li><hr class="dropdown-divider"></li>
+
           {% endif %}
           
           {% for ctr in current_user.ctrs %}

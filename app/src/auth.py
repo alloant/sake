@@ -128,10 +128,15 @@ def list_users():
 @bp.route('/main_users')
 @login_required
 def main_users():
+    is_ctr = True if request.args.get('ctrs','false') == 'true' else False
+
     if not ('admin' in current_user.groups or 'scr' in current_user.groups):
         return redirect(request.referrer)
-
-    users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
+    
+    if is_ctr:
+        users = db.session.scalars(select(User).where(User.category=='ctr').order_by(User.alias))
+    else:
+        users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
 
     return render_template('users/main.html', users=users)
 
@@ -151,8 +156,11 @@ def edit_user():
     is_ctr = request.args.get('is_ctr',False)
  
     form = UserForm(request.form,obj=user)
-    
-    groups = db.session.scalars(select(Group).where(Group.category=='user')).all()
+   
+    if user.category == 'ctr':
+        groups = db.session.scalars(select(Group).where(Group.category=='ctr')).all()
+    else:
+        groups = db.session.scalars(select(Group).where(Group.category=='user')).all()
     form.groups.choices = [group.text for group in groups]
 
     registers = db.session.scalars(select(Register).where(Register.active==1,Register.groups.any(Group.text=='personal'))).all()
@@ -168,9 +176,11 @@ def edit_user():
         
         if 'admin' in current_user.groups:
             user.local_path = form.local_path.data
-       
-            user.active = form.active.data
-            user.admin_active = form.admin_active.data
+            
+            if 'admin' in current_user.groups:
+                user.active = form.active.data
+                if user.category != 'ctr':
+                    user.admin_active = form.admin_active.data
             
             
             for group in form.groups.choices:
