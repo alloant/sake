@@ -3,36 +3,42 @@
 <fieldset class="form-group">
 
 <div class="container-fluid">
-  <div class="d-flex align-items-center">
-    {{ form.main(class="form-check-input") }}
-    <span class="ms-1">Main</span>
- 
-    <span class="ms-4 me-1">Title</span> 
-    {{ form.title(class="form-control") }}
+  <div class="row">
+    <div class="col-10">
+      <div class="d-flex align-items-center">
+        {{ form.main(class="form-check-input") }}
+        <span class="ms-1">Main</span>
+     
+        <span class="ms-4 me-1">Title</span> 
+        {{ form.title(class="form-control") }}
 
+        <span class="ms-4 me-1">Order</span>
+        {{ form.order(class="form-control",style="width: 10em;") }}
 
-    <span class="ms-4 border rounded-pill p-1 d-inline-flex flex-nowrap align-items-center">
-      <span class="ms-4 me-1">Order:
-      {{ form.order(class="form-control") }}
-      </span>
+      </div>
 
-      Groups:
+      <div class="p-2 container-fluid">
+        {{ form.text.label(class="form-label") }}
+        {{ form.text(class="",id="summernote") }}
+        <script>
+          $('#summernote').summernote({
+            height: '70vh'
+          });
+        </script>
+      </div>
+
+    </div> <!-- End col-10 -->
+    <div class="col-2">
+      <ul class="list-group">
       {% for group in form.groups %}
-        {{ group(class="form-check-input ms-3")}}
-        {{ group.label(class="ms-1")}}
+        <li class="list-group-item">
+          {{ group(class="form-check-input ms-3") }}
+          {{ group.label(class="ms-1") }}
+        </li>
       {% endfor %}
-    </span>
-  </div>
-
-  <div class="p-2 container-fluid">
-    {{ form.text.label(class="form-label") }}
-    {{ form.text(class="",id="summernote") }}
-    <script>
-      $('#summernote').summernote({
-        height: '70vh'
-      });
-    </script>
-  </div>
+      </ul>
+    </div> <!-- end col-2 -->
+  </div> <!-- end row -->
 
 </div> <!-- end container -->
 

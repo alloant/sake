@@ -4,7 +4,7 @@
 <div id="proposals_collapse" class="collapse collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
 {% endif %}
 
-  <ul class="list-group"
+  <ul class="list-group list-group-flush"
       hx-get="sidebar?element=proposal_list"
       hx-trigger="update-main from:body">
       {% include 'sidebar_proposals_list.html' %}

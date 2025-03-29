@@ -701,7 +701,7 @@ class Page(db.Model,PageHtml):
 
     @property
     def possible_groups(self):
-        return db.session.scalars(select(Group.text).where(Group.category=='page')).all()
+        return db.session.scalars(select(Group.text).where(Group.category.in_(['page','user']))).all()
 
     @hybrid_method
     def has_access(self,user=current_user,for_list=False):
@@ -720,7 +720,9 @@ class Page(db.Model,PageHtml):
             return True
         
         return or_(
+            cls.title.in_([f'{ctr.alias} cl' for ctr in user.ctrs]),
             cls.groups.any(Group.text==user.category),
+            cls.groups.any(Group.id.in_([gp.id for gp in user.groups])),
             cls.users.any(and_(PageUser.user_id == user.id,PageUser.access != ''))
         )
 
