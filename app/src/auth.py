@@ -154,6 +154,7 @@ def main_users():
 @login_required
 def edit_user():
     user_id = request.args.get('user')
+    print('kk',user_id)
     if isinstance(user_id,int):
         user = db.session.scalars(select(User).where(User.id==user_id)).first()
     elif isinstance(user_id,str):
@@ -178,7 +179,9 @@ def edit_user():
     ctrs = db.session.scalars(select(User).where(and_(User.active==1,User.category=='ctr')).order_by(User.alias)).all()
     form.ctrs.choices = [ctr.alias for ctr in ctrs]
 
+    print('here:',request.method)
     if request.method == 'POST':
+        print('post')
         user.alias = form.alias.data
         user.name = form.name.data
         user.email = form.email.data
@@ -249,7 +252,7 @@ def edit_user():
         is_admin = True
     else:
         is_admin = False
-    
+     
     return render_template('modals/modal_edit_user.html', form=form, user=user, is_admin=is_admin, is_ctr=is_ctr)
 
 
