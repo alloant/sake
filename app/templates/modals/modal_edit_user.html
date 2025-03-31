@@ -6,13 +6,9 @@
           {% if user.id == current_user.id %}
             <button type="button" class="btn btn-primary"
               hx-post="/edit_user?user={{user.id}}"
-              {% if True %}
-                hx-swap="none"
-              {% else %}
-                hx-target="#main-body"
-              {% endif %}
+              hx-swap="none"
               hx-disinherit="*"
-              data-bs-dismiss="modal">Save--</button>
+              data-bs-dismiss="modal">Save</button>
           {% else %}
             <button type="button" class="btn btn-primary"
               hx-post="/edit_user?user={{user.id}}&is_ctr={{is_ctr}}"
@@ -25,7 +21,7 @@
     </div>
 
     <div class="modal-body">
-      {% include 'users/form_edit_user.html' %}      
+      {% include 'users/form_edit_user.html' %}
     </div>
   </form>
 </div>

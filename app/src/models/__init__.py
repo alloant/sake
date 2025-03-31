@@ -857,6 +857,7 @@ class User(UserProp,UserMixin, db.Model):
     def get_setting(self,setting):
         if self.setting:
             return getattr(self.setting,setting)
+
         return None
 
     def set_setting(self,setting,value):

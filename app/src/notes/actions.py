@@ -235,7 +235,7 @@ def circulation_proposal(note_id,action):
     updateSocks(users,"")
 
     db.session.commit()
-
+    
     if action in ['start','forward','back'] and note.status == 'shared':
         if note.status in ['approved','denied']:
             targets = [note.sender]
@@ -244,7 +244,7 @@ def circulation_proposal(note_id,action):
         else:
             rst = note.current_status()
             targets = [user.user for user in note.users if note.current_status(user.user).target_order > rst.target_order and note.result('is_current_target',user.user)]
-
+        
         send_emails(note,kind='proposal',targets=targets)
 
 
