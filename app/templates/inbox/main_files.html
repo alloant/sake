@@ -1,0 +1,42 @@
+  <div class="d-flex justify-content-between my-4">
+    <div class="d-inline-flex align-items-center">
+        <img src="static/icons/sake.svg" width="45vmin" height="45vmin">
+        <span class="display-6 mx-2">Sake</span>
+    </div>
+      
+    <div class="btn-group" role="group">
+      <button type="button" 
+        class="btn btn-file"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item"
+            hx-get="#" 
+            hx-target="#modal-htmx" 
+            hx-trigger="click" 
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"     
+            role="button">
+          Remove all</a></li>
+      </ul>
+    </div> <!-- end btn-group -->
+  </div> <!-- end -->
+  
+
+
+  <div id="inbox-table" class="mt-3">
+    {% include 'inbox/table_files.html' %}
+  </div>
+
+
+
+
+
+
+
+
+
+
+

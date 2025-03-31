@@ -40,7 +40,7 @@ def dashboard_view(template):
         session['reg'] = reg
     
     title = get_title(reg)
-   
+    
     return render_template(template,reg=reg,title=title,sock_server = current_app.config['SOCK_SERVER'])
 
 

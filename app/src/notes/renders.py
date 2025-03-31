@@ -12,7 +12,7 @@ from sqlalchemy import select, and_, or_, func, not_
 from app import db
 from app.src.models import Note, User, Register, File, Page
 from app.src.notes.filters import get_notes, get_history, register_filter, get_title
-from app.src.inbox.inbox import inbox_main_view
+from app.src.inbox.inbox import inbox_main_view, marked_files_deletion_view
 from app.src.pages.views import list_pages_view, table_pages_view
 
 def render_main_body(request,template): 
@@ -55,6 +55,8 @@ def render_main_title_body(request,template):
 
     if reg[0] == 'import':
         return inbox_main_view(request)
+    elif reg[0] == 'marked':
+        return marked_files_deletion_view(request)
     elif reg[0] == 'pages':
         if reg[1] == '':
             return list_pages_view(request)

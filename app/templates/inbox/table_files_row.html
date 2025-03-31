@@ -1,17 +1,18 @@
 <tr>
-  <td>{{ file.date }}</td>
-  <td>{{ file.subject }}</td>
+  <td>
+    <span class="mx-1">
+      {% with note = file.note %}
+        {% include 'notes/table/2_state.html' %}
+      {% endwith %}
+    </span>
+    {{ file.note.fullkey_link_html|safe }}
+  </td>
+  <td>{{file.note.content}}</td>
   <td><a href="{{session['link']}}/oo/r/{{file.permanent_link}}" target="_blank">{{ file.path.split('/')[-1] }}</a></td>
-  <td>{{ file.register }}></td>
-  <td>{{ file.sender }}</td>
+  <td>{{ file.note.register.alias }}</td>
   <td><a hx-get="/action_inbox?action=remove_file&file={{file.id}}" hx-trigger="click" hx-target="#inbox-table" hx-confirm="Are you sure you want to delete {{file.path}}?" hx-indicator="#indicator-table" data-bs-toggle="tooltip" title="{{gettext('Remove file')}}">
     <i class="bi bi-trash3-fill" style="color: red;"></i></a></td>
-  <td><input type="text" name="number_{{file.id}}" placeholder="nnn/yy" value="{{ file.guess_number }}"></td>
-  <td>
-    {% for ref in file.guess_ref %}
-      <a href="/register?reg=cr_all_cg&h_note={{ref.id}}" target="_blank">{{ ref.fullkey_link_html|safe }}</a>
-    {% endfor %}
-  </td>
+  <td>{{ file.date }}</td>
 </tr>
 
 

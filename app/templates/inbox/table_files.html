@@ -1,25 +1,44 @@
-<div class="table-responsive">  
-  <table class="table table-sm table-striped">
-    <thead class="">
-      <tr class="bg-dark">
-        <th>{{gettext('Date')}}</th>
-        <th>{{gettext('Subject')}}</th>
-        <th>{{gettext('Name')}}</th>
-        <th>{{gettext('Is ref')}} <sup><i class="bi bi-info-circle" data-bs-toggle="tooltip" title="In case is ref put exact full protocol in No column"></i></sup></th>
-        <th>{{gettext('Register')}}</th>
-        <th>{{gettext('Sender')}}</th>
-        <th></th>
-        <th>No</th>
-        <th>Ref</th>
-      </tr>
-    </thead>
-    <tbody>
+  <div class="d-flex justify-content-end align-items-center my-1 text-secondary">
+    <span class="small">{{ (page - 1) * files.per_page + 1 }}-{{ (page - 1) * files.per_page + files.items|length }} of {{files.total}}</span>
+    <button  class="btn btn-sm btn-file border-0"
+      hx-get="/marked_files_deletion?reg={{reg}}&page={{files.prev_num}}"
+      hx-trigger="click"
+      hx-target="#inbox-table"
+      hx-indicator="#indicator-table"
+      {{'' if files.has_prev else 'disabled' }}><i class="bi bi-chevron-left"></i></button>
+    <button  class="btn btn-sm btn-file border-0"
+      hx-get="/marked_files_deletion?reg={{reg}}&page={{files.next_num}}"
+      hx-trigger="click"
+      hx-target="#inbox-table"
+      hx-indicator="#indicator-table"
+      {{'' if files.has_next else 'disabled' }}><i class="bi bi-chevron-right"></i></button>
+  </div>
+
+  <div class="table-responsive">  
+    <table class="table table-sm table-striped">
+      <thead class="">
+        <tr class="bg-dark">
+          <th>{{gettext('Note')}}</th>
+          <th>{{gettext('Content')}}</th>
+          <th>{{gettext('File')}}</th>
+          <th>{{gettext('Register')}}</th>
+          <th></th>
+          <th>{{gettext('Date')}}</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for file in files %}
-          {% include 'inbox/table_row.html' %}
+          {% include 'inbox/table_files_row.html' %}
         {% endfor %}
-    </tbody>
-  </table>
-</div>
+      </tbody>
+    </table>
+  </div>
+
+
+
+
+
+
 
 
 

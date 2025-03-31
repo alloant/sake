@@ -73,7 +73,25 @@
 
         </li>
 
+      <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
 
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['marked','files',''] %}active{% endif %}"
+          hx-get="/marked_files_deletion?reg=['marked','files','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{gettext('All files marked for deletion')}}"
+          role="button">
+          
+          <span>
+            <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+              <i class="bi bi-incognito"></i>
+            </span>
+            <span>Sensitive</span>
+          </span>
+        </li>
 
 {% endwith %}
 
