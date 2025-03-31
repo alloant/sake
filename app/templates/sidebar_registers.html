@@ -1,4 +1,4 @@
-{% if session['reg'] and not session['reg'][0] in ['pages','mat','des','box','import','all'] and session['reg'][1] != 'pen' %}
+{% if session['reg'] and not session['reg'][0] in ['pages','mat','des','box','import','all','my'] %}
   {% if session['theme'] == 'dark-mode' %}
     <div id="registers_collapse" class="collapse show collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
   {% else %}

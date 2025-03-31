@@ -124,6 +124,7 @@ def render_body_row(reg,note_id,template):
 
 def render_sidebar(element,template):
     theme = '' if session['theme'] == 'light-mode' else '-dark'
+    
     if element:
         reg = session['reg']
         if element == 'pendings':
@@ -131,9 +132,9 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = True if reg[1] == 'pen' else False
         elif element == 'matters':
-            element_title = 'Proposals'
+            element_title = 'My board'
             icon = f'00-{element}{theme}'
-            focus = True if reg[0] == 'mat' else False
+            focus = True if reg[0] in ['mat','my'] else False
         elif element == 'matters_all':
             element_title = 'All'
             icon = f'00-{element}{theme}'
@@ -158,10 +159,14 @@ def render_sidebar(element,template):
             element_title = 'All'
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'all' and reg[1] == 'all' else False
+        elif element == 'sccr':
+            element_title = 'sccr'
+            icon = f'00-{element}{theme}'
+            focus = True if reg[0] in ['import','box'] else False
         elif element == 'register':
             element_title = 'Notes'
             icon = f'00-{element}{theme}'
-            focus = True if not reg[0] in ['pages','mat','des','box','import','all'] or reg[1] == 'pen' else False
+            focus = True if not reg[0] in ['pages','mat','des','box','import','all','my'] else False
         elif element == 'despacho':
             element_title = 'Despacho'
             icon = f'00-{element}{theme}'
@@ -180,6 +185,8 @@ def render_sidebar(element,template):
             focus = True if reg[0] == 'box' and reg[1] == 'out' else False
         elif element == "register_list":
             return render_template('sidebar_registers_list.html',reg=reg)
+        elif element == "sccr_list":
+            return render_template('sidebar_sccr_list.html',reg=reg)
         elif element == "proposal_list":
             return render_template('sidebar_proposals_list.html',reg=reg)
         elif element == "page_list":
@@ -198,7 +205,7 @@ def render_sidebar(element,template):
             element_title = element
             icon = f'00-{element}{theme}'
             focus = False
-
+    
         return render_template(f'sidebar_icon.html',element=element,element_title=element_title,focus=focus,icon=icon)
     else:
         return render_template(f'{template}sidebar.html')

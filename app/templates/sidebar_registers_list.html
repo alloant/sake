@@ -13,47 +13,7 @@
           </span>
           <span>All</span>
       </li>
-
-      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','in',''] %}active{% endif %}"
-        hx-get="/main_title_body?reg=['my','in','']"
-        hx-indicator="#indicator-table"
-        hx-trigger="click"
-        hx-target="#main-title-body"
-        hx-disinherit="*"
-        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
-        role="button">
-        <span>
-          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
-            <i class="bi bi-inbox-fill"></i>
-          </span>
-          <span>My inbox</span>
-        </span>
-        <span class="badge rounded-pill bg-danger ms-2"
-            hx-get="/body_data?info=myinbox"
-            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
-        </span>
-      </li>
   
-      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','out',''] %}active{% endif %}"
-        hx-get="/main_title_body?reg=['my','out','']"
-        hx-indicator="#indicator-table"
-        hx-trigger="click"
-        hx-target="#main-title-body"
-        hx-disinherit="*"
-        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
-        role="button">
-        <span>
-          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
-            <i class="bi bi-mailbox-flag"></i>
-          </span>
-          <span>My outbox</span>
-        </span>
-        <span class="badge rounded-pill bg-danger ms-2"
-            hx-get="/body_data?info=myoutbox"
-            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
-        </span>
-      </li>
-
       <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
   {% endif %}
   {% with registers = current_user.all_registers_and_sub %}

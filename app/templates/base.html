@@ -84,6 +84,9 @@
         <div class="row">
           {% include "sidebar.html" %}
           {% if current_user.is_authenticated and current_user.severalCalendars %}
+            {% if 'scr' in current_user.groups %}
+              {% include "sidebar_sccr.html" %}
+            {% endif %}
             {% include "sidebar_registers.html" %}
             {% include "sidebar_proposals.html" %}
           {% endif %}

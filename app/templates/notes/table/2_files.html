@@ -1,18 +1,20 @@
 {% if note.files|length > 0 %}  
   {% with file = note.first_file(reg[2]) %}
-  <button  class="d-none d-lg-inline btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill file-pill" 
-    hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
-    hx-swap="none"
-    hx-on:htmx:after-request="window.open('{{file.link}}')"
-    data-bs-tooltip="tooltip"
-    title="{{file.name}}"
-    role="button">
-    <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.name}}</small></button>
+    <button  class="d-none d-lg-inline btn btn-sm btn-file px-1 py-0 my-0 border-0 rounded-pill file-pill" 
+      hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
+      hx-swap="none"
+      hx-on:htmx:after-request="window.open('{{file.link}}')"
+      data-bs-tooltip="tooltip"
+      title="{{file.name}}"
+      role="button">
+      <i class="bi {{file.bi_icon}}"></i><small class="fw-normal ms-1">{{file.name}}</small>
+    </button>
   {% endwith %}
 {% endif %}
 
 <span class="dropdown dropdown-center position-static p-0 m-0">
-  <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill {{'text-warning' if not note.permanent_link else 'text-info' if not note.in_folder_notes and note.status in ['sent','registered'] and 'despacho' in note.register.groups else ''}}" data-bs-toggle="dropdown">
+  <button class="btn btn-sm btn-file px-1 py-0 my-0 rounded-end-pill {{'text-warning' if not note.permanent_link else 'text-info' if not note.in_folder_notes and note.status in ['sent','registered'] and 'despacho' in note.register.groups else ''}}"
+    data-bs-toggle="dropdown">
     {{ note.number_files(reg[2])|safe }}
     {% if note.number_refs(reg) > 0 %}
       <i class="bi bi-chevron-double-down small"></i>
@@ -24,12 +26,12 @@
   <ul class="dropdown-menu dropdown-center border-0 shadow-lg p-2 mb-5 rounded">
     <li><h5 class="dropdown-header text-decoration-underline fw-bold">Files</h5></li>
     {% if (reg[2] and note.flow == 'in' or note.reg!='mat' and not reg[2] or note.reg=='mat' and note.sender_id==current_user.id) and note.permanent_link %}
-      <li style="padding-left: 1rem;"><a  class="dropdown-item small fw-light" 
+      <li style="padding-left: 1rem;">
+        <a  class="dropdown-item small fw-light"
             href="{{session['link']}}/d/f/{{note.permanent_link}}"
             target="_blank"
             role="button">
-          <i class="bi bi-folder-fill text-warning"></i> {{note.folder_name}}
-          </a>
+          <i class="bi bi-folder-fill text-warning"></i>{{note.folder_name}}</a>
       </li>
     {% endif %}
     
@@ -39,19 +41,20 @@
           <div class="dropdown-item small">
             <div class="row">
               <span class="col-10">
-                  <a  class="fw-normal text-decoration-none {{'text-light' if session['theme'] == 'dark-mode' else 'text-dark'}}" 
+                  <a class="fw-normal text-decoration-none {{'text-light' if session['theme'] == 'dark-mode' else 'text-dark'}}" 
                     hx-get="/action_note?action=read&note={{note.id}}&reg={{reg}}&file_clicked=true"
                     hx-swap="none"
                     hx-on:htmx:after-request="window.open('{{file.link}}')"
                     role="button">
-                  <i class="bi {{file.bi_icon}}"></i> {{file.name}}
-                </a>
+                    <i class="bi {{file.bi_icon}}"></i> {{file.name}}
+                  </a>
                   {% if note.date != file.date and note.register.alias != 'mat' %}
                     ({{file.date}})
                   {% endif %}
               </span>
-              {% if note.sender_id == current_user.id or current_user.admin %}
+              
               <span class="col-2 text-right">
+              {% if note.sender_id == current_user.id or current_user.admin %}
                 <a  class=""
                     hx-get="/action_note?reg={{reg}}&action=delete_file&note={{note.id}}&file={{file.id}}" 
                     hx-trigger="click"
@@ -59,13 +62,31 @@
                     hx-indicator="#indicator-table"
                     hx-confirm="Are you sure you want to delete file {{file.name}} in note {{note.fullkey}}?"
                     data-bs-toggle="tooltip"
-                    title="{{gettext("Delete file")}}"
-                    role="button">
-                  <i class="bi bi-trash3-fill text-danger"></i>
-                </a>
-              </span>
+                    title="{{gettext('Delete file')}}"
+                    role="button"><i class="bi bi-trash3-fill text-danger"></i></a>
               {% endif %}
-            </div>
+              
+              {% if 'despacho' in current_user.groups or current_user.admin %}
+                <a  class="px-2"
+                    hx-get="/action_note?reg={{reg}}&action=mark_for_deletion&note={{note.id}}&file={{file.id}}" 
+                    hx-trigger="click"
+                    hx-target="#mark_deletion_{{file.id}}"
+                    hx-swap="outerHTML"
+                    hx-indicator="#indicator-table"
+                    hx-on:click="event.stopPropagation()"
+                    data-bs-toggle="tooltip"
+                    title="{{gettext('Mark file for deletion')}}"
+                    role="button">
+                    {% if file.mark_for_deletion %}
+                      <i id="mark_deletion_{{file.id}}" class="bi bi-shield-fill-exclamation text-warning"></i>
+                    {% else %}
+                      <i id="mark_deletion_{{file.id}}" class="bi bi-shield-slash"></i>
+                    {% endif %}
+                </a>
+              {% endif %}
+              </span>
+
+            </div> <!-- End of row -->
           </div>
         </li>
       {% endif %}

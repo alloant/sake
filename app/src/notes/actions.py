@@ -115,6 +115,15 @@ def action_note_view(request,template):
             file = db.session.scalar(select(File).where(File.id==file_id))
             delete_path(f'{note.folder_path}/{file.path}')
             return update_files(reg,note_id)
+        case 'mark_for_deletion':
+            file_id = request.args.get('file')
+            file = db.session.scalar(select(File).where(File.id==file_id))
+            file.mark_for_deletion = not file.mark_for_deletion
+            db.session.commit()
+            if file.mark_for_deletion:
+                return f'<i id="mark_deletion_{file.id}" class="bi bi-shield-fill-exclamation text-warning"></i>'
+            else:
+                return f'<i id="mark_deletion_{file.id}" class="bi bi-shield-slash"></i>'
         case 'edit_note':
             note_id = request.args.get('note')
             output = request.form.to_dict()

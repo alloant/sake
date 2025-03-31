@@ -89,6 +89,7 @@ class File(FileProp,FileNas,FileHtml,db.Model):
     permanent_link: Mapped[str] = mapped_column(db.String(150), default = '')
     sender: Mapped[str] = mapped_column(db.String(20), default = '')
     note_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('note.id'),nullable=True)
+    mark_for_deletion: Mapped[bool] = mapped_column(db.Boolean, default=False)
     
     note: Mapped["Note"] = relationship(back_populates="files")
    
@@ -190,6 +191,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     status: Mapped[str] = mapped_column(db.String(20), default = 'draft')
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
+    due_date: Mapped[datetime.date] = mapped_column(db.Date, nullable=True)
     
     content: Mapped[str] = mapped_column(db.Text, default = '')
     content_jp: Mapped[str] = mapped_column(db.Text, default = '')
@@ -701,13 +703,20 @@ class Page(db.Model,PageHtml):
 
     @property
     def possible_groups(self):
-        return db.session.scalars(select(Group.text).where(Group.category.in_(['page','user']))).all()
+        return db.session.scalars(select(Group.text).where(Group.category.in_(['page','ctr']))).all()
 
     @hybrid_method
     def has_access(self,user=current_user,for_list=False):
         if user.category in self.groups or 'scr' in user.groups or 'admin' in user.groups:
             return True
+        elif self.title in [f'{ctr.alias} cl' for ctr in user.ctrs]:
+            return True
         else:
+            for ctr in user.ctrs:
+                for gp in ctr.groups:
+                    if gp in self.groups:
+                        return True
+
             rst = self.get_user(user)
             
             if rst and rst.access != '':
@@ -976,6 +985,8 @@ class User(UserProp,UserMixin, db.Model):
             rst = current_user.unread
         elif info == 'despacho':
             rst = current_user.despacho
+        elif info == 'files_imported':
+            rst = db.session.scalar(select(func.count(File.id)).where(File.note_id==None))
         elif info == 'inbox':
             rst = db.session.scalar(select(func.count(Note.id)).where(Note.reg!='mat',Note.flow=='in',Note.status=='queued'))
         elif info == 'outbox':

@@ -113,14 +113,19 @@ def logout():
 @bp.route('/users', methods=['GET', 'POST'])
 @login_required
 def list_users():
+    is_ctr = True if request.args.get('ctrs','false') == 'true' else False
     if not ('admin' in current_user.groups or 'scr' in current_user.groups):
         return redirect(request.referrer)
     output = request.form.to_dict()
+    if is_ctr:
+        gps = ['ctr']
+    else:
+        gps = ['dr','of','cl']
 
     if 'search' in output:
-        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.category.in_(['dr','of','cl']))).order_by(User.alias))
+        users = db.session.scalars(select(User).where(and_(or_(User.alias.contains(output['search']),User.name.contains(output['search'])),User.category.in_(gps))).order_by(User.alias))
     else:
-        users = db.session.scalars(select(User).where(User.category.in_(['dr','of','cl'])).order_by(User.alias))
+        users = db.session.scalars(select(User).where(User.category.in_(gps)).order_by(User.alias))
 
     return render_template('users/list_users.html', users=users)
 
@@ -135,10 +140,14 @@ def main_users():
     
     if is_ctr:
         users = db.session.scalars(select(User).where(User.category=='ctr').order_by(User.alias))
+        title_page = "Ctrs"
+        ctrs = "true"
     else:
         users = db.session.scalars(select(User).where(User.category.in_(['dr','of'])).order_by(User.alias))
+        title_page = "Users"
+        ctrs = "false"
 
-    return render_template('users/main.html', users=users)
+    return render_template('users/main.html', users=users, title_page=title_page, ctrs=ctrs)
 
 
 @bp.route('/edit_user', methods=['GET', 'POST'])

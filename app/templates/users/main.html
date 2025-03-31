@@ -6,13 +6,13 @@
       {% else %}
         <img src="static/icons/00-profile-dark.svg" width="70vmin" height="70vmin">
       {% endif %}
-      Users
+      {{title_page}}
     </h1>
 
 
     <input class="form-control flex-grow-1" type="search" 
         name="search" placeholder="Search..." id="search_text"
-        hx-post="/users" 
+      hx-post="/users?ctrs={{ctrs}}" 
         hx-trigger="input changed delay:500ms, search" 
         hx-target="#users-table"> 
   </div>

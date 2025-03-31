@@ -61,7 +61,7 @@ def edit_page(page_id,request):
     form.order.data = page.order
     form.main.data = page.main
 
-    form.groups.choices = db.session.scalars(select(Group.text).where(Group.category.in_(['page','user']))).all()
+    form.groups.choices = db.session.scalars(select(Group.text).where(Group.category.in_(['page','ctr']))).all()
     form.groups.data = [group.text for group in page.groups]
 
     return render_template('modals/modal_edit_page.html',page=page,form=form)
@@ -75,7 +75,7 @@ def save_page(page_id,request):
     page.order = form.order.data
     page.main = form.main.data
     
-    groups = db.session.scalars(select(Group).where(Group.category.in_(['page','user']))).all()
+    groups = db.session.scalars(select(Group).where(Group.category.in_(['page','ctr']))).all()
 
     for group in groups:
         if group.text in form.groups.data:
