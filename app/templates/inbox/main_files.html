@@ -5,6 +5,16 @@
     </div>
       
     <div class="btn-group" role="group">
+      <select class="form-select w-auto rounded-pill"
+        name="filter_option"
+        hx-post="/marked_files_deletion?reg=['marked','files','']"
+        hx-trigger="click"
+        hx-target="#inbox-table"
+        hx-disinherit="*">
+        <option value="only_archived" class="text-end" {{'selected' if session['filter_option'] == 'only_Archived' else ''}}>Only archived</option>
+        <option value="all_marked" class="text-end" {{'selected' if session['filter_option'] == 'all_marked' else ''}}>All marked</option>
+      </select>
+
       <button type="button" 
         class="btn btn-file"
         data-bs-toggle="dropdown"

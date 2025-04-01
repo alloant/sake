@@ -315,8 +315,15 @@ def generate_notes(output):
 
 
 def marked_files_deletion_view(request):
-    page = request.args.get('page')
+    output = request.form.to_dict()
+    
     template = 'main_files.html'
+    if 'filter_option' in output:
+        session['filter_option'] = output['filter_option']
+        template = 'table_files.html'
+
+    session['marked'] = ['marked','files','']
+    page = request.args.get('page')
     if not page:
         page = 0 if not 'page' in session else session['page']
         if page == 0: # Coming from /
@@ -326,7 +333,13 @@ def marked_files_deletion_view(request):
         page = int(page)
         template = 'table_files.html'
     session['page'] = page
-    sql = select(File).where(File.mark_for_deletion,File.note.has(Note.archived)).order_by(File.date)
+
+    if session['filter_option'] == 'all_marked':
+        sql = select(File).where(File.mark_for_deletion).order_by(File.date)
+    else:
+        session['filter_option'] = 'only_archived'
+        sql = select(File).where(File.mark_for_deletion,File.note.has(or_(Note.archived,Note.status=='sent'))).order_by(File.date)
+    
     files = db.paginate(sql, per_page=25)
     res = make_response(render_template(f'inbox/{template}',title='Marked for deletion', files=files,reg=['marked','files',''],page=page))
     res.headers['HX-Trigger'] = 'update-main'

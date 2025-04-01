@@ -1080,6 +1080,7 @@ class User(UserProp,UserMixin, db.Model):
             Note.sender_id==current_user.id,
             Note.status=='draft',
             Note.reg=='mat',
+            not_(Note.archived),
             not_(Note.result('is_done')))
             )
 

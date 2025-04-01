@@ -164,11 +164,11 @@ def render_sidebar(element,template):
         elif element == 'sccr':
             element_title = 'sccr'
             icon = f'00-{element}{theme}'
-            focus = True if reg[0] in ['import','box'] else False
+            focus = True if reg[0] in ['import','box','marked'] else False
         elif element == 'register':
             element_title = 'Notes'
             icon = f'00-{element}{theme}'
-            focus = True if not reg[0] in ['pages','mat','des','box','import','all','my'] else False
+            focus = True if not reg[0] in ['pages','mat','des','box','import','all','my','marked'] else False
         elif element == 'despacho':
             element_title = 'Despacho'
             icon = f'00-{element}{theme}'

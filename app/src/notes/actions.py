@@ -231,21 +231,27 @@ def circulation_proposal(note_id,action):
         case 'back':
             note.status = 'denied'
  
-    users = note.receiver + [note.sender]
-    updateSocks(users,"")
-
     db.session.commit()
-    
+    users = note.receiver + [note.sender]
+    msg = ""
+    targets = []
     if action in ['start','forward','back'] and note.status == 'shared':
         if note.status in ['approved','denied']:
             targets = [note.sender]
+            msg = f"Proposal {note.fullkey} has been {note.status}"
         elif action == 'start':
             targets = [user.user for user in note.users if note.result('is_current_target',user.user)]
+            msg = f"Proposal {note.fullkey} awaiting your signature"
         else:
             rst = note.current_status()
             targets = [user.user for user in note.users if note.current_status(user.user).target_order > rst.target_order and note.result('is_current_target',user.user)]
+            if action == 'forward':
+                msg = f"Proposal {note.fullkey} awaiting your signature"
         
         send_emails(note,kind='proposal',targets=targets)
+    
+    updateSocks([user for user in users if not user in targets],"")
+    updateSocks(targets,msg)
 
 
 def toggle_archive(note_id,is_ctr=False):
@@ -313,14 +319,17 @@ def sign_despacho(note_id,back):
         db.session.commit()
 
     if note.status == 'registered':
+        targets = note.receiver
         users = db.session.scalars(select(User).where(User.category.in_(['dr','of']))).all()
         send_emails(note,kind='from despacho')
+        msg = 'New note in inbox'
     else:
         users = db.session.scalars(select(User).where(User.groups.any(Group.text=='despacho')))
+        msg = ''
+        targets = []
 
-    updateSocks(users,'')
-
-
+    updateSocks([user for user in users if not user in targets],'')
+    updateSocks(targets,msg)
 
 def outbox_to_target(note_id=None,back=False):
     if note_id:
