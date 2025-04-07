@@ -59,6 +59,8 @@ def write_eml(rec,note,path_download):
         sub2_2.append(f"{note.reg}-Aes")
         if note.proc == 'sf':
             sub2_2[-1] += "f"
+        if note.reg == 'cc' and note.num:
+            sub1 = f'Aes {sub1}'
 
     sub2 = f"{sub2_1} ({'.'.join(sub2_2)})" if sub2_2 else sub2_1
 

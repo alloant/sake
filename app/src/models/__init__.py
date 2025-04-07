@@ -1029,6 +1029,7 @@ class User(UserProp,UserMixin, db.Model):
     def despacho(self):
         return db.session.scalar(select(func.count(Note.id)).where(
             Note.result('num_sign_despacho')<2,
+            not_(Note.result('is_sign_despacho')),
             Note.register.has(Register.groups.any(Group.text=='despacho')),
             Note.status=='despacho',
         ))
