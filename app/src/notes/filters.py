@@ -123,6 +123,9 @@ def register_filter(reg,filter = ""):
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(Note.status=='draft')
                 proposals.append(not_(Note.archived))
+                proposals.append(Note.due_date.is_(None))
+            elif reg[1] == 'snooze':
+                proposals.append(not_(Note.due_date.is_(None)))
             elif reg[1] == 'shared':
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(Note.status=='shared')
@@ -131,6 +134,7 @@ def register_filter(reg,filter = ""):
                 proposals.append(Note.sender_id==current_user.id)
                 proposals.append(or_(Note.status=='approved',Note.status=='denied'))
                 proposals.append(not_(Note.archived))
+                proposals.append(Note.due_date.is_(None))
             if session['filter_option'] == 'hide_archived' and reg[1] == 'all':
                 proposals.append(not_(Note.archived))
 
@@ -139,6 +143,13 @@ def register_filter(reg,filter = ""):
         elif reg[0] == 'my' and reg[1] == 'in':
             fn.append(Note.has_target(current_user.id))
             fn.append(Note.status=='registered')
+            fn.append(Note.due_date.is_(None))
+            if session['filter_option'] == 'hide_archived':
+                fn.append(not_(Note.archived))
+        elif reg[0] == 'my' and reg[1] == 'snooze':
+            fn.append(Note.has_target(current_user.id))
+            fn.append(Note.status=='registered')
+            fn.append(not_(Note.due_date.is_(None)))
             if session['filter_option'] == 'hide_archived':
                 fn.append(not_(Note.archived))
         elif reg[0] == 'my' and reg[1] == 'out':

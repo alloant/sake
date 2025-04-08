@@ -4,12 +4,21 @@
 from flask import render_template, session, current_app
 from flask_login import current_user
 
-from sqlalchemy import select
+from datetime import date
+
+from sqlalchemy import select, update, not_, or_
 
 from app.src.notes.renders import get_title
-from app.src.models import Register
+from app.src.models import Register, Note
 from app import db
 
+def wake_up_notes():
+    notes = db.session.scalars(select(Note).where(or_(Note.sender_id==current_user.id,Note.has_target(current_user.id)),not_(Note.due_date.is_(None)),Note.due_date<=date.today())).all()
+
+    for note in notes:
+        note.due_date = None
+
+    db.session.commit()
 
 def dashboard_view(template):
     if session.get('theme') is None:
@@ -21,6 +30,8 @@ def dashboard_view(template):
         session['version'] = 'old'
     
     session['link'] = f"https://{current_app.config['SYNOLOGY_SERVER']}:{current_app.config['SYNOLOGY_PORT']}"
+
+    wake_up_notes()
     
     if 'reg' in session:
         reg = session['reg']

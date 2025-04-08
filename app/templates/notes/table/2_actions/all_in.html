@@ -12,6 +12,33 @@
         <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
       </a>
     </li>
+    {% if note.due_date %}
+      <li>
+        <a class="dropdown-item"
+          <a  class="dropdown-item"
+            hx-post="/action_note?action=snooze&reg={{reg}}&note={{note.id}}&wake=true" 
+            hx-disinherit="*"
+            hx-target="#row_{{note.id}}" 
+            hx-trigger="click"
+            hx-indicator="#indicator-table"
+            role="button">
+          <i class="bi bi-sunrise"></i> {{gettext('Disable snooze')}}
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a class="dropdown-item"
+          <a  class="dropdown-item"
+            hx-get="/action_note?action=snooze&reg={{reg}}&note={{note.id}}" 
+            hx-target="#modal-htmx"
+            data-bs-toggle="modal"
+            data-bs-target="#modal-htmx"
+            hx-trigger="click"
+            role="button">
+          <i class="bi bi-stopwatch"></i> {{gettext('Snooze')}}
+        </a>
+      </li>
+    {% endif %}
   {% else %}
     <li>
       <a class="dropdown-item"
@@ -26,6 +53,7 @@
       </a>
     </li>
   {% endif %}
+  
   <li><hr class="dropdown-divider"></li>
 {% endif %}
 

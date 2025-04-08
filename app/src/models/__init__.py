@@ -964,6 +964,8 @@ class User(UserProp,UserMixin, db.Model):
         rst = 0
         if info == "myinbox":
             rst = current_user.pendings
+        elif info == "snooze":
+            rst = current_user.snooze
         elif info == "myoutbox":
             rst = current_user.pendings_out
         elif info == "done":
@@ -978,6 +980,8 @@ class User(UserProp,UserMixin, db.Model):
             rst = current_user.pending_matters_to_sign
         elif info == "proposals_draft":
             rst = current_user.pending_matters_draft
+        elif info == "proposals_snooze":
+            rst = current_user.pending_matters_snooze
         elif info == "proposals_shared":
             rst = current_user.pending_matters_shared
         elif info == "proposals_done":
@@ -1013,6 +1017,18 @@ class User(UserProp,UserMixin, db.Model):
             Note.register.has(Register.alias!='mat'),
             Note.has_target(current_user.id),
             Note.status=='registered',
+            Note.due_date.is_(None),
+            not_(Note.archived)
+        ))
+
+    @property
+    def snooze(self):
+        return db.session.scalar(select(func.count(Note.id)).where(
+            #not_(Note.result('is_read')),
+            Note.register.has(Register.alias!='mat'),
+            Note.has_target(current_user.id),
+            Note.status=='registered',
+            not_(Note.due_date.is_(None)),
             not_(Note.archived)
         ))
 
@@ -1082,8 +1098,15 @@ class User(UserProp,UserMixin, db.Model):
             Note.status=='draft',
             Note.reg=='mat',
             not_(Note.archived),
-            not_(Note.result('is_done')))
-            )
+            Note.due_date.is_(None)
+            ))
+    @property
+    def pending_matters_snooze(self):
+        return db.session.scalar(select(func.count()).where(
+            Note.sender_id==current_user.id,
+            Note.reg=='mat',
+            not_(Note.due_date.is_(None))
+            ))
 
     @property
     def pending_matters_shared(self):
@@ -1099,6 +1122,7 @@ class User(UserProp,UserMixin, db.Model):
                 Note.sender_id==current_user.id,
                 or_(Note.status=='approved',Note.status=='denied'),
                 Note.reg=='mat',
+                Note.due_date.is_(None),
                 not_(Note.archived)))
 
 

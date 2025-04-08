@@ -47,7 +47,9 @@
 {% else %}
   {% if note.flow == 'in' %}
     {% with fill = '-fill' if note.is_involve(reg,current_user) else '' %}
-      {% if note.archived %}
+      {% if note.due_date %}
+        <span><i class="bi bi-stopwatch{{fill}}" data-toggle="tooltip" title="{{gettext('Archived')}}"></i></span>
+      {% elif note.archived %}
         <span><i class="bi bi-check-circle{{fill}} text-muted" data-toggle="tooltip" title="{{gettext('Archived')}}"></i></span>
       {% else %}
         <span><i class="bi bi-patch-exclamation{{fill}}" data-toggle="tooltip" title="{{gettext('To be done')}}"></i></span>

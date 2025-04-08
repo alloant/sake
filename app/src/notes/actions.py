@@ -18,7 +18,7 @@ from flask_babel import gettext
 
 from app import db
 from app.src.models import Note, User, Register, File, NoteUser, Group
-from app.src.forms.note import NoteForm
+from app.src.forms.note import NoteForm, DateForm
 from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
 from app.src.notes.renders import render_main_body, render_body_element
 
@@ -78,6 +78,24 @@ def action_note_view(request,template):
             circulation_proposal(note_id,act)
             trigger.append('state-updated')
             trigger.append('socket-updated')
+        case 'snooze':
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            if request.method == 'POST':
+                wake = True if request.args.get('wake','false') == 'true' else False
+                if wake:
+                    snooze_note(note,wake,None)
+                else:
+                    output = request.form.to_dict()
+                    form = DateForm(request.form)
+                    snooze_note(note,wake,form.date.data)
+                
+                trigger.append('state-updated')
+                trigger.append('read-updated')
+            else:
+                form = DateForm()
+                wake = request.args.get('wake','false')
+                return render_template("modals/modal_due_date.html",form=form,note_id=note_id,wake=wake)
         case 'new':
             if reg[0] == 'box':
                 return action_new_note(reg)
@@ -212,6 +230,15 @@ def send_to_box(reg,note_id,back):
 
     db.session.commit()
 
+def snooze_note(note,wake,date):
+    if wake:
+        note.due_date = None
+    else:
+        note.due_date = date
+
+    db.session.commit()
+
+
 def circulation_proposal(note_id,action):
     note = db.session.scalar(select(Note).where(Note.id==note_id))
     match action:
@@ -271,7 +298,8 @@ def toggle_archive(note_id,is_ctr=False):
                 if note.register.alias == 'mat':
                     toggle_share_permissions(note.folder_path,'viewer')
                 note.archived = True
-        
+            note.due_date = None
+
         db.session.commit()
 
 

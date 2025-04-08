@@ -41,6 +41,26 @@
     </span>
   </li>
 
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','snooze',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','snooze','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-stopwatch"></i>
+      </span>
+      <span>Snooze</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=snooze"
+        hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+  
   <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','out',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['my','out','']"
     hx-indicator="#indicator-table"
@@ -173,6 +193,26 @@
     <span class="badge rounded-pill bg-primary ms-2"
         hx-get="/body_data?info=proposals_done"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','snooze',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','snooze','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-stopwatch"></i>
+      </span>
+      <span>Snooze</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=proposals_snooze"
+        hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
   </li>
 
   <li class="list-group-item d-flex align-items-center {% if reg == ['mat','archived',''] %}active{% endif %}"

@@ -1,0 +1,24 @@
+<div class="modal-dialog modal-md modal-dialog-centered">
+  <div class="modal-content">
+    <form method="POST" id="date_form" enctype="multipart/form-data">
+      <div class="modal-header justify-content-between">
+        <h5 class="modal-title">Snooze till</h5>
+          <span id="formNewNote" class="spinner-wrapper htmx-indicator" style="pointer-events:none;">
+            <span class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></span>
+          </span>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          {{ form.date.label(class="form-label") }}
+          {{ form.date(class="form-control") }}
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" hx-include="#date_form" hx-post="/action_note?action=snooze&note={{note_id}}&wake={{wake}}" hx-target="#row_{{note_id}}" hx-disinherit="*" hx-indicator="#indicator-table" data-bs-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
