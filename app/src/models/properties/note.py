@@ -87,6 +87,14 @@ class NoteProp(object):
                         return True
                     elif not self.status in ['registered','sent']:
                         return True
+            case 'can_mark_for_deletion':
+                if current_user.admin or 'despacho' in current_user.groups:
+                    return True
+                elif current_user.id == self.sender_id:
+                    return True
+
+                return False
+
 
             case 'can_assign_permissions':
                 if current_user.admin or 'despacho' in current_user.groups:

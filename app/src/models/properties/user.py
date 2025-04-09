@@ -26,6 +26,7 @@ class UserProp(object):
     @property
     def severalCalendars(self):
         return True if self.category in ['dr','of'] or len(self.ctrs)>1 else False
+ 
 
     def register_icon_html(self,register, size=35):
         match register:

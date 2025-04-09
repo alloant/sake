@@ -61,6 +61,24 @@
     </span>
   </li>
   
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','archived',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','archived','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-stopwatch"></i>
+      </span>
+      <span>Archived</span>
+    </span>
+  </li>
+  
+  <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+
   <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','out',''] %}active{% endif %}"
     hx-get="/main_title_body?reg=['my','out','']"
     hx-indicator="#indicator-table"
@@ -73,11 +91,27 @@
       <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
         <i class="bi bi-mailbox-flag"></i>
       </span>
-      <span>Outbox</span>
+      <span>Drafts</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
         hx-get="/body_data?info=myoutbox"
         hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','sent',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','sent','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-send"></i>
+      </span>
+      <span>Sent</span>
     </span>
   </li>
 

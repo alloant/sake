@@ -144,20 +144,26 @@ def register_filter(reg,filter = ""):
             fn.append(Note.has_target(current_user.id))
             fn.append(Note.status=='registered')
             fn.append(Note.due_date.is_(None))
-            if session['filter_option'] == 'hide_archived':
-                fn.append(not_(Note.archived))
+            fn.append(not_(Note.archived))
         elif reg[0] == 'my' and reg[1] == 'snooze':
             fn.append(Note.has_target(current_user.id))
             fn.append(Note.status=='registered')
             fn.append(not_(Note.due_date.is_(None)))
             if session['filter_option'] == 'hide_archived':
                 fn.append(not_(Note.archived))
+        elif reg[0] == 'my' and reg[1] == 'archived':
+            fn.append(Note.has_target(current_user.id))
+            fn.append(Note.status=='registered')
+            fn.append(Note.due_date.is_(None))
+            fn.append(Note.archived)
         elif reg[0] == 'my' and reg[1] == 'out':
             fn.append(Note.reg!='mat')
             fn.append(Note.sender_id==current_user.id)
-
-            if session['filter_option'] == 'hide_archived':
-                fn.append(Note.status.in_(['draft','queued']))
+            fn.append(Note.status.in_(['draft','queued']))
+        elif reg[0] == 'my' and reg[1] == 'sent':
+            fn.append(Note.reg!='mat')
+            fn.append(Note.sender_id==current_user.id)
+            fn.append(Note.status.in_(['sent']))
         elif reg[0] == 'all' and reg[1] == 'all': # Global search
             if session['filter_option'] == 'only_notes':
                 fn.append(Note.reg!='mat')
@@ -324,7 +330,7 @@ def get_title(reg):
         title['icon'] = f'static/icons/00-pendings{dark}.svg' 
         title['text'] = gettext(u'Pending notes')
         title['filter'] = True
-        title['showAll'] = True
+        title['showAll'] = False
     elif reg[0] == 'import':
         title['icon'] = f'static/icons/00-import{dark}.svg' 
         title['text'] = gettext(u'Import files into Sake')

@@ -55,6 +55,7 @@ def action_note_view(request,template):
             note_id = request.args.get('note')
             ctr = True if request.args.get('ctr','false') == 'true' else False
             toggle_archive(note_id,ctr)
+            trigger.append('read-updated')
             trigger.append('status-updated')
             trigger.append('state-updated')
         case 'start_circulation':
@@ -274,6 +275,8 @@ def circulation_proposal(note_id,action):
             targets = [user.user for user in note.users if note.current_status(user.user).target_order > rst.target_order and note.result('is_current_target',user.user)]
             if action == 'forward':
                 msg = f"Proposal {note.fullkey} awaiting your signature"
+                if len(targets) > 1:
+                    targets = []
         
         send_emails(note,kind='proposal',targets=targets)
     

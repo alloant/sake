@@ -20,7 +20,7 @@ def send_email(subject, body, recipients):
 
 def send_emails(nt,kind='to ctr',targets=[]):
     # Start the background task
-    recs = [rec for rec in nt.receiver if rec.get_setting('notifications')]
+    recs = [rec for rec in nt.receiver if rec.get_setting('notifications') or rec.category == 'ctr']
 
     thread = threading.Thread(target=send_emails_threading,args=(nt,recs,kind,targets))
     thread.start()
