@@ -1,7 +1,11 @@
 <div class="modal-dialog modal-md modal-dialog-centered">
   <form class="modal-content" id="reg_new_note_form">
     <div class="modal-header justify-content-between">
+      {% if note %}
       <h5 class="modal-title">New entry with {{note.fullkey}} as reference</h5>
+      {% else %}
+      <h5 class="modal-title">New note</h5>
+      {% endif %}
         <span id="formNewNote" class="spinner-wrapper htmx-indicator" style="pointer-events:none;">
           <span class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></span>
         </span>
@@ -21,7 +25,11 @@
     </div>
 
     <div class="modal-footer">
+      {% if note %}
       <button type="button" class="btn btn-primary" hx-include="#reg_new_note_form" hx-post="/reply_note?note={{note.id}}&reg={{reg}}" hx-swap="none" hx-indicator="#formNewNote">New</button>
+      {% else %}
+      <button type="button" class="btn btn-primary" hx-include="#reg_new_note_form" hx-post="/reply_note?reg={{reg}}" hx-swap="none" hx-indicator="#formNewNote">New</button>
+      {% endif %}
       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
     </div>
   </form>

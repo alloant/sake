@@ -331,6 +331,8 @@ def get_title(reg):
         title['text'] = gettext(u'Pending notes')
         title['filter'] = True
         title['showAll'] = False
+        if reg[1] == 'out':
+            title['new'] = True
     elif reg[0] == 'import':
         title['icon'] = f'static/icons/00-import{dark}.svg' 
         title['text'] = gettext(u'Import files into Sake')

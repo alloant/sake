@@ -227,7 +227,10 @@ def reply_note_view(request):
     reg = ast.literal_eval(request.args.get('reg'))
     copy = request.args.get("copy","")
     note_id = request.args.get('note')
-    note = db.session.scalar(select(Note).where(Note.id==note_id))
+    if note_id:
+        note = db.session.scalar(select(Note).where(Note.id==note_id))
+    else:
+        note = None
 
     if request.method == 'POST' or reg[2]:
         if not reg[2]:
@@ -252,16 +255,18 @@ def reply_note_view(request):
         resp.headers["hx-redirect"] = '/'
         return resp
    
-    regs = [['mat','New proposal'],['cg','New note to cg'],['asr','New note to asr'],['ctr','New note to ctr'],['r','New note to r']]
-    regs = [[rg.alias,f'New proposal' if rg.alias=='mat' else f'New {rg.alias} note'] for rg in current_user.all_registers_and_sub if rg.permissions]
-
-    if note.register.alias != 'mat':
-        selected = 'mat'
-    else:
+    regs = [[rg.alias,'New proposal' if rg.alias=='mat' else f'New {rg.alias} note'] for rg in current_user.all_registers_and_sub if rg.permissions]
+    if not note_id:
+        regs.remove(['mat','New proposal'])
         selected = 'cg'
-        for rf in note.ref:
-            if rf.register.alias != 'mat':
-                selected = rf.register.alias
+    else:
+        if note.register.alias != 'mat':
+            selected = 'mat'
+        else:
+            selected = 'cg'
+            for rf in note.ref:
+                if rf.register.alias != 'mat':
+                    selected = rf.register.alias
 
     return render_template("modals/modal_reply_note.html",reg=reg,note=note,regs=regs,selected=selected)
 
