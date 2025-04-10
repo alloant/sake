@@ -25,7 +25,7 @@
 
   <ul class="dropdown-menu dropdown-center border-0 shadow-lg p-2 mb-5 rounded">
     <li><h5 class="dropdown-header text-decoration-underline fw-bold">Files</h5></li>
-    {% if (reg[2] and note.flow == 'in' or note.reg!='mat' and not reg[2] or note.reg=='mat' and note.sender_id==current_user.id) and note.permanent_link %}
+    {% if (reg[2] and note.flow == 'in' and note.status == 'draft' or note.reg!='mat' and not reg[2] or note.reg=='mat' and note.sender_id==current_user.id) and note.permanent_link %}
       <li style="padding-left: 1rem;">
         <a  class="dropdown-item small fw-light"
             href="{{session['link']}}/d/f/{{note.permanent_link}}"
@@ -36,7 +36,7 @@
     {% endif %}
     
     {% for file in note.files %}
-      {% if not reg[2] or reg[2] and (file.subject == '' or reg[2] in file.subject.split(','))  %}
+      {% if file.permissions('user_can_see',reg[2])  %}
         <li style="padding-left: 2rem;">
           <div class="dropdown-item small">
             <div class="row">

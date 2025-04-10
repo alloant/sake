@@ -1,6 +1,7 @@
 import re
 from datetime import date
 from flask import current_app
+from flask_login import current_user
 
 from sqlalchemy import select, case, func
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
@@ -28,6 +29,25 @@ class FileProp(object):
             return 'synology'
         else:
             return 'file'
+
+    def permissions(self,demand,reg2=''): # reg2 is only use in ctr views
+        match demand:
+            case 'user_can_see':
+                if reg2:
+                    if self.mark_for_deletion:
+                        return False
+                    elif self.subject == '' or reg2 in self.subject.split(','):
+                        return True
+                else: # Here is about a dr or of
+                    if not self.mark_for_deletion:
+                        return True
+                    elif any(gp in current_user.groups for gp in ['despacho','permanente']):
+                        return True
+                    elif current_user == self.note.sender:
+                        return True
+                    elif current_user in self.note.receiver:
+                        return True
+                return False
 
 
     @property

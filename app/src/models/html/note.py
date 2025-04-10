@@ -76,15 +76,9 @@ class NoteHtml(object):
 
         return ET.tostring(span,encoding='unicode',method='html')
 
-    def number_files(self,ctr=None):
-        if ctr:
-            num = 0
-            for file in self.files:
-                if file.subject == '' or ctr in file.subject.split(','):
-                    num += 1
-        else:
-            num = len(self.files)
-        
+    def number_files(self,ctr=''):
+        num = len([file for file in self.files if file.permissions('user_can_see',ctr)])
+
         num = str(num)
         rst = ''
         for n in num:
