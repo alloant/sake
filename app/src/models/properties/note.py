@@ -117,6 +117,13 @@ class NoteProp(object):
                 else:
                     if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
                         return True
+            case 'can_snooze':
+                if self.register.alias == 'mat':
+                    if self.sender_id == current_user.id and self.status != 'shared':
+                        return True
+                else:
+                    if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
+                        return True
             case 'can_send':
                 return self.sender_id == current_user.id and self.status in ['draft','queued']
             case 'can_check_info':

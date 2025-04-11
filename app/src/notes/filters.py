@@ -125,6 +125,7 @@ def register_filter(reg,filter = ""):
                 proposals.append(not_(Note.archived))
                 proposals.append(Note.due_date.is_(None))
             elif reg[1] == 'snooze':
+                proposals.append(Note.sender_id==current_user.id)
                 proposals.append(not_(Note.due_date.is_(None)))
             elif reg[1] == 'shared':
                 proposals.append(Note.sender_id==current_user.id)

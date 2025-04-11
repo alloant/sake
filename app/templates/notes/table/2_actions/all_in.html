@@ -1,18 +1,5 @@
-{% if not reg[0] in ['des','box'] and note.permissions('can_archive') %}
-  {% if not note.archived %}
-    <li>
-      <a class="dropdown-item"
-        <a  class="dropdown-item"
-          hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
-          hx-target="#row_{{note.id}}" 
-          hx-trigger="click"
-          hx-disinherit="*"
-          hx-indicator="#indicator-table"
-          role="button">
-        <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
-      </a>
-    </li>
-    {% if note.due_date %}
+{% if not reg[0] in ['des','box'] and note.permissions('can_snooze') %}
+  {% if note.due_date %}
       <li>
         <a class="dropdown-item"
           <a  class="dropdown-item"
@@ -39,6 +26,22 @@
         </a>
       </li>
     {% endif %}
+{% endif %}
+
+{% if not reg[0] in ['des','box'] and note.permissions('can_archive') %}
+  {% if not note.archived %}
+    <li>
+      <a class="dropdown-item"
+        <a  class="dropdown-item"
+          hx-post="/action_note?action=archive&reg={{reg}}&note={{note.id}}" 
+          hx-target="#row_{{note.id}}" 
+          hx-trigger="click"
+          hx-disinherit="*"
+          hx-indicator="#indicator-table"
+          role="button">
+        <i class="bi bi-box-arrow-in-down"></i> {{gettext('Archive')}}
+      </a>
+    </li>
   {% else %}
     <li>
       <a class="dropdown-item"
