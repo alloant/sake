@@ -71,7 +71,7 @@
     role="button">
     <span>
       <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
-        <i class="bi bi-stopwatch"></i>
+        <i class="bi bi-folder"></i>
       </span>
       <span>Archived</span>
     </span>
@@ -184,7 +184,7 @@
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
         hx-get="/body_data?info=proposals_draft"
-        hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+        hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
 
   </li>
@@ -205,7 +205,7 @@
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
         hx-get="/body_data?info=proposals_shared"
-        hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+        hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
 
   </li>
@@ -245,7 +245,7 @@
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
         hx-get="/body_data?info=proposals_snooze"
-        hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
   </li>
 

@@ -92,6 +92,8 @@ class NoteProp(object):
                     return True
                 elif current_user.id == self.sender_id:
                     return True
+                elif self.is_target() and self.n_date < date(2025,5,20): #Temporal only for dr to mark their own
+                    return True
 
                 return False
 

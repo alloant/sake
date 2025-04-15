@@ -62,23 +62,23 @@ def action_note_view(request,template):
             note_id = request.args.get('note')
             circulation_proposal(note_id,'start')
             trigger.append('state-updated')
-            trigger.append('socket-updated')
+            #trigger.append('socket-updated')
         case 'stop_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'stop')
             trigger.append('state-updated')
-            trigger.append('socket-updated')
+            #trigger.append('socket-updated')
         case 'restart_circulation':
             note_id = request.args.get('note')
             circulation_proposal(note_id,'restart')
             trigger.append('state-updated')
-            trigger.append('socket-updated')
+            #trigger.append('socket-updated')
         case 'sign_proposal':
             note_id = request.args.get('note')
             act = 'back' if request.args.get('back','false') == 'true' else 'forward'
             circulation_proposal(note_id,act)
             trigger.append('state-updated')
-            trigger.append('socket-updated')
+            #trigger.append('socket-updated')
         case 'snooze':
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))
@@ -166,7 +166,6 @@ def action_note_view(request,template):
             else:
                 return update_files(reg,note_id)
         case 'upload_files':
-            print('upload_files')
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))
             if request.method == 'POST':
@@ -423,10 +422,15 @@ def inbox_to_despacho(note_id=None,back=False):
         else: # If it is not for despacho is a personal register and we send it to the final place
             note.status = 'registered'
 
+        if not back:
+            for file in note.files:
+                file.date = note.n_date
+
+    db.session.commit()
+    
     users = db.session.scalars(select(User).where(or_(User.groups.any(Group.text=='scr'),User.groups.any(Group.text=='despacho'))))
     updateSocks(users,'')
 
-    db.session.commit()
 
 def action_new_note(reg):
     form = NoteForm()
