@@ -175,6 +175,10 @@ def register_filter(reg,filter = ""):
         elif reg[0] == 'notes' and reg[1] == 'all':
             fn.append(Note.reg!='mat')
             fn.append(Note.status.in_(['registered','approved','sent']))
+        elif reg[0] == 'notes' and reg[1] == 'unread':
+            fn.append(Note.reg!='mat')
+            fn.append(Note.status.in_(['registered']))
+            fn.append(not_(Note.result('is_read')))
         else:
             if reg[1] == 'pen':
                 ## Proposals

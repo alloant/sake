@@ -13,7 +13,21 @@
           </span>
           <span>All</span>
       </li>
-  
+      
+      <li class="list-group-item d-flex align-items-center {% if reg == ['notes','unread',''] %}active{% endif %}"
+        hx-get="/main_title_body?reg=['notes','unread','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+        role="button">
+          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+            <i class="bi bi-book"></i>
+          </span>
+          <span>Unread</span>
+      </li>
+
       <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
   {% endif %}
   {% with registers = current_user.all_registers_and_sub %}

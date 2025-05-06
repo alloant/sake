@@ -12,7 +12,7 @@
 
   <!-- Content note -->
   <span hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}" hx-trigger="content_{{note.id}} from:body" hx-target="#row_{{note.id}}">
-    {% if note.permissions('can_read') and reg[1] in ['in','pen'] and (reg[2] and note.flow == 'out' or not reg[2] and note.flow == 'in') %}
+    {% if note.permissions('can_read') and reg[1] in ['in','pen','unread'] and (reg[2] and note.flow == 'out' or not reg[2] and note.flow == 'in') %}
       <span id="row_{{note_id}}_content" class="{{'fw-bold' if not read else ''}}">
         {{note.content_url|safe}}
       </span>

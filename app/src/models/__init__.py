@@ -1088,7 +1088,8 @@ class User(UserProp,UserMixin, db.Model):
         return db.session.scalar(select(func.count()).where(
             Note.status=='shared',
             Note.reg=='mat',
-            not_(Note.result('is_done')),
+            Note.result('is_target'),
+            not_(Note.result('target_has_acted')),
             Note.current_target_order==Note.result('target_order')))
 
     @property
