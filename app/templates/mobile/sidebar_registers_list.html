@@ -29,7 +29,7 @@
           <span>My notes</span>
         </span>
         <span class="badge rounded-pill bg-danger ms-2"
-            hx-get="/body_data?info=pending"
+            hx-get="/body_data?info=['all','pen','']"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
         </span>
       </li>
@@ -62,7 +62,7 @@
           </span>
           
           <span class="badge rounded-pill bg-primary ms-2"
-              hx-get="/body_data?info={{register.alias}}_in_"
+              hx-get="/body_data?info=['{{register.alias}}','in','']"
               hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
           </span>
         </li>
@@ -117,7 +117,7 @@
               <span>{{subregister}} inbox</span>
             </span>
             <span class="badge rounded-pill bg-primary ms-2"
-                hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
+                hx-get="/body_data?info=['{{register.alias}}],'in','{{subregister}}'"
                 hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;"></span>
           </li>
 

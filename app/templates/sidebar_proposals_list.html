@@ -14,7 +14,7 @@
         <span>Despacho</span>
       </span>
       <span class="badge rounded-pill bg-warning ms-2"
-        hx-get="/body_data?info=despacho"
+        hx-get="/body_data?info=['des','in','']"
         hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
       </span>
     </li>
@@ -36,7 +36,7 @@
       <span>Inbox</span>
     </span>
     <span class="badge rounded-pill bg-success ms-2"
-        hx-get="/body_data?info=myinbox"
+        hx-get="/body_data?info=['my','in','']"
         hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
   </li>
@@ -56,7 +56,7 @@
       <span>Snooze</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
-        hx-get="/body_data?info=snooze"
+        hx-get="/body_data?info=['my','snooze','']"
         hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
   </li>
@@ -94,7 +94,7 @@
       <span>Drafts</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
-        hx-get="/body_data?info=myoutbox"
+        hx-get="/body_data?info=['my','out','']"
         hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
   </li>
@@ -148,7 +148,7 @@
     </span>
     {{gettext('To sign')}}</span>
     <span class="badge rounded-pill bg-danger ms-2"
-        hx-get="/body_data?info=proposals_to_sign"
+        hx-get="/body_data?info=['mat','sign','']"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
   </li>
  
@@ -183,7 +183,7 @@
       <span>{{gettext('Drafts')}}</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
-        hx-get="/body_data?info=proposals_draft"
+        hx-get="/body_data?info=['mat','draft','']"
         hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
 
@@ -204,7 +204,7 @@
       <span>{{gettext('Circulating')}}</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
-        hx-get="/body_data?info=proposals_shared"
+        hx-get="/body_data?info=['mat','shared','']"
         hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
 
@@ -225,7 +225,7 @@
       <span>{{gettext('Done')}}</span>
     </span>
     <span class="badge rounded-pill bg-primary ms-2"
-        hx-get="/body_data?info=proposals_done"
+        hx-get="/body_data?info=['mat','done','']"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
   </li>
 
@@ -244,7 +244,7 @@
       <span>Snooze</span>
     </span>
     <span class="badge rounded-pill bg-secondary ms-2"
-        hx-get="/body_data?info=proposals_snooze"
+        hx-get="/body_data?info=['mat','snooze','']"
         hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
     </span>
   </li>

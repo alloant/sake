@@ -14,7 +14,7 @@
           <span>All</span>
       </li>
       
-      <li class="list-group-item d-flex align-items-center {% if reg == ['notes','unread',''] %}active{% endif %}"
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['notes','unread',''] %}active{% endif %}"
         hx-get="/main_title_body?reg=['notes','unread','']"
         hx-indicator="#indicator-table"
         hx-trigger="click"
@@ -26,6 +26,11 @@
             <i class="bi bi-book"></i>
           </span>
           <span>Unread</span>
+          <span class="badge rounded-pill bg-primary ms-2"
+              hx-get="/body_data?info=['notes','all','']"
+              hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
+          </span>
+
       </li>
 
       <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
@@ -56,7 +61,7 @@
           </span>
           
           <span class="badge rounded-pill bg-primary ms-2"
-              hx-get="/body_data?info={{register.alias}}_in_"
+              hx-get="/body_data?info=['{{register.alias}}','in','']"
               hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
           </span>
         </li>
@@ -111,7 +116,7 @@
               <span>{{subregister}} inbox</span>
             </span>
             <span class="badge rounded-pill bg-primary ms-2"
-                hx-get="/body_data?info={{register.alias}}_in_{{subregister}}"
+                hx-get="/body_data?info=['{{register.alias}}','in','{{subregister}}']"
                 hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;"></span>
           </li>
 

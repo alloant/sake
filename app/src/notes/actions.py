@@ -40,6 +40,7 @@ def action_note_view(request,template):
     note_id = None
     action = request.args.get('action')
     trigger = ['update-flash']
+    print('---',action,reg)
     match action:
         case 'read':
             file_clicked = True if request.args.get('file_clicked','false') == 'true' else False
@@ -146,6 +147,7 @@ def action_note_view(request,template):
         case 'edit_note':
             note_id = request.args.get('note')
             output = request.form.to_dict()
+            print(note_id,output)
             return edit_note(note_id,output,request,reg)
         case 'edited':
             note_id = request.args.get('note')

@@ -18,7 +18,7 @@
           </span>
           
           <span class="badge rounded-pill ms-2 bg-success"
-            hx-get="/body_data?info=files_imported"
+            hx-get="/body_data?info=['import','in','']"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
           </span>
  
@@ -43,7 +43,7 @@
           </span>
           
           <span class="badge rounded-pill bg-danger ms-2"
-            hx-get="/body_data?info=inbox"
+            hx-get="/body_data?info=['box','in','']"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
           </span>
 
@@ -67,7 +67,7 @@
           </span>
           
           <span class="badge rounded-pill bg-primary ms-2"
-            hx-get="/body_data?info=outbox"
+            hx-get="/body_data?info=['box','out','']"
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
           </span>
 

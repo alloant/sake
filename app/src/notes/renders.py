@@ -12,6 +12,7 @@ from sqlalchemy import select, and_, or_, func, not_
 from app import db
 from app.src.models import Note, User, Register, File, Page
 from app.src.notes.filters import get_notes, get_history, register_filter, get_title
+from app.src.notes.sql import notes_sql, sccr_sql
 from app.src.inbox.inbox import inbox_main_view, marked_files_deletion_view
 from app.src.pages.views import list_pages_view, table_pages_view
 
@@ -111,6 +112,19 @@ def render_body_element(reg,note_id,element,template):
 
 
 def get_body_data(info):
+    #rst = db.session.scalar(notes_sql(info,count=True))
+    info = ast.literal_eval(info)
+    if info[0] in ['import','box','marked']: # IS a sccr menu
+        sql = sccr_sql(info,count=True)
+    else:
+        if info[1] in ['snooze','archived']:
+            sql = notes_sql([info[0],'in' if info[0] == 'my' else 'done',''],state=info[1],count=True)
+        else:
+            sql = notes_sql(info,count=True)
+
+    rst = db.session.scalar(sql)
+    rst = str(rst) if rst > 0 else ""
+    return rst
     return current_user.data(info,True)
 
 def render_body_row(reg,note_id,template):
