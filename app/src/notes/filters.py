@@ -392,7 +392,7 @@ def get_notes(reg,filter = ""):
     if reg[0] in ['import','box','marked']: # IS a sccr menu
         sql = sccr_sql(reg)
     else:
-        if reg[1] in ['snooze','archived']:
+        if reg[1] in ['snooze','archived'] and False:
             sql = notes_sql([reg[0],'in' if reg[0] == 'my' else 'done',''],state=reg[1],bar_filter=filter)
         else:
             sql = notes_sql(reg,bar_filter=filter)

@@ -117,7 +117,7 @@ def get_body_data(info):
     if info[0] in ['import','box','marked']: # IS a sccr menu
         sql = sccr_sql(info,count=True)
     else:
-        if info[1] in ['snooze','archived']:
+        if info[1] in ['snooze','archived'] and False:
             sql = notes_sql([info[0],'in' if info[0] == 'my' else 'done',''],state=info[1],count=True)
         else:
             sql = notes_sql(info,count=True)

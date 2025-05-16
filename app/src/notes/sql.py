@@ -40,7 +40,26 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
 
     match f'{reg[0]}_{reg[1]}':
         case 'my_in': # Notes, in (registered), current_user is target
-            filter = [Note.status == 'registered',Note.has_target(current_user.id)]
+            filter = [
+                Note.status == 'registered',
+                Note.has_target(current_user.id),
+                not_(Note.archived),
+                Note.due_date.is_(None)
+            ]
+        case 'my_snooze': # Notes, in (registered), current_user is target
+            filter = [
+                Note.status == 'registered',
+                Note.has_target(current_user.id),
+                not_(Note.due_date.is_(None))
+            ]
+
+        case 'my_archived': # Notes, in (registered), current_user is target
+            filter = [
+                Note.status == 'registered',
+                Note.has_target(current_user.id),
+                Note.archived
+            ]
+
         case 'my_out': # Notes, out(drafts), current_user is sender
             filter = [Note.reg != 'mat',Note.status == 'draft',Note.sender_id == current_user.id]
         case 'my_sent': # Notes, out(sent), current_user is sender
@@ -84,8 +103,21 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
         case 'mat_done':
             filter = [  Note.reg == 'mat',
                         Note.sender_id == current_user.id,
-                        Note.status.in_(['approved','denied'])
-                        #or_(Note.status == 'approved',Note.status == 'denied')
+                        Note.status.in_(['approved','denied']),
+                        not_(Note.archived),
+                        Note.due_date.is_(None)
+                      ]
+        case 'mat_snooze':
+            filter = [  Note.reg == 'mat',
+                        Note.sender_id == current_user.id,
+                        Note.status.in_(['approved','denied']),
+                        not_(Note.due_date.is_(None)) 
+                      ]
+        case 'mat_archived':
+            filter = [  Note.reg == 'mat',
+                        Note.sender_id == current_user.id,
+                        Note.status.in_(['approved','denied']),
+                        Note.archived
                       ]
         case 'notes_all':
             filter = [
@@ -115,8 +147,6 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                 filter.append(not_(Note.permanent))
         case 'des_in':
             filter = [
-                    #Note.reg!='mat',
-                    #Note.flow=='in',
                     Note.result('num_sign_despacho')<2,
                     Note.register.has(Register.groups.any(Group.text=='despacho')),
                     Note.status == 'despacho'
@@ -146,18 +176,6 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                         filter.append(or_(not_(Note.permanent),Note.sender_id == current_user.id))
             if count:
                 filter.append(not_(Note.result('is_read')))
-
-
-    if reg[0] in ['my','mat']:
-        if state == 'archived':
-            filter.append(Note.archived)
-        else:
-            filter.append(not_(Note.archived))
-
-        if state == 'snooze':
-            filter.append(not_(Note.due_date.is_(None)))
-        else:
-            filter.append(Note.due_date.is_(None))
 
 
     if bar_filter:
