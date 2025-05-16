@@ -27,7 +27,7 @@
             hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
 
         <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
-            hx-get="body_data?info=['mat','drafts','']"
+            hx-get="body_data?info=['mat','done','']"
             hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
         {% if 'despacho' in current_user.groups %}
           <span class="position-absolute badge rounded-pill bg-warning" style="bottom: 2em; left:0.5em; font-size:0.6em;"

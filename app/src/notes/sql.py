@@ -62,7 +62,8 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
             filter = [  Note.reg == 'mat',
                         Note.result('is_target'),
                         Note.status != 'draft',
-                        Note.current_target_order == Note.result('target_order')
+                        Note.current_target_order == Note.result('target_order'),
+                        not_(Note.result('target_has_acted'))
                       ]
         case 'mat_signed':
             filter = [  Note.reg == 'mat',
