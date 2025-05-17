@@ -112,20 +112,17 @@ def render_body_element(reg,note_id,element,template):
 
 
 def get_body_data(info):
-    #rst = db.session.scalar(notes_sql(info,count=True))
     info = ast.literal_eval(info)
+    
     if info[0] in ['import','box','marked']: # IS a sccr menu
         sql = sccr_sql(info,count=True)
     else:
-        if info[1] in ['snooze','archived'] and False:
-            sql = notes_sql([info[0],'in' if info[0] == 'my' else 'done',''],state=info[1],count=True)
-        else:
-            sql = notes_sql(info,count=True)
+        sql = notes_sql(info,count=True)
 
     rst = db.session.scalar(sql)
     rst = str(rst) if rst > 0 else ""
+
     return rst
-    return current_user.data(info,True)
 
 def render_body_row(reg,note_id,template):
     note = db.session.scalar(select(Note).where(Note.id==note_id))

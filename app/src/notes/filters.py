@@ -392,25 +392,7 @@ def get_notes(reg,filter = ""):
     if reg[0] in ['import','box','marked']: # IS a sccr menu
         sql = sccr_sql(reg)
     else:
-        if reg[1] in ['snooze','archived'] and False:
-            sql = notes_sql([reg[0],'in' if reg[0] == 'my' else 'done',''],state=reg[1],bar_filter=filter)
-        else:
-            sql = notes_sql(reg,bar_filter=filter)
-
-    """
-    else:
-        sender = aliased(User,name="sender_user")
-        sql = select(Note).join(Note.sender.of_type(sender))
-        
-        fn = register_filter(reg,filter)
-     
-        if not reg[2] and reg[1] == "out":
-            sql = sql.where(and_(*fn)).order_by(Note.year.desc(),Note.num.desc())
-        elif reg[0] == 'mat' or reg[1] == 'pen' and session['filter_option'] == 'hide_archived':
-            sql = sql.where(and_(*fn)).order_by(Note.matters_order,Note.date.desc(),Note.num.desc())
-        else:
-            sql = sql.where(and_(*fn)).order_by(Note.date.desc(), Note.id.desc())
-    """
+        sql = notes_sql(reg,bar_filter=filter)
 
     notes = db.paginate(sql, per_page=25)
 

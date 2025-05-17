@@ -22,12 +22,14 @@
         hx-disinherit="*"
         hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
         role="button">
+        <span>
           <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
             <i class="bi bi-book"></i>
           </span>
           <span>Unread</span>
+        </span>
           <span class="badge rounded-pill bg-primary ms-2"
-              hx-get="/body_data?info=['notes','all','']"
+              hx-get="/body_data?info=['notes','unread','']"
               hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
           </span>
 
