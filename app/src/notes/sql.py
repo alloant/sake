@@ -92,30 +92,32 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                       ]
         case 'mat_draft':
             filter = [  Note.reg == 'mat',
-                        Note.sender_id == current_user.id,
-                        Note.status == 'draft'
+                        or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
+                        not_(Note.archived),
+                        Note.status == 'draft',
+                        Note.due_date.is_(None)
                       ]
         case 'mat_shared':
             filter = [  Note.reg == 'mat',
-                        Note.sender_id == current_user.id,
+                        or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
                         Note.status == 'shared'
                       ]
         case 'mat_done':
             filter = [  Note.reg == 'mat',
-                        Note.sender_id == current_user.id,
+                        or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
                         Note.status.in_(['approved','denied']),
                         not_(Note.archived),
                         Note.due_date.is_(None)
                       ]
         case 'mat_snooze':
             filter = [  Note.reg == 'mat',
-                        Note.sender_id == current_user.id,
+                        or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
                         Note.status.in_(['approved','denied']),
                         not_(Note.due_date.is_(None)) 
                       ]
         case 'mat_archived':
             filter = [  Note.reg == 'mat',
-                        Note.sender_id == current_user.id,
+                        or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
                         Note.status.in_(['approved','denied']),
                         Note.archived
                       ]
@@ -151,6 +153,8 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                     Note.register.has(Register.groups.any(Group.text=='despacho')),
                     Note.status == 'despacho'
             ]
+            if count:
+                filter.append(not_(Note.result('is_sign_despacho')))
 
         case _:
             if reg[2]: #Is a ctr register
@@ -171,7 +175,7 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                     if not 'permanente' in current_user.groups:
                         filter.append(or_(not_(Note.permanent),Note.has_target(current_user.id)))
                 else:
-                    filter.append(Note.status=='sent')
+                    filter.append(or_(Note.status=='sent',and_(Note.sender_id==current_user.id,Note.status=='draft')))
                     if not 'permanente' in current_user.groups:
                         filter.append(or_(not_(Note.permanent),Note.sender_id == current_user.id))
             if count:

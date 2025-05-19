@@ -1,0 +1,8 @@
+      {% for rec in form.receiver %}
+        {% if not rec.checked %} 
+          <li class="list-group-item p-1">
+            {{ rec(class="form-check-input chbox",type="radio") }}
+            {{ rec.label(class="form-check-label chbox_label") }}
+          </li>
+        {% endif %}
+      {% endfor %}

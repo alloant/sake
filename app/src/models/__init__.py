@@ -183,7 +183,10 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
     year: Mapped[int] = mapped_column(db.Integer, default = datetime.utcnow().year)
     
     sender_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('user.id'))
-    sender: Mapped["User"] = relationship(back_populates="outbox")
+    sender: Mapped["User"] = relationship("User",foreign_keys=[sender_id])
+    new_owner_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('user.id'),nullable=True)
+    new_owner: Mapped["User"] = relationship("User",foreign_keys=[new_owner_id])
+    
 
     tags: Mapped[list["Tag"]] = relationship('Tag', secondary=note_tag, primaryjoin=note_tag.c.note_id==id, secondaryjoin=note_tag.c.tag_id==Tag.id, order_by="desc(Tag.id)") 
     
@@ -399,6 +402,34 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
         return rst
 
     @hybrid_property
+    def owner_id(self):
+        if self.new_owner_id is not None:
+            return self.new_owner_id
+        return self.sender_id
+    
+
+    @owner_id.expression
+    def owner_id(cls):
+        return case (
+            (cls.new_owner_id.isnot(None),cls.new_owner_id),
+            else_=cls.sender_id
+        )
+
+    @hybrid_property
+    def owner(self):
+        if self.new_owner_id:
+            return self.new_owner
+        return self.sender
+    
+    @owner.expression
+    def owner(cls):
+       return case (
+            (cls.new_owner_id.isnot(None),cls.new_owner),
+            else_=cls.sender
+        )
+ 
+
+    @hybrid_property
     def current_target_order(self):
         for user in self.users:
             if user.target and user.target_acted == 0:
@@ -544,7 +575,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
             if not only_of:
                 fn.append(User.category.in_(['dr','of']))
             
-            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc())).all() if user.alias != self.sender.alias]
+            recs = [(user.alias,f"{user.name} ({user.description})") for user in db.session.scalars(select(User).where(and_(*fn)).order_by(User.order.desc(),User.name.desc())).all() if user.alias != self.sender.alias]
             
             firsts = []
             for pot in possibles:
@@ -843,7 +874,7 @@ class User(UserProp,UserMixin, db.Model):
     active: Mapped[str] = mapped_column(db.Boolean, default=True)
     admin_active: Mapped[str] = mapped_column(db.Boolean, default=False)
 
-    outbox: Mapped[list["Note"]] = relationship(back_populates="sender")
+    #outbox: Mapped[list["Note"]] = relationship(back_populates="sender")
 
     def __repr__(self):
         return self.alias

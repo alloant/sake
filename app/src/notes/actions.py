@@ -19,7 +19,7 @@ from flask_babel import gettext
 from app import db
 from app.src.models import Note, User, Register, File, NoteUser, Group
 from app.src.forms.note import NoteForm, DateForm
-from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks
+from app.src.notes.edit import fill_form_note, extract_form_note, updateSocks, edit_receivers_view
 from app.src.notes.renders import render_main_body, render_body_element
 
 from app.src.tools.mail import send_emails
@@ -80,6 +80,18 @@ def action_note_view(request,template):
             circulation_proposal(note_id,act)
             trigger.append('state-updated')
             #trigger.append('socket-updated')
+        case 'change_owner':
+            if request.method == 'POST':
+                note_id = request.args.get('note')
+                note = db.session.scalar(select(Note).where(Note.id==note_id))
+                output = request.form.to_dict()
+                alias = output['receiver']
+                user = db.session.scalar(select(User).where(User.alias==alias))
+                if user:
+                    note.new_owner_id = user.id
+                    db.session.commit()
+            else:
+                return edit_receivers_view(request)
         case 'snooze':
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))

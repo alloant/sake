@@ -8,6 +8,9 @@
   {% else %}
     {{ note.fullkey_short }}
   {% endif %}
+  {% if note.new_owner %}
+    <span><i class="bi bi-person-bounding-box text-warning" data-toggle="tooltip" title="{{gettext('New owner is')}} {{note.owner.alias}}"></i></span>
+  {% endif %}
   {% include 'notes/table/2_tags.html' %}
 </td>
 

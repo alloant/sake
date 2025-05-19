@@ -3,6 +3,7 @@
     <div class="modal-header">
       <h5 class="modal-title">{{gettext('Recepient')}}</h5>
       <div>
+
         {% if 'recFiles' in hxtarget %}
           <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modal-htmx">
         {% elif hxtarget == '' %}
@@ -10,6 +11,7 @@
         {% else %}
           <button hx-post="{{hxpost}}&save=1" hx-target="#{{hxtarget}}" type="button" class="btn btn-primary" data-bs-dismiss="modal">
         {% endif %}
+
           {{gettext('Save')}}
           </button>
         {% if 'recFiles' in hxtarget %}

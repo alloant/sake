@@ -489,9 +489,9 @@ def edit_receivers_view(request):
             return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget="", form=form)
         if page_id:
             return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?page={page.id}", hxtarget=f"recRow-{page.id}", form=form)
-
+    elif type_save == 'new_owner':
+        return render_template("modals/modal_receivers_radio.html",hxpost=f"/action_note?action=change_owner&note={note.id}", hxtarget="", form=form)
     else:
-        print('HEre')
         if note_id:
             return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)
         if page_id:

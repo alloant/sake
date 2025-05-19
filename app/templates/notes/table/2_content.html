@@ -12,6 +12,18 @@
 
   <!-- Content note -->
   <span hx-post="/action_note?action=read&note={{note.id}}&reg={{reg}}" hx-trigger="content_{{note.id}} from:body" hx-target="#row_{{note.id}}">
+    {% if note.content == "" %}
+      <span  class=""
+          hx-get="/action_note?reg={{reg}}&action=edit_note&note={{note.id}}" 
+          hx-trigger="click"
+          hx-target="#modal-htmx"
+          data-bs-toggle="modal"
+          data-bs-target="#modal-htmx"
+          role="button">
+        <i class="bi bi-pencil-fill text-primary"></i>
+      </span>
+    {% endif %}
+
     {% if note.permissions('can_read') and reg[1] in ['in','pen','unread'] and (reg[2] and note.flow == 'out' or not reg[2] and note.flow == 'in') %}
       <span id="row_{{note_id}}_content" class="{{'fw-bold' if not read else ''}}">
         {{note.content_url|safe}}

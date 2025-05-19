@@ -56,16 +56,31 @@
   </li>
   {% if note.permissions('can_return_matter') %}
   <li>
-    <a  class="dropdown-item"
+    <a  class="dropdown-item text-danger"
         hx-post="/action_note?action=sign_proposal&back=true&reg={{reg}}&note={{note.id}}" 
         hx-target="#row_{{note.id}}" 
         hx-trigger="click"
         hx-disinherit="*"
         hx-indicator="#indicator-table"
         role="button">
-      <i class="bi bi-hand-thumbs-down-fill text-danger"></i> {{gettext('Pass it back to owner')}}
+      <i class="bi bi-hand-thumbs-down-fill"></i> {{gettext('Pass it back to owner')}}
     </a>
   </li>
   {% endif %}
   <li><hr class="dropdown-divider"></li>
 {% endif %} 
+{% if note.new_owner_id == current_user.id or note.sender_id == current_user.id %}
+  <li>
+    <a class="dropdown-item"
+      hx-get="/action_note?action=change_owner&note={{note.id}}&type=new_owner" 
+      hx-target="#modal-htmx" 
+      hx-trigger="click" 
+      data-bs-toggle="modal"
+      data-bs-target="#modal-htmx"
+      role="button">
+      <i class="bi bi-person-bounding-box text-danger"></i> {{gettext('Change owner')}}
+    </a>
+  </li>
+  <li><hr class="dropdown-divider"></li>
+{% endif %}
+
