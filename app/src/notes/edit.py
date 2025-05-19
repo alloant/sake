@@ -410,6 +410,8 @@ def edit_receivers_view(request):
             form.receiver.choices = note.potential_receivers(filter,only_of=False if note.permanent else True)
         if page_id:
             form.receiver.choices = page.potential_receivers(filter)
+    elif type_save == 'new_owner':
+        form.receiver.choices = [(user.alias,f"{user.alias} - {user.name} ({user.description})") for user in db.session.scalars(select(User).where(User.active,User.category.in_(['dr','of'])).order_by(User.order.desc(),User.alias.desc())).all()]
     else:
         if note_id:
             form.receiver.choices = note.potential_receivers(filter)
@@ -490,7 +492,7 @@ def edit_receivers_view(request):
         if page_id:
             return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?page={page.id}", hxtarget=f"recRow-{page.id}", form=form)
     elif type_save == 'new_owner':
-        return render_template("modals/modal_receivers_radio.html",hxpost=f"/action_note?action=change_owner&note={note.id}", hxtarget="", form=form)
+        return render_template("modals/modal_receivers_radio.html",note=note.id,hxpost=f"/action_note?action=change_owner&note={note.id}", hxtarget="", form=form)
     else:
         if note_id:
             return render_template("modals/modal_receivers.html",hxpost=f"/edit_receivers?note={note.id}", hxtarget=f"recRow-{note.id}", form=form)

@@ -40,7 +40,6 @@ def action_note_view(request,template):
     note_id = None
     action = request.args.get('action')
     trigger = ['update-flash']
-    print('---',action,reg)
     match action:
         case 'read':
             file_clicked = True if request.args.get('file_clicked','false') == 'true' else False
@@ -88,7 +87,10 @@ def action_note_view(request,template):
                 alias = output['receiver']
                 user = db.session.scalar(select(User).where(User.alias==alias))
                 if user:
-                    note.new_owner_id = user.id
+                    if user.id == note.sender_id:
+                        note.new_owner_id = None
+                    else:
+                        note.new_owner_id = user.id
                     db.session.commit()
             else:
                 return edit_receivers_view(request)

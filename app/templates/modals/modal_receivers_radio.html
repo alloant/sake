@@ -3,10 +3,10 @@
     <div class="modal-header">
       <h5 class="modal-title">{{gettext('Recepient')}}</h5>
       <div>
-          <button hx-post="{{hxpost}}&save=2" hx-swap="none" type="button" class="btn btn-primary" data-bs-dismiss="modal">
-          {{gettext('Save')}}
-          </button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{gettext('Close')}}</button>
+      <button hx-post="/action_note?action=change_owner&note={{note}}" hx-target="#row_{{note}}" type="button" class="btn btn-primary" data-bs-dismiss="modal">
+      {{gettext('Save')}}
+      </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{gettext('Close')}}</button>
       </div>
     </div>
 

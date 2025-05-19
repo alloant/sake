@@ -92,7 +92,6 @@ def body_element(template):
     note_id = request.args.get('note')
     element = request.args.get('element')
     return render_body_element(reg,note_id,element,template)
-    irint('here',note_id)
 
 @bp.route('/register_icon')
 @login_required
