@@ -4,6 +4,7 @@ import ast
 import re
 from datetime import datetime
 
+from flask import session
 from flask_login import current_user
 
 from sqlalchemy import select, and_, or_, func, not_
@@ -61,7 +62,7 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
             ]
 
         case 'my_out': # Notes, out(drafts), current_user is sender
-            filter = [Note.reg != 'mat',Note.status == 'draft',Note.sender_id == current_user.id]
+            filter = [Note.reg != 'mat',Note.status.in_(['draft','queued']),Note.sender_id == current_user.id]
         case 'my_sent': # Notes, out(sent), current_user is sender
             filter = [Note.reg != 'mat',Note.status == 'sent',Note.sender_id == current_user.id]
         case 'mat_all': # Proposals (better not to use this that is useless)
@@ -112,13 +113,13 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
         case 'mat_snooze':
             filter = [  Note.reg == 'mat',
                         or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
-                        Note.status.in_(['approved','denied']),
+                        Note.status.in_(['approved','denied','draft']),
                         not_(Note.due_date.is_(None)) 
                       ]
         case 'mat_archived':
             filter = [  Note.reg == 'mat',
                         or_(Note.owner_id == current_user.id, Note.sender_id == current_user.id),
-                        Note.status.in_(['approved','denied']),
+                        Note.status.in_(['approved','denied','draft']),
                         Note.archived
                       ]
         case 'notes_all':
@@ -126,6 +127,7 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                 Note.reg != 'mat',
                 Note.status == 'registered'
             ]
+            
             if current_user.admin:
                 filter.append(Note.register.has(Register.active==1))
             else:
@@ -136,6 +138,38 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
 
             if count:
                 filter.append(not_(Note.result('is_read')))
+        
+        case 'all_all':
+            if session['filter_option'] == 'only_notes':
+                filter = [
+                        Note.reg != 'mat',
+                        Note.status.in_(['registered','sent'])
+                    ]
+            elif session['filter_option'] == 'only_proposals':
+                filter = [
+                    Note.reg == 'mat',
+                    or_(Note.sender_id==current_user.id,and_(Note.has_target(current_user.id),Note.status.in_(['approved','denied'])))
+                ]
+            elif session['filter_option'] == 'notes_proposals':
+                filter = [ or_(
+                    and_(
+                        Note.reg != 'mat',
+                        Note.status.in_(['registered','sent'])
+                    ),
+                    and_(
+                        Note.reg == 'mat',
+                        or_(Note.sender_id==current_user.id,and_(Note.has_target(current_user.id),Note.status.in_(['approved','denied'])))
+                    )
+                )]
+                   
+            if current_user.admin:
+                filter.append(Note.register.has(Register.active==1))
+            else:
+                filter.append(Note.register.has(and_(Register.active==1,Register.permissions!='')))
+
+            if not 'permanente' in current_user.groups:
+                filter.append(not_(Note.permanent))
+
 
         case 'notes_unread':
             filter = [
@@ -175,7 +209,7 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                     if not 'permanente' in current_user.groups:
                         filter.append(or_(not_(Note.permanent),Note.has_target(current_user.id)))
                 else:
-                    filter.append(or_(Note.status=='sent',and_(Note.sender_id==current_user.id,Note.status=='draft')))
+                    filter.append(or_(Note.status=='sent',and_(Note.sender_id==current_user.id,Note.status.in_(['queued','draft']))))
                     if not 'permanente' in current_user.groups:
                         filter.append(or_(not_(Note.permanent),Note.sender_id == current_user.id))
             if count:
@@ -183,12 +217,12 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
 
 
     if bar_filter:
-        filter.append(*text_filter(bar_filter))
+        filter += text_filter(bar_filter,reg)
 
     return rst_sql.where(*filter).order_by(Note.date.desc())
 
 
-def text_filter(text):
+def text_filter(text,reg):
     ft = text
     
     tags = re.findall(r'#[^ ]*',ft)
