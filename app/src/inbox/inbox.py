@@ -18,6 +18,7 @@ from app.src.models import Note, File, User, Register, get_note_fullkey
 
 from app.src.models.nas.nas import files_path, move_path, delete_path, convert_office, upload_path
 from app.src.tools.syneml import read_eml
+from app.src.inbox.mail import list_messages
 from app.src.notes.manage import new_note
 
 EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
@@ -99,6 +100,9 @@ def action_inbox_view(request):
                 if rst:
                     note.path = rst['data']['display_path']
             db.session.commit()
+        case 'check_mail':
+            print('Checking mail')
+            list_messages()
 
     res = make_response(inbox_body_view(request))
     res.headers['HX-Trigger'] = 'update-flash'

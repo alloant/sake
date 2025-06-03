@@ -9,6 +9,9 @@ class Config:
     SYNOLOGY_FOLDER_NOTES= os.environ.get('SYNOLOGY_FOLDER_NOTES')
     EMAIL_ADDRESS= os.environ.get('EMAIL_ADDRESS')
     EMAIL_SECRET= os.environ.get('EMAIL_SECRET')
+    EMAIL_CARDUMEN_USER= os.environ.get('EMAIL_CARDUMEN_USER')
+    EMAIL_CARDUMEN_SERVER= os.environ.get('EMAIL_CARDUMEN_SERVER')
+    EMAIL_CARDUMEN_SECRET= os.environ.get('EMAIL_CARDUMEN_SECRET')
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI')\
         or 'sqlite:///' + os.path.join(basedir, 'app.db')

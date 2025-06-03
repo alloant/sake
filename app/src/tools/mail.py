@@ -6,6 +6,10 @@ from email.mime.text import MIMEText
 
 import threading
 
+import poplib
+from email import parser
+
+
 from config import Config
 
 def send_email(subject, body, recipients):
@@ -50,4 +54,5 @@ def send_emails_threading(nt,recs,kind,targets):
 
                 for mail in rec.email.replace(' ','').split(','):
                     smtp_server.sendmail(Config.EMAIL_ADDRESS, mail, msg.as_string())
+
 

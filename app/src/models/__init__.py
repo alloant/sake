@@ -1281,3 +1281,9 @@ class Register(RegisterHtml,db.Model):
              
             return db.session.scalar(select(func.count(Note.id)).where(Note.status=='registered',Note.permanent==False,Note.result('access').in_(['reader','editor']),Note.register_id==self.id,not_(Note.result('is_read'))))
 
+
+class Value(db.Model):
+    __tablename__ = 'value'
+    name: Mapped[str] = mapped_column(db.String(20), primary_key=True)
+    value: Mapped[str] = mapped_column(db.String(200), default='')
+

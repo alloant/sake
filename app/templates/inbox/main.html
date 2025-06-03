@@ -49,6 +49,14 @@
             hx-indicator="#indicator-table"
             role="button">
           Check notes are in right folder</a></li>
+          <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=check_mail"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+          Check mail</a></li>
+
           {% endif %}
       </ul>
       <button class="btn btn-file"
