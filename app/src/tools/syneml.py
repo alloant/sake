@@ -17,9 +17,11 @@ from email.mime.text import MIMEText
 
 from pathlib import Path
 
+from config import Config
 from app import db
 from app.src.models.nas.nas import upload_path, convert_office, move_path, download_path
 from app.src.models import File
+from app.src.tools.mail import send_email_cardumen
 #import libsynomail.connection as con
 
 INV_EXT = {'osheet':'xlsx','odoc':'docx'}
@@ -28,7 +30,7 @@ EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 def write_report_eml(body,dates,path_download):
     msg = MIMEMultipart()
     msg["To"] = 'cg@cardumen.lan'
-    msg["From"] = 'Aes-cr@cardumen.lan'
+    msg["From"] = f'{Config.EMAIL_CARDUMEN_USER}@cardumen.lan'
     
     msg["Subject"] = f"Notas enviadas {dates}"
 
@@ -43,10 +45,16 @@ def write_report_eml(body,dates,path_download):
     today = date.today().strftime("%y%m%d")
     return send_file(fp,download_name=f"{today}-report.eml",as_attachment=False)
 
-def write_eml(rec,note,path_download):
+def create_msg(note):
     msg = MIMEMultipart()
-    msg["To"] = rec
-    msg["From"] = 'Aes-cr@cardumen.lan'
+    
+    if note.reg in ['cg','dg','cc','desr']:
+        target = "cg@cardumen.lan"
+    else:
+        target = ",".join([rec.email for rec in note.receiver])
+
+    msg["To"] = target
+    msg["From"] = f'{Config.EMAIL_CARDUMEN_USER}@cardumen.lan'
     
     sub1 = note.fullkey if note.num > 0 else f"{note.refs[0]}"
     sub2_1 = note.content
@@ -90,7 +98,22 @@ def write_eml(rec,note,path_download):
         else:
             rst = False
 
-    if rst:
+    return msg if rst else None
+
+def send_msg_cardumen(note):
+    msg = create_msg(note)
+
+    if msg:
+        rst = send_email_cardumen(msg)
+        if rst:
+            flash(f'Note {note.fullkey} sent to {msg['To']}','success')
+
+
+
+def write_eml(note,path_download):
+    msg = create_msg(note)
+
+    if msg:
         fp = io.BytesIO()
         emlGenerator = generator.BytesGenerator(fp)
         emlGenerator.flatten(msg)

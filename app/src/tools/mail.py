@@ -22,6 +22,19 @@ def send_email(subject, body, recipients):
        smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
        smtp_server.sendmail(Config.EMAIL_ADDRESS, recipients, msg.as_string())
 
+def send_email_cardumen(msg):
+    print('send_email cardumen')
+
+    try:
+        with smtplib.SMTP_SSL(Config.EMAIL_CARDUMEN_SERVER, 465) as smtp_server:
+            print('Connected')
+            smtp_server.login(Config.EMAIL_CARDUMEN_USER, Config.EMAIL_CARDUMEN_SECRET)
+            #smtp_server.sendmail(msg['From'], msg['To'], msg.as_string())
+            return True
+    except Exception as e:
+        print(f"Error conection: {e}")
+        return False
+
 def send_emails(nt,kind='to ctr',targets=[]):
     # Start the background task
     recs = [rec for rec in nt.receiver if rec.get_setting('notifications') or rec.category == 'ctr']

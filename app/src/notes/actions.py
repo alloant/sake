@@ -24,7 +24,7 @@ from app.src.notes.renders import render_main_body, render_body_element
 
 from app.src.tools.mail import send_emails
 from app.src.notes.manage import new_note, delete_note
-from app.src.tools.syneml import write_eml
+from app.src.tools.syneml import write_eml, send_msg_cardumen
 
 from app.src.models.nas.nas import copy_path, copy_office_path, toggle_share_permissions, delete_path, upload_path, convert_office
 
@@ -138,6 +138,10 @@ def action_note_view(request,template):
         case 'download_eml':
             note_id = request.args.get('note')
             return download_eml(note_id)
+        case 'send_msg_cardumen':
+            note_id = request.args.get('note')
+            note = db.session.scalar(select(Note).where(Note.id==note_id))
+            send_msg_cardumen(note)
         case 'delete_note':
             note_id = request.args.get('note')
             delete_note(note_id)
@@ -410,16 +414,11 @@ def download_eml(note_id):
     if not note.move():
         flash(f"Could not move note {note.fullkey} to register. Operation cancelled. Try again","danger")
         return False
-    print('No need to move')
-    if note.reg in ['cg','dg','cc','desr']:
-        rec = "cg@cardumen.lan"
-    else:
-        rec = ",".join([rec.email for rec in note.receiver])
     
     path = f"{current_user.local_path}/Outbox"
 
 
-    return write_eml(rec,note,path)
+    return write_eml(note,path)
 
 
 def inbox_to_despacho(note_id=None,back=False):

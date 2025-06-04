@@ -85,12 +85,25 @@
 
 {% if not note.reg in ['asr','ctr','mat'] and note.flow == 'out' and not 'asr' in note.fullkey %}
   <li>
+      <a  class="dropdown-item"
+        hx-post="/action_note?action=send_msg_cardumen&note={{note.id}}" 
+        hx-target="#row_{{note.id}}" 
+        hx-trigger="click"
+        hx-disinherit="*"
+        hx-indicator="#indicator-table"
+        role="button">
+        <i class="bi bi-send"></i> {{gettext('Send message to')}} Cardumen
+      </a>
+    </li>
+
+  <li>
     <a  class="dropdown-item"
       href="/action_note?action=download_eml&note={{note.id}}"
       role="button">
       <i class="bi bi-envelope-arrow-down-fill"></i> {{gettext('Download')}} eml
     </a>
   </li>
+
   <li><hr class="dropdown-divider"></li>
 {% endif %}
 
