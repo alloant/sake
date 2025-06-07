@@ -17,9 +17,10 @@ from app import db
 from app.src.models import Note, File, User, Register, get_note_fullkey
 
 from app.src.models.nas.nas import files_path, move_path, delete_path, convert_office, upload_path
-from app.src.tools.syneml import read_eml
-from app.src.inbox.mail import list_messages
+from app.src.tools.syneml import read_eml, create_report_msg
+from app.src.inbox.mail import list_last_messages, check_mail
 from app.src.notes.manage import new_note
+from app.src.tools.mail import send_email_cardumen, save_email_cardumen
 
 EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 
@@ -80,7 +81,7 @@ def action_inbox_view(request):
             sdate = datetime.strptime(dates[0],"%m/%d/%Y")
             edate = datetime.strptime(dates[1],"%m/%d/%Y")
             
-            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.status=='sent'))
+            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['vcr','vc','cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.status=='sent'))
             path = f"{current_user.local_path}/Outbox"
             dates = f"{sdate.strftime('%d/%m/%Y')} - {edate.strftime('%d/%m/%Y')}"
            
@@ -90,6 +91,33 @@ def action_inbox_view(request):
             body += f"\n\nSingapur, {date.today()}"
             session['eml'] = {'body':body,'dates':dates,'path':path}
             return ""
+        case 'send_report_cg':
+            output = request.form.to_dict()
+            
+            dates = output['daterange'].split(' - ')
+            sdate = datetime.strptime(dates[0],"%m/%d/%Y")
+            edate = datetime.strptime(dates[1],"%m/%d/%Y")
+            
+            notes = db.session.scalars(select(Note).where(or_(Note.has_target('cg'),and_(Note.reg.in_(['vcr','vc','cg','cc','desr','dg']),Note.flow=='out')),Note.n_date>=sdate,Note.n_date<=edate,Note.status=='sent'))
+            path = f"{current_user.local_path}/Outbox"
+            dates = f"{sdate.strftime('%d/%m/%Y')} - {edate.strftime('%d/%m/%Y')}"
+           
+            body = ""
+            for note in notes:
+                body += f"{note.date} - {note.fullkey}\n"
+            body += f"\n\nSingapur, {date.today()}"
+
+            msg = create_report_msg(body,dates)
+            
+            if send_email_cardumen(msg):
+                flash(f'Report sent to cg','success')
+                if save_email_cardumen(msg):
+                    flash(f'Report save in Sent Items','info')
+                else:
+                    flash(f'Could not save report in Sent Items','warning')
+            else:
+                flash(f'Could not send report to cg','danger')
+
         case 'transfer':
             from app.src.tools.tools import toNewNotesStatus
             toNewNotesStatus()
@@ -101,8 +129,9 @@ def action_inbox_view(request):
                     note.path = rst['data']['display_path']
             db.session.commit()
         case 'check_mail':
-            print('Checking mail')
-            list_messages()
+            check_mail()
+        case 'check_list_mail':
+            list_last_messages()
 
     res = make_response(inbox_body_view(request))
     res.headers['HX-Trigger'] = 'update-flash'

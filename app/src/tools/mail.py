@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import smtplib
-from email.mime.text import MIMEText
+import imaplib
 
+from email.mime.text import MIMEText
+import time
 import threading
 
 import poplib
@@ -22,6 +24,20 @@ def send_email(subject, body, recipients):
        smtp_server.login(Config.EMAIL_ADDRESS, Config.EMAIL_SECRET)
        smtp_server.sendmail(Config.EMAIL_ADDRESS, recipients, msg.as_string())
 
+def save_email_cardumen(msg):
+    print('save_email cardumen IMAP')
+
+    try:
+        with imaplib.IMAP4_SSL(Config.EMAIL_CARDUMEN_SERVER) as mail:
+            mail.login(Config.EMAIL_CARDUMEN_USER, Config.EMAIL_CARDUMEN_SECRET)
+            mail.select('"Sent Items"')  # Adjust for your email provider
+            mail.append('"Sent Items"', '\\Seen', imaplib.Time2Internaldate(time.time()), str(msg).encode('utf-8'))
+            mail.logout()
+            return True
+    except Exception as e:
+        print(f"Error conection: {e}")
+        return False
+
 def send_email_cardumen(msg):
     print('send_email cardumen')
 
@@ -29,8 +45,10 @@ def send_email_cardumen(msg):
         with smtplib.SMTP_SSL(Config.EMAIL_CARDUMEN_SERVER, 465) as smtp_server:
             print('Connected')
             smtp_server.login(Config.EMAIL_CARDUMEN_USER, Config.EMAIL_CARDUMEN_SECRET)
-            #smtp_server.sendmail(msg['From'], msg['To'], msg.as_string())
-            return True
+            rst = smtp_server.sendmail(msg['From'], msg['To'], msg.as_string())
+            if rst == {}:
+                return True
+            return False
     except Exception as e:
         print(f"Error conection: {e}")
         return False

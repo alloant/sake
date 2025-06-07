@@ -21,22 +21,14 @@ from config import Config
 from app import db
 from app.src.models.nas.nas import upload_path, convert_office, move_path, download_path
 from app.src.models import File
-from app.src.tools.mail import send_email_cardumen
+from app.src.tools.mail import send_email_cardumen, save_email_cardumen
 #import libsynomail.connection as con
 
 INV_EXT = {'osheet':'xlsx','odoc':'docx'}
 EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 
 def write_report_eml(body,dates,path_download):
-    msg = MIMEMultipart()
-    msg["To"] = 'cg@cardumen.lan'
-    msg["From"] = f'{Config.EMAIL_CARDUMEN_USER}@cardumen.lan'
-    
-    msg["Subject"] = f"Notas enviadas {dates}"
-
-    msg.add_header('X-Unsent','1')
-    msg.attach(MIMEText(body,"plain"))
-
+    msg = create_report_msg(body,dates)
 
     fp = io.BytesIO()
     emlGenerator = generator.BytesGenerator(fp)
@@ -45,6 +37,19 @@ def write_report_eml(body,dates,path_download):
     today = date.today().strftime("%y%m%d")
     return send_file(fp,download_name=f"{today}-report.eml",as_attachment=False)
 
+def create_report_msg(body,dates):
+    msg = MIMEMultipart()
+    #msg["To"] = 'Aes-cr@cardumen.lan'
+    msg["To"] = 'cg@cardumen.lan'
+    msg["From"] = f'{Config.EMAIL_CARDUMEN_USER}@cardumen.lan'
+    
+    msg["Subject"] = f"Notas enviadas {dates}"
+
+    msg.add_header('X-Unsent','1')
+    msg.attach(MIMEText(body,"plain"))
+
+    return msg
+
 def create_msg(note):
     msg = MIMEMultipart()
     
@@ -52,6 +57,8 @@ def create_msg(note):
         target = "cg@cardumen.lan"
     else:
         target = ",".join([rec.email for rec in note.receiver])
+
+    #target = "Aes-cr@cardumen.lan"
 
     msg["To"] = target
     msg["From"] = f'{Config.EMAIL_CARDUMEN_USER}@cardumen.lan'
@@ -104,11 +111,19 @@ def send_msg_cardumen(note):
     msg = create_msg(note)
 
     if msg:
-        rst = send_email_cardumen(msg)
-        if rst:
+        if send_email_cardumen(msg):
             flash(f'Note {note.fullkey} sent to {msg['To']}','success')
-
-
+            if not note.sent_date:
+                note.sent_date = date.today()
+            note.status = 'sent'
+            db.session.commit()
+            if save_email_cardumen(msg):
+                flash(f'Mail for {note.fullkey} save in Sent Items','info')
+            else:
+                flash(f'Could not save mail for {note.fullkey} in Sent Items','warning')
+        else:
+            flash(f'Could not send note {note.fullkey} to {msg['To']}','danger')
+                
 
 def write_eml(note,path_download):
     msg = create_msg(note)

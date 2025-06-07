@@ -24,7 +24,7 @@ from app.src.models.nas.nas import upload_path, convert_office, move_path, downl
 INV_EXT = {'osheet':'xlsx','odoc':'docx'}
 EXT = {'xls':'osheet','xlsx':'osheet','docx':'odoc','rtf':'odoc'}
 
-def list_messages():
+def check_mail():
     print('Connecting to pop3')
     # Replace with your POP3 server details
     pop3_server = Config.EMAIL_CARDUMEN_SERVER
@@ -65,6 +65,49 @@ def list_messages():
     
     print('End connection')
 
+def list_last_messages():
+    print('Connecting to pop3')
+    # Replace with your POP3 server details
+    pop3_server = Config.EMAIL_CARDUMEN_SERVER
+    username = Config.EMAIL_CARDUMEN_USER
+    password = Config.EMAIL_CARDUMEN_SECRET
+    
+    # Connect to the POP3 server using SSL
+    try:
+        pop_conn = poplib.POP3_SSL(pop3_server, port=995)  # Use port 587 or 995
+        pop_conn.user(username)
+        pop_conn.pass_(password)
+
+        # Get the number of messages
+        messages = pop_conn.list()
+        num_messages = len(messages[1])
+        print(num_messages)
+
+        for i in range(num_messages - 10,num_messages):
+            message_info = messages[1][i].split()
+            message_number = message_info[0].decode('utf-8')
+            message_size = message_info[1].decode('utf-8')
+            print(message_info,message_number,message_size)
+        
+        
+        # Fetch and parse emails
+        #for i in range(num_messages - 10,num_messages + 1):
+        #    print(f"Message {i}")
+        #    try:
+        #        raw = b"\n".join(pop_conn.retr(i)[1])
+        #        email = eml_parser.parser.decode_email_b(raw,include_attachment_data=True,include_raw_body=True)
+        #        print(email.items())
+        #    except Exception as e:
+        #        flash(f"No luck with number {i}. {e}",'danger')
+        #        break
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Close the connection
+        if 'pop_conn' in locals():
+            pop_conn.quit()
+    
+    print('End connection')
 
 def read_mail(raw):
     if isinstance(raw,str):

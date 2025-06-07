@@ -107,7 +107,17 @@
               hx-on:htmx:after-request="window.open('/download_report')"
               hx-indicator="#indicator-table"
               data-bs-toggle="tooltip"
-              title="{{gettext('Report cg')}}"><i class="h4 bi bi-journal-code"></i></a>
+              title="{{gettext('Send report')}}"><i class="h4 bi bi-journal-code"></i></a>
+
+            <a class="btn btn-file rounded-circle"
+              hx-post="/action_inbox?action=send_report_cg"
+              hx-trigger="click"
+              hx-include="#inboxscr"
+              hx-swap="none"
+              hx-indicator="#indicator-table"
+              data-bs-toggle="tooltip"
+              title="{{gettext('Report cg eml')}}"><i class="h4 bi bi-send"></i></a>
+
             </form>
 
             <button class="btn btn-file"

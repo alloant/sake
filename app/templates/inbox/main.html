@@ -12,13 +12,44 @@
         aria-expanded="false"><i class="h4 bi bi-download" data-bs-toggle="tooltip" title="Import files"></i></button>
       <ul class="dropdown-menu">
         <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=check_mail"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-cloud-download-fill"></i> Check mail Cardumen
+        </a></li>
+        <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=import_asr"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+          <i class="bi bi-cloud-download-fill"></i> Check mail from asr
+        </a></li>
+
+        <!--
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item"
+            hx-get="/action_inbox?action=check_list_mail"
+            hx-trigger="click"
+            hx-target="#inbox-table"
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-list"></i> Check list of last mails Cardumen
+        </a></li>
+        -->
+        <li><hr class="dropdown-divider"></li>
+
+        <li><a class="dropdown-item"
             hx-get="/action_inbox?action=update_file" 
             hx-target="#modal-htmx" 
             hx-trigger="click" 
             data-bs-toggle="modal"
             data-bs-target="#modal-htmx"     
             role="button">
-          Import any files</a></li>
+          <i class="bi bi-file-earmark-fill"></i> Import any file
+        </a></li>
         <li><a class="dropdown-item"
             hx-get="/action_inbox?action=import_eml" 
             hx-target="#modal-htmx" 
@@ -26,15 +57,11 @@
             data-bs-toggle="modal"
             data-bs-target="#modal-htmx"
             role="button">
-          Import eml</a></li>
-        <li><a class="dropdown-item"
-            hx-get="/action_inbox?action=import_asr"
-            hx-trigger="click"
-            hx-target="#inbox-table"
-            hx-indicator="#indicator-table"
-            role="button">
-          Check mail from asr</a></li>
-          {% if current_user.alias == 'antonio' %}
+          <i class="bi bi-envelope-fill"></i> Import eml
+        </a></li>
+
+        {% if current_user.alias == 'antonio' %}
+          <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item"
             hx-get="/action_inbox?action=transfer"
             hx-trigger="click"
@@ -49,15 +76,7 @@
             hx-indicator="#indicator-table"
             role="button">
           Check notes are in right folder</a></li>
-          <li><a class="dropdown-item"
-            hx-get="/action_inbox?action=check_mail"
-            hx-trigger="click"
-            hx-target="#inbox-table"
-            hx-indicator="#indicator-table"
-            role="button">
-          Check mail</a></li>
-
-          {% endif %}
+        {% endif %}
       </ul>
       <button class="btn btn-file"
           hx-post="/action_inbox?action=generate_notes"

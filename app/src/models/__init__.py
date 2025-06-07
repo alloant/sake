@@ -195,6 +195,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
 
     n_date: Mapped[datetime.date] = mapped_column(db.Date, default=datetime.utcnow())
     due_date: Mapped[datetime.date] = mapped_column(db.Date, nullable=True)
+    sent_date: Mapped[datetime.date] = mapped_column(db.Date, nullable=True)
     
     content: Mapped[str] = mapped_column(db.Text, default = '')
     content_jp: Mapped[str] = mapped_column(db.Text, default = '')
@@ -616,18 +617,25 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
    
     @hybrid_property
     def date(self):
-        rst = self.n_date
-        for file in self.files:
-            if rst < file.date:
-                rst = file.date
-        return rst
+        if self.sent_date:
+            return self.sent_date
+        else:
+            rst = self.n_date
+            for file in self.files:
+                if rst < file.date:
+                    rst = file.date
+            return  self.sent_date if self.sent_date else self.n_date
 
     @date.expression
     def date(cls): 
         return case(
-            (and_(cls.n_date < cls.files_date,cls.files_date.isnot(None)), cls.files_date),
-            else_=cls.n_date
-        )
+                (cls.sent_date.is_(None),
+                    case(
+                        (and_(cls.n_date < cls.files_date,cls.files_date.isnot(None)), cls.files_date),
+                        else_=cls.n_date
+                    )),
+                else_=cls.sent_date
+            )
 
     @hybrid_property
     def flow(self) -> str:
