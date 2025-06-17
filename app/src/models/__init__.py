@@ -472,7 +472,7 @@ class Note(NoteProp,NoteHtml,NoteNas,db.Model):
                             return True
                 return False
             case 'num_sign_proposal':
-                return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.target_acted))
+                return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.target,NoteUser.target_acted))
             case 'num_target':
                 return db.session.scalar(select(func.count(NoteUser.user_id)).where(NoteUser.note_id==self.id,NoteUser.target))
             case 'is_read':

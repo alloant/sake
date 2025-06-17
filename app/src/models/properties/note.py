@@ -72,7 +72,7 @@ class NoteProp(object):
                     return True
                 elif self.register.permissions == 'editor':
                     return True
-                elif self.sender_id == current_user.id:
+                elif self.owner_id == current_user.id:
                     if self.register.alias == 'mat' and self.status in ['draft','approved','denied']:
                         return True
                     elif not self.archived:
@@ -82,7 +82,7 @@ class NoteProp(object):
                     return True
                 elif self.register.permissions == 'editor' and not self.status in ['registered','sent']:
                     return True
-                elif self.sender_id == current_user.id:
+                elif self.owner_id == current_user.id:
                     if self.register.alias == 'mat' and self.status in ['draft','approved','denied']:
                         return True
                     elif not self.status in ['registered','sent']:
@@ -90,7 +90,7 @@ class NoteProp(object):
             case 'can_mark_for_deletion':
                 if current_user.admin or 'despacho' in current_user.groups:
                     return True
-                elif current_user.id == self.sender_id:
+                elif current_user.id == self.owner_id:
                     return True
                 elif self.is_target() and self.n_date < date(2025,5,20): #Temporal only for dr to mark their own
                     return True
@@ -102,7 +102,7 @@ class NoteProp(object):
                 if current_user.admin or 'despacho' in current_user.groups:
                     return True
             case 'can_edit_files':
-                if self.sender_id == current_user.id and self.status in ['draft'] or current_user.admin:
+                if self.owner_id == current_user.id and self.status in ['draft'] or current_user.admin:
                     return True
             case 'can_read':
                 if self.register.alias == 'mat':
@@ -114,20 +114,20 @@ class NoteProp(object):
                     return True
             case 'can_archive':
                 if self.register.alias == 'mat':
-                    if self.sender_id == current_user.id and (self.status in ['approved','denied'] or not self.receiver):
+                    if self.owner_id == current_user.id and (self.status in ['approved','denied'] or not self.receiver):
                         return True
                 else:
                     if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
                         return True
             case 'can_snooze':
                 if self.register.alias == 'mat':
-                    if self.sender_id == current_user.id and self.status != 'shared':
+                    if self.owner_id == current_user.id and self.status != 'shared':
                         return True
                 else:
                     if self.status == 'registered' and (self.is_target() or self.register.permissions == 'editor'):
                         return True
             case 'can_send':
-                return self.sender_id == current_user.id and self.status in ['draft','queued']
+                return self.owner_id == current_user.id and self.status in ['draft','queued']
             case 'can_check_info':
                 if self.register.alias == 'mat':
                     return False
