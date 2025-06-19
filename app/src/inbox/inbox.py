@@ -329,8 +329,10 @@ def generate_notes(output):
                 refs = file.guess_ref
 
                 for i,ref in enumerate(refs):
-                    if i == 0 and note.content == '':
+                    if i == 0 and note.content in ['','_','_ ']:
                         note.content = ref.content
+                    if i == 0:
+                        note.tags = ref.tags
 
                     note.ref.append(ref)
 

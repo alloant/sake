@@ -101,7 +101,7 @@
     {% for ref in note.ref %}
       {% if reg[2] and ref.reg != 'mat' and (ref.sender.alias == reg[2] or reg[2] in ref.receivers) or not reg[2] %}
         <li>
-          {% if reg[0] == 'des' %}
+          {% if reg[0] in ['des','box'] %}
             <a  class="text-decoration-none"
                 hx-on:click="navigator.clipboard.writeText('{{ref.content}}')"
                 role=button>
