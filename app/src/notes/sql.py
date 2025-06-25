@@ -196,6 +196,7 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                     Note.reg == reg[0]
                 ]
                 if reg[1] == 'in':
+                    filter.append(Note.status=='sent')
                     filter.append(Note.has_target(reg[2]))
                 else:
                     filter.append(Note.sender.has(User.alias == reg[2]))

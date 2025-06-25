@@ -141,7 +141,14 @@ def action_note_view(request,template):
         case 'send_msg_cardumen':
             note_id = request.args.get('note')
             note = db.session.scalar(select(Note).where(Note.id==note_id))
-            send_msg_cardumen(note)
+            
+            if note.status != 'sent' and note.path != f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out":
+                if not note.move(f"{current_app.config['SYNOLOGY_FOLDER_NOTES']}/Notes/{note.year}/{note.reg} out"):
+                    flash(f'Could not move note {note}')
+                else:
+                    send_msg_cardumen(note)
+            else:
+                send_msg_cardumen(note)
         case 'delete_note':
             note_id = request.args.get('note')
             delete_note(note_id)
