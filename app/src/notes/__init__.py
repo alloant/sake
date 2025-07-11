@@ -15,6 +15,7 @@ from app.src.inbox.inbox import inbox_body_view, inbox_main_view, action_inbox_v
 from app.src.notes.renders import render_body_element
 
 from app.src.tools.syneml import read_eml, write_report_eml
+from app.src.tools.tools import get_info_gspread
 
 bp = Blueprint('register', __name__)
 
@@ -30,10 +31,6 @@ def flash():
 @login_required
 def register(template):
     return dashboard_view(template)
-
-# Main bar
-
-# Main title
 
 
 # Main body
@@ -69,6 +66,13 @@ def load_socket():
 def body_data():
     info = request.args.get('info')
     return get_body_data(info)
+
+# Info from Google Sheets
+@bp.route('/gspread')
+@login_required
+def info_gspread():
+    info = request.args.get('info')
+    return get_info_gspread(info)
 
 # Actions
 

@@ -3,6 +3,7 @@ config_backup.py
 
 *.db
 *.sh
+*.json
 migrations*/
 
 todo.txt
