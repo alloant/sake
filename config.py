@@ -19,3 +19,6 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     LANGUAGES = ['en','ja','es']
     SOCK_SERVER = os.environ.get('SOCK_SERVER')
+    PATH_PEM = os.environ.get('PATH_PEM')\
+        or '/cert'
+

@@ -248,7 +248,7 @@ def reply_note_view(request):
         session['reg'] = new_reg
         if new_reg[0] == 'mat':
             session['reg'] = ['mat','draft','']
-        else:
+        elif not reg[2]:
             session['reg'] = ['my','out','']
 
         resp = Response()

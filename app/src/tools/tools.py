@@ -50,7 +50,7 @@ def get_data_gspread():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
     # Add your service account key file
-    creds = ServiceAccountCredentials.from_json_keyfile_name('/cert/sake-465008-82e934891ee2.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(f'{current_app.config['PATH_PEM']}/sake-465008-82e934891ee2.json', scope)
 
     # Authorize the client
     client = gspread.authorize(creds)

@@ -12,7 +12,7 @@ from sqlalchemy.sql import text
 from sqlalchemy.orm import aliased
 
 from app.src.models import Note, User, Register, File, NoteUser, Group, Tag
-
+from app import db
 
 def sccr_sql(reg, count=False):
     if count:
@@ -200,6 +200,10 @@ def notes_sql(reg,state="",count=False,bar_filter=''): #stete can be snooze or a
                     filter.append(Note.has_target(reg[2]))
                 else:
                     filter.append(Note.sender.has(User.alias == reg[2]))
+
+                if session['filter_option'] == 'hide_archived':
+                    ctr_fn = db.session.scalar(select(User).where(User.alias==reg[2]))
+                    filter.append(not_(Note.result('is_done',ctr_fn)))
 
             else: # Normal cg, asr, r, ctr, vc, etc... in/out register
                 filter = [

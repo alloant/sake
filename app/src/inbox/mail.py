@@ -145,7 +145,7 @@ def read_mail(raw):
             if exists:
                 flash(f"The file {file['filename']} is already in the database",'warning')
                 efiles.append(True)
-        
+       
         for i,file in enumerate(attachments):
             if efiles[i]:
                 continue
@@ -172,6 +172,12 @@ def read_mail(raw):
             fl = File(path=path,permanent_link=link,subject=subject,sender=sender.lower(),date=date.date())
             db.session.add(fl)
             flash(f"{fl} has been added to the database",'success')
+
+        if len(attachments) == 0:
+            flash(f'There are not attachments in mail from {sender} about {subject} ({date})','danger')
+    else:
+        flash(f'There are not attachments in mail from {sender} about {subject} ({date})','danger')
+
 
         db.session.commit()
 

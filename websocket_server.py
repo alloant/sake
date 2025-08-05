@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from flask import current_app
+
 import asyncio
 import websockets
 import ssl
@@ -24,8 +26,7 @@ async def handler(ws):
             break
 
 #ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-PATH_PEM = os.environ.get('PATH_PEM') \
-    or '/cert'
+PATH_PEM = current_app.config['PATH_PEM']
 
 #localhost_pem = f"{PATH_PEM}/server.crt"
 #localhost_key = f"{PATH_PEM}/server.key"
