@@ -38,7 +38,7 @@ def toNewNotesStatus():
 
 
 def get_password():
-    USER = 'akanashiro'
+    USER = 'Dave'
     user = db.session.scalar(select(User).where(User.alias==USER))
     cipher = Fernet(current_app.config['SECRET_KEY'])
     PASSWD = cipher.decrypt(user.get_setting('password_nas'))
