@@ -1,0 +1,15 @@
+{% if session['reg'] and session['reg'][0] in ['box','import','marked'] %}
+    <div id="sccr_collapse" class="collapse show collapse-horizontal col-auto border p-1" style="background-color: light;transition: none;">
+{% else %}
+    <div id="sccr_collapse" class="collapse collapse-horizontal col-auto border p-1" style="background-color: light;transition: none;">
+{% endif %}
+
+<ul class="list-group list-group-flush"
+  hx-get="sidebar?element=sccr_list"
+  hx-trigger="update-main from:body">
+  {% include 'sidebar/button_sccr_list.html' %}
+</ul>
+
+  </div>
+
+

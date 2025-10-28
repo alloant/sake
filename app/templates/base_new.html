@@ -22,6 +22,7 @@
           {% block styles %}
             <!-- Bootstrap CSS -->
             {{ bootstrap.load_css() }}
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
             <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
             <link rel="stylesheet" href="{{ url_for('static', filename='css/summernote.css') }}">
           {% endblock %}
@@ -80,19 +81,30 @@
       </div>
 
       
+
+
+  <div class="d-flex">
+    {% include 'navbar/main.html' %}
+
+    <main class="main-content">
       <div class="container-fluid">
-        <div class="row">
-            {% include "sidebar/main.html" %}
-          
-          <!-- Your page content -->
-          <div class="col-sm min-vh-100">
-            <div hx-get="/flash" hx-trigger="update-flash from:body">
-              {% include 'flash.html' %}
-            </div>
-            {% block content %}{% endblock %}
-          </div>
-        </div> <!-- End row -->
+        <div hx-get="/flash" hx-trigger="update-flash from:body">
+          {% include 'flash.html' %}
+        </div>
+          {% block content %}{% endblock %}
       </div>
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+    </script>
+  </div>
+
+
+
 
       {% block scripts %}
           <!-- Optional JavaScript -->

@@ -275,7 +275,7 @@ def circulation_proposal(note_id,action):
             note.status = 'draft'
         case 'restart':
             note.status = 'draft'
-            note.n_date = date.today()
+            #note.n_date = date.today()
             for user in note.users:
                 user.target_acted = False
         case 'forward':

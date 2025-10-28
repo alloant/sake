@@ -1,0 +1,104 @@
+<div class="dropend">
+    <a href="#" class="nav-link my-1 d-flex align-items-center justify-content-center dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="static/icons/00-profile{{dark}}.svg" width="35rem" height="35rem">
+    </a>
+    <div class="row">
+      <small>Settings</small>
+    </div>
+ 
+    <ul class="dropdown-menu text-small border-0 shadow-lg p-3 mb-5 rounded" aria-labelledby="dropdownUser3" style="z-index: 1050;">
+      {% if current_user.is_authenticated%}
+        <li><a class="dropdown-item"
+          hx-get="/edit_user?user={{current_user.id}}" 
+          hx-trigger="click"
+          hx-target="#modal-htmx"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+          data-bs-toggle="modal"
+          data-bs-target="#modal-htmx"
+          role="button">
+          <i class="bi bi-person-circle"></i> {{gettext('Profile')}} {{current_user.alias}}</a></li>
+
+        <li><hr class="dropdown-divider"></li>
+        
+        {% if current_user.ctrs %}
+          <li>
+            {% if session['version'] == 'old' %}
+              <a href="/theme?version=new" class="dropdown-item">
+                <i class="bi bi-stars"></i> {{gettext('Change to use new version')}}
+              </a>
+            {% else %}
+              <a href="/theme?version=old" class="dropdown-item">
+                <i class="bi bi-bandaid"></i> {{gettext('Change to use old version')}}
+              </a>
+            {% endif %}
+          </li>
+        {% endif %}
+
+        <li class="">
+          {% if session['theme'] == 'dark-mode' %}
+            <a href="/theme" class="dropdown-item">
+              <i class="bi bi-brightness-high-fill"></i> {{gettext('Change to light mode')}}
+            </a>
+          {% else %}
+            <a href="/theme" class="dropdown-item">
+              <i class="bi bi-moon-fill"></i> {{gettext('Change to dark mode')}}
+            </a>
+          {% endif %}
+        </li>
+            
+        <li class="">
+          {% if session['language'] == 'en' %}
+            <a href="/language?lang=ja" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('Japanese')}}">
+              <small class="border border-2 rounded font-monospace">JA</small> 言語を日本語に変更
+            </a>
+          {% else %}
+            <a href="/language?lang=en" class="dropdown-item" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="{{gettext('English')}}">
+              <small class="border border-2 rounded font-monospace">EN</small> Change to English
+            </a>
+          {% endif %}
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        {% if 'admin' in current_user.groups or 'scr' in current_user.groups %}
+          <li><a class="dropdown-item" 
+              hx-get="/main_users" 
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              role="button">
+              <i class="bi bi-people"></i> {{gettext('List users')}}</a></li>
+          <li><a class="dropdown-item" 
+              hx-get="/main_users?ctrs=true" 
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              role="button">
+              <i class="bi bi-people"></i> {{gettext('List ctrs')}}</a></li>
+          <li><hr class="dropdown-divider"></li>
+        {% endif %}
+          
+        {% for ctr in current_user.ctrs %}
+          <li>
+            <a class="dropdown-item"
+              hx-get="/edit_user?user={{ctr}}&is_ctr=True" 
+              hx-trigger="click"
+              hx-target="#modal-htmx"
+              data-bs-toggle="modal"
+              data-bs-target="#modal-htmx"
+              role="button">
+              <i class="bi bi-house"></i> {{gettext('Profile')}} {{ctr}} 
+            </a>
+          </li>
+        {% endfor %}
+              
+        {% if current_user.ctrs %}
+          <li><hr class="dropdown-divider"></li>
+        {% endif %}
+
+        <li><a class="dropdown-item" href="{{url_for('auth.logout')}}"><i class="bi bi-door-closed"></i> {{gettext('Log out')}}</a></li>
+      {% else %}
+        <li><a class="dropdown-item" href="{{url_for('auth.login')}}"><i class="bi bi-door-open"></i> {{gettext('Log in')}}</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{{url_for('auth.signup')}}"><i class="bi bi-person-bounding-box"></i> {{gettext('Sign up')}}</a></li>
+      {% endif %}
+    </ul>
+</div>

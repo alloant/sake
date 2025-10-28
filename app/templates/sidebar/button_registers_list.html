@@ -1,0 +1,147 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  {% if current_user.category in ['dr','of'] %}
+      <li class="list-group-item d-flex align-items-center {% if reg == ['notes','all',''] %}active{% endif %}"
+        hx-get="/main_title_body?reg=['notes','all','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+        role="button">
+          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+            <i class="bi bi-globe"></i>
+          </span>
+          <span>All</span>
+      </li>
+      
+      <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['notes','unread',''] %}active{% endif %}"
+        hx-get="/main_title_body?reg=['notes','unread','']"
+        hx-indicator="#indicator-table"
+        hx-trigger="click"
+        hx-target="#main-title-body"
+        hx-disinherit="*"
+        hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+        role="button">
+        <span>
+          <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+            <i class="bi bi-book"></i>
+          </span>
+          <span>Unread</span>
+        </span>
+          <span class="badge rounded-pill bg-primary ms-2"
+              hx-get="/body_data?info=['notes','unread','']"
+              hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
+          </span>
+
+      </li>
+
+      <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
+  {% endif %}
+  {% with registers = current_user.all_registers_and_sub %}
+    {% for register in registers %}
+      {% if register.permissions and register.alias != 'mat' %}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == [register.alias,'in',''] %}active{% endif %}"
+          hx-get="/main_title_body?reg=['{{register.alias}}','in','']"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          {% if 'personal' in register.groups %}
+            data-bs-title="{{gettext('Mail for')}} {{register.alias}}"
+          {% else %}
+            data-bs-title="{{gettext('Mail from')}} {{register.alias}}"
+          {% endif %}
+          role="button">
+          <span>
+            <span class="font-icon bg-secondary text-light border me-2" style="font-size: 0.7em">
+              {{register.alias}}
+              <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
+            </span>
+            <span>{{register.alias}} inbox</span>
+          </span>
+          
+          <span class="badge rounded-pill bg-primary ms-2"
+              hx-get="/body_data?info=['{{register.alias}}','in','']"
+              hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;">
+          </span>
+        </li>
+        
+        <li class="list-group-item {% if reg == [register.alias,'out',''] %}active{% endif %}"
+          hx-get="/main_title_body?reg=['{{register.alias}}','out','']"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          data-bs-toggle="tooltip"
+          {% if 'personal' in register.groups %}
+            data-bs-title="{{gettext('Mail from')}} {{register.alias}}"
+          {% else %}
+            data-bs-title="{{gettext('Mail to')}} {{register.alias}}"
+          {% endif %}
+          role="button">
+          
+          <span>
+            <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+              {{register.alias}}
+              <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
+            </span>
+            <span>{{register.alias}} outbox</span>
+          </span>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if current_user.category in ['dr','of'] %}
+      <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+    {% endif %}
+    
+    {% for register in registers %}
+      {% for subregister in register.get_subregisters() %}
+        <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == [register.alias,'in',subregister] %}active{% endif %}"
+            hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
+            hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+            hx-indicator="#indicator-table"
+            hx-trigger="click"
+            hx-target="#main-title-body"
+            hx-disinherit="*"
+            data-bs-toggle="tooltip"
+            data-bs-title="{{gettext('Mail from cr to')}} {{subregister}}"
+            role="button">
+            <span>
+              <span class="font-icon bg-secondary text-light border me-2" style="font-size: 0.7em">
+                {{subregister}}
+                <div class="sub-icon bg-dark text-light badge"><i class="bi bi-caret-down-fill"></i></div>
+              </span>
+              <span>{{subregister}} inbox</span>
+            </span>
+            <span class="badge rounded-pill bg-primary ms-2"
+                hx-get="/body_data?info=['{{register.alias}}','in','{{subregister}}']"
+                hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.55em;"></span>
+          </li>
+
+          <li class="list-group-item {% if reg == [register.alias,'out',subregister] %}active{% endif %}"
+            hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
+            hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+            hx-indicator="#indicator-table"
+            hx-trigger="click"
+            hx-target="#main-title-body"
+            hx-disinherit="*"
+            data-bs-toggle="tooltip"
+            data-bs-title="{{gettext('Mail to cr from')}} {{subregister}}"
+            role="button">
+            <span>
+              <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+                {{subregister}}
+                <div class="sub-icon text-dark bg-light badge"><i class="bi bi-caret-down-fill"></i></div>
+              </span>
+              <span>{{subregister}} outbox</span>
+            </span>
+          </li>
+      {% endfor %}
+    {% endfor %}
+  {% endwith %}
+{% endwith %}
+

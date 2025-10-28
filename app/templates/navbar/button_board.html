@@ -1,0 +1,33 @@
+<a class="sidebar-link active text-decoration-none p-3"
+  data-bs-toggle="collapse"
+  data-bs-target="#proposals_collapse"
+  hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');$('#sccr_collapse').collapse('hide');"
+  role="button">
+    
+  <div class="container" 
+    hx-get="sidebar?element=matters" 
+    hx-trigger="update-main from:body" 
+    hx-swap="outerHTML">
+  </div>
+
+  <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
+    hx-get="body_data?info=['mat','sign','']"
+    hx-trigger="load, state-updated from:body, socket-updated from:body">
+  </span>
+        
+  <span class="position-absolute badge rounded-pill bg-success" style="top: 0em; left:0.5em; font-size:0.6em;"
+    hx-get="/body_data?info=['my','in','']"
+    hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body">
+  </span>
+
+  <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
+      chx-get="body_data?info=['mat','done','']"
+      hx-trigger="load, state-updated from:body, socket-updated from:body">
+  </span>
+        
+  {% if 'despacho' in current_user.groups %}
+    <span class="position-absolute badge rounded-pill bg-warning" style="bottom: 2em; left:0.5em; font-size:0.6em;"
+      hx-get="/body_data?info=['des','in','']"
+      hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+  {% endif %}
+</a> 

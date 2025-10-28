@@ -197,13 +197,13 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = True if reg[0] == 'box' and reg[1] == 'out' else False
         elif element == "register_list":
-            return render_template('sidebar_registers_list.html',reg=reg)
+            return render_template('sidebar/button_registers_list.html',reg=reg)
         elif element == "sccr_list":
-            return render_template('sidebar_sccr_list.html',reg=reg)
+            return render_template('sidebar/button_sccr_list.html',reg=reg)
         elif element == "proposal_list":
-            return render_template('sidebar_proposals_list.html',reg=reg)
+            return render_template('sidebar/button_proposals_list.html',reg=reg)
         elif element == "page_list":
-            return render_template('sidebar_pages_list.html',reg=reg)
+            return render_template('sidebar/button_pages_list.html',reg=reg)
         elif '_' in element:
             ele = element.split('_')
             if ele[2]:
@@ -219,9 +219,11 @@ def render_sidebar(element,template):
             icon = f'00-{element}{theme}'
             focus = False
     
-        return render_template(f'sidebar_icon.html',element=element,element_title=element_title,focus=focus,icon=icon)
+        return render_template(f'sidebar/icon.html',element=element,element_title=element_title,focus=focus,icon=icon)
     else:
-        return render_template(f'{template}sidebar.html')
+        if template == 'mobile':
+            return render_template(f'{template}sidebar.html')
+        return render_template(f'sidebar/main.html')
 
 
 

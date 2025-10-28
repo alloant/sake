@@ -29,17 +29,6 @@
       <ul class="dropdown-menu dropdown-submenu dropdown-submenu">
         <li>
           <a class="dropdown-item ms-1"
-            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=NOT ORD.odoc" 
-            hx-target="#row_{{note.id}}_files"
-            hx-target-error="#flash-errors"
-            hx-trigger="click" 
-            hx-indicator="#indicator-table"
-            role="button">
-            <i class="bi bi-file-earmark-word-fill text-primary"></i> NOT ORD.odoc
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item ms-1"
             hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=ORD.odoc" 
             hx-target="#row_{{note.id}}_files"
             hx-target-error="#flash-errors"
@@ -47,6 +36,17 @@
             hx-indicator="#indicator-table"
             role="button">
             <i class="bi bi-file-earmark-word-fill text-primary"></i> ORD.odoc
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item ms-1"
+            hx-get="action_note?reg={{reg}}&note={{note.id}}&action=new_from_template&template=NOT ORD.odoc" 
+            hx-target="#row_{{note.id}}_files"
+            hx-target-error="#flash-errors"
+            hx-trigger="click" 
+            hx-indicator="#indicator-table"
+            role="button">
+            <i class="bi bi-file-earmark-word-fill text-primary"></i> NOT ORD.odoc
           </a>
         </li>
       <li>

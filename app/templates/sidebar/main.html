@@ -1,0 +1,158 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  <div id="sidebar" class="col-auto sticky-top border p-1" style="background-color: light;">
+  
+  {% with registers = current_user.all_registers_and_sub %}
+    <div class="d-flex flex-sm-column flex-shrink-0 flex-row flex-nowrap align-items-center sticky-top justify-content-center" >
+    {% if current_user.category in ['dr','of'] %}
+      <a class="nav-link position-relative my-1"
+        data-bs-toggle="collapse"
+        data-bs-target="#proposals_collapse"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');$('#sccr_collapse').collapse('hide');"
+        role="button">
+        <div class="container" 
+          hx-get="sidebar?element=matters" 
+          hx-trigger="update-main from:body" 
+          hx-swap="outerHTML">
+        </div>
+        <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
+            hx-get="body_data?info=['mat','sign','']"
+            hx-trigger="load, state-updated from:body, socket-updated from:body">
+        </span>
+        
+        <span class="position-absolute badge rounded-pill bg-success" style="top: 0em; left:0.5em; font-size:0.6em;"
+            hx-get="/body_data?info=['my','in','']"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+
+        <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
+            hx-get="body_data?info=['mat','done','']"
+            hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        {% if 'despacho' in current_user.groups %}
+          <span class="position-absolute badge rounded-pill bg-warning" style="bottom: 2em; left:0.5em; font-size:0.6em;"
+            hx-get="/body_data?info=['des','in','']"
+            hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        {% endif %}
+
+        </a> 
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+      {% if current_user.severalCalendars %}
+        <a class="nav-link position-relative my-1"
+          data-bs-toggle="collapse"
+          data-bs-target="#registers_collapse"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');$('#sccr_collapse').collapse('hide');"
+          role="button">
+          
+          <div class="container" hx-get="sidebar?element=register" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+          
+          
+          <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
+              hx-get="body_data?info=['notes','unread','']"
+              hx-trigger="load, read-updated from:body, socket-updated from:body"></span>
+        </a>
+      {% endif %}
+
+
+      {% if current_user.category in ['dr','of'] %}
+        <a class="nav-link position-relative my-1"
+          hx-get="/main_title_body?reg=['all','all','']"
+          hx-indicator="#indicator-table"
+          hx-trigger="click"
+          hx-target="#main-title-body"
+          hx-disinherit="*"
+          hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');$('#sccr_collapse').collapse('hide');"
+          data-bs-toggle="tooltip"
+          data-bs-title="{{ gettext('All notes and proposals') }}"
+          role="button">
+          <div class="container" hx-get="sidebar?element=search" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+        </a>
+      {% endif %}
+
+      {% if 'scr' in current_user.groups %}
+        <a class="nav-link position-relative my-1"
+          data-bs-toggle="collapse"
+          data-bs-target="#sccr_collapse"
+          hx-on:click="$('#proposals_collapse').collapse('hide');$('#pages_collapse').collapse('hide');$('#registers_collapse').collapse('hide');"
+          role="button">
+        
+          <div class="container" hx-get="sidebar?element=sccr" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+
+          <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
+            hx-get="body_data?info=['box','in','']"
+            hx-trigger="load, state-updated from:body, socket-updated from:body">
+          </span>
+      
+          <span class="position-absolute badge rounded-pill bg-success" style="top: 0em; left:0.5em; font-size:0.6em;"
+            hx-get="/body_data?info=['files','imported','']"
+            hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+
+          <span class="position-absolute badge rounded-pill bg-primary" style="bottom: 2em; right:0.5em; font-size:0.6em;"
+            hx-get="body_data?info=['box','out','']"
+            hx-trigger="load, state-updated from:body, socket-updated from:body"></span>
+        </a>
+      {% endif %}
+
+      {% if not current_user.severalCalendars %}
+        <!-- cl registers-->
+        {% for register in registers %}
+          {% for subregister in register.get_subregisters() %}
+            <span class="nav-link my-1 position-relative"
+              hx-get="/main_title_body?reg=['{{register.alias}}','in','{{subregister}}']"
+              hx-indicator="#indicator-table"
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              hx-disinherit="*"
+              role="button">
+              <div class="container" hx-get="sidebar?element={{register.alias}}_in_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+              <span class="position-absolute badge rounded-pill bg-danger" style="top: 0em; right:0.5em; font-size:0.6em;"
+                hx-get="/body_data?info=['{{register.alias}}','in','{{subregister}}']"
+                hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body"></span>
+            </span>
+            <span class="nav-link my-1 position-relative"
+              hx-get="/main_title_body?reg=['{{register.alias}}','out','{{subregister}}']"
+              hx-indicator="#indicator-table"
+              hx-trigger="click"
+              hx-target="#main-title-body"
+              hx-disinherit="*"
+              role="button">
+              <div class="container" hx-get="sidebar?element={{register.alias}}_out_{{subregister}}" hx-trigger="update-main from:body" hx-swap="outerHTML"></div>
+            </span>
+          {% endfor %}
+        {% endfor %}   
+      <!-- End cl registers-->
+      {% endif %}
+     
+      <a class="nav-link position-relative my-1"
+        data-bs-toggle="collapse"
+        data-bs-target="#pages_collapse"
+        hx-on:click="$('#registers_collapse').collapse('hide');$('#proposals_collapse').collapse('hide');$('#sccr_collapse').collapse('hide');"
+        role="button">
+        <div class="row">
+          <img src="static/icons/pages{{dark}}.svg" width="35rem" height="35rem">
+        </div>
+        <div class="row">
+          <small>Pages</small>
+        </div>
+      </a>
+    <!-- End if autheticated -->
+    {% endif %}
+    {% include 'sidebar/button_settings.html' %}
+
+  </div> <!-- End div class d-flex -->
+  {% endwith %}
+</div> <!-- End div id=sidebar -->
+{% endwith %}
+
+{% if current_user.is_authenticated and current_user.severalCalendars %}
+  {% if 'scr' in current_user.groups %}
+    {% include "sidebar/button_sccr.html" %}
+  {% endif %}
+  
+  {% include "sidebar/button_registers.html" %}
+  {% include "sidebar/button_proposals.html" %}
+{% endif %}
+
+{% if current_user.is_authenticated %}
+  {% include "sidebar/button_pages.html" %}
+{% endif %}
+

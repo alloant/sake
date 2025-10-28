@@ -186,6 +186,12 @@ def extract_form_note(reg,form,note):
         for ref in reversed(note.ref):
             if not ref.fullkey in current_refs:
                 note.ref.remove(ref)
+
+        if note.title == "" and note.ref:
+            note.title = note.ref[0].title
+
+        if not note.tags and note.ref:
+            note.tags = note.ref[0].tags
     
     db.session.commit()
 

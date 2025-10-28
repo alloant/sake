@@ -1,0 +1,22 @@
+{% if session['reg'] and not session['reg'][0] in ['pages','mat','des','box','import','all','my','marked'] %}
+  {% if session['theme'] == 'dark-mode' %}
+    <div id="registers_collapse" class="collapse show collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
+  {% else %}
+    <div id="registers_collapse" class="collapse show collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
+  {% endif %}
+{% else %}
+  {% if session['theme'] == 'dark-mode' %}
+    <div id="registers_collapse" class="collapse collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
+  {% else %}
+    <div id="registers_collapse" class="collapse collapse-horizontal col-sm-auto border p-1" style="background-color: light;transition: none;">
+  {% endif %}
+{% endif %}
+    <ul class="list-group list-group-flush"
+      hx-get="sidebar?element=register_list"
+      hx-trigger="update-main from:body">
+      {% include 'sidebar/button_registers_list.html' %}
+    </ul>
+
+  </div>
+
+

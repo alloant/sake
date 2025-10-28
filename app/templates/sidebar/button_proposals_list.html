@@ -1,0 +1,269 @@
+{% with dark = '-dark' if session['theme'] == 'dark-mode' else '' %}
+  {% if 'despacho' in current_user.groups %}
+    <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['des','in',''] %}active{% endif %}"
+      hx-get="/main_title_body?reg=['des','in','']"
+      hx-indicator="#indicator-table"
+      hx-trigger="click"
+      hx-target="#main-title-body"
+      hx-disinherit="*"
+      role="button">
+      <span>
+        <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+          <i class="bi bi-suitcase-lg-fill"></i>
+        </span>
+        <span>Despacho</span>
+      </span>
+      <span class="badge rounded-pill bg-warning ms-2"
+        hx-get="/body_data?info=['des','in','']"
+        hx-disinherit="*"
+        hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+      </span>
+    </li>
+  {% endif %}
+
+  <li class="list-group-item"><span class="fw-bold">My notes</span></li>
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','in',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','in','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-inbox-fill"></i>
+      </span>
+      <span>Inbox</span>
+    </span>
+    <span class="badge rounded-pill bg-success ms-2"
+        hx-get="/body_data?info=['my','in','']"
+        hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','snooze',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','snooze','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-stopwatch"></i>
+      </span>
+      <span>Snooze</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=['my','snooze','']"
+        hx-trigger="load, read-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+  
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','archived',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','archived','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-folder"></i>
+      </span>
+      <span>Archived</span>
+    </span>
+  </li>
+  
+  <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','out',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','out','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-mailbox-flag"></i>
+      </span>
+      <span>Drafts</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=['my','out','']"
+        hx-trigger="load, read-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['my','sent',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['my','sent','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-send"></i>
+      </span>
+      <span>Sent</span>
+    </span>
+  </li>
+
+  <li class="list-group-item list-group-item-divider bg-transparent"></li> <!-- Divider -->
+  <li class="list-group-item"><span class="fw-bold">Proposals</span></li>
+  <!--
+  <li class="list-group-item align-items-center {% if reg == ['mat','all',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','all','']"
+    hx-indicator="#indicator-table"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-globe"></i>
+    </span>
+    <span>{{gettext('All')}}</span>
+  </li>
+  
+  <li class="list-group-item list-group-item-divider"></li>
+  -->
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','sign',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','sign','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-vector-pen"></i>
+    </span>
+    {{gettext('To sign')}}</span>
+    <span class="badge rounded-pill bg-danger ms-2"
+        hx-get="/body_data?info=['mat','sign','']"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </li>
+ 
+  <li class="list-group-item d-flex align-items-center {% if reg == ['mat','signed',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','signed','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-fingerprint"></i>
+    </span>
+    <span>{{gettext('Signed')}}</span>
+  </li>
+ 
+  <li class="list-group-item list-group-item-divider"></li> <!-- Divider -->
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','draft',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','draft','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-hammer"></i>
+      </span>
+      <span>{{gettext('Drafts')}}</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=['mat','draft','']"
+        hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','shared',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','shared','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-arrow-repeat"></i>
+      </span>
+      <span>{{gettext('Circulating')}}</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=['mat','shared','']"
+        hx-trigger="load, state-updated from:body, file-opened from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+
+  </li>
+  
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','done',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','done','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-check-circle"></i>
+      </span>
+      <span>{{gettext('Done')}}</span>
+    </span>
+    <span class="badge rounded-pill bg-primary ms-2"
+        hx-get="/body_data?info=['mat','done','']"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;"></span>
+  </li>
+
+  <li class="list-group-item d-flex justify-content-between align-items-center {% if reg == ['mat','snooze',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','snooze','']"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-stopwatch"></i>
+      </span>
+      <span>Snooze</span>
+    </span>
+    <span class="badge rounded-pill bg-secondary ms-2"
+        hx-get="/body_data?info=['mat','snooze','']"
+        hx-trigger="load, state-updated from:body, socket-updated from:body" style="font-size:0.6em;">
+    </span>
+  </li>
+
+  <li class="list-group-item d-flex align-items-center {% if reg == ['mat','archived',''] %}active{% endif %}"
+    hx-get="/main_title_body?reg=['mat','archived','']"
+    hx-on:click="$('#registers_collapse').collapse('hide');$('#pages_collapse').collapse('hide');"
+    hx-indicator="#indicator-table"
+    hx-trigger="click"
+    hx-target="#main-title-body"
+    hx-disinherit="*"
+    role="button">
+    <span>
+      <span class="font-icon bg-dark text-light border me-2" style="font-size: 0.7em">
+        <i class="bi bi-folder-check"></i>
+      </span>
+      <span>{{gettext('Archived')}}</span>
+    </span>
+  </li>
+
+{% endwith %}
