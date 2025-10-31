@@ -97,14 +97,14 @@ def create_msg(note):
 
         attachment = download_path(f"{note.folder_path}/{file.path}")
         
-        if attachment:
+        if attachment and len(attachment.getvalue()) > 5000:
             part = MIMEApplication(attachment.read(),Name=file.name)
 
             part['Content-Disposition'] = f'attachment; filename = {file_name}'
             msg.attach(part)
         else:
             rst = False
-
+    #msg = None
     return msg if rst else None
 
 def send_msg_cardumen(note):

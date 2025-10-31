@@ -187,8 +187,8 @@ def extract_form_note(reg,form,note):
             if not ref.fullkey in current_refs:
                 note.ref.remove(ref)
 
-        if note.title == "" and note.ref:
-            note.title = note.ref[0].title
+        if note.content == "" and note.ref:
+            note.content = note.ref[0].content
 
         if not note.tags and note.ref:
             note.tags = note.ref[0].tags
