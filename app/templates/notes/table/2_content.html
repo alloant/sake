@@ -1,6 +1,6 @@
 <!-- Comments from despacho -->
 {% if note.comments and note.is_involve(reg,current_user) %}
-  <span data-bs-toggle="tooltip" title="{{note.comments}}"><i class="bi bi-file-earmark-text text-danger"></i></span>
+  <span data-bs-toggle="tooltip" title="{{note.comments}}"><i type="button" class="bi bi-file-earmark-text text-danger"></i></span>
 {% endif %}
 
 {% with read = note.result('is_read') %}

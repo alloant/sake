@@ -4,9 +4,19 @@ $('#modal-htmx').on('hidden.bs.modal', function () {
         $(this).find('textarea').remove(); // Clear text areas
 });
 
+//var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+//var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+//  return new bootstrap.Tooltip(tooltipTriggerEl)
+//});
+
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-return new bootstrap.Tooltip(tooltipTriggerEl)
+var tooltipList = tooltipTriggerList.map(function (el) {
+  return new bootstrap.Tooltip(el, { trigger: 'hover focus click' });
+});
+
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
 });
 
 function requestPermission(){

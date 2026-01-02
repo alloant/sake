@@ -2,7 +2,7 @@ version: '3.8'  # Specify the version of Docker Compose
 
 services:
   web:
-    image: python:3.13.2-alpine3.21  # Use the specified Python image
+    image: python:3.14.2-alpine3.23  # Use the specified Python image
     volumes:
       - ./app:/app  # Mount the local app directory to /app in the container
     working_dir: /app  # Set the working directory

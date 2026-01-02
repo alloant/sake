@@ -102,6 +102,8 @@ def new_note(user, reg, reference = None, target = None, num = -1, year = None, 
 
     if year:
         newnote.year = year
+    else:
+        newnote.year = datetime.today().year
     if date:
         newnote.n_date = date
 

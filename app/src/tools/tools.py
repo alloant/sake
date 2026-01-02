@@ -25,7 +25,7 @@ def toNewNotesStatus():
 
     get_password()
     return ""
-    user = db.session.scalar(select(User).where(User.alias=='tak'))
+    user = db.session.scalar(select(User).where(User.alias=='awong'))
     register = db.session.scalar(select(Register).where(Register.alias=='ctr'))
     notes = db.session.scalars(select(Note).where(Note.result('is_read',user)==False,Note.reg=='ctr',Note.status=='registered',Note.permanent==False)).all()
 
@@ -38,7 +38,7 @@ def toNewNotesStatus():
 
 
 def get_password():
-    USER = 'Dave'
+    USER = 'kd'
     user = db.session.scalar(select(User).where(User.alias==USER))
     cipher = Fernet(current_app.config['SECRET_KEY'])
     PASSWD = cipher.decrypt(user.get_setting('password_nas'))
@@ -74,11 +74,23 @@ def get_info_gspread(info):
     actividades = ['ca','crt n','cve cl','cve sacd']
     
     result = ET.Element('ul',attrib={'class':'','style':'font-size:0.8em'})
-
+    first = ""
+    iyear = datetime.today().year
     for person in people:
+        if not first:
+            first = person['Name']
+            year = ET.SubElement(result,'h2',attrib={'class':'ms-2 mt-2 text-center'})
+            year.text = str(iyear)
+            iyear += 1
+        elif first == person['Name']:
+            year = ET.SubElement(result,'h2',attrib={'class':'ms-2 mt-2 text-center'})
+            year.text = str(iyear)
+
+
         item = ET.SubElement(result,'li',attrib={'class':'ms-2 mt-2'})
         name = ET.SubElement(item,'span',attrib={'class':'fw-bold'})
         name.text = person['Name']
+
         item.append(ET.Element('br'))
 
         for act in actividades:
